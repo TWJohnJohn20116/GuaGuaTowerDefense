@@ -22,26 +22,6 @@
 - **狀態管理**: Zustand
 - **建構工具**: Vite
 
-## 安裝和執行
-
-### 開發模式
-
-1. 安裝依賴項：
-```bash
-npm install
-```
-
-2. 啟動開發伺服器：
-```bash
-npm run tauri dev
-```
-
-### 建構發布版
-
-```bash
-npm run tauri build
-```
-
 ## 操作說明
 
 - **左鍵點擊**: 選擇格子、建造或升級塔
@@ -63,26 +43,6 @@ npm run tauri build
 - Windows 10/11、macOS 10.15+、或 Linux
 - 建議螢幕解析度 1280x720 以上
 
-## 專案結構
-
-```
-瓜瓜塔防/
-├── src/                    # React 前端源碼
-│   ├── components/         # UI 組件
-│   │   └── scenes/         # 場景組件
-│   ├── data/               # 遊戲資料
-│   ├── store/              # 狀態管理
-│   ├── styles/             # 樣式文件
-│   └── types/              # TypeScript 類型定義
-├── src-tauri/              # Tauri 後端源碼
-├── public/                 # 靜態資源
-├── fonts/                  # 字體文件
-├── sounds/                 # 音效文件
-├── music/                  # 背景音樂
-├── CHANGELOG.md            # 更新日誌
-└── FUTURE_UPDATES.md       # 未來更新計劃
-```
-
 ## 未來擴展計劃
 
 - 更多塔和敵人類型
@@ -91,3 +51,4 @@ npm run tauri build
 - 成就系統
 - 存檔功能
 - 地圖編輯器
+
