@@ -40,10 +40,6 @@ export function useReplayRecorder() {
         startPathName: gameState.lastStartArgs?.pathName,
         customWaveSetId: gameState.lastStartArgs?.customWaveSetId ?? gameState.customWaveSetId,
         customModifiers: gameState.lastStartArgs?.customModifiers,
-        mutator: gameState.lastStartArgs?.mutator
-          ?? (gameState.mutatorChallengeId && gameState.mutatorRules
-            ? { id: gameState.mutatorChallengeId, rules: gameState.mutatorRules }
-            : undefined),
       });
       wasPlayingRef.current = true;
       wasFinishedRef.current = false;

@@ -24,7 +24,6 @@ export function useAchievementTracking() {
     money,
     maxWaves,
     gameSpeed,
-    campaignLevelId,
     customWaveSetId,
   } = useGameStore();
 
@@ -92,13 +91,12 @@ export function useAchievementTracking() {
         towersUpgraded,
         endlessMode,
         playstyleContext,
-        campaignLevelId,
         customWaveSetId,
       );
     }
     prevState.current.isGameOver = isGameOver;
     prevState.current.isVictory = isVictory;
-  }, [isGameOver, isVictory, score, currentWave, health, selectedPath, gameDifficulty, towers, endlessMode, onGameEnd, maxWaves, gameSpeed, money, campaignLevelId, customWaveSetId]);
+  }, [isGameOver, isVictory, score, currentWave, health, selectedPath, gameDifficulty, towers, endlessMode, onGameEnd, maxWaves, gameSpeed, money, customWaveSetId]);
 
   // 波次完成追蹤
   useEffect(() => {
