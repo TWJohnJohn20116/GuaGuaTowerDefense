@@ -32,6 +32,9 @@ import {
 // 內容類型
 type ContentTab = 'settings' | 'towers' | 'enemies' | 'maps' | 'waves';
 
+/** 四種自訂內容的聯集；各 setter 仍是強型別，只在分支處收斂一次 */
+type ModItem = CustomTowerData | CustomEnemyData | CustomMapData | CustomWaveData;
+
 // 主 Mod 編輯器組件
 export default function ModEditor({ embedded = false }: { embedded?: boolean } = {}) {
   const { t } = useTranslation();
@@ -126,29 +129,30 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
   // 添加/更新/刪除/複製函數
   const addItem = () => {
     const id = generateId();
-    const newItem = activeTab === 'towers' ? {
-      id, modId: '', name: m.newTower, damage: 20, range: 100, fireRate: 1, cost: 100,
-      color: defaultColors[Math.floor(Math.random() * defaultColors.length)],
-      projectileColor: '#ffffff', highlightColor: '#ffffff80', description: m.customTower,
-    } as CustomTowerData
-    : activeTab === 'enemies' ? {
-      id, modId: '', name: m.newEnemy, health: 100, speed: 1, reward: 10, size: 12,
-      color: defaultColors[Math.floor(Math.random() * defaultColors.length)], description: m.customEnemy,
-    } as CustomEnemyData
-    : activeTab === 'maps' ? {
-      id, modId: '', name: m.newMap, description: m.customMap, difficulty: 'medium', waypoints: [],
-    } as CustomMapData
-    : {
-      id, modId: '', name: m.newWaveSet, description: m.customWave,
-      waves: [{ enemies: [{ type: 'normal', count: 5, delay: 0 }], reward: 50 }],
-    } as CustomWaveData;
+    const randomColor = () => defaultColors[Math.floor(Math.random() * defaultColors.length)];
 
-    const newList = [...currentItems, newItem] as any;
-    if (activeTab === 'towers') setTowers(newList);
-    else if (activeTab === 'enemies') setEnemies(newList);
-    else if (activeTab === 'maps') setMaps(newList);
-    else if (activeTab === 'waves') setWaves(newList);
-    
+    if (activeTab === 'towers') {
+      setTowers([...towers, {
+        id, modId: '', name: m.newTower, damage: 20, range: 100, fireRate: 1, cost: 100,
+        color: randomColor(),
+        projectileColor: '#ffffff', highlightColor: '#ffffff80', description: m.customTower,
+      }]);
+    } else if (activeTab === 'enemies') {
+      setEnemies([...enemies, {
+        id, modId: '', name: m.newEnemy, health: 100, speed: 1, reward: 10, size: 12,
+        color: randomColor(), description: m.customEnemy,
+      }]);
+    } else if (activeTab === 'maps') {
+      setMaps([...maps, {
+        id, modId: '', name: m.newMap, description: m.customMap, difficulty: 'medium', waypoints: [],
+      }]);
+    } else if (activeTab === 'waves') {
+      setWaves([...waves, {
+        id, modId: '', name: m.newWaveSet, description: m.customWave,
+        waves: [{ enemies: [{ type: 'normal', count: 5, delay: 0 }], reward: 50 }],
+      }]);
+    }
+
     setSelectedItemIndex(currentItems.length);
   };
 
@@ -178,11 +182,12 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
     }
   };
 
-  const updateItem = (index: number, item: any) => {
-    if (activeTab === 'towers') { const newTowers = [...towers]; newTowers[index] = item; setTowers(newTowers); }
-    else if (activeTab === 'enemies') { const newEnemies = [...enemies]; newEnemies[index] = item; setEnemies(newEnemies); }
-    else if (activeTab === 'maps') { const newMaps = [...maps]; newMaps[index] = item; setMaps(newMaps); }
-    else if (activeTab === 'waves') { const newWaves = [...waves]; newWaves[index] = item; setWaves(newWaves); }
+  const updateItem = (index: number, item: ModItem) => {
+    // 呼叫端本來就依 activeTab 傳對應型別；union 陣列無法自動窄化，所以在分支處收斂一次
+    if (activeTab === 'towers') { const newTowers = [...towers]; newTowers[index] = item as CustomTowerData; setTowers(newTowers); }
+    else if (activeTab === 'enemies') { const newEnemies = [...enemies]; newEnemies[index] = item as CustomEnemyData; setEnemies(newEnemies); }
+    else if (activeTab === 'maps') { const newMaps = [...maps]; newMaps[index] = item as CustomMapData; setMaps(newMaps); }
+    else if (activeTab === 'waves') { const newWaves = [...waves]; newWaves[index] = item as CustomWaveData; setWaves(newWaves); }
   };
 
   const deleteItem = (index: number) => {
@@ -195,13 +200,21 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
   };
 
   const duplicateItem = (index: number) => {
-    const original = currentItems[index];
-    const duplicate = { ...JSON.parse(JSON.stringify(original)), id: generateId(), name: original.name + m.duplicateSuffix };
-    const newList = [...currentItems, duplicate] as any;
-    if (activeTab === 'towers') setTowers(newList);
-    else if (activeTab === 'enemies') setEnemies(newList);
-    else if (activeTab === 'maps') setMaps(newList);
-    else if (activeTab === 'waves') setWaves(newList);
+    // 深拷貝（JSON 來回）是刻意的：避免複本與原件共用同一份巢狀陣列（波次、路徑點）
+    const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+    if (activeTab === 'towers') {
+      const src = towers[index];
+      setTowers([...towers, { ...clone(src), id: generateId(), name: src.name + m.duplicateSuffix }]);
+    } else if (activeTab === 'enemies') {
+      const src = enemies[index];
+      setEnemies([...enemies, { ...clone(src), id: generateId(), name: src.name + m.duplicateSuffix }]);
+    } else if (activeTab === 'maps') {
+      const src = maps[index];
+      setMaps([...maps, { ...clone(src), id: generateId(), name: src.name + m.duplicateSuffix }]);
+    } else if (activeTab === 'waves') {
+      const src = waves[index];
+      setWaves([...waves, { ...clone(src), id: generateId(), name: src.name + m.duplicateSuffix }]);
+    }
     setSelectedItemIndex(currentItems.length);
   };
 
