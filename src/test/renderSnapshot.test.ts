@@ -9,8 +9,9 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { createRenderSnapshot, writeRenderSnapshot } from '@/data/renderSnapshot';
-import { makeEnemy } from './fixtures';
+import { createRenderSnapshot, writeRenderSnapshot, towerLevelScale } from '@/data/renderSnapshot';
+import type { Projectile } from '@/types/game';
+import { makeEnemy, makeTower } from './fixtures';
 
 describe('renderSnapshot 投影', () => {
   it('把敵人基本欄位投影成渲染 frame', () => {
@@ -183,5 +184,137 @@ describe('renderSnapshot 共用與緩衝重用', () => {
 
     expect(snapshot.enemyCount).toBe(1);
     expect(snapshot.enemies.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe('renderSnapshot 塔與投射物投影', () => {
+  const makeProjectile = (overrides: Partial<Projectile> & { id: string }): Projectile => ({
+    x: 1,
+    y: 2,
+    targetId: 'e1',
+    targetX: 3,
+    targetY: 4,
+    damage: 10,
+    speed: 6,
+    size: 4,
+    color: '#ffffff',
+    towerId: 't1',
+    towerType: 'cannon',
+    ...overrides,
+  });
+
+  it('塔的格子、等級、轉向與鎖定狀態投影成 frame', () => {
+    const snapshot = createRenderSnapshot();
+    const tower = makeTower({
+      id: 't1',
+      type: 'cannon',
+      level: 3,
+      rotation: 1.25,
+      health: 60,
+      maxHealth: 240,
+      locked: true,
+      gridPos: { col: 4, row: 9 },
+    });
+
+    writeRenderSnapshot({ enemies: [], towers: [tower] }, snapshot, 500);
+
+    expect(snapshot.towerCount).toBe(1);
+    const frame = snapshot.towers[0];
+    expect(frame.id).toBe('t1');
+    expect(frame.type).toBe('cannon');
+    expect(frame.col).toBe(4);
+    expect(frame.row).toBe(9);
+    expect(frame.level).toBe(3);
+    expect(frame.rotation).toBe(1.25);
+    expect(frame.health).toBe(60);
+    expect(frame.maxHealth).toBe(240);
+    expect(frame.healthRatio).toBeCloseTo(0.25);
+    expect(frame.locked).toBe(true);
+  });
+
+  it('maxHealth 為 0 時塔血量比例是 0 而不是 NaN', () => {
+    const snapshot = createRenderSnapshot();
+    const tower = makeTower({ id: 't1', type: 'basic', health: 40, maxHealth: 0 });
+
+    writeRenderSnapshot({ enemies: [], towers: [tower] }, snapshot, 0);
+
+    expect(snapshot.towers[0].healthRatio).toBe(0);
+  });
+
+  it('血量超過上限時比例夾在 1 以內', () => {
+    const snapshot = createRenderSnapshot();
+    const tower = makeTower({ id: 't1', type: 'basic', health: 150, maxHealth: 100 });
+
+    writeRenderSnapshot({ enemies: [], towers: [tower] }, snapshot, 0);
+
+    expect(snapshot.towers[0].healthRatio).toBe(1);
+  });
+
+  it('投射物的座標、目標、顏色與軌跡投影成 frame，未設定 isInstant 視為 false', () => {
+    const snapshot = createRenderSnapshot();
+    const trail = [{ x: 1, y: 1, alpha: 0.5 }];
+    const projectile = makeProjectile({
+      id: 'p1',
+      x: 2.5,
+      y: 3.5,
+      targetX: 9,
+      targetY: 11,
+      size: 6,
+      color: '#ff0000',
+      towerType: 'sniper',
+      rotation: 0.75,
+      trailPoints: trail,
+    });
+
+    writeRenderSnapshot({ enemies: [], projectiles: [projectile] }, snapshot, 0);
+
+    expect(snapshot.projectileCount).toBe(1);
+    const frame = snapshot.projectiles[0];
+    expect(frame.id).toBe('p1');
+    expect(frame.x).toBe(2.5);
+    expect(frame.y).toBe(3.5);
+    expect(frame.targetX).toBe(9);
+    expect(frame.targetY).toBe(11);
+    expect(frame.size).toBe(6);
+    expect(frame.color).toBe('#ff0000');
+    expect(frame.towerType).toBe('sniper');
+    expect(frame.isInstant).toBe(false);
+    expect(frame.rotation).toBe(0.75);
+    expect(frame.trailPoints).toBe(trail);
+  });
+
+  it('沒有提供 towers / projectiles 時兩個 count 都是 0（舊呼叫端仍可用）', () => {
+    const snapshot = createRenderSnapshot();
+    writeRenderSnapshot({ enemies: [makeEnemy({ id: 'e1' })] }, snapshot, 0);
+
+    expect(snapshot.towerCount).toBe(0);
+    expect(snapshot.projectileCount).toBe(0);
+  });
+
+  it('塔與投射物的 slot 逐幀重用，數量下降時 count 跟著降', () => {
+    const snapshot = createRenderSnapshot();
+    const towers = [makeTower({ id: 't1', type: 'basic' }), makeTower({ id: 't2', type: 'frost' })];
+    const projectiles = [makeProjectile({ id: 'p1' }), makeProjectile({ id: 'p2' })];
+
+    writeRenderSnapshot({ enemies: [], towers, projectiles }, snapshot, 0);
+    const towerSlot = snapshot.towers[0];
+    const projectileSlot = snapshot.projectiles[0];
+
+    writeRenderSnapshot(
+      { enemies: [], towers: [makeTower({ id: 't1', type: 'basic' })], projectiles: [makeProjectile({ id: 'p1' })] },
+      snapshot,
+      16,
+    );
+
+    expect(snapshot.towerCount).toBe(1);
+    expect(snapshot.projectileCount).toBe(1);
+    expect(snapshot.towers[0]).toBe(towerSlot);
+    expect(snapshot.projectiles[0]).toBe(projectileSlot);
+  });
+
+  it('towerLevelScale 等於原本 3D 塔的等級縮放公式', () => {
+    expect(towerLevelScale(1)).toBe(1);
+    expect(towerLevelScale(3)).toBeCloseTo(1.18);
+    expect(towerLevelScale(5)).toBeCloseTo(1.36);
   });
 });
