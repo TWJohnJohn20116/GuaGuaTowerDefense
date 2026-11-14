@@ -1,9 +1,10 @@
-@config "../../tailwind.config.js";
-
 /* Tailwind v4：三條 @tailwind 指令換成單一 @import（v4 不再有指令式 API）。
-   順序刻意保持 hardline.css 在前——它與 preflight 同屬 base 層，維持既有的覆蓋方向。 */
+   順序刻意保持 hardline.css 在前——它與 preflight 同屬 base 層，維持既有的覆蓋方向。
+   @config 必須放在 @import "tailwindcss" 之後：放前面會讓 theme 預設值沒載入，
+   @apply font-semibold 這類吃 theme 的工具類會直接變成「未知工具類」。 */
 @import './hardline.css';
 @import "tailwindcss";
+@config "../../tailwind.config.js";
 
 /* ============================================================================
    Tailwind v4 相容層 — 只補「v4 拿掉、但專案還在用」的東西，不新增設計語彙
