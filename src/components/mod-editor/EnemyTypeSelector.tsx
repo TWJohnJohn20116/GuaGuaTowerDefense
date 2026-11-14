@@ -19,10 +19,10 @@ const ALL_TYPES: EnemyType[] = [
 
 // 敵人分類（用於分組顯示）。顏色只用資料色，不用彩度色。
 const CATEGORIES: { id: string; label: string; types: EnemyType[]; color: string }[] = [
-  { id: 'basic', label: 'BASIC', types: ['normal', 'fast', 'speedy', 'swarm'], color: 'text-[var(--hl-vital)]' },
-  { id: 'tough', label: 'TOUGH', types: ['tank', 'heavy', 'armored', 'shield'], color: 'text-[var(--hl-reach)]' },
-  { id: 'elite', label: 'ELITE', types: ['elite', 'miniboss', 'boss', 'berserker'], color: 'text-[var(--hl-caution)]' },
-  { id: 'special', label: 'SPECIAL', types: ['flyer', 'healer', 'spawner', 'stealth', 'mage', 'ghost', 'bomber', 'saboteur', 'jammer', 'escort'], color: 'text-[var(--hl-ink-2)]' },
+  { id: 'basic', label: 'BASIC', types: ['normal', 'fast', 'speedy', 'swarm'], color: 'text-[var(--arc-vital)]' },
+  { id: 'tough', label: 'TOUGH', types: ['tank', 'heavy', 'armored', 'shield'], color: 'text-[var(--arc-reach)]' },
+  { id: 'elite', label: 'ELITE', types: ['elite', 'miniboss', 'boss', 'berserker'], color: 'text-[var(--arc-caution)]' },
+  { id: 'special', label: 'SPECIAL', types: ['flyer', 'healer', 'spawner', 'stealth', 'mage', 'ghost', 'bomber', 'saboteur', 'jammer', 'escort'], color: 'text-[var(--arc-ink-2)]' },
 ];
 
 interface EnemyTypeSelectorProps {
@@ -47,13 +47,13 @@ export function EnemyTypeSelector({ value, onChange, size = 'md' }: EnemyTypeSel
         keywords: type,
         group: typeToGroup.get(type),
         // 預覽框一律下沉一階，不用敵人主色鋪底
-        previewBg: 'var(--hl-void-2)',
+        previewBg: 'var(--arc-void-2)',
         preview: <EnemyPreview enemyId={type} size={previewSize} />,
         meta: (
-          <div className="flex items-center gap-1 font-mono text-[9.5px] tabular-nums leading-none text-[var(--hl-ink-4)]">
-            <HeartIcon className="h-2.5 w-2.5 text-[var(--hl-alarm)]" /><span>{d?.health}</span>
-            <ZapIcon className="ml-1 h-2.5 w-2.5 text-[var(--hl-reach)]" /><span>{d?.speed}x</span>
-            <CoinIcon className="ml-1 h-2.5 w-2.5 text-[var(--hl-caution)]" /><span>{d?.reward}</span>
+          <div className="flex items-center gap-1 font-mono text-[9.5px] tabular-nums leading-none text-[var(--arc-ink-4)]">
+            <HeartIcon className="h-2.5 w-2.5 text-[var(--arc-alert)]" /><span>{d?.health}</span>
+            <ZapIcon className="ml-1 h-2.5 w-2.5 text-[var(--arc-reach)]" /><span>{d?.speed}x</span>
+            <CoinIcon className="ml-1 h-2.5 w-2.5 text-[var(--arc-caution)]" /><span>{d?.reward}</span>
           </div>
         ),
       };

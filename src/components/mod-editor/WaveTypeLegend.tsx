@@ -48,21 +48,21 @@ export function WaveTypeLegend({ waveSet, className = '' }: WaveTypeLegendProps)
       {types.map((item) => (
         <span
           key={item.type}
-          className="inline-flex items-center gap-1.5 border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-1.5 py-1"
+          className="inline-flex items-center gap-1.5 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-1.5 py-1"
         >
           <span
             className="h-2 w-2 flex-shrink-0"
             style={{ backgroundColor: item.color }}
             aria-hidden="true"
           />
-          <span className="max-w-[72px] truncate text-[11px] leading-none text-[var(--hl-ink-2)]">
+          <span className="max-w-[72px] truncate text-[11px] leading-none text-[var(--arc-ink-2)]">
             {item.type}
           </span>
-          <span className="font-mono text-[10px] tabular-nums leading-none text-[var(--hl-ink-4)]">
+          <span className="font-mono text-[10px] tabular-nums leading-none text-[var(--arc-ink-4)]">
             ×{item.count}
           </span>
           {item.isBoss && (
-            <span className="border border-[rgba(255,182,39,0.4)] px-1 font-mono text-[9px] uppercase leading-[14px] tracking-[0.12em] text-[var(--hl-caution)]">
+            <span className="border border-[rgba(255,182,39,0.4)] px-1 font-mono text-[9px] uppercase leading-[14px] tracking-[0.12em] text-[var(--arc-caution)]">
               {m.wvLegendBoss}
             </span>
           )}

@@ -53,14 +53,14 @@ export function towerHasEffectPreview(tower: CustomTowerData): boolean {
 }
 
 const EFFECT_STYLE: Record<TowerEffectId, { border: string; bg: string; text: string }> = {
-  splash: { border: 'border-[rgba(255,182,39,0.38)]', bg: 'bg-[rgba(255,182,39,0.12)]', text: 'text-[var(--hl-caution)]' },
-  slow: { border: 'border-[rgba(111,168,255,0.38)]', bg: 'bg-[rgba(111,168,255,0.12)]', text: 'text-[var(--hl-reach)]' },
-  poison: { border: 'border-[rgba(56,224,143,0.38)]', bg: 'bg-[rgba(56,224,143,0.12)]', text: 'text-[var(--hl-vital)]' },
-  chain: { border: 'border-[rgba(255,182,39,0.38)]', bg: 'bg-[rgba(255,182,39,0.12)]', text: 'text-[var(--hl-caution)]' },
-  laser: { border: 'border-[var(--hl-line-strong)]', bg: 'bg-[var(--hl-deck-2)]', text: 'text-[var(--hl-ink-2)]' },
-  flame: { border: 'border-[rgba(255,75,62,0.38)]', bg: 'bg-[rgba(255,75,62,0.12)]', text: 'text-[var(--hl-alarm)]' },
-  wind: { border: 'border-[rgba(111,168,255,0.38)]', bg: 'bg-[rgba(111,168,255,0.12)]', text: 'text-[var(--hl-reach)]' },
-  money: { border: 'border-[rgba(255,182,39,0.38)]', bg: 'bg-[rgba(255,182,39,0.12)]', text: 'text-[var(--hl-caution)]' },
+  splash: { border: 'border-[rgba(255,182,39,0.38)]', bg: 'bg-[rgba(255,182,39,0.12)]', text: 'text-[var(--arc-caution)]' },
+  slow: { border: 'border-[rgba(111,140,255,0.38)]', bg: 'bg-[rgba(111,140,255,0.12)]', text: 'text-[var(--arc-reach)]' },
+  poison: { border: 'border-[rgba(53,224,138,0.38)]', bg: 'bg-[rgba(53,224,138,0.12)]', text: 'text-[var(--arc-vital)]' },
+  chain: { border: 'border-[rgba(255,182,39,0.38)]', bg: 'bg-[rgba(255,182,39,0.12)]', text: 'text-[var(--arc-caution)]' },
+  laser: { border: 'border-[var(--arc-line-strong)]', bg: 'bg-[var(--arc-deck-2)]', text: 'text-[var(--arc-ink-2)]' },
+  flame: { border: 'border-[rgba(255,61,113,0.38)]', bg: 'bg-[rgba(255,61,113,0.12)]', text: 'text-[var(--arc-alert)]' },
+  wind: { border: 'border-[rgba(111,140,255,0.38)]', bg: 'bg-[rgba(111,140,255,0.12)]', text: 'text-[var(--arc-reach)]' },
+  money: { border: 'border-[rgba(255,182,39,0.38)]', bg: 'bg-[rgba(255,182,39,0.12)]', text: 'text-[var(--arc-caution)]' },
 };
 
 export function getTowerEffectStyle(id: TowerEffectId) {

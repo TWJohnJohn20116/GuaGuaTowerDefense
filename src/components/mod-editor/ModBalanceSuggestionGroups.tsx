@@ -17,11 +17,11 @@ interface ModBalanceSuggestionGroupsProps {
 }
 
 const CATEGORY_ACCENT: Record<string, { frame: string; bar: string }> = {
-  difficulty: { frame: 'border-[rgba(255,75,62,0.38)]', bar: 'bg-[var(--hl-alarm)]' },
-  economy: { frame: 'border-[rgba(255,182,39,0.38)]', bar: 'bg-[var(--hl-caution)]' },
-  waves: { frame: 'border-[var(--hl-line-strong)]', bar: 'bg-[var(--hl-ink-3)]' },
-  counters: { frame: 'border-[rgba(111,168,255,0.38)]', bar: 'bg-[var(--hl-reach)]' },
-  general: { frame: 'border-[var(--hl-line)]', bar: 'bg-[var(--hl-ink-4)]' },
+  difficulty: { frame: 'border-[rgba(255,61,113,0.38)]', bar: 'bg-[var(--arc-alert)]' },
+  economy: { frame: 'border-[rgba(255,182,39,0.38)]', bar: 'bg-[var(--arc-caution)]' },
+  waves: { frame: 'border-[var(--arc-line-strong)]', bar: 'bg-[var(--arc-ink-3)]' },
+  counters: { frame: 'border-[rgba(111,140,255,0.38)]', bar: 'bg-[var(--arc-reach)]' },
+  general: { frame: 'border-[var(--cn-line-soft)]', bar: 'bg-[var(--arc-ink-4)]' },
 };
 
 export function ModBalanceSuggestionGroups({ items, m }: ModBalanceSuggestionGroupsProps) {
@@ -33,20 +33,20 @@ export function ModBalanceSuggestionGroups({ items, m }: ModBalanceSuggestionGro
       {groups.map((group) => {
         const accent = CATEGORY_ACCENT[group.category] ?? CATEGORY_ACCENT.general;
         return (
-          <div key={group.category} className={`border bg-[var(--hl-void-2)] ${accent.frame}`}>
-            <div className="flex items-center gap-2 border-b border-[var(--hl-line)] px-2 py-1.5">
+          <div key={group.category} className={`border bg-[var(--arc-void-2)] ${accent.frame}`}>
+            <div className="flex items-center gap-2 border-b border-[var(--cn-line-soft)] px-2 py-1.5">
               <span className={`h-2.5 w-[2px] flex-shrink-0 ${accent.bar}`} aria-hidden="true" />
-              <span className="hl-label">{group.label}</span>
-              <span className="h-px flex-1 bg-[var(--hl-line)]" aria-hidden="true" />
-              <span className="font-mono text-[10px] tabular-nums leading-none text-[var(--hl-ink-4)]">
+              <span className="arc-label">{group.label}</span>
+              <span className="h-px flex-1 bg-[var(--arc-line)]" aria-hidden="true" />
+              <span className="font-mono text-[10px] tabular-nums leading-none text-[var(--arc-ink-4)]">
                 {String(group.items.length).padStart(2, '0')}
               </span>
             </div>
-            <ul className="divide-y divide-[var(--hl-line)]">
+            <ul className="divide-y divide-[var(--arc-line)]">
               {group.items.map((tip) => (
                 <li key={tip} className="flex items-start gap-2 px-2 py-1.5">
-                  <LightbulbIcon className="mt-0.5 h-3 w-3 flex-shrink-0 text-[var(--hl-caution)]" />
-                  <span className="min-w-0 text-[11px] leading-relaxed text-[var(--hl-ink-2)]">{tip}</span>
+                  <LightbulbIcon className="mt-0.5 h-3 w-3 flex-shrink-0 text-[var(--arc-caution)]" />
+                  <span className="min-w-0 text-[11px] leading-relaxed text-[var(--arc-ink-2)]">{tip}</span>
                 </li>
               ))}
             </ul>

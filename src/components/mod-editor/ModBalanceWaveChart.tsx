@@ -38,20 +38,20 @@ export function ModBalanceWaveChart({ points, className = '' }: ModBalanceWaveCh
           return (
             <div key={`${pt.setId}-${pt.waveIndex}-${idx}`} className="flex items-center gap-2">
               <div
-                className="w-14 truncate font-mono text-[10px] tabular-nums leading-none text-[var(--hl-ink-3)]"
+                className="w-14 truncate font-mono text-[10px] tabular-nums leading-none text-[var(--arc-ink-3)]"
                 title={pt.label}
               >
                 {pt.label}
               </div>
-              <div className="relative h-3 flex-1 border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+              <div className="relative h-3 flex-1 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
                 <motion.div
-                  className={`h-full ${isBoss ? 'bg-[var(--hl-caution)]' : 'bg-[var(--hl-reach)]'}`}
+                  className={`h-full ${isBoss ? 'bg-[var(--arc-caution)]' : 'bg-[var(--arc-reach)]'}`}
                   initial={{ width: 0 }}
                   animate={{ width: `${width}%` }}
                   transition={{ duration: 0.4, delay: idx * 0.03 }}
                 />
               </div>
-              <div className="w-9 text-right font-mono text-[10px] tabular-nums leading-none text-[var(--hl-ink-2)]">
+              <div className="w-9 text-right font-mono text-[10px] tabular-nums leading-none text-[var(--arc-ink-2)]">
                 {pt.threat.toFixed(0)}
               </div>
             </div>

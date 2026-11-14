@@ -152,7 +152,7 @@ export function MapPathPreview({
   // 畫布外框：1px 線 + 下沉底，不加陰影。
   const containerClass = isBackground
     ? `absolute inset-0 overflow-hidden ${className}`
-    : `relative overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)] ${className}`;
+    : `relative overflow-hidden border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] ${className}`;
 
   const canvasClass = isBackground
     ? `absolute left-1/2 top-1/2 min-h-[120%] min-w-[120%] -translate-x-1/2 -translate-y-1/2 opacity-20 ${canvasClassName}`
@@ -170,8 +170,8 @@ export function MapPathPreview({
         />
       ) : !isBackground ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10">
-          <MapIcon className="h-7 w-7 text-[var(--hl-ink-4)]" />
-          <span className="hl-label">{resolvedEmpty}</span>
+          <MapIcon className="h-7 w-7 text-[var(--arc-ink-4)]" />
+          <span className="arc-label">{resolvedEmpty}</span>
         </div>
       ) : null}
     </div>

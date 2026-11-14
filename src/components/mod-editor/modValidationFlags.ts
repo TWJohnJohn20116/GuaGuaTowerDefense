@@ -30,7 +30,7 @@ export function countTabValidation(
 
 /** 驗證狀態標記：HARDLINE 用左緣 2px 線，不用 ring／光暈。 */
 export function validationRingClass(level: 'error' | 'warning' | null): string {
-  if (level === 'error') return 'border-l-2 border-l-[var(--hl-alarm)]';
-  if (level === 'warning') return 'border-l-2 border-l-[var(--hl-caution)]';
+  if (level === 'error') return 'border-l-2 border-l-[var(--arc-alert)]';
+  if (level === 'warning') return 'border-l-2 border-l-[var(--arc-caution)]';
   return '';
 }

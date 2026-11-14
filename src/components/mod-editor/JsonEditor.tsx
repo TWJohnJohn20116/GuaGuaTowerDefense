@@ -95,8 +95,8 @@ export const JsonEditor = ({ value, onChange, placeholder }: JsonEditorProps) =>
                   className={[
                     'inline-flex items-center gap-1 border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em]',
                     valid
-                      ? 'border-[rgba(56,224,143,0.4)] text-[var(--hl-vital)]'
-                      : 'border-[rgba(255,75,62,0.4)] text-[var(--hl-alarm)]',
+                      ? 'border-[rgba(53,224,138,0.4)] text-[var(--arc-vital)]'
+                      : 'border-[rgba(255,61,113,0.4)] text-[var(--arc-alert)]',
                   ].join(' ')}
                 >
                   {valid ? <CheckIcon className="h-2.5 w-2.5" /> : <XIcon className="h-2.5 w-2.5" />}
@@ -120,13 +120,13 @@ export const JsonEditor = ({ value, onChange, placeholder }: JsonEditorProps) =>
       {/* 編輯器容器：1px 線 + 下沉底，無陰影 */}
       <div
         className={[
-          'relative min-h-[300px] flex-1 overflow-hidden border bg-[var(--hl-void-2)] transition-colors',
-          valid ? 'border-[var(--hl-line)]' : 'border-[rgba(255,75,62,0.38)]',
+          'relative min-h-[300px] flex-1 overflow-hidden border bg-[var(--arc-void-2)] transition-colors',
+          valid ? 'border-[var(--cn-line-soft)]' : 'border-[rgba(255,61,113,0.38)]',
         ].join(' ')}
       >
         {/* 行號 */}
-        <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-10 w-10 overflow-hidden border-r border-[var(--hl-line)] bg-[var(--hl-deck)]">
-          <div className="p-3 font-mono text-xs leading-6 text-[var(--hl-ink-4)]">
+        <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-10 w-10 overflow-hidden border-r border-[var(--cn-line-soft)] bg-[var(--arc-deck)]">
+          <div className="p-3 font-mono text-xs leading-6 text-[var(--arc-ink-4)]">
             {(value || placeholder || '').split('\n').map((_, i) => (
               <div key={i}>{i + 1}</div>
             ))}
@@ -138,7 +138,7 @@ export const JsonEditor = ({ value, onChange, placeholder }: JsonEditorProps) =>
           ref={highlightRef}
           className="pointer-events-none absolute inset-0 overflow-auto whitespace-pre-wrap break-all p-3 pl-12 font-mono text-sm leading-6"
           dangerouslySetInnerHTML={{ 
-            __html: highlightJson(value) || `<span class="text-[var(--hl-ink-4)]">${placeholder || ''}</span>`
+            __html: highlightJson(value) || `<span class="text-[var(--arc-ink-4)]">${placeholder || ''}</span>`
           }}
         />
 
@@ -148,7 +148,7 @@ export const JsonEditor = ({ value, onChange, placeholder }: JsonEditorProps) =>
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onScroll={handleScroll}
-          className="absolute inset-0 resize-none bg-transparent p-3 pl-12 font-mono text-sm leading-6 text-transparent caret-[var(--hl-signal)] outline-none"
+          className="absolute inset-0 resize-none bg-transparent p-3 pl-12 font-mono text-sm leading-6 text-transparent caret-[var(--arc-gold)] outline-none"
           placeholder=""
           spellCheck={false}
         />
@@ -156,8 +156,8 @@ export const JsonEditor = ({ value, onChange, placeholder }: JsonEditorProps) =>
         {/* 空狀態提示 */}
         {!value && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center pl-12">
-            <div className="text-center text-[var(--hl-ink-3)]">
-              <ClipboardIcon className="mx-auto mb-2 h-10 w-10 text-[var(--hl-ink-4)]" />
+            <div className="text-center text-[var(--arc-ink-3)]">
+              <ClipboardIcon className="mx-auto mb-2 h-10 w-10 text-[var(--arc-ink-4)]" />
               <div className="text-[13px]">{m.jsonPasteHint}</div>
             </div>
           </div>
@@ -166,12 +166,12 @@ export const JsonEditor = ({ value, onChange, placeholder }: JsonEditorProps) =>
 
       {/* 語法高亮樣式：只用 HARDLINE 資料色 */}
       <style>{`
-        .json-key { color: var(--hl-reach); }
-        .json-string { color: var(--hl-vital); }
-        .json-number { color: var(--hl-caution); }
-        .json-boolean { color: var(--hl-signal); }
-        .json-null { color: var(--hl-alarm); }
-        .json-bracket { color: var(--hl-ink-2); font-weight: 600; }
+        .json-key { color: var(--arc-reach); }
+        .json-string { color: var(--arc-vital); }
+        .json-number { color: var(--arc-caution); }
+        .json-boolean { color: var(--arc-gold); }
+        .json-null { color: var(--arc-alert); }
+        .json-bracket { color: var(--arc-ink-2); font-weight: 600; }
       `}</style>
     </div>
   );

@@ -53,7 +53,7 @@ export function ModDiffPreview({ draft, baseline, className = '' }: ModDiffPrevi
     return (
       <Deck
         tone="sunken"
-        className={`px-2.5 py-2 text-[11px] leading-snug text-[var(--hl-ink-3)] ${className}`}
+        className={`px-2.5 py-2 text-[11px] leading-snug text-[var(--arc-ink-3)] ${className}`}
       >
         {m.diffSaveToCompare}
       </Deck>
@@ -74,8 +74,8 @@ export function ModDiffPreview({ draft, baseline, className = '' }: ModDiffPrevi
       <div
         className={`flex items-center gap-2 border border-[rgba(56,224,143,0.38)] bg-[rgba(56,224,143,0.06)] px-2.5 py-2 ${className}`}
       >
-        <span className="h-1.5 w-1.5 flex-shrink-0 bg-[var(--hl-vital)]" aria-hidden="true" />
-        <span className="text-[11px] leading-snug text-[var(--hl-vital)]">{m.diffSameAsInstalled}</span>
+        <span className="h-1.5 w-1.5 flex-shrink-0 bg-[var(--arc-vital)]" aria-hidden="true" />
+        <span className="text-[11px] leading-snug text-[var(--arc-vital)]">{m.diffSameAsInstalled}</span>
       </div>
     );
   }
@@ -94,8 +94,8 @@ export function ModDiffPreview({ draft, baseline, className = '' }: ModDiffPrevi
       <ModDiffVisualBars draft={draft} baseline={baseline} />
 
       {hasMeta && (
-        <p className="flex items-start gap-2 border-t border-[var(--hl-line)] pt-2 text-[11px] leading-relaxed text-[var(--hl-caution)]">
-          <span className="mt-[5px] h-1.5 w-1.5 flex-shrink-0 bg-[var(--hl-caution)]" aria-hidden="true" />
+        <p className="flex items-start gap-2 border-t border-[var(--cn-line-soft)] pt-2 text-[11px] leading-relaxed text-[var(--arc-caution)]">
+          <span className="mt-[5px] h-1.5 w-1.5 flex-shrink-0 bg-[var(--arc-caution)]" aria-hidden="true" />
           <span className="min-w-0">
             {m.diffMetaChanged}
             {diff.meta.name && m.diffMetaName}
@@ -108,27 +108,27 @@ export function ModDiffPreview({ draft, baseline, className = '' }: ModDiffPrevi
       {sections.map(({ label, d }) => {
         if (!d.added.length && !d.removed.length && !d.changed.length) return null;
         return (
-          <div key={label} className="space-y-1 border-t border-[var(--hl-line)] pt-2">
-            <span className="hl-label text-[var(--hl-ink-2)]">{label}</span>
+          <div key={label} className="space-y-1 border-t border-[var(--cn-line-soft)] pt-2">
+            <span className="arc-label text-[var(--arc-ink-2)]">{label}</span>
             {d.added.length > 0 && (
-              <p className="flex items-start gap-2 text-[11px] leading-relaxed text-[var(--hl-ink-2)]">
-                <span className="mt-[5px] h-1.5 w-1.5 flex-shrink-0 bg-[var(--hl-vital)]" aria-hidden="true" />
+              <p className="flex items-start gap-2 text-[11px] leading-relaxed text-[var(--arc-ink-2)]">
+                <span className="mt-[5px] h-1.5 w-1.5 flex-shrink-0 bg-[var(--arc-vital)]" aria-hidden="true" />
                 <span className="min-w-0">
                   {fillTemplate(m.diffAdded, { names: d.added.map((x) => x.name).join('、') })}
                 </span>
               </p>
             )}
             {d.removed.length > 0 && (
-              <p className="flex items-start gap-2 text-[11px] leading-relaxed text-[var(--hl-ink-2)]">
-                <span className="mt-[5px] h-1.5 w-1.5 flex-shrink-0 bg-[var(--hl-alarm)]" aria-hidden="true" />
+              <p className="flex items-start gap-2 text-[11px] leading-relaxed text-[var(--arc-ink-2)]">
+                <span className="mt-[5px] h-1.5 w-1.5 flex-shrink-0 bg-[var(--arc-alert)]" aria-hidden="true" />
                 <span className="min-w-0">
                   {fillTemplate(m.diffRemoved, { names: d.removed.map((x) => x.name).join('、') })}
                 </span>
               </p>
             )}
             {d.changed.length > 0 && (
-              <p className="flex items-start gap-2 text-[11px] leading-relaxed text-[var(--hl-ink-2)]">
-                <span className="mt-[5px] h-1.5 w-1.5 flex-shrink-0 bg-[var(--hl-caution)]" aria-hidden="true" />
+              <p className="flex items-start gap-2 text-[11px] leading-relaxed text-[var(--arc-ink-2)]">
+                <span className="mt-[5px] h-1.5 w-1.5 flex-shrink-0 bg-[var(--arc-caution)]" aria-hidden="true" />
                 <span className="min-w-0">
                   {fillTemplate(m.diffChanged, { names: d.changed.join('、') })}
                 </span>

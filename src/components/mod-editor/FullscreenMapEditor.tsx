@@ -17,7 +17,7 @@ import {
   appendOffsetPath,
   appendOffsetBlocked,
 } from './mapEditorAdvancedTools';
-import { Btn, Rule, SegHead, Empty } from '@/components/hl';
+import { Btn, Deck, Input, Rule, SegHead, Empty } from '@/components/hl';
 
 // 編輯模式
 type EditMode = 'select' | 'brush' | 'erase' | 'block';
@@ -447,7 +447,7 @@ export const FullscreenMapEditor = ({
         if (isSelected) {
           const r = tileSize * 0.4;
           ctx.lineWidth = 1;
-          ctx.strokeStyle = '#d9ff3f';
+          ctx.strokeStyle = '#ffd447';
           ctx.strokeRect(x - r, y - r, r * 2, r * 2);
         }
 
@@ -465,7 +465,7 @@ export const FullscreenMapEditor = ({
       // 計算多個流動物件
       const count = Math.max(3, Math.floor(totalLen / 2));
       
-      ctx.fillStyle = '#d9ff3f';
+      ctx.fillStyle = '#ffd447';
       
       for (let i = 0; i < count; i++) {
         const offset = (previewTime + i * (totalLen / count)) % totalLen;
@@ -504,8 +504,8 @@ export const FullscreenMapEditor = ({
       aria-pressed={!!active}
       className={`h-9 w-9 justify-center px-0 ${
         active
-          ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-          : 'text-[var(--hl-ink-2)]'
+          ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
+          : 'text-[var(--arc-ink-2)]'
       }`}
       icon={<Icon className="h-4 w-4" />}
     />
@@ -518,10 +518,10 @@ export const FullscreenMapEditor = ({
       variant="ghost"
       onClick={() => setActiveTab(id)}
       aria-pressed={activeTab === id}
-      className={`h-9 flex-1 justify-center border-r border-[var(--hl-line)] last:border-r-0 ${
+      className={`h-9 flex-1 justify-center border-r border-[var(--cn-line-soft)] last:border-r-0 ${
         activeTab === id
-          ? 'bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-          : 'text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)]'
+          ? 'bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
+          : 'text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]'
       }`}
     >
       {label}
@@ -534,7 +534,7 @@ export const FullscreenMapEditor = ({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 1.02 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 flex overflow-hidden bg-[var(--hl-void)] font-sans"
+      className="fixed inset-0 z-50 flex overflow-hidden bg-[var(--arc-void)] font-sans"
     >
       {/* 畫布與事件層 (移到最底層) */}
       <div 
@@ -554,8 +554,8 @@ export const FullscreenMapEditor = ({
       </div>
 
       {/* 懸浮左側工具列：方塊按鈕，選中＝訊號色 */}
-      <div className="pointer-events-auto absolute left-4 top-1/2 z-50 flex w-16 -translate-y-1/2 flex-col items-center gap-1 border border-[var(--hl-line)] bg-[var(--hl-deck)] py-2">
-        <div className="mb-1 flex h-9 w-9 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-3)]">
+      <div className="pointer-events-auto absolute left-4 top-1/2 z-50 flex w-16 -translate-y-1/2 flex-col items-center gap-1 arc-panel py-2">
+        <div className="mb-1 flex h-9 w-9 items-center justify-center border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-3)]">
           <MapIcon className="h-4 w-4" />
         </div>
         
@@ -606,15 +606,15 @@ export const FullscreenMapEditor = ({
 
       {/* 頂部操作區 */}
       <div className="pointer-events-none absolute left-24 right-[340px] top-4 z-50 flex items-center justify-between gap-3">
-        <div className="pointer-events-auto flex h-11 items-center gap-3 border border-[var(--hl-line)] bg-[var(--hl-deck)] px-3">
-          <span className="max-w-[240px] truncate text-[13.5px] font-medium text-[var(--hl-ink)]">
+        <Deck className="pointer-events-auto flex h-11 items-center gap-3 px-3">
+          <span className="max-w-[240px] truncate text-[13.5px] font-medium text-[var(--arc-ink)]">
             {map.name || m.unnamedMap}
           </span>
-          <span className="h-5 w-px bg-[var(--hl-line)]" />
-          <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+          <span className="h-5 w-px bg-[var(--arc-line)]" />
+          <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
             {fillTemplate(m.mapFsNodeCount, { count: String(map.waypoints.length) })}
           </span>
-        </div>
+        </Deck>
         
         <div className="pointer-events-auto flex items-center gap-1.5">
           <Btn size="sm" variant="line" onClick={onClose}>
@@ -627,8 +627,8 @@ export const FullscreenMapEditor = ({
       </div>
 
       {/* 懸浮右側面板 */}
-      <div className="pointer-events-auto absolute bottom-4 right-4 top-20 z-50 flex w-80 flex-col overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-deck)]">
-        <div className="flex shrink-0 border-b border-[var(--hl-line)]">
+      <div className="pointer-events-auto absolute bottom-4 right-4 top-20 z-50 flex w-80 flex-col overflow-hidden arc-panel">
+        <div className="flex shrink-0 border-b border-[var(--cn-line-soft)]">
           {tabBtn('properties', m.mapFsTabProps)}
           {tabBtn('points', m.mapFsTabPoints)}
           {tabBtn('history', m.mapFsTabHistory)}
@@ -638,22 +638,21 @@ export const FullscreenMapEditor = ({
           {activeTab === 'properties' && (
             <div className="space-y-4">
               <label className="flex flex-col gap-1.5">
-                <span className="hl-label">{m.mapFsMapNameLabel}</span>
-                <input
+                <span className="arc-label">{m.mapFsMapNameLabel}</span>
+                <Input
                   type="text"
                   value={map.name}
                   onChange={e => onChange({ ...map, name: e.target.value })}
-                  className="hl-input"
                   placeholder={m.mapFsNamePh}
                 />
               </label>
               
               <label className="flex flex-col gap-1.5">
-                <span className="hl-label">{m.mapFsMapDescLabel}</span>
+                <span className="arc-label">{m.mapFsMapDescLabel}</span>
                 <textarea
                   value={map.description}
                   onChange={e => onChange({ ...map, description: e.target.value })}
-                  className="h-24 w-full resize-none border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-2.5 py-2 text-[12.5px] leading-snug text-[var(--hl-ink)] outline-none transition-colors placeholder:text-[var(--hl-ink-4)] focus:border-[var(--hl-signal)]"
+                  className="h-24 w-full resize-none border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-2.5 py-2 text-[12.5px] leading-snug text-[var(--arc-ink)] outline-none transition-colors placeholder:text-[var(--arc-ink-4)] focus:border-[var(--arc-gold)]"
                   placeholder={m.mapDescPh}
                 />
               </label>
@@ -676,7 +675,7 @@ export const FullscreenMapEditor = ({
                       aria-pressed={map.difficulty === diff.id}
                       className={
                         map.difficulty === diff.id
-                          ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
+                          ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
                           : undefined
                       }
                     >
@@ -687,7 +686,7 @@ export const FullscreenMapEditor = ({
               </div>
 
               <div className="border border-[rgba(255,182,39,0.38)] p-3">
-                <h4 className="mb-1.5 flex items-center gap-1.5 font-mono text-[10px] tracking-[0.08em] text-[var(--hl-caution)]">
+                <h4 className="mb-1.5 flex items-center gap-1.5 font-mono text-[10px] tracking-[0.08em] text-[var(--arc-caution)]">
                   <DocumentIcon className="h-3 w-3" /> {m.mapFsEditTipsTitle}
                 </h4>
                 <ul className="list-disc space-y-1 pl-4 text-[10.5px] leading-snug text-[rgba(255,182,39,0.78)]">
@@ -704,7 +703,7 @@ export const FullscreenMapEditor = ({
           {activeTab === 'points' && (
             <div>
               <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="font-mono text-[10px] text-[var(--hl-ink-3)]">
+                <span className="font-mono text-[10px] text-[var(--arc-ink-3)]">
                   {fillTemplate(m.mapFsPointsTotal, { count: String(map.waypoints.length) })}
                 </span>
                 <Btn
@@ -722,14 +721,14 @@ export const FullscreenMapEditor = ({
               {map.waypoints.length === 0 ? (
                 <Empty title={m.mapFsNoPoints} hint={m.mapFsNoPointsHint} />
               ) : (
-                <div className="border border-[var(--hl-line)]">
+                <div className="border-[3px] border-[var(--cn-line-soft)]">
                   {selectedPointIndex !== null && (
-                    <div className="flex gap-1 border-b border-[var(--hl-line)] p-1.5">
+                    <div className="flex gap-1 border-b border-[var(--cn-line-soft)] p-1.5">
                       <Btn
                         size="sm"
                         variant="line"
                         block
-                        className="text-[var(--hl-vital)]"
+                        className="text-[var(--arc-vital)]"
                         disabled={selectedPointIndex === 0}
                         onClick={() => {
                           const newWaypoints = [...map.waypoints];
@@ -746,7 +745,7 @@ export const FullscreenMapEditor = ({
                         size="sm"
                         variant="line"
                         block
-                        className="text-[var(--hl-alarm)]"
+                        className="text-[var(--arc-alert)]"
                         disabled={selectedPointIndex === map.waypoints.length - 1}
                         onClick={() => {
                           const newWaypoints = [...map.waypoints];
@@ -768,30 +767,30 @@ export const FullscreenMapEditor = ({
                         setMode('select');
                         setSelectedPointIndex(i);
                       }}
-                      className={`flex cursor-pointer items-center justify-between gap-2 border-b border-[var(--hl-line)] px-2 py-1.5 transition-colors last:border-b-0 ${
-                        selectedPointIndex === i ? 'bg-[var(--hl-signal-veil)]' : 'hover:bg-[var(--hl-deck-2)]'
+                      className={`flex cursor-pointer items-center justify-between gap-2 border-b border-[var(--cn-line-soft)] px-2 py-1.5 transition-colors last:border-b-0 ${
+                        selectedPointIndex === i ? 'bg-[var(--arc-gold-veil)]' : 'hover:bg-[var(--arc-deck-2)]'
                       }`}
                     >
                       <div className="flex min-w-0 items-center gap-2">
                         <span
                           className={`flex h-5 w-5 shrink-0 items-center justify-center border font-mono text-[10px] tabular-nums ${
                             i === 0
-                              ? 'border-[rgba(56,224,143,0.5)] text-[var(--hl-vital)]'
+                              ? 'border-[rgba(53,224,138,0.5)] text-[var(--arc-vital)]'
                               : i === map.waypoints.length - 1
-                                ? 'border-[rgba(255,75,62,0.5)] text-[var(--hl-alarm)]'
-                                : 'border-[var(--hl-line-strong)] text-[var(--hl-ink-3)]'
+                                ? 'border-[rgba(255,61,113,0.5)] text-[var(--arc-alert)]'
+                                : 'border-[var(--arc-line-strong)] text-[var(--arc-ink-3)]'
                           }`}
                         >
                           {i + 1}
                         </span>
-                        <span className="truncate font-mono text-[11px] tabular-nums text-[var(--hl-ink-2)]">
+                        <span className="truncate font-mono text-[11px] tabular-nums text-[var(--arc-ink-2)]">
                           {wp.col}, {wp.row}
                         </span>
                       </div>
                       <Btn
                         size="sm"
                         variant="ghost"
-                        className="text-[var(--hl-ink-3)] hover:text-[var(--hl-alarm)]"
+                        className="text-[var(--arc-ink-3)] hover:text-[var(--arc-alert)]"
                         onClick={(e) => {
                           e.stopPropagation();
                           const newWaypoints = map.waypoints.filter((_, idx) => idx !== i);
@@ -811,13 +810,13 @@ export const FullscreenMapEditor = ({
           {activeTab === 'history' && (
             <div>
               <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="hl-label">{m.mapFsHistLabel}</span>
-                <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+                <span className="arc-label">{m.mapFsHistLabel}</span>
+                <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                   {historyIndex + 1} / {history.length}
                 </span>
               </div>
               
-              <div className="border border-[var(--hl-line)]">
+              <div className="border-[3px] border-[var(--cn-line-soft)]">
                 {history.map((h, i) => (
                   <div 
                     key={i}
@@ -826,21 +825,21 @@ export const FullscreenMapEditor = ({
                       onChange({ ...map, waypoints: [...h.waypoints], blockedCells: [...h.blockedCells] });
                       setSelectedPointIndex(null);
                     }}
-                    className={`flex cursor-pointer items-center gap-2 border-b border-[var(--hl-line)] px-2 py-1.5 transition-colors last:border-b-0 ${
+                    className={`flex cursor-pointer items-center gap-2 border-b border-[var(--cn-line-soft)] px-2 py-1.5 transition-colors last:border-b-0 ${
                       i === historyIndex
-                        ? 'bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
+                        ? 'bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
                         : i > historyIndex
-                          ? 'text-[var(--hl-ink-4)]'
-                          : 'text-[var(--hl-ink-2)] hover:bg-[var(--hl-deck-2)]'
+                          ? 'text-[var(--arc-ink-4)]'
+                          : 'text-[var(--arc-ink-2)] hover:bg-[var(--arc-deck-2)]'
                     }`}
                   >
                     <span
                       className={`block h-1.5 w-1.5 shrink-0 ${
                         i === historyIndex
-                          ? 'bg-[var(--hl-signal)]'
+                          ? 'bg-[var(--arc-gold)]'
                           : i > historyIndex
-                            ? 'bg-[var(--hl-line-strong)]'
-                            : 'bg-[var(--hl-ink-4)]'
+                            ? 'bg-[var(--arc-line-strong)]'
+                            : 'bg-[var(--arc-ink-4)]'
                       }`}
                     />
                     <span className="truncate text-[12px]">

@@ -17,10 +17,10 @@ function sectionCounts(mod: Mod) {
 }
 
 const FILL = {
-  reach: 'bg-[var(--hl-reach)]',
-  alarm: 'bg-[var(--hl-alarm)]',
-  vital: 'bg-[var(--hl-vital)]',
-  caution: 'bg-[var(--hl-caution)]',
+  reach: 'bg-[var(--arc-reach)]',
+  alarm: 'bg-[var(--arc-alert)]',
+  vital: 'bg-[var(--arc-vital)]',
+  caution: 'bg-[var(--arc-caution)]',
 } as const;
 
 type FillTone = keyof typeof FILL;
@@ -52,13 +52,13 @@ export function ModDiffVisualBars({ draft, baseline, className = '' }: ModDiffVi
     <div className={`space-y-2 ${className}`}>
       <div className="flex items-center gap-3">
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-2 w-2 bg-[var(--hl-ink-2)]" aria-hidden="true" />
-          <span className="hl-label">{m.diffVisualDraft}</span>
+          <span className="inline-block h-2 w-2 bg-[var(--arc-ink-2)]" aria-hidden="true" />
+          <span className="arc-label">{m.diffVisualDraft}</span>
         </span>
         {baseline && (
           <span className="flex items-center gap-1.5">
-            <span className="inline-block h-2 w-px bg-[var(--hl-line-hot)]" aria-hidden="true" />
-            <span className="hl-label">{m.diffVisualBaseline}</span>
+            <span className="inline-block h-2 w-px bg-[var(--arc-line-hot)]" aria-hidden="true" />
+            <span className="arc-label">{m.diffVisualBaseline}</span>
           </span>
         )}
       </div>
@@ -70,17 +70,17 @@ export function ModDiffVisualBars({ draft, baseline, className = '' }: ModDiffVi
         return (
           <div key={row.key} className="space-y-1">
             <div className="flex items-baseline justify-between gap-3">
-              <span className="hl-label">{row.label}</span>
-              <span className="font-mono text-[11px] tabular-nums font-semibold leading-none text-[var(--hl-ink)]">
+              <span className="arc-label">{row.label}</span>
+              <span className="font-mono text-[11px] tabular-nums font-semibold leading-none text-[var(--arc-ink)]">
                 {row.cur}
                 {baseline && (
                   <span
                     className={
                       delta > 0
-                        ? 'text-[var(--hl-vital)]'
+                        ? 'text-[var(--arc-vital)]'
                         : delta < 0
-                          ? 'text-[var(--hl-alarm)]'
-                          : 'text-[var(--hl-ink-4)]'
+                          ? 'text-[var(--arc-alert)]'
+                          : 'text-[var(--arc-ink-4)]'
                     }
                   >
                     {delta > 0 ? ` (+${delta})` : delta < 0 ? ` (${delta})` : ''}
@@ -88,10 +88,10 @@ export function ModDiffVisualBars({ draft, baseline, className = '' }: ModDiffVi
                 )}
               </span>
             </div>
-            <div className="relative h-2 border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+            <div className="relative h-2 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
               {baseline && baseW > 0 && (
                 <span
-                  className="absolute inset-y-0 w-px bg-[var(--hl-line-hot)]"
+                  className="absolute inset-y-0 w-px bg-[var(--arc-line-hot)]"
                   style={{ left: `${baseW}%` }}
                   aria-hidden="true"
                 />

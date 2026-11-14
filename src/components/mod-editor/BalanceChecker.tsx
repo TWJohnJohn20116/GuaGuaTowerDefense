@@ -159,17 +159,17 @@ export const checkEnemyBalance = (enemy: CustomEnemyData, m: BalMsg): BalanceIss
 
 /** 狀態方塊：只有一種顏色標記，不發光、不變圓。 */
 const INDICATOR_FILL = {
-  success: 'bg-[var(--hl-vital)]',
-  info: 'bg-[var(--hl-reach)]',
-  warning: 'bg-[var(--hl-caution)]',
-  danger: 'bg-[var(--hl-alarm)]',
+  success: 'bg-[var(--arc-vital)]',
+  info: 'bg-[var(--arc-reach)]',
+  warning: 'bg-[var(--arc-caution)]',
+  danger: 'bg-[var(--arc-alert)]',
 } as const;
 
 const ISSUE_STYLE = {
-  warning: { bar: 'border-l-[var(--hl-caution)]', text: 'text-[var(--hl-caution)]' },
-  danger: { bar: 'border-l-[var(--hl-alarm)]', text: 'text-[var(--hl-alarm)]' },
-  info: { bar: 'border-l-[var(--hl-reach)]', text: 'text-[var(--hl-reach)]' },
-  success: { bar: 'border-l-[var(--hl-vital)]', text: 'text-[var(--hl-vital)]' },
+  warning: { bar: 'border-l-[var(--arc-caution)]', text: 'text-[var(--arc-caution)]' },
+  danger: { bar: 'border-l-[var(--arc-alert)]', text: 'text-[var(--arc-alert)]' },
+  info: { bar: 'border-l-[var(--arc-reach)]', text: 'text-[var(--arc-reach)]' },
+  success: { bar: 'border-l-[var(--arc-vital)]', text: 'text-[var(--arc-vital)]' },
 } as const;
 
 // 平衡性指標組件
@@ -202,8 +202,8 @@ function IssueLine({ issue }: { issue: BalanceIssue }) {
     >
       <div className={style.text}>{issue.message}</div>
       {issue.suggestion && (
-        <div className="mt-1 flex items-start gap-1.5 text-[var(--hl-ink-3)]">
-          <LightbulbIcon className="mt-0.5 h-3 w-3 shrink-0 text-[var(--hl-caution)]" />
+        <div className="mt-1 flex items-start gap-1.5 text-[var(--arc-ink-3)]">
+          <LightbulbIcon className="mt-0.5 h-3 w-3 shrink-0 text-[var(--arc-caution)]" />
           <span className="min-w-0">{issue.suggestion}</span>
         </div>
       )}
@@ -251,14 +251,14 @@ export const BalanceReport = ({
         }
         right={
           totalIssues.length === 0 ? (
-            <span className="hl-label text-[var(--hl-vital)]">{m.allNormal}</span>
+            <span className="arc-label text-[var(--arc-vital)]">{m.allNormal}</span>
           ) : (
             <span className="flex items-center gap-1.5 border border-[rgba(255,182,39,0.4)] px-1.5 py-0.5">
-              <WarningIcon className="h-3 w-3 text-[var(--hl-caution)]" />
-              <span className="font-mono text-[10px] tabular-nums leading-none text-[var(--hl-caution)]">
+              <WarningIcon className="h-3 w-3 text-[var(--arc-caution)]" />
+              <span className="font-mono text-[10px] tabular-nums leading-none text-[var(--arc-caution)]">
                 {totalIssues.length}
               </span>
-              <span className="hl-label">{m.suggestions}</span>
+              <span className="arc-label">{m.suggestions}</span>
             </span>
           )
         }
@@ -277,19 +277,19 @@ export const BalanceReport = ({
           />
           <div className="space-y-1">
             {towerIssues.map((tower, index) => (
-              <div key={index} className="border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+              <div key={index} className="border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
                 <div className="flex items-center justify-between gap-3 px-2 py-1.5">
                   <span className="flex min-w-0 items-center gap-2">
                     <BalanceIndicator issues={tower.issues} />
-                    <span className="truncate text-[11.5px] font-medium text-[var(--hl-ink)]">{tower.name}</span>
+                    <span className="truncate text-[11.5px] font-medium text-[var(--arc-ink)]">{tower.name}</span>
                   </span>
                   <span className="flex shrink-0 items-baseline gap-3">
                     <span className="flex items-baseline gap-1.5">
-                      <span className="hl-label">{m.balDpsLabel}</span>
+                      <span className="arc-label">{m.balDpsLabel}</span>
                       <Num value={tower.dps.toFixed(1)} tone="alarm" size="sm" />
                     </span>
                     <span className="flex items-baseline gap-1.5">
-                      <span className="hl-label">{m.efficiency}</span>
+                      <span className="arc-label">{m.efficiency}</span>
                       <Num value={`${(tower.efficiency * 100).toFixed(1)}%`} tone="vital" size="sm" />
                     </span>
                   </span>
@@ -318,10 +318,10 @@ export const BalanceReport = ({
           />
           <div className="space-y-1">
             {enemyIssues.map((enemy, index) => (
-              <div key={index} className="border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+              <div key={index} className="border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
                 <div className="flex items-center gap-2 px-2 py-1.5">
                   <BalanceIndicator issues={enemy.issues} />
-                  <span className="truncate text-[11.5px] font-medium text-[var(--hl-ink)]">{enemy.name}</span>
+                  <span className="truncate text-[11.5px] font-medium text-[var(--arc-ink)]">{enemy.name}</span>
                 </div>
                 <AnimatePresence>
                   {enemy.issues.filter(i => i.type !== 'success').map((issue, i) => (
@@ -335,7 +335,7 @@ export const BalanceReport = ({
       )}
       
       {towers.length === 0 && enemies.length === 0 && (
-        <div className="border border-dashed border-[var(--hl-line)] px-3 py-4 text-center text-[11px] text-[var(--hl-ink-3)]">
+        <div className="border border-dashed border-[var(--cn-line-soft)] px-3 py-4 text-center text-[11px] text-[var(--arc-ink-3)]">
           {m.balAddContentHint}
         </div>
       )}
@@ -361,8 +361,8 @@ function ChartRow({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <div className="w-20 truncate text-[10px] leading-none text-[var(--hl-ink-3)]" title={label}>{label}</div>
-      <div className="h-2 flex-1 border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+      <div className="w-20 truncate text-[10px] leading-none text-[var(--arc-ink-3)]" title={label}>{label}</div>
+      <div className="h-2 flex-1 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
         <motion.div
           className={`h-full ${fill}`}
           initial={{ width: 0 }}
@@ -404,7 +404,7 @@ export const DPSChart = ({ towers }: { towers: CustomTowerData[] }) => {
               label={tower.name}
               width={(dps / maxDPS) * 100}
               value={dps.toFixed(1)}
-              fill="bg-[var(--hl-reach)]"
+              fill="bg-[var(--arc-reach)]"
               tone="reach"
               delay={index * 0.1}
             />
@@ -442,7 +442,7 @@ export const EfficiencyChart = ({ towers }: { towers: CustomTowerData[] }) => {
               label={tower.name}
               width={(efficiency / maxEfficiency) * 100}
               value={`${(efficiency * 100).toFixed(1)}%`}
-              fill="bg-[var(--hl-vital)]"
+              fill="bg-[var(--arc-vital)]"
               tone="vital"
               delay={index * 0.1}
             />

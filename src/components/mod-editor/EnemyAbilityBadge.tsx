@@ -27,10 +27,10 @@ export function EnemyAbilityBadge({ abilityId, size = 'sm', className = '' }: En
 
   return (
     <span
-      className={`inline-flex items-center border border-[var(--hl-line-strong)] bg-[var(--hl-void-2)] font-mono leading-none tracking-[0.02em] text-[var(--hl-ink-2)] ${box} ${className}`}
+      className={`inline-flex items-center border border-[var(--arc-line-strong)] bg-[var(--arc-void-2)] font-mono leading-none tracking-[0.02em] text-[var(--arc-ink-2)] ${box} ${className}`}
     >
       {def && (
-        <span className={`flex flex-shrink-0 items-center text-[var(--hl-ink-3)] ${iconSize}`}>
+        <span className={`flex flex-shrink-0 items-center text-[var(--arc-ink-3)] ${iconSize}`}>
           {def.icon}
         </span>
       )}

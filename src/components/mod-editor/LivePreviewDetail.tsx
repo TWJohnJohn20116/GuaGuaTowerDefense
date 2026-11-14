@@ -15,7 +15,7 @@ const getThemeVar = (name: string, fallback: string) => {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 };
 
-const getThemeBg = () => getThemeVar('--hl-void-2', '#080b0f');
+const getThemeBg = () => getThemeVar('--arc-void-2', '#080b0f');
 
 export const TowerDetailPreview = ({ tower }: { tower: CustomTowerData }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -39,8 +39,8 @@ export const TowerDetailPreview = ({ tower }: { tower: CustomTowerData }) => {
     ctx.fillStyle = getThemeBg();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 射程環：資料色 --hl-reach 的 1px 線
-    const reach = getThemeVar('--hl-reach', '#6fa8ff');
+    // 射程環：資料色 --arc-reach 的 1px 線
+    const reach = getThemeVar('--arc-reach', '#6f8cff');
     ctx.beginPath();
     ctx.arc(centerX, centerY, Math.min(tower.range * 0.4, 80), 0, Math.PI * 2);
     ctx.fillStyle = reach + '12';
@@ -62,12 +62,12 @@ export const TowerDetailPreview = ({ tower }: { tower: CustomTowerData }) => {
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius + 12, 0, Math.PI * 2);
       ctx.strokeStyle = tower.splash
-        ? getThemeVar('--hl-alarm', '#ff4b3e')
+        ? getThemeVar('--arc-alert', '#ff4b3e')
         : tower.slowEffect
-          ? getThemeVar('--hl-reach', '#6fa8ff')
+          ? getThemeVar('--arc-reach', '#6f8cff')
           : tower.poisonEffect
-            ? getThemeVar('--hl-vital', '#38e08f')
-            : getThemeVar('--hl-caution', '#ffb627');
+            ? getThemeVar('--arc-vital', '#35e08a')
+            : getThemeVar('--arc-caution', '#ffa62b');
       ctx.lineWidth = 1;
       ctx.setLineDash([5, 5]);
       ctx.stroke();
@@ -76,7 +76,7 @@ export const TowerDetailPreview = ({ tower }: { tower: CustomTowerData }) => {
   }, [tower, rotation]);
 
   return (
-    <div className="border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+    <div className="border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
       <canvas
         ref={canvasRef}
         width={200}
@@ -112,9 +112,9 @@ export const EnemyDetailPreview = ({ enemy }: { enemy: CustomEnemyData }) => {
     ctx.fillStyle = getThemeBg();
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const line = getThemeVar('--hl-line', '#222831');
-    const caution = getThemeVar('--hl-caution', '#ffb627');
-    const vital = getThemeVar('--hl-vital', '#38e08f');
+    const line = getThemeVar('--arc-line', '#222831');
+    const caution = getThemeVar('--arc-caution', '#ffa62b');
+    const vital = getThemeVar('--arc-vital', '#35e08a');
 
     ctx.strokeStyle = line;
     ctx.lineWidth = 1;
@@ -150,7 +150,7 @@ export const EnemyDetailPreview = ({ enemy }: { enemy: CustomEnemyData }) => {
   }, [enemy, frame, m.lpSpecialAbility]);
 
   return (
-    <div className="border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+    <div className="border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
       <canvas
         ref={canvasRef}
         width={200}

@@ -17,7 +17,7 @@ export function TowerAbilityCanvasPreview({ tower, className = '' }: TowerAbilit
 
   return (
     <div
-      className={`overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)] ${className}`}
+      className={`overflow-hidden border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] ${className}`}
     >
       <TowerShootPreview
         custom={{

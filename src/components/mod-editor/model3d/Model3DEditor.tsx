@@ -28,6 +28,7 @@ import { getMaterialRoles, getShapeCategories, getModelTemplates, resolveShapeNa
 import {
   CrossIcon, TrashIcon, CopyIcon, CheckIcon, BoxIcon, SparklesIcon, RefreshIcon,
 } from '@/components/ui/Icons';
+import { Btn, IconBtn } from '@/components/hl';
 
 const TILE_HALF = 0.47;
 
@@ -381,20 +382,20 @@ export function Model3DEditor({ tower, onSave, onClose }: Model3DEditorProps) {
 
   return createPortal(
     <motion.div
-      className="fixed inset-0 z-[100001] bg-[#0b0d12]/97 flex flex-col"
+      className="fixed inset-0 z-[100001] bg-[var(--cn-paper)]/97 flex flex-col"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
       {/* ===== 頂部工具列 ===== */}
-      <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-[var(--hl-line)] flex-shrink-0">
+      <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-[var(--cn-line-soft)] flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-[rgba(111,168,255,0.12)] border border-[rgba(111,168,255,0.38)] flex items-center justify-center">
-            <BoxIcon className="w-4 h-4 text-[var(--hl-reach)]" />
+          <div className="w-9 h-9 bg-[rgba(111,140,255,0.12)] border border-[rgba(111,140,255,0.38)] flex items-center justify-center">
+            <BoxIcon className="w-4 h-4 text-[var(--arc-reach)]" />
           </div>
           <div>
-            <h2 className="text-sm font-black tracking-widest text-[var(--hl-ink)] uppercase">{m.m3dTitle}</h2>
-            <p className="text-[9px] font-bold tracking-wider text-[var(--hl-ink-4)] uppercase">
+            <h2 className="text-sm font-black tracking-widest text-[var(--arc-ink)] uppercase">{m.m3dTitle}</h2>
+            <p className="text-[9px] font-bold tracking-wider text-[var(--arc-ink-4)] uppercase">
               {fillTemplate(m.m3dSubtitle, { name: tower.name || m.m3dUnnamedTower, count: parts.length })}
             </p>
           </div>
@@ -416,46 +417,54 @@ export function Model3DEditor({ tower, onSave, onClose }: Model3DEditorProps) {
               size="sm"
             />
           </div>
-          <button
+          <Btn
+            variant="line"
+            size="sm"
             onClick={undo}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[var(--hl-deck-2)] border border-[var(--hl-line)] text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)] hover:bg-[var(--hl-deck-3)] text-[10px] font-black tracking-widest uppercase transition-all"
             title={m.m3dUndoTitle}
+            className="gap-1.5 text-[10px] font-black tracking-widest uppercase"
           >
             <RefreshIcon className="w-3 h-3 -scale-x-100" /> {m.m3dUndo}
-          </button>
-          <button
+          </Btn>
+          <Btn
+            variant="danger"
+            size="sm"
             onClick={() => { pushHistory(); setParts([]); setSelectedId(null); }}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[var(--hl-deck-2)] border border-[var(--hl-line)] text-[var(--hl-ink-3)] hover:text-[var(--hl-alarm)] hover:bg-[rgba(255,75,62,0.12)] hover:border-[rgba(255,75,62,0.38)] text-[10px] font-black tracking-widest uppercase transition-all"
+            className="gap-1.5 text-[10px] font-black tracking-widest uppercase"
           >
             <TrashIcon className="w-3 h-3" /> {m.m3dClear}
-          </button>
-          <button
+          </Btn>
+          <Btn
+            variant="line"
+            size="sm"
             onClick={onClose}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[var(--hl-deck-2)] border border-[var(--hl-line)] text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)] hover:bg-[var(--hl-deck-3)] text-[10px] font-black tracking-widest uppercase transition-all"
+            className="gap-1.5 text-[10px] font-black tracking-widest uppercase"
           >
             <CrossIcon className="w-3 h-3" /> {m.m3dCancel}
-          </button>
-          <button
+          </Btn>
+          <Btn
+            variant="signal"
+            size="sm"
             onClick={() => onSave({ parts })}
             disabled={parts.length === 0}
-            className="flex items-center gap-1.5 px-5 py-2 bg-[rgba(56,224,143,0.12)] border border-[rgba(56,224,143,0.38)] text-[var(--hl-vital)] hover:bg-[rgba(56,224,143,0.12)] disabled:opacity-40 disabled:cursor-not-allowed text-[10px] font-black tracking-widest uppercase transition-all"
+            className="gap-1.5 bg-[rgba(53,224,138,0.12)] text-[var(--arc-vital)] text-[10px] font-black tracking-widest uppercase"
           >
             <CheckIcon className="w-3 h-3" /> {m.m3dSave}
-          </button>
+          </Btn>
         </div>
       </div>
 
       {/* ===== 主體三欄 ===== */}
       <div className="flex-1 flex min-h-0">
         {/* 左：部件庫 */}
-        <div className="w-52 border-r border-[var(--hl-line)] flex flex-col flex-shrink-0">
-          <div className="flex flex-wrap gap-1 p-3 border-b border-[var(--hl-line)]">
+        <div className="w-52 border-r border-[var(--cn-line-soft)] flex flex-col flex-shrink-0">
+          <div className="flex flex-wrap gap-1 p-3 border-b border-[var(--cn-line-soft)]">
             {shapeCategories.map((c, i) => (
               <button
                 key={c.name}
                 onClick={() => setActiveCat(i)}
                 className={`px-2.5 py-1.5  text-[9px] font-black tracking-widest uppercase transition-all ${
-                  activeCat === i ? 'bg-[rgba(111,168,255,0.12)] text-[var(--hl-reach)] border border-[rgba(111,168,255,0.38)]' : 'bg-[var(--hl-deck-2)] text-[var(--hl-ink-4)] border border-[var(--hl-line)] hover:text-[var(--hl-ink-2)]'
+                  activeCat === i ? 'bg-[rgba(111,140,255,0.12)] text-[var(--arc-reach)] border border-[rgba(111,140,255,0.38)]' : 'bg-[var(--arc-deck-2)] text-[var(--arc-ink-4)] border-[3px] border-[var(--cn-line-soft)] hover:text-[var(--arc-ink-2)]'
                 }`}
               >
                 {c.name}
@@ -467,13 +476,13 @@ export function Model3DEditor({ tower, onSave, onClose }: Model3DEditorProps) {
               <button
                 key={s.id}
                 onClick={() => addPart(s.id)}
-                className="px-2 py-2.5 bg-[var(--hl-deck-2)] border border-[var(--hl-line)] hover:bg-[rgba(111,168,255,0.12)] hover:border-[rgba(111,168,255,0.38)] text-[var(--hl-ink-3)] hover:text-[var(--hl-reach)] text-[10px] font-bold tracking-wider transition-all"
+                className="px-2 py-2.5 bg-[var(--arc-deck-2)] border-[3px] border-[var(--cn-line-soft)] hover:bg-[rgba(111,140,255,0.12)] hover:border-[rgba(111,140,255,0.38)] text-[var(--arc-ink-3)] hover:text-[var(--arc-reach)] text-[10px] font-bold tracking-wider transition-all"
               >
                 {s.name}
               </button>
             ))}
           </div>
-          <div className="p-3 border-t border-[var(--hl-line)] text-[8px] leading-relaxed font-bold tracking-wider text-[var(--hl-ink)]/25 uppercase">
+          <div className="p-3 border-t border-[var(--cn-line-soft)] text-[8px] leading-relaxed font-bold tracking-wider text-[var(--arc-ink)]/25 uppercase">
             {m.m3dAddHint}
           </div>
         </div>
@@ -490,26 +499,26 @@ export function Model3DEditor({ tower, onSave, onClose }: Model3DEditorProps) {
             onWheel={onWheel}
           />
           {/* 操作提示 */}
-          <div className="absolute left-4 bottom-4 flex flex-col gap-1 pointer-events-none border border-[var(--hl-line)] bg-[rgba(6,7,10,0.72)] px-2.5 py-2">
-            <span className="text-[9px] font-bold tracking-wider text-[var(--hl-ink-4)] uppercase">{m.m3dControls1}</span>
-            <span className="text-[9px] font-bold tracking-wider text-[var(--hl-ink-4)] uppercase">{m.m3dControls2}</span>
+          <div className="absolute left-4 bottom-4 flex flex-col gap-1 pointer-events-none border-[3px] border-[var(--cn-line-soft)] bg-[rgba(6,7,10,0.72)] px-2.5 py-2">
+            <span className="text-[9px] font-bold tracking-wider text-[var(--arc-ink-4)] uppercase">{m.m3dControls1}</span>
+            <span className="text-[9px] font-bold tracking-wider text-[var(--arc-ink-4)] uppercase">{m.m3dControls2}</span>
           </div>
           {/* 邊界狀態 */}
           <div className={`absolute right-4 top-4 px-3 py-1.5  border text-[9px] font-black tracking-widest uppercase pointer-events-none ${
             maxRadius > TILE_HALF
-              ? 'bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] text-[var(--hl-caution)]'
-              : 'bg-[rgba(56,224,143,0.12)] border-[rgba(56,224,143,0.38)] text-[var(--hl-vital)]/80'
+              ? 'bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] text-[var(--arc-caution)]'
+              : 'bg-[rgba(53,224,138,0.12)] border-[rgba(53,224,138,0.38)] text-[var(--arc-vital)]/80'
           }`}>
             {maxRadius > TILE_HALF ? m.m3dOutOfTile : m.m3dInTile}
           </div>
         </div>
 
         {/* 右：部件列表 + 屬性 */}
-        <div className="w-72 border-l border-[var(--hl-line)] flex flex-col flex-shrink-0">
+        <div className="w-72 border-l border-[var(--cn-line-soft)] flex flex-col flex-shrink-0">
           {/* 列表 */}
           <div className="flex-1 overflow-y-auto p-3 space-y-1.5 min-h-0">
             {parts.length === 0 && (
-              <div className="py-10 text-center text-[10px] font-bold tracking-widest text-[var(--hl-ink)]/25 uppercase">
+              <div className="py-10 text-center text-[10px] font-bold tracking-widest text-[var(--arc-ink)]/25 uppercase">
                 {m.m3dEmptyParts}
               </div>
             )}
@@ -520,58 +529,58 @@ export function Model3DEditor({ tower, onSave, onClose }: Model3DEditorProps) {
                 className={`w-full flex items-center gap-2.5 px-3 py-2  border text-left transition-all ${
                   selectedId === pt.id
                     ? 'bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)]'
-                    : 'bg-[var(--hl-deck-2)] border-[var(--hl-line)] hover:bg-[var(--hl-deck-3)]'
+                    : 'bg-[var(--arc-deck-2)] border-[var(--cn-line-soft)] hover:bg-[var(--arc-deck-3)]'
                 }`}
               >
                 <span
-                  className="w-2.5 h-2.5 flex-shrink-0 border border-[var(--hl-line-strong)]"
+                  className="w-2.5 h-2.5 flex-shrink-0 border border-[var(--arc-line-strong)]"
                   style={{ backgroundColor: materialRoles.find((mr) => mr.id === pt.material)?.chip }}
                 />
-                <span className={`flex-1 text-[11px] font-bold tracking-wider truncate ${selectedId === pt.id ? 'text-[var(--hl-caution)]' : 'text-[var(--hl-ink-2)]'}`}>
+                <span className={`flex-1 text-[11px] font-bold tracking-wider truncate ${selectedId === pt.id ? 'text-[var(--arc-caution)]' : 'text-[var(--arc-ink-2)]'}`}>
                   {resolveShapeName(m, pt.shape)}
                 </span>
-                {pt.spin && <SparklesIcon className="w-3 h-3 text-[var(--hl-reach)]/70 flex-shrink-0" />}
+                {pt.spin && <SparklesIcon className="w-3 h-3 text-[var(--arc-reach)]/70 flex-shrink-0" />}
               </button>
             ))}
           </div>
 
           {/* 選中屬性 */}
           {selected && (
-            <div className="border-t border-[var(--hl-line)] p-4 space-y-4 flex-shrink-0 max-h-[55%] overflow-y-auto">
+            <div className="border-t border-[var(--cn-line-soft)] p-4 space-y-4 flex-shrink-0 max-h-[55%] overflow-y-auto">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black tracking-widest text-[var(--hl-ink)] uppercase">{resolveShapeName(m, selected.shape)}</span>
+                <span className="text-[10px] font-black tracking-widest text-[var(--arc-ink)] uppercase">{resolveShapeName(m, selected.shape)}</span>
                 <div className="flex gap-1">
-                  <button
+                  <IconBtn
+                    label={m.m3dCopyPart}
                     onClick={() => duplicatePart(selected.id)}
-                    className="p-2 bg-[var(--hl-deck-2)] text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)] hover:bg-[var(--hl-deck-3)] transition-all"
-                    title={m.m3dCopyPart}
+                    className="p-2 bg-[var(--arc-deck-2)] text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)] hover:bg-[var(--arc-deck-3)] transition-all"
                   >
                     <CopyIcon className="w-3.5 h-3.5" />
-                  </button>
-                  <button
+                  </IconBtn>
+                  <IconBtn
+                    label={m.m3dDeletePart}
                     onClick={() => removePart(selected.id)}
-                    className="p-2 bg-[var(--hl-deck-2)] text-[var(--hl-ink-3)] hover:text-[var(--hl-alarm)] hover:bg-[rgba(255,75,62,0.12)] transition-all"
-                    title={m.m3dDeletePart}
+                    className="p-2 bg-[var(--arc-deck-2)] text-[var(--arc-ink-3)] hover:text-[var(--arc-alert)] hover:bg-[rgba(255,61,113,0.12)] transition-all"
                   >
                     <TrashIcon className="w-3.5 h-3.5" />
-                  </button>
+                  </IconBtn>
                 </div>
               </div>
 
               {/* 材質 */}
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black tracking-widest text-[var(--hl-ink-4)] uppercase">{m.m3dMaterialLabel}</label>
+                <label className="text-[9px] font-black tracking-widest text-[var(--arc-ink-4)] uppercase">{m.m3dMaterialLabel}</label>
                 <div className="flex gap-1.5">
                   {materialRoles.map((mr) => (
                     <button
                       key={mr.id}
                       onClick={() => updatePart(selected.id, { material: mr.id })}
                       className={`flex-1 flex flex-col items-center gap-1 py-1.5  border transition-all ${
-                        selected.material === mr.id ? 'border-[var(--hl-line-hot)] bg-[var(--hl-deck-3)]' : 'border-[var(--hl-line)] bg-[var(--hl-deck-2)] hover:bg-[var(--hl-deck-3)]'
+                        selected.material === mr.id ? 'border-[var(--arc-line-hot)] bg-[var(--arc-deck-3)]' : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)] hover:bg-[var(--arc-deck-3)]'
                       }`}
                     >
-                      <span className="w-3.5 h-3.5 border border-[var(--hl-line-strong)]" style={{ backgroundColor: mr.chip }} />
-                      <span className={`text-[8px] font-bold tracking-wider ${selected.material === mr.id ? 'text-[var(--hl-ink)]' : 'text-[var(--hl-ink-4)]'}`}>{mr.name}</span>
+                      <span className="w-3.5 h-3.5 border border-[var(--arc-line-strong)]" style={{ backgroundColor: mr.chip }} />
+                      <span className={`text-[8px] font-bold tracking-wider ${selected.material === mr.id ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-4)]'}`}>{mr.name}</span>
                     </button>
                   ))}
                 </div>
@@ -579,7 +588,7 @@ export function Model3DEditor({ tower, onSave, onClose }: Model3DEditorProps) {
 
               {/* 位置 */}
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black tracking-widest text-[var(--hl-ink-4)] uppercase">{m.m3dPositionLabel}</label>
+                <label className="text-[9px] font-black tracking-widest text-[var(--arc-ink-4)] uppercase">{m.m3dPositionLabel}</label>
                 <div className="grid grid-cols-3 gap-2">
                   <CustomNumberInput value={selected.x} onChange={(v) => updatePart(selected.id, { x: v })} step={0.02} min={-0.6} max={0.6} label="X" />
                   <CustomNumberInput value={selected.y} onChange={(v) => updatePart(selected.id, { y: v })} step={0.02} min={0} max={2.4} label="Y" />
@@ -589,7 +598,7 @@ export function Model3DEditor({ tower, onSave, onClose }: Model3DEditorProps) {
 
               {/* 旋轉（度） */}
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black tracking-widest text-[var(--hl-ink-4)] uppercase">{m.m3dRotationLabel}</label>
+                <label className="text-[9px] font-black tracking-widest text-[var(--arc-ink-4)] uppercase">{m.m3dRotationLabel}</label>
                 <div className="grid grid-cols-3 gap-2">
                   <CustomNumberInput value={deg(selected.rx)} onChange={(v) => updatePart(selected.id, { rx: rad(v) })} step={15} label="RX" />
                   <CustomNumberInput value={deg(selected.ry)} onChange={(v) => updatePart(selected.id, { ry: rad(v) })} step={15} label="RY" />
@@ -599,9 +608,9 @@ export function Model3DEditor({ tower, onSave, onClose }: Model3DEditorProps) {
 
               {/* 縮放 */}
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black tracking-widest text-[var(--hl-ink-4)] uppercase flex justify-between">
+                <label className="text-[9px] font-black tracking-widest text-[var(--arc-ink-4)] uppercase flex justify-between">
                   <span>{m.m3dScaleLabel}</span>
-                  <span className="text-[var(--hl-ink)] font-mono normal-case">{selected.scale.toFixed(2)}x</span>
+                  <span className="text-[var(--arc-ink)] font-mono normal-case">{selected.scale.toFixed(2)}x</span>
                 </label>
                 <input
                   type="range" min="0.2" max="3" step="0.05"

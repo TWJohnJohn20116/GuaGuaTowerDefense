@@ -29,7 +29,7 @@ export function TowerEffectBadge({ effectId, size = 'sm', className = '' }: Towe
 
   return (
     <span
-      className={`inline-flex items-center border bg-[var(--hl-void-2)] font-mono leading-none tracking-[0.02em] ${box} ${style.border} ${style.text} ${className}`}
+      className={`inline-flex items-center border bg-[var(--arc-void-2)] font-mono leading-none tracking-[0.02em] ${box} ${style.border} ${style.text} ${className}`}
     >
       <span className={`flex flex-shrink-0 items-center ${iconSize}`}>
         {getTowerEffectIcon(effectId, iconSize)}

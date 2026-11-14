@@ -35,10 +35,10 @@ type EnemyBarTone = 'vital' | 'alarm' | 'caution' | 'reach';
 const TONE_ORDER: EnemyBarTone[] = ['reach', 'alarm', 'vital', 'caution'];
 
 const TONE_FALLBACK: Record<EnemyBarTone, string> = {
-  vital: '#38e08f',
+  vital: '#35e08a',
   alarm: '#ff4b3e',
-  caution: '#ffb627',
-  reach: '#6fa8ff',
+  caution: '#ffa62b',
+  reach: '#6f8cff',
 };
 
 function enemyBarTone(type: string): EnemyBarTone {
@@ -47,13 +47,13 @@ function enemyBarTone(type: string): EnemyBarTone {
   return TONE_ORDER[hash % TONE_ORDER.length];
 }
 
-/** CSS 用：回傳 `var(--hl-*)` 字串。 */
+/** CSS 用：回傳 `var(--arc-*)` 字串。 */
 export function enemyBarVar(type: string): string {
-  return `var(--hl-${enemyBarTone(type)})`;
+  return `var(--arc-${enemyBarTone(type)})`;
 }
 
 function toneHex(tone: EnemyBarTone): string {
-  return getThemeColor(`--hl-${tone}`, TONE_FALLBACK[tone]);
+  return getThemeColor(`--arc-${tone}`, TONE_FALLBACK[tone]);
 }
 
 interface WaveEnemySegment {
@@ -167,10 +167,10 @@ export function WaveTimelinePreview({
     canvas.height = h * dpr;
     ctx.scale(dpr, dpr);
 
-    const bg = getThemeColor('--hl-void-2', '#080b0f');
-    const text = getThemeColor('--hl-ink-3', '#6c7480');
-    const line = getThemeColor('--hl-line', '#222831');
-    const signal = getThemeColor('--hl-signal', '#d9ff3f');
+    const bg = getThemeColor('--arc-void-2', '#080b0f');
+    const text = getThemeColor('--arc-ink-3', '#6c7480');
+    const line = getThemeColor('--arc-line', '#222831');
+    const signal = getThemeColor('--arc-gold', '#ffd447');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, width, h);
 
@@ -267,7 +267,7 @@ export function WaveTimelinePreview({
       <Empty
         title={
           <span className="flex items-center justify-center gap-2">
-            <WaveIcon className="h-4 w-4 text-[var(--hl-ink-4)]" />
+            <WaveIcon className="h-4 w-4 text-[var(--arc-ink-4)]" />
             {m.noWaves}
           </span>
         }
@@ -290,9 +290,9 @@ export function WaveTimelinePreview({
           onWaveClick(selectedWaveIndex - 1);
         }
       }}
-      className={`w-full border border-[var(--hl-line)] bg-[var(--hl-void-2)] ${
+      className={`w-full border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] ${
         onWaveClick
-          ? 'cursor-pointer hover:border-[var(--hl-signal-edge)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--hl-signal)]'
+          ? 'cursor-pointer hover:border-[var(--arc-gold-edge)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--arc-gold)]'
           : ''
       } ${className}`}
       style={{ height, display: 'block' }}

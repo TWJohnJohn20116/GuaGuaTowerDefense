@@ -23,10 +23,10 @@ const TOOL_ICON: Record<EditorTool, React.ReactNode> = {
 
 /** 舊介面用 tailwind 名稱傳色，這裡接回四個資料色。 */
 const TOOL_TINT: Record<string, string> = {
-  blue: 'text-[var(--hl-reach)]',
-  green: 'text-[var(--hl-vital)]',
-  red: 'text-[var(--hl-alarm)]',
-  orange: 'text-[var(--hl-caution)]',
+  blue: 'text-[var(--arc-reach)]',
+  green: 'text-[var(--arc-vital)]',
+  red: 'text-[var(--arc-alert)]',
+  orange: 'text-[var(--arc-caution)]',
 };
 
 export const ToolButton = ({
@@ -56,10 +56,10 @@ export const ToolButton = ({
       aria-pressed={isActive}
       className={
         isActive
-          ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
+          ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
           : undefined
       }
-      icon={<span className={isActive ? '' : TOOL_TINT[color] ?? 'text-[var(--hl-ink-2)]'}>{TOOL_ICON[tool]}</span>}
+      icon={<span className={isActive ? '' : TOOL_TINT[color] ?? 'text-[var(--arc-ink-2)]'}>{TOOL_ICON[tool]}</span>}
     >
       {label}
     </Btn>
@@ -82,7 +82,7 @@ export const MapEditorToolbar = ({
   const { t } = useTranslation();
   const me = t.mapEditor;
   return (
-    <div className="flex h-11 shrink-0 items-center gap-1.5 border-b border-[var(--hl-line)] bg-[var(--hl-void)] px-3">
+    <div className="flex h-11 shrink-0 items-center gap-1.5 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-3">
       <div className="flex items-center gap-1.5">
         <ToolButton tool="path" currentTool={currentTool} onClick={() => onToolChange('path')} icon="🛤️" label={me.toolPath} color="blue" />
         <ToolButton tool="start" currentTool={currentTool} onClick={() => onToolChange('start')} icon="🟢" label={me.setStart} color="green" />
@@ -126,9 +126,9 @@ function ValCell({
   label: React.ReactNode;
   tone?: 'vital' | 'alarm';
 }) {
-  const active = ok ? (tone === 'vital' ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-alarm)]') : 'text-[var(--hl-ink-3)]';
+  const active = ok ? (tone === 'vital' ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-alert)]') : 'text-[var(--arc-ink-3)]';
   return (
-    <div className="flex items-center gap-2 bg-[var(--hl-deck)] px-3 py-2">
+    <div className="flex items-center gap-2 bg-[var(--arc-deck)] px-3 py-2">
       <Dot tone={ok ? tone : 'ink'} />
       <span className={`font-mono text-[10px] tracking-[0.06em] ${active}`}>{label}</span>
     </div>
@@ -149,7 +149,7 @@ export const MapValidation = ({
   const { t } = useTranslation();
   const m = t.modEditorExt;
   return (
-    <div className="grid grid-cols-4 gap-px border border-[var(--hl-line)] bg-[var(--hl-line)]">
+    <div className="grid grid-cols-4 gap-px border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-line)]">
       <ValCell ok={hasStart} label={m.mapValStart} />
       <ValCell ok={hasEnd} label={m.mapValEnd} />
       <ValCell ok={pathLength >= 10} label={fillTemplate(m.mapValPathLen, { len: String(pathLength) })} />

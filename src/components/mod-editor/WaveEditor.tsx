@@ -15,7 +15,7 @@ import { EnemyTypeSelector } from './EnemyTypeSelector';
 import { WaveTimelinePreview } from './WaveTimelinePreview';
 import { WaveTypeLegend } from './WaveTypeLegend';
 import { reorderWaves, duplicateAllWaves, adjustFocusedIndexAfterReorder } from './waveEditorWaveOps';
-import { Btn, Rule, StatCell, Empty } from '@/components/hl';
+import { Btn, Deck, Empty, Input, Rule, StatCell } from '@/components/hl';
 
 // 預設波次模板
 function templateBoss(): WaveConfig {
@@ -168,16 +168,16 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
   };
 
   return (
-    <div className="relative flex flex-col overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-deck)]">
+    <Deck className="relative flex flex-col overflow-hidden">
 
       {/* 標題帶：mono 標籤 + 動作 */}
-      <div className="flex h-11 shrink-0 items-center gap-2 border-b border-[var(--hl-line)] px-3">
-        <WaveIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-ink-3)]" />
-        <span className="hl-label truncate">{m.waveSetTitle}</span>
-        <span className="font-mono text-[10px] tabular-nums tracking-wider text-[var(--hl-ink-4)]">
+      <div className="flex h-11 shrink-0 items-center gap-2 border-b border-[var(--cn-line-soft)] px-3">
+        <WaveIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-ink-3)]" />
+        <span className="arc-label truncate">{m.waveSetTitle}</span>
+        <span className="font-mono text-[10px] tabular-nums tracking-wider text-[var(--arc-ink-4)]">
           {String(waveSet.waves.length).padStart(2, '0')}
         </span>
-        <span className="h-px flex-1 bg-[var(--hl-line)]" />
+        <span className="h-px flex-1 bg-[var(--arc-line)]" />
 
         <div className="flex items-center gap-1">
           <Btn
@@ -199,7 +199,7 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
           <Btn
             size="sm"
             variant="ghost"
-            className="text-[var(--hl-alarm)] hover:text-[var(--hl-alarm)]"
+            className="text-[var(--arc-alert)] hover:text-[var(--arc-alert)]"
             onClick={(e) => { e.stopPropagation(); onDelete(); }}
             title={m.deleteWaveSet}
             aria-label={m.deleteWaveSet}
@@ -209,22 +209,21 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
       </div>
 
       {/* 名稱與描述：標籤 mono 10px 在上，控件在下 */}
-      <div className="shrink-0 space-y-2 border-b border-[var(--hl-line)] px-3 py-2.5">
+      <div className="shrink-0 space-y-2 border-b border-[var(--cn-line-soft)] px-3 py-2.5">
         <label className="flex flex-col gap-1.5">
-          <span className="hl-label">{m.waveSetTitle}</span>
-          <input
+          <span className="arc-label">{m.waveSetTitle}</span>
+          <Input
             value={waveSet.name}
             onChange={(e) => onChange({ ...waveSet, name: e.target.value })}
-            className="hl-input"
             placeholder={m.waveNamePh}
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="hl-label">{m.waveSetSubtitle}</span>
+          <span className="arc-label">{m.waveSetSubtitle}</span>
           <textarea
             value={waveSet.description}
             onChange={(e) => onChange({ ...waveSet, description: e.target.value })}
-            className="w-full resize-none border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-2.5 py-1.5 text-[12.5px] leading-snug text-[var(--hl-ink)] outline-none transition-colors placeholder:text-[var(--hl-ink-4)] focus:border-[var(--hl-signal)]"
+            className="w-full resize-none border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-2.5 py-1.5 text-[12.5px] leading-snug text-[var(--arc-ink)] outline-none transition-colors placeholder:text-[var(--arc-ink-4)] focus:border-[var(--arc-gold)]"
             placeholder={m.waveDescPh}
             rows={1}
           />
@@ -232,23 +231,23 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
       </div>
 
       {/* 統計列：方塊分格，1px 線 */}
-      <div className="grid shrink-0 grid-cols-5 gap-px border-b border-[var(--hl-line)] bg-[var(--hl-line)]">
-        <div className="bg-[var(--hl-deck)] px-3 py-2">
+      <div className="grid shrink-0 grid-cols-5 gap-px border-b border-[var(--cn-line-soft)] bg-[var(--arc-line)]">
+        <div className="bg-[var(--arc-deck)] px-3 py-2">
           <StatCell label={m.waveCount} value={waveSet.waves.length} tone="signal" />
         </div>
-        <div className="bg-[var(--hl-deck)] px-3 py-2">
+        <div className="bg-[var(--arc-deck)] px-3 py-2">
           <StatCell label={m.waveTotalEnemies} value={totalEnemies} tone="alarm" />
         </div>
-        <div className="bg-[var(--hl-deck)] px-3 py-2">
+        <div className="bg-[var(--arc-deck)] px-3 py-2">
           <StatCell
             label={<span className="flex items-center gap-1"><HeartIcon className="h-2.5 w-2.5" />{m.waveStatHpLabel}</span>}
             value={stats.totalHP.toLocaleString()}
           />
         </div>
-        <div className="bg-[var(--hl-deck)] px-3 py-2">
+        <div className="bg-[var(--arc-deck)] px-3 py-2">
           <StatCell label={m.waveReward} value={`$${stats.totalReward}`} tone="caution" />
         </div>
-        <div className="bg-[var(--hl-deck)] px-3 py-2">
+        <div className="bg-[var(--arc-deck)] px-3 py-2">
           <StatCell
             label={<span className="flex items-center gap-1"><ClockIcon className="h-2.5 w-2.5" />{m.waveStatDuration}</span>}
             value={`~${(stats.totalDuration / 1000).toFixed(0)}`}
@@ -260,7 +259,7 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
 
       {/* 波次時間軸預覽 */}
       {waveSet.waves.length > 0 && (
-        <div className="shrink-0 border-b border-[var(--hl-line)] px-3 py-2.5">
+        <div className="shrink-0 border-b border-[var(--cn-line-soft)] px-3 py-2.5">
           <WaveTimelinePreview
             waveSet={waveSet}
             height={100}
@@ -274,8 +273,8 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
 
       {/* 批次選取帶 */}
       {batchSelected.size > 0 && (
-        <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[var(--hl-line)] bg-[var(--hl-void-2)] px-3 py-2">
-          <span className="font-mono text-[10px] tracking-[0.06em] text-[var(--hl-reach)]">
+        <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-3 py-2">
+          <span className="font-mono text-[10px] tracking-[0.06em] text-[var(--arc-reach)]">
             {fillTemplate(m.wvBatchSelected, { count: String(batchSelected.size) })}
           </span>
           <Rule vertical className="h-5" />
@@ -326,7 +325,7 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
       </div>
 
       {/* 加入波次 + 範本：一整條帶狀，分組之間 1px 垂直線 */}
-      <div className="flex min-h-11 shrink-0 flex-wrap items-center gap-1.5 border-t border-[var(--hl-line)] bg-[var(--hl-void-2)] px-3 py-2">
+      <div className="flex min-h-11 shrink-0 flex-wrap items-center gap-1.5 border-t border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-3 py-2">
         <Btn
           size="sm"
           variant="line"
@@ -347,12 +346,12 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
         </Btn>
 
         <Rule vertical className="mx-1 h-5" />
-        <span className="hl-label">{m.waveQuickAdd}</span>
+        <span className="arc-label">{m.waveQuickAdd}</span>
 
         <Btn
           size="sm"
           variant="line"
-          className="text-[var(--hl-caution)]"
+          className="text-[var(--arc-caution)]"
           onClick={() => addWave(templateBoss())}
           icon={<SparklesIcon className="h-3.5 w-3.5" />}
         >
@@ -361,7 +360,7 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
         <Btn
           size="sm"
           variant="line"
-          className="text-[var(--hl-alarm)]"
+          className="text-[var(--arc-alert)]"
           onClick={() => addWave(templateSwarm())}
           icon={<BombIcon className="h-3.5 w-3.5" />}
         >
@@ -370,7 +369,7 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
         <Btn
           size="sm"
           variant="line"
-          className="text-[var(--hl-reach)]"
+          className="text-[var(--arc-reach)]"
           onClick={() => addWave(templateMixed())}
           icon={<AlienMonsterIcon className="h-3.5 w-3.5" />}
         >
@@ -382,7 +381,7 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
         <Btn
           size="sm"
           variant="line"
-          className="text-[var(--hl-vital)]"
+          className="text-[var(--arc-vital)]"
           onClick={() => importFromDefault(5)}
           title={m.wvImport5Title}
           icon={<DownloadIcon className="h-3.5 w-3.5" />}
@@ -392,7 +391,7 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
         <Btn
           size="sm"
           variant="line"
-          className="text-[var(--hl-vital)]"
+          className="text-[var(--arc-vital)]"
           onClick={() => importFromDefault(10)}
           title={m.wvImport10Title}
           icon={<DownloadIcon className="h-3.5 w-3.5" />}
@@ -413,7 +412,7 @@ export const WaveEditor = ({ waveSet, onChange, onDelete, onDuplicate }: WaveEdi
           />
         )}
       </AnimatePresence>
-    </div>
+    </Deck>
   );
 };
 
@@ -496,34 +495,34 @@ function WaveCard({
       animate={{ opacity: isDragging ? 0.5 : 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       onClick={onFocus}
-      className={`relative cursor-pointer overflow-hidden border bg-[var(--hl-deck-2)] transition-colors ${
+      className={`relative cursor-pointer overflow-hidden border bg-[var(--arc-deck-2)] transition-colors ${
         isFocused
-          ? 'border-[var(--hl-signal)]'
+          ? 'border-[var(--arc-gold)]'
           : isBatchSelected
-            ? 'border-[var(--hl-caution)]'
-            : 'border-[var(--hl-line)] hover:border-[var(--hl-line-strong)]'
+            ? 'border-[var(--arc-caution)]'
+            : 'border-[var(--cn-line-soft)] hover:border-[var(--arc-line-strong)]'
       } ${isDragging ? 'opacity-50' : ''}`}
     >
       {/* 選中：左緣 2px 訊號條 */}
       <span
         className={`absolute left-0 top-0 h-full w-[2px] ${
-          isFocused ? 'bg-[var(--hl-signal)]' : isBatchSelected ? 'bg-[var(--hl-caution)]' : 'bg-transparent'
+          isFocused ? 'bg-[var(--arc-gold)]' : isBatchSelected ? 'bg-[var(--arc-caution)]' : 'bg-transparent'
         }`}
       />
 
       {/* Wave Header */}
-      <div className="flex items-center gap-2 border-b border-[var(--hl-line)] px-2.5 py-2">
+      <div className="flex items-center gap-2 border-b border-[var(--cn-line-soft)] px-2.5 py-2">
         <input
           type="checkbox"
           checked={!!isBatchSelected}
           onChange={(e) => { e.stopPropagation(); onToggleBatch?.(); }}
           onClick={(e) => e.stopPropagation()}
-          className="h-3.5 w-3.5 shrink-0 appearance-none border border-[var(--hl-line-strong)] bg-[var(--hl-void-2)] checked:border-[var(--hl-signal)] checked:bg-[var(--hl-signal)]"
+          className="h-3.5 w-3.5 shrink-0 appearance-none border border-[var(--arc-line-strong)] bg-[var(--arc-void-2)] checked:border-[var(--arc-gold)] checked:bg-[var(--arc-gold)]"
           title={m.wvBatchSelect}
         />
         <button
           type="button"
-          className="cursor-grab p-1 text-[var(--hl-ink-4)] transition-colors hover:text-[var(--hl-ink-2)] active:cursor-grabbing"
+          className="cursor-grab p-1 text-[var(--arc-ink-4)] transition-colors hover:text-[var(--arc-ink-2)] active:cursor-grabbing"
           title={m.wvDragSort}
           onMouseDown={(e) => e.stopPropagation()}
         >
@@ -531,21 +530,21 @@ function WaveCard({
         </button>
 
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <span className="whitespace-nowrap border border-[var(--hl-line-strong)] px-1.5 py-0.5 font-mono text-[10px] tracking-wider text-[var(--hl-ink)]">
+          <span className="whitespace-nowrap border border-[var(--arc-line-strong)] px-1.5 py-0.5 font-mono text-[10px] tracking-wider text-[var(--arc-ink)]">
             {m.waveLabel.replace('{n}', String(waveIndex + 1))}
           </span>
-          <span className="font-mono text-[10px] text-[var(--hl-ink-3)]">
+          <span className="font-mono text-[10px] text-[var(--arc-ink-3)]">
             {m.waveTotalEnemies}: {totalEnemies}
           </span>
         </div>
 
         <div className="flex items-center gap-1">
-          <CoinIcon className="h-3.5 w-3.5 text-[var(--hl-caution)]" />
-          <input
+          <CoinIcon className="h-3.5 w-3.5 text-[var(--arc-caution)]" />
+          <Input
             type="number"
             value={wave.reward ?? 0}
             onChange={(e) => onChange({ ...wave, reward: parseInt(e.target.value, 10) || 0 })}
-            className="h-6 w-16 border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-1.5 text-right font-mono text-[11px] tabular-nums text-[var(--hl-caution)] outline-none transition-colors focus:border-[var(--hl-signal)]"
+            className="h-6 w-16 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-1.5 text-right font-mono text-[11px] tabular-nums text-[var(--arc-caution)] outline-none transition-colors focus:border-[var(--arc-gold)]"
             min={0}
             placeholder="0"
           />
@@ -581,7 +580,7 @@ function WaveCard({
           <Btn
             size="sm"
             variant="ghost"
-            className="text-[var(--hl-ink-3)] hover:text-[var(--hl-alarm)]"
+            className="text-[var(--arc-ink-3)] hover:text-[var(--arc-alert)]"
             onClick={(e) => { e.stopPropagation(); onDelete(); }}
             title={m.deleteWave}
             aria-label={m.deleteWave}
@@ -592,8 +591,8 @@ function WaveCard({
 
       {/* 時間軸預覽：1px 線 + 方塊，不發光 */}
       {timeline.points.length > 0 && (
-        <div className="border-b border-[var(--hl-line)] bg-[var(--hl-void-2)] px-2.5 py-1.5">
-          <div className="relative h-4 overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+        <div className="border-b border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-2.5 py-1.5">
+          <div className="relative h-4 overflow-hidden border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
             {timeline.points.map((p, i) => {
               const left = (p.time / Math.max(1000, timeline.total)) * 100;
               return (
@@ -607,8 +606,8 @@ function WaveCard({
             })}
           </div>
           <div className="mt-1 flex items-center justify-between">
-            <span className="font-mono text-[10px] text-[var(--hl-ink-4)]">0s</span>
-            <span className="font-mono text-[10px] text-[var(--hl-ink-4)]">{(timeline.total / 1000).toFixed(1)}s</span>
+            <span className="font-mono text-[10px] text-[var(--arc-ink-4)]">0s</span>
+            <span className="font-mono text-[10px] text-[var(--arc-ink-4)]">{(timeline.total / 1000).toFixed(1)}s</span>
           </div>
         </div>
       )}
@@ -616,12 +615,12 @@ function WaveCard({
       {/* Enemy Groups */}
       <div className="space-y-1.5 p-2">
         {wave.enemies.length === 0 && (
-          <p className="py-3 text-center font-mono text-[10px] text-[var(--hl-ink-4)]">
+          <p className="py-3 text-center font-mono text-[10px] text-[var(--arc-ink-4)]">
             {m.noEnemies}
           </p>
         )}
         {wave.enemies.map((eg, idx) => (
-          <div key={idx} className="flex items-center gap-2 border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-2 py-1.5">
+          <div key={idx} className="flex items-center gap-2 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-2 py-1.5">
             <div className="min-w-0 flex-1">
               <EnemyTypeSelector
                 value={eg.type}
@@ -630,22 +629,22 @@ function WaveCard({
               />
             </div>
             <div className="flex items-center gap-1">
-              <span className="hl-label">{m.count}</span>
-              <input
+              <span className="arc-label">{m.count}</span>
+              <Input
                 type="number"
                 value={eg.count}
                 onChange={(e) => updateEnemy(idx, { count: Math.max(1, parseInt(e.target.value, 10) || 1) })}
-                className="h-6 w-12 border border-[var(--hl-line)] bg-[var(--hl-deck)] px-1.5 text-right font-mono text-[11px] tabular-nums text-[var(--hl-ink)] outline-none transition-colors focus:border-[var(--hl-signal)]"
+                className="h-6 w-12 px-1.5 text-right font-mono text-[11px] tabular-nums text-[var(--arc-ink)] outline-none transition-colors focus:border-[var(--arc-gold)]"
                 min={1}
               />
             </div>
             <div className="flex items-center gap-1">
-              <span className="hl-label">{m.spawnDelay}</span>
-              <input
+              <span className="arc-label">{m.spawnDelay}</span>
+              <Input
                 type="number"
                 value={eg.delay ?? 0}
                 onChange={(e) => updateEnemy(idx, { delay: Math.max(0, parseInt(e.target.value, 10) || 0) })}
-                className="h-6 w-16 border border-[var(--hl-line)] bg-[var(--hl-deck)] px-1.5 text-right font-mono text-[11px] tabular-nums text-[var(--hl-ink)] outline-none transition-colors focus:border-[var(--hl-signal)]"
+                className="h-6 w-16 px-1.5 text-right font-mono text-[11px] tabular-nums text-[var(--arc-ink)] outline-none transition-colors focus:border-[var(--arc-gold)]"
                 min={0}
                 step={100}
               />
@@ -653,7 +652,7 @@ function WaveCard({
             <Btn
               size="sm"
               variant="ghost"
-              className="text-[var(--hl-ink-4)] hover:text-[var(--hl-alarm)]"
+              className="text-[var(--arc-ink-4)] hover:text-[var(--arc-alert)]"
               onClick={(e) => { e.stopPropagation(); removeEnemy(idx); }}
               title={m.deleteEnemyGroup}
               aria-label={m.deleteEnemyGroup}
@@ -663,7 +662,7 @@ function WaveCard({
         ))}
         <button
           onClick={addEnemy}
-          className="flex w-full items-center justify-center gap-1.5 border border-dashed border-[var(--hl-line)] bg-transparent py-1.5 font-mono text-[10px] text-[var(--hl-ink-4)] transition-colors hover:border-[var(--hl-line-strong)] hover:text-[var(--hl-ink-2)]"
+          className="flex w-full items-center justify-center gap-1.5 border border-dashed border-[var(--cn-line-soft)] bg-transparent py-1.5 font-mono text-[10px] text-[var(--arc-ink-4)] transition-colors hover:border-[var(--arc-line-strong)] hover:text-[var(--arc-ink-2)]"
         >
           <PlusIcon className="h-3 w-3" />
           {m.addEnemyGroup}

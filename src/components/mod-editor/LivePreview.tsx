@@ -722,16 +722,16 @@ export const LivePreview = ({
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-1.5">
-          <EyeIcon className="h-3 w-3 text-[var(--hl-ink-3)]" />
-          <span className="hl-label">{m.livePreview}</span>
+          <EyeIcon className="h-3 w-3 text-[var(--arc-ink-3)]" />
+          <span className="arc-label">{m.livePreview}</span>
         </span>
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="flex items-center gap-1 border border-[rgba(255,182,39,0.38)] bg-[rgba(255,182,39,0.12)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-caution)]/90">
+          <span className="flex items-center gap-1 border border-[rgba(255,182,39,0.38)] bg-[rgba(255,182,39,0.12)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-caution)]/90">
             <CoinIcon className="h-3 w-3" />
             {fillTemplate(m.lpBalance, { balance: String(simBalance) })}
           </span>
           {towers.length > 0 && (
-            <span className=" border border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-3)]">
+            <span className=" arc-panel px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-ink-3)]">
               {fillTemplate(m.lpDeployedBadge, {
                 deployed: String(deployedTowers.size),
                 total: String(towers.length),
@@ -739,7 +739,7 @@ export const LivePreview = ({
             </span>
           )}
           {moneyWarning && (
-            <span className=" border border-[rgba(255,75,62,0.38)] bg-[rgba(255,75,62,0.12)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-alarm)]">
+            <span className=" border border-[rgba(255,61,113,0.38)] bg-[rgba(255,61,113,0.12)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-alert)]">
               {moneyWarning}
             </span>
           )}
@@ -752,7 +752,7 @@ export const LivePreview = ({
                     setWaveSetIndex(Number(e.target.value));
                     setCurrentWaveIndex(0);
                   }}
-                  className=" border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-2)]"
+                  className=" border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-ink-2)]"
                 >
                   {validWaveSets.map((ws, i) => (
                     <option key={ws.id} value={i}>{ws.name}</option>
@@ -763,7 +763,7 @@ export const LivePreview = ({
                 <select
                   value={currentWaveIndex}
                   onChange={(e) => setCurrentWaveIndex(Number(e.target.value))}
-                  className=" border border-[rgba(255,182,39,0.38)] bg-[rgba(255,182,39,0.12)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-caution)]/90"
+                  className=" border border-[rgba(255,182,39,0.38)] bg-[rgba(255,182,39,0.12)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-caution)]/90"
                 >
                   {waveSet.waves.map((_, i) => (
                     <option key={i} value={i}>
@@ -777,8 +777,8 @@ export const LivePreview = ({
                 onClick={() => setAutoCycleWaves((v) => !v)}
                 className={` border px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] ${
                   autoCycleWaves
-                    ? 'border-[rgba(255,182,39,0.38)] bg-[rgba(255,182,39,0.12)] text-[var(--hl-caution)]'
-                    : 'border-[var(--hl-line)] bg-[var(--hl-deck-2)] text-[var(--hl-ink-3)]'
+                    ? 'border-[rgba(255,182,39,0.38)] bg-[rgba(255,182,39,0.12)] text-[var(--arc-caution)]'
+                    : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)] text-[var(--arc-ink-3)]'
                 }`}
               >
                 {autoCycleWaves ? m.lpToggleCycle : m.lpToggleSingle}
@@ -789,7 +789,7 @@ export const LivePreview = ({
             <select
               value={mapIndex}
               onChange={(e) => setMapIndex(Number(e.target.value))}
-              className=" border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-2)]"
+              className=" border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-ink-2)]"
             >
               {validMaps.map((map, i) => (
                 <option key={map.id} value={i}>{map.name}</option>
@@ -799,7 +799,7 @@ export const LivePreview = ({
           <button
             type="button"
             onClick={initBattle}
-            className="flex items-center gap-1 border border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-3)] hover:text-[var(--hl-ink-2)]"
+            className="flex items-center gap-1 arc-panel px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-ink-3)] hover:text-[var(--arc-ink-2)]"
             title={m.lpResetTitle}
           >
             <RefreshIcon className="h-3 w-3" />
@@ -809,7 +809,7 @@ export const LivePreview = ({
             type="button"
             onClick={() => setIsPlaying((v) => !v)}
             className={`flex items-center gap-1 border px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] ${
-              isPlaying ? 'border-[rgba(111,168,255,0.38)] bg-[rgba(111,168,255,0.12)] text-[var(--hl-reach)]' : 'border-[var(--hl-line)] bg-[var(--hl-deck-2)] text-[var(--hl-ink-3)]'
+              isPlaying ? 'border-[rgba(111,140,255,0.38)] bg-[rgba(111,140,255,0.12)] text-[var(--arc-reach)]' : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)] text-[var(--arc-ink-3)]'
             }`}
           >
             {isPlaying ? <PauseIcon className="h-3 w-3" /> : <PlayIcon className="h-3 w-3" />}
@@ -818,20 +818,20 @@ export const LivePreview = ({
         </div>
       </div>
       {waveMode ? (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-caution)]/80">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-caution)]/80">
           <span>
             {fillTemplate(m.lpWaveProgress, {
               current: String(currentWaveIndex + 1),
               total: String(waveSet?.waves.length ?? 0),
             })}
           </span>
-          <span className="flex items-center gap-1 text-[var(--hl-caution)]/90">
+          <span className="flex items-center gap-1 text-[var(--arc-caution)]/90">
             <CoinIcon className="h-3 w-3" />
             {fillTemplate(m.lpWaveRewardLine, { reward: String(waveSet?.waves[currentWaveIndex]?.reward ?? 0) })}
           </span>
-          <span className="text-[var(--hl-ink-3)]">{fillTemplate(m.lpEarnedTotal, { total: String(earnedRewards) })}</span>
+          <span className="text-[var(--arc-ink-3)]">{fillTemplate(m.lpEarnedTotal, { total: String(earnedRewards) })}</span>
           {lastWaveReward > 0 && interWaveUi > 0 && (
-            <span className="text-[var(--hl-reach)]/80">
+            <span className="text-[var(--arc-reach)]/80">
               {fillTemplate(m.lpNextWaveIn, {
                 seconds: String(Math.max(1, Math.ceil(((INTER_WAVE_DELAY_TICKS - interWaveUi) * 50) / 1000))),
               })}
@@ -840,15 +840,15 @@ export const LivePreview = ({
           {autoCycleWaves && <span>· {m.lpAutoCycle}</span>}
         </div>
       ) : pathMode ? (
-        <p className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-reach)]/70">
+        <p className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-reach)]/70">
           {m.lpPathModeHint}
         </p>
       ) : (
-        <p className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+        <p className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
           {m.lpDeployHint}
-          <span className="text-[var(--hl-ink-4)]"> · </span>
+          <span className="text-[var(--arc-ink-4)]"> · </span>
           {m.lpUndeployHint}
-          <span className="text-[var(--hl-ink-4)]"> · </span>
+          <span className="text-[var(--arc-ink-4)]"> · </span>
           {m.lpCombatHint}
         </p>
       )}
@@ -856,7 +856,7 @@ export const LivePreview = ({
         ref={canvasRef}
         width={480}
         height={300}
-        className="w-full cursor-pointer border border-[var(--hl-line)] bg-[var(--hl-void-2)]"
+        className="w-full cursor-pointer border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]"
         style={{ imageRendering: 'pixelated' }}
         onClick={handleClick}
         onContextMenu={handleContextMenu}

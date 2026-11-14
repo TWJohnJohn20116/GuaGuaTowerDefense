@@ -9,9 +9,9 @@ import { analyzeModBalance } from './modBalanceAnalysis';
 import { ChartIcon } from '@/components/ui/Icons';
 
 function scoreStyle(score: number, m: ReturnType<typeof useTranslation>['t']['modEditorExt']) {
-  if (score >= 70) return { color: 'text-[var(--hl-vital)]', bg: 'bg-[rgba(56,224,143,0.12)]', border: 'border-[rgba(56,224,143,0.38)]', label: m.balBadgeEasy };
-  if (score >= 45) return { color: 'text-[var(--hl-caution)]', bg: 'bg-[rgba(255,182,39,0.12)]', border: 'border-[rgba(255,182,39,0.38)]', label: m.balBadgeMedium };
-  return { color: 'text-[var(--hl-alarm)]', bg: 'bg-[rgba(255,75,62,0.12)]', border: 'border-[rgba(255,75,62,0.38)]', label: m.balBadgeHard };
+  if (score >= 70) return { color: 'text-[var(--arc-vital)]', bg: 'bg-[rgba(53,224,138,0.12)]', border: 'border-[rgba(53,224,138,0.38)]', label: m.balBadgeEasy };
+  if (score >= 45) return { color: 'text-[var(--arc-caution)]', bg: 'bg-[rgba(255,182,39,0.12)]', border: 'border-[rgba(255,182,39,0.38)]', label: m.balBadgeMedium };
+  return { color: 'text-[var(--arc-alert)]', bg: 'bg-[rgba(255,61,113,0.12)]', border: 'border-[rgba(255,61,113,0.38)]', label: m.balBadgeHard };
 }
 
 interface ModBalanceScoreBadgeProps {

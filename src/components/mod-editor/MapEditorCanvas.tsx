@@ -16,12 +16,12 @@ const C = {
   hoverStart: 'rgba(56, 224, 143, 0.24)',
   hoverEnd: 'rgba(255, 75, 62, 0.24)',
   hoverErase: 'rgba(255, 75, 62, 0.16)',
-  startMark: '#38e08f',
+  startMark: '#35e08a',
   endMark: '#ff4b3e',
   linkLine: 'rgba(217, 255, 63, 0.32)',
-  pointStart: '#38e08f',
+  pointStart: '#35e08a',
   pointEnd: '#ff4b3e',
-  pointMid: '#6fa8ff',
+  pointMid: '#6f8cff',
   pointEdge: '#06070a',
   pointIndex: '#eceff2',
 } as const;
@@ -196,7 +196,7 @@ export const MapEditorCanvas = ({
 
   return (
     <motion.div
-      className="relative overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)]"
+      className="relative overflow-hidden border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
@@ -212,7 +212,7 @@ export const MapEditorCanvas = ({
       
       {/* 工具提示：方框 + mono，不用圓角標籤 */}
       <div className="pointer-events-none absolute bottom-2 left-2">
-        <span className="border border-[var(--hl-line)] bg-[var(--hl-void)] px-2 py-1 font-mono text-[10px] text-[var(--hl-ink-3)]">
+        <span className="border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-2 py-1 font-mono text-[10px] text-[var(--arc-ink-3)]">
           點擊格子放置路徑 | 拖曳連續繪製
         </span>
       </div>

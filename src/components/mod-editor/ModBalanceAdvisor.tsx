@@ -12,7 +12,7 @@ import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 import { ChartIcon, DownloadIcon, CopyIcon, DocumentIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
 import { buildBalanceMarkdownReport } from './modBalanceExportMarkdown';
-import { SegHead, Btn, Num } from '@/components/hl';
+import { SegHead, Btn, Deck, Num } from '@/components/hl';
 
 export { analyzeModBalance } from './modBalanceAnalysis';
 
@@ -61,7 +61,7 @@ export function ModBalanceAdvisor({ towers, enemies, waves, className = '' }: Mo
   ];
 
   return (
-    <div className={`flex flex-col gap-2 border border-[var(--hl-line)] bg-[var(--hl-deck)] p-2.5 ${className}`}>
+    <Deck className={`flex flex-col gap-2 p-2.5 ${className}`}>
       <div className="flex items-center gap-2">
         <SegHead
           label={
@@ -74,7 +74,7 @@ export function ModBalanceAdvisor({ towers, enemies, waves, className = '' }: Mo
         />
         <span className="flex shrink-0 items-baseline gap-1">
           <Num value={String(analysis.score)} tone={scoreTone(analysis.score)} size="md" />
-          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
             {scoreLabel(analysis.score, m)}
           </span>
         </span>
@@ -131,10 +131,10 @@ export function ModBalanceAdvisor({ towers, enemies, waves, className = '' }: Mo
       </div>
 
       {/* 數值格：1px 分隔，不用卡片 */}
-      <div className="grid grid-cols-3 gap-px bg-[var(--hl-line)] sm:grid-cols-6">
+      <div className="grid grid-cols-3 gap-px bg-[var(--arc-line)] sm:grid-cols-6">
         {cells.map((cell) => (
-          <div key={cell.key} className="bg-[var(--hl-void-2)] px-1.5 py-1.5">
-            <div className="truncate font-mono text-[8.5px] uppercase tracking-[0.06em] text-[var(--hl-ink-4)]">
+          <div key={cell.key} className="bg-[var(--arc-void-2)] px-1.5 py-1.5">
+            <div className="truncate font-mono text-[8.5px] uppercase tracking-[0.06em] text-[var(--arc-ink-4)]">
               {cell.label}
             </div>
             <div className="mt-0.5">
@@ -145,7 +145,7 @@ export function ModBalanceAdvisor({ towers, enemies, waves, className = '' }: Mo
       </div>
 
       {analysis.waveCount > 0 && (
-        <p className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+        <p className="font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
           {fillTemplate(m.balMetricWaves, {
             waves: String(analysis.waveCount),
             bosses: String(analysis.bossWaves),
@@ -156,6 +156,6 @@ export function ModBalanceAdvisor({ towers, enemies, waves, className = '' }: Mo
       <ModBalanceWaveChart points={analysis.waveThreats} />
 
       <ModBalanceSuggestionGroups items={analysis.categorizedSuggestions} m={m} />
-    </div>
+    </Deck>
   );
 }

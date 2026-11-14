@@ -45,17 +45,17 @@ export function ModIconClearConfirmDialog({ open, onClose, onConfirm }: Props) {
         <SceneModal onClose={onClose} maxWidth="max-w-md" zIndex="z-[100010]" variant="solid">
           <SceneModalHeader
             title={copy.title}
-            icon={<WarningIcon className="h-4 w-4 text-[var(--hl-alarm)]" />}
+            icon={<WarningIcon className="h-4 w-4 text-[var(--arc-alert)]" />}
             onClose={onClose}
-            borderClass="border-[rgba(255,75,62,0.4)]"
+            borderClass="border-[rgba(255,61,113,0.4)]"
           />
           <SceneModalBody className="space-y-3">
             {/* 1px 警示線 + 說明：不用底色塊，不用圓角 */}
-            <p className="border-l-2 border-[var(--hl-alarm)] pl-3 text-[12.5px] leading-relaxed text-[var(--hl-ink-2)]">
+            <p className="border-l-2 border-[var(--arc-alert)] pl-3 text-[12.5px] leading-relaxed text-[var(--arc-ink-2)]">
               {copy.description}
             </p>
           </SceneModalBody>
-          <SceneModalFooter borderClass="border-[var(--hl-line)]">
+          <SceneModalFooter borderClass="border-[var(--cn-line-soft)]">
             <Btn variant="line" size="md" block onClick={onClose} className="flex-1">
               {c.cancel}
             </Btn>

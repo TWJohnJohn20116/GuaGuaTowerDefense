@@ -21,7 +21,7 @@ export function MapEditorShortcutHints({ className = '' }: { className?: string 
   const m = t.modEditorExt;
 
   return (
-    <div className={`border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-3 py-2.5 ${className}`}>
+    <div className={`border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-3 py-2.5 ${className}`}>
       <SegHead
         label={
           <span className="flex items-center gap-1.5">
@@ -36,12 +36,12 @@ export function MapEditorShortcutHints({ className = '' }: { className?: string 
         {SHORTCUTS.map((sc) => (
           <span key={sc.key} className="flex items-center gap-1.5">
             <Key>{sc.key}</Key>
-            <span className="font-mono text-[10px] text-[var(--hl-ink-3)]">{m[sc.labelKey]}</span>
+            <span className="font-mono text-[10px] text-[var(--arc-ink-3)]">{m[sc.labelKey]}</span>
           </span>
         ))}
       </div>
 
-      <p className="mt-2 font-mono text-[10px] leading-snug text-[var(--hl-ink-4)]">
+      <p className="mt-2 font-mono text-[10px] leading-snug text-[var(--arc-ink-4)]">
         {m.mapShortcutFsHint}
       </p>
     </div>

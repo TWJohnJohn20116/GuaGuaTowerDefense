@@ -15,7 +15,7 @@ import { TowerEffectBadgeList } from './TowerEffectBadge';
 import { TowerEncyclopediaLink } from './ModEncyclopediaLink';
 import { getTowerModelTypes } from './modEditorTowerI18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
-import { Btn, Key, SegHead, Toggle } from '@/components/hl';
+import { Btn, Input, Key, Num, SegHead, Toggle } from '@/components/hl';
 
 // 進階面板分區標題（mono 編號 + 一路 1px 線；不加底色塊）
 const SectionHeader = ({ no, title, hint, icon }: { no: string; title: string; hint?: string; icon?: React.ReactNode }) => (
@@ -25,10 +25,10 @@ const SectionHeader = ({ no, title, hint, icon }: { no: string; title: string; h
       <span className="flex items-center gap-2">
         <Key>{no}</Key>
         {icon}
-        <span className="text-[var(--hl-ink-2)]">{title}</span>
+        <span className="text-[var(--arc-ink-2)]">{title}</span>
       </span>
     }
-    right={hint ? <span className="shrink-0 font-mono text-[9.5px] text-[var(--hl-ink-4)]">{hint}</span> : undefined}
+    right={hint ? <span className="shrink-0 font-mono text-[9.5px] text-[var(--arc-ink-4)]">{hint}</span> : undefined}
   />
 );
 
@@ -40,11 +40,11 @@ const SliderField = ({
 }) => (
   <div className="flex flex-col gap-1.5">
     <div className="flex items-baseline justify-between gap-2">
-      <span className="hl-label">{label}</span>
-      <span className="hl-num text-[10.5px] text-[var(--hl-ink-2)]">{readout}</span>
+      <span className="arc-label">{label}</span>
+      <Num value={readout} tone="ink" size="sm" />
     </div>
     {children}
-    {note && <span className="text-[10px] leading-snug text-[var(--hl-ink-3)]">{note}</span>}
+    {note && <span className="text-[10px] leading-snug text-[var(--arc-ink-3)]">{note}</span>}
   </div>
 );
 
@@ -59,15 +59,15 @@ const EffectRow = ({
   onToggle: (v: boolean) => void;
   children?: React.ReactNode;
 }) => (
-  <div className="flex items-center gap-3 border-b border-[var(--hl-line)] px-2.5 py-2 last:border-b-0">
-    <span className={`flex flex-shrink-0 items-center ${on ? 'text-[var(--hl-signal)]' : 'text-[var(--hl-ink-4)]'}`}>
+  <div className="flex items-center gap-3 border-b border-[var(--cn-line-soft)] px-2.5 py-2 last:border-b-0">
+    <span className={`flex flex-shrink-0 items-center ${on ? 'text-[var(--arc-gold)]' : 'text-[var(--arc-ink-4)]'}`}>
       {icon}
     </span>
     <span className="min-w-0 flex-1">
-      <span className={`block truncate text-[12.5px] font-medium ${on ? 'text-[var(--hl-ink)]' : 'text-[var(--hl-ink-2)]'}`}>
+      <span className={`block truncate text-[12.5px] font-medium ${on ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-2)]'}`}>
         {label}
       </span>
-      <span className="mt-0.5 block truncate text-[10px] leading-snug text-[var(--hl-ink-3)]">{description}</span>
+      <span className="mt-0.5 block truncate text-[10px] leading-snug text-[var(--arc-ink-3)]">{description}</span>
     </span>
     {children}
     <Toggle on={on} onChange={onToggle} label={label} />
@@ -98,13 +98,13 @@ export const TowerEditor = ({
     <div className="group relative flex h-[380px] flex-col overflow-hidden">
 
       {/* 列頭：機型代號（mono）+ 名稱輸入 + 操作 */}
-      <div className="flex h-11 shrink-0 items-center gap-3 border-b border-[var(--hl-line)] px-3">
-        <span className="hl-label shrink-0 text-[var(--hl-ink-4)]">{tower.modelType || 'basic'}</span>
-        <span className="h-4 w-px shrink-0 bg-[var(--hl-line)]" />
-        <input
+      <div className="flex h-11 shrink-0 items-center gap-3 border-b border-[var(--cn-line-soft)] px-3">
+        <span className="arc-label shrink-0 text-[var(--arc-ink-4)]">{tower.modelType || 'basic'}</span>
+        <span className="h-4 w-px shrink-0 bg-[var(--arc-line)]" />
+        <Input
           value={tower.name}
           onChange={(e) => onChange({ ...tower, name: e.target.value })}
-          className="min-w-0 flex-1 border-0 bg-transparent px-0 text-[15px] font-semibold tracking-[-0.01em] text-[var(--hl-ink)] outline-none placeholder:text-[var(--hl-ink-4)] focus:outline-none"
+          className="min-w-0 flex-1 border-0 bg-transparent px-0 text-[15px] font-semibold tracking-[-0.01em] text-[var(--arc-ink)] outline-none placeholder:text-[var(--arc-ink-4)] focus:outline-none"
           placeholder={m.towerNamePh}
         />
         <div className="flex shrink-0 items-center gap-1.5">
@@ -138,8 +138,8 @@ export const TowerEditor = ({
       {/* 主體：左側預覽框，右側欄位 */}
       <div className="flex min-h-0 flex-1">
         {/* 預覽框：外框 1px，內部下沉一階，無陰影 */}
-        <div className="flex w-[168px] shrink-0 flex-col gap-2 border-r border-[var(--hl-line)] p-3">
-          <div className="flex flex-1 items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+        <div className="flex w-[168px] shrink-0 flex-col gap-2 border-r border-[var(--cn-line-soft)] p-3">
+          <div className="flex flex-1 items-center justify-center border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
             <TowerPreview towerId={tower.modelType || 'basic'} size={80} color={tower.color} />
           </div>
           <TowerEffectBadgeList tower={tower} size="sm" />
@@ -150,14 +150,14 @@ export const TowerEditor = ({
           <textarea
             value={tower.description}
             onChange={(e) => onChange({ ...tower, description: e.target.value })}
-            className="hl-input h-auto min-h-[46px] resize-none py-1.5 text-[11.5px] leading-snug"
+            className="arc-input h-auto min-h-[46px] resize-none py-1.5 text-[11.5px] leading-snug"
             placeholder={m.towerDescPh}
             rows={2}
           />
 
           {/* 主色 */}
-          <div className="flex items-center justify-between gap-2 border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-2 py-1.5">
-            <span className="hl-num text-[10.5px] text-[var(--hl-ink-2)]">{(tower.color || '').toUpperCase()}</span>
+          <div className="flex items-center justify-between gap-2 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-2 py-1.5">
+            <Num value={(tower.color || '').toUpperCase()} tone="ink" size="sm" />
             <ColorPicker
               color={tower.color}
               onChange={(color) => onChange({ ...tower, color, projectileColor: color, highlightColor: color + '80' })}
@@ -170,11 +170,11 @@ export const TowerEditor = ({
           </div>
 
           {/* 核心數值儀表板：共用 1px 格線 */}
-          <div className="grid grid-cols-4 gap-px border border-[var(--hl-line)] bg-[var(--hl-line)]">
+          <div className="grid grid-cols-4 gap-px border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-line)]">
             {/* 傷害 */}
-            <div className="flex flex-col items-center gap-1.5 bg-[var(--hl-void-2)] px-1 py-2 transition-colors hover:bg-[var(--hl-deck-2)]">
-              <span className="hl-label flex items-center gap-1">
-                <SwordIcon className="h-3 w-3 text-[var(--hl-alarm)]" /> {m.damage}
+            <div className="flex flex-col items-center gap-1.5 bg-[var(--arc-void-2)] px-1 py-2 transition-colors hover:bg-[var(--arc-deck-2)]">
+              <span className="arc-label flex items-center gap-1">
+                <SwordIcon className="h-3 w-3 text-[var(--arc-alert)]" /> {m.damage}
               </span>
               <CustomNumberInput
                 value={tower.damage}
@@ -184,9 +184,9 @@ export const TowerEditor = ({
             </div>
 
             {/* 射程 */}
-            <div className="flex flex-col items-center gap-1.5 bg-[var(--hl-void-2)] px-1 py-2 transition-colors hover:bg-[var(--hl-deck-2)]">
-              <span className="hl-label flex items-center gap-1">
-                <TargetIcon className="h-3 w-3 text-[var(--hl-reach)]" /> {m.range}
+            <div className="flex flex-col items-center gap-1.5 bg-[var(--arc-void-2)] px-1 py-2 transition-colors hover:bg-[var(--arc-deck-2)]">
+              <span className="arc-label flex items-center gap-1">
+                <TargetIcon className="h-3 w-3 text-[var(--arc-reach)]" /> {m.range}
               </span>
               <CustomNumberInput
                 value={tower.range}
@@ -196,9 +196,9 @@ export const TowerEditor = ({
             </div>
 
             {/* 攻速 */}
-            <div className="flex flex-col items-center gap-1.5 bg-[var(--hl-void-2)] px-1 py-2 transition-colors hover:bg-[var(--hl-deck-2)]">
-              <span className="hl-label flex items-center gap-1">
-                <WaveIcon className="h-3 w-3 text-[var(--hl-ink-3)]" /> {m.fireRate}
+            <div className="flex flex-col items-center gap-1.5 bg-[var(--arc-void-2)] px-1 py-2 transition-colors hover:bg-[var(--arc-deck-2)]">
+              <span className="arc-label flex items-center gap-1">
+                <WaveIcon className="h-3 w-3 text-[var(--arc-ink-3)]" /> {m.fireRate}
               </span>
               <CustomNumberInput
                 value={tower.fireRate || 1}
@@ -209,9 +209,9 @@ export const TowerEditor = ({
             </div>
 
             {/* 價格 */}
-            <div className="flex flex-col items-center gap-1.5 bg-[var(--hl-void-2)] px-1 py-2 transition-colors hover:bg-[var(--hl-deck-2)]">
-              <span className="hl-label flex items-center gap-1">
-                <CoinIcon className="h-3 w-3 text-[var(--hl-signal)]" /> {m.cost}
+            <div className="flex flex-col items-center gap-1.5 bg-[var(--arc-void-2)] px-1 py-2 transition-colors hover:bg-[var(--arc-deck-2)]">
+              <span className="arc-label flex items-center gap-1">
+                <CoinIcon className="h-3 w-3 text-[var(--arc-gold)]" /> {m.cost}
               </span>
               <CustomNumberInput
                 value={tower.cost}
@@ -252,15 +252,15 @@ export const TowerEditor = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="absolute inset-0 z-30 flex flex-col overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-deck)]"
+            className="absolute inset-0 z-30 flex flex-col overflow-hidden arc-panel"
           >
             {/* 標題與關閉鍵 */}
-            <div className="flex h-10 shrink-0 items-center justify-between gap-3 border-b border-[var(--hl-line)] bg-[var(--hl-void)] px-3">
+            <div className="flex h-10 shrink-0 items-center justify-between gap-3 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-3">
               <span className="flex min-w-0 items-center gap-2">
                 {showEffects
-                  ? <SparklesIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-ink-3)]" />
-                  : <TargetIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-ink-3)]" />}
-                <span className="truncate text-[13px] font-semibold tracking-[-0.01em] text-[var(--hl-ink)]">
+                  ? <SparklesIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-ink-3)]" />
+                  : <TargetIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-ink-3)]" />}
+                <span className="truncate text-[13px] font-semibold tracking-[-0.01em] text-[var(--arc-ink)]">
                   {showEffects ? m.towerEffectsTitle : m.modelAdvancedTitle}
                 </span>
               </span>
@@ -277,7 +277,7 @@ export const TowerEditor = ({
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
               {showEffects && (
                 <div className="space-y-2">
-                  <div className="border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+                  <div className="border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
                     <EffectRow
                       icon={<ExplosionIcon className="h-4 w-4" />}
                       label={m.splashLabel}
@@ -291,13 +291,13 @@ export const TowerEditor = ({
                     >
                       {tower.splash && (
                         <>
-                          <span className="hl-label shrink-0">{m.radius}</span>
-                          <input
+                          <span className="arc-label shrink-0">{m.radius}</span>
+                          <Input
                             type="number"
                             value={tower.splashRadius || 50}
                             onChange={(e) => onChange({ ...tower, splashRadius: Number(e.target.value) })}
                             onClick={(e) => e.stopPropagation()}
-                            className="hl-input h-7 w-16 shrink-0 px-1.5 text-center font-mono text-[11px]"
+                            className="h-7 w-16 shrink-0 px-1.5 text-center font-mono text-[11px]"
                           />
                         </>
                       )}
@@ -349,16 +349,16 @@ export const TowerEditor = ({
               {showAdvanced && (
                 <div className="space-y-3">
                   {/* 01 · 3D 模型實時預覽（拖曳旋轉；同遊戲 3D 視圖建模） */}
-                  <div className="border border-[var(--hl-line)]">
-                    <div className="border-b border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-2.5 py-2">
+                  <div className="border-[3px] border-[var(--cn-line-soft)]">
+                    <div className="border-b border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)] px-2.5 py-2">
                       <SectionHeader
                         no="01"
                         title={m.twPreview3dTitle}
                         hint={m.twPreview3dHint}
-                        icon={<BoxIcon className="h-3 w-3 text-[var(--hl-ink-3)]" />}
+                        icon={<BoxIcon className="h-3 w-3 text-[var(--arc-ink-3)]" />}
                       />
                     </div>
-                    <div className="bg-[var(--hl-void-2)]">
+                    <div className="bg-[var(--arc-void-2)]">
                       <Tower3DPreview
                         towerId={tower.modelType || 'basic'}
                         color={tower.color}
@@ -373,15 +373,15 @@ export const TowerEditor = ({
                   </div>
 
                   {/* 02 · 自訂 3D 模型（部件級編輯器，優先層級最高） */}
-                  <div className={`border p-2.5 ${hasCustom3d ? 'border-[var(--hl-line-strong)] bg-[var(--hl-deck-2)]' : 'border-[var(--hl-line)] bg-[var(--hl-deck)]'}`}>
+                  <div className={`border p-2.5 ${hasCustom3d ? 'border-[var(--arc-line-strong)] bg-[var(--arc-deck-2)]' : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck)]'}`}>
                     <div className="flex items-center justify-between gap-2">
                       <SectionHeader
                         no="02"
                         title={m.twCustom3dTitle}
-                        icon={<BoxIcon className="h-3 w-3 text-[var(--hl-ink-3)]" />}
+                        icon={<BoxIcon className="h-3 w-3 text-[var(--arc-ink-3)]" />}
                       />
                       {hasCustom3d && (
-                        <span className="shrink-0 border border-[var(--hl-line-strong)] px-1.5 py-[2px] font-mono text-[9.5px] leading-none text-[var(--hl-ink-2)]">
+                        <span className="shrink-0 border border-[var(--arc-line-strong)] px-1.5 py-[2px] font-mono text-[9.5px] leading-none text-[var(--arc-ink-2)]">
                           {fillTemplate(m.twCustom3dActive, { count: tower.custom3d!.parts.length })}
                         </span>
                       )}
@@ -405,7 +405,7 @@ export const TowerEditor = ({
                         </Btn>
                       )}
                     </div>
-                    <p className="mt-2 text-[10px] leading-snug text-[var(--hl-ink-3)]">
+                    <p className="mt-2 text-[10px] leading-snug text-[var(--arc-ink-3)]">
                       {m.twCustom3dDesc}
                     </p>
                   </div>
@@ -417,7 +417,7 @@ export const TowerEditor = ({
                       title={m.twBaseModelTitle}
                       hint={hasCustom3d ? m.twBaseModelHintOff : m.twBaseModelHint}
                     />
-                    <div className="grid grid-cols-4 gap-px border border-[var(--hl-line)] bg-[var(--hl-line)]">
+                    <div className="grid grid-cols-4 gap-px border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-line)]">
                       {towerModels.map((model) => {
                         const active = (tower.modelType || 'basic') === model.id;
                         return (
@@ -425,14 +425,14 @@ export const TowerEditor = ({
                             key={model.id}
                             type="button"
                             onClick={() => onChange({ ...tower, modelType: model.id })}
-                            className="relative flex flex-col items-center justify-center gap-1.5 bg-[var(--hl-void-2)] px-2 py-3 transition-colors duration-150 hover:bg-[var(--hl-deck-2)]"
+                            className="relative flex flex-col items-center justify-center gap-1.5 bg-[var(--arc-void-2)] px-2 py-3 transition-colors duration-150 hover:bg-[var(--arc-deck-2)]"
                           >
                             <span
-                              className={`absolute left-0 top-0 h-full w-[2px] ${active ? 'bg-[var(--hl-signal)]' : 'bg-transparent'}`}
+                              className={`absolute left-0 top-0 h-full w-[2px] ${active ? 'bg-[var(--arc-gold)]' : 'bg-transparent'}`}
                             />
                             <TowerPreview towerId={model.id} size={32} color={tower.color} />
                             <span
-                              className={`w-full truncate text-center font-mono text-[9.5px] leading-none ${active ? 'text-[var(--hl-ink)]' : 'text-[var(--hl-ink-3)]'}`}
+                              className={`w-full truncate text-center font-mono text-[9.5px] leading-none ${active ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-3)]'}`}
                             >
                               {model.name}
                             </span>
@@ -443,12 +443,12 @@ export const TowerEditor = ({
                   </div>
 
                   {/* 04 · 視覺微調（自訂模型生效時停用） */}
-                  <div className={`border border-[var(--hl-line)] p-2.5 ${hasCustom3d ? 'opacity-35 pointer-events-none' : ''}`}>
+                  <div className={`border-[3px] border-[var(--cn-line-soft)] p-2.5 ${hasCustom3d ? 'opacity-35 pointer-events-none' : ''}`}>
                     <SectionHeader
                       no="04"
                       title={m.twVisualTitle}
                       hint={hasCustom3d ? m.twVisualHintOff : m.twVisualHint}
-                      icon={<TargetIcon className="h-3 w-3 text-[var(--hl-ink-3)]" />}
+                      icon={<TargetIcon className="h-3 w-3 text-[var(--arc-ink-3)]" />}
                     />
                     <div className="mt-2.5 grid grid-cols-2 gap-4">
                       <SliderField
@@ -460,7 +460,7 @@ export const TowerEditor = ({
                           type="range" min="0.5" max="2" step="0.1"
                           value={tower.modelScale || 1}
                           onChange={(e) => onChange({ ...tower, modelScale: Number(e.target.value) })}
-                          className="h-1 w-full appearance-none bg-[var(--hl-void-2)] accent-[var(--hl-signal)]"
+                          className="h-1 w-full appearance-none bg-[var(--arc-void-2)] accent-[var(--arc-gold)]"
                         />
                       </SliderField>
                       <SliderField
@@ -472,20 +472,20 @@ export const TowerEditor = ({
                           type="range" min="0.5" max="1" step="0.05"
                           value={Math.min(tower.barrelLength || 1, 1)}
                           onChange={(e) => onChange({ ...tower, barrelLength: Number(e.target.value) })}
-                          className="h-1 w-full appearance-none bg-[var(--hl-void-2)] accent-[var(--hl-signal)]"
+                          className="h-1 w-full appearance-none bg-[var(--arc-void-2)] accent-[var(--arc-gold)]"
                         />
                       </SliderField>
                     </div>
                   </div>
 
                   {/* 05 · 光暈設定（發光件覆蓋色與強度；基礎與自訂模型皆生效） */}
-                  <div className="border border-[var(--hl-line)] p-2.5">
+                  <div className="border-[3px] border-[var(--cn-line-soft)] p-2.5">
                     <div className="flex items-center justify-between gap-2">
                       <SectionHeader
                         no="05"
                         title={m.twGlowTitle}
                         hint={m.twGlowHint}
-                        icon={<SparklesIcon className="h-3 w-3 text-[var(--hl-ink-3)]" />}
+                        icon={<SparklesIcon className="h-3 w-3 text-[var(--arc-ink-3)]" />}
                       />
                       <Toggle
                         on={!!tower.glowColor}
@@ -500,7 +500,7 @@ export const TowerEditor = ({
                     {tower.glowColor && (
                       <div className="mt-2.5 grid grid-cols-2 items-center gap-4">
                         <div className="flex items-center gap-3">
-                          <span className="hl-label">{m.twGlowColor}</span>
+                          <span className="arc-label">{m.twGlowColor}</span>
                           <ColorPicker
                             color={tower.glowColor}
                             onChange={(c) => onChange({ ...tower, glowColor: c })}
@@ -514,7 +514,7 @@ export const TowerEditor = ({
                             type="range" min="0" max="1" step="0.05"
                             value={tower.glowIntensity ?? 0.5}
                             onChange={(e) => onChange({ ...tower, glowIntensity: Number(e.target.value) })}
-                            className="h-1 w-full appearance-none bg-[var(--hl-void-2)] accent-[var(--hl-signal)]"
+                            className="h-1 w-full appearance-none bg-[var(--arc-void-2)] accent-[var(--arc-gold)]"
                           />
                         </SliderField>
                       </div>
@@ -522,30 +522,30 @@ export const TowerEditor = ({
                   </div>
 
                   {/* 06 · 投射物設定 */}
-                  <div className="border border-[var(--hl-line)] p-2.5">
+                  <div className="border-[3px] border-[var(--cn-line-soft)] p-2.5">
                     <SectionHeader
                       no="06"
                       title={m.twProjectileTitle}
                       hint={m.twProjectileHint}
-                      icon={<ZapIcon className="h-3 w-3 text-[var(--hl-ink-3)]" />}
+                      icon={<ZapIcon className="h-3 w-3 text-[var(--arc-ink-3)]" />}
                     />
                     <div className="mt-2.5 grid grid-cols-2 gap-2.5">
                       <div className="flex flex-col gap-1.5">
-                        <label className="hl-label">{m.twProjectileSpeed}</label>
-                        <input
+                        <label className="arc-label">{m.twProjectileSpeed}</label>
+                        <Input
                           type="number"
                           value={tower.projectileSpeed || 400}
                           onChange={(e) => onChange({ ...tower, projectileSpeed: Number(e.target.value) })}
-                          className="hl-input font-mono text-[11.5px]"
+                          className="font-mono text-[11.5px]"
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="hl-label">{m.twProjectileSize}</label>
-                        <input
+                        <label className="arc-label">{m.twProjectileSize}</label>
+                        <Input
                           type="number"
                           value={tower.projectileSize || 5}
                           onChange={(e) => onChange({ ...tower, projectileSize: Number(e.target.value) })}
-                          className="hl-input font-mono text-[11.5px]"
+                          className="font-mono text-[11.5px]"
                         />
                       </div>
                     </div>
