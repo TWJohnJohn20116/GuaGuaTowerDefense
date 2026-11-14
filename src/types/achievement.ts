@@ -18,7 +18,6 @@ export type AchievementCategory =
   | 'map'         // 地圖相關
   | 'challenge'   // 挑戰相關
   | 'collection'  // 收藏相關
-  | 'daily'       // 每日成就
   | 'weekly'      // 每週成就
   | 'hidden'      // 隱藏成就
   | 'rare'        // 稀有成就
@@ -71,7 +70,6 @@ export type AchievementConditionType =
   | 'tactical_protocols'    // 戰術協議選擇次數
   | 'tactical_protocol_types' // 戰術協議種類數
   | 'complete_map'
-  | 'complete_chapter'
   | 'perfect_map'
   | 'build_tower'
   | 'upgrade_tower'
@@ -272,7 +270,6 @@ export const CATEGORY_CONFIG: Record<AchievementCategory, {
   map: { icon: React.createElement(MapIcon, { className: "w-4 h-4 text-emerald-400" }), label: '探索者', description: '地圖相關成就' },
   challenge: { icon: React.createElement(TrophyIcon, { className: "w-4 h-4 text-yellow-400" }), label: '挑戰者', description: '挑戰相關成就' },
   collection: { icon: React.createElement(BooksIcon, { className: "w-4 h-4 text-indigo-400" }), label: '收藏家', description: '收藏相關成就' },
-  daily: { icon: React.createElement(CalendarIcon, { className: "w-4 h-4 text-cyan-400" }), label: '每日任務', description: '每日刷新的成就' },
   weekly: { icon: React.createElement(CalendarIcon, { className: "w-4 h-4 text-purple-400" }), label: '每週挑戰', description: '每週刷新的成就' },
   hidden: { icon: React.createElement(QuestionMarkIcon, { className: "w-4 h-4 text-slate-400" }), label: '隱藏成就', description: '神秘的隱藏成就' },
   rare: { icon: React.createElement(CrystalBallIcon, { className: "w-4 h-4 text-fuchsia-400" }), label: '稀有收藏', description: '稀有成就' },

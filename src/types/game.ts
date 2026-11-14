@@ -507,7 +507,7 @@ export type GameScene =
   | 'tutorial' | 'changelog' | 'encyclopedia' | 'workshop'
   | 'achievements' | 'skins' | 'shop' | 'statistics'
   | 'modEditor' | 'modManager' | 'mapEditor' | 'replay'
-  | 'memorial' | 'gameOver' | 'victory' | 'dailyChallenge' | 'mutatorChallenge';
+  | 'gameOver' | 'victory';
 
 // ===== Mod 系統 =====
 
@@ -645,8 +645,3 @@ export interface ModValidationResult {
   flags?: ModValidationFlag[];
 }
 
-// 戰役狀態 (Campaign State)
-export interface CampaignState {
-  isCampaign?: boolean;
-  campaignLevelId?: string;
-}

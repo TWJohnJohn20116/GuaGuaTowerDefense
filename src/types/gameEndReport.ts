@@ -2,34 +2,6 @@
  * 單局結算報告 · 供勝利／失敗畫面展示
  */
 
-interface GameEndDailyConditionRow {
-  label: string;
-  current: number;
-  target: number;
-  met: boolean;
-  progressedThisSession: boolean;
-}
-
-export interface GameEndDailySection {
-  challengeName: string;
-  conditions: GameEndDailyConditionRow[];
-  overallPercent: number;
-  newlyCompleted: boolean;
-  alreadyCompleted: boolean;
-  claimable: boolean;
-}
-
-export interface GameEndMutatorSection {
-  challengeId: string;
-  name: string;
-  won: boolean;
-  score: number;
-  bestScore: number;
-  bestScoreImproved: boolean;
-  newlyCompleted: boolean;
-  claimable: boolean;
-}
-
 export interface LastGameEndReport {
   won: boolean;
   wave: number;
@@ -44,8 +16,6 @@ export interface LastGameEndReport {
   towersPlaced: number;
   towersSold: number;
   unlockedAchievementIds: string[];
-  dailyChallenge?: GameEndDailySection;
-  mutatorChallenge?: GameEndMutatorSection;
 }
 
 export function formatPlayTime(seconds: number): string {
