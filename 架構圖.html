@@ -1669,13 +1669,15 @@
     <p class="lead"><b>編號規則：</b>每一項都有固定編號 <span class="tid">TD-01</span>～<span class="tid">TD-42</span>，
       字母前綴代表分類（A 流程與版控、B 架構分層、C 型別、D 死碼重複、E 效能打包、F 可觀測性、G 資料 i18n、H 資產、I 測試）。
       commit、PR、issue、回報請直接寫 <code>TD-13</code>，不要只寫「那個 as any 的債」。</p>
-    <p class="lead"><b>還債進度：</b><span class="sev done">3 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
+    <p class="lead"><b>還債進度：</b><span class="sev done">5 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
       <span class="tid">TD-01</span> 已建立版本控制（branch <code>main</code>、基準 commit <code>1f347c7</code>、1,177 檔納入）；
       <span class="tid">TD-09</span> 場景清單三份真相收斂成一份（<code>SceneName = GameScene</code>，Dev 面板選單改由 <code>Record&lt;GameScene, string&gt;</code> 產生，補回漏掉的 10 個場景）；
       <span class="tid">TD-10</span> 刪掉從未被載入的 <code>data/gameData/index.ts</code>（同名 barrel 只剩檔案版一個入口，並清掉 3 處路徑字串與 10 語系的死文案）；
+      <span class="tid">TD-02</span> <code>Cargo.lock</code> 不再被 ignore，472 個 Rust 依賴版本首度鎖進版控；
+      <span class="tid">TD-16</span> 18 個無效的 <code>eslint-disable</code> 全數清空（10 處改寫成 TD-17 的說明），棘輪基準 18 → 0；
       <span class="tid">TD-07</span> 七個上帝檔案減為六個（<code>Icons.tsx</code> 已拆）；
       <span class="tid">TD-20</span> <code>Icons.tsx</code> 2,426 行 → 8 個分區模組 + 12 行門面，主 chunk 1,165,958 → <b>1,154,208 bytes</b>；
-      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 36 項待處理。</p>
+      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 34 項待處理。</p>
 
     <div class="kpi">
       <div class="good"><b>0</b><span>TODO / FIXME / @ts-ignore</span></div>
@@ -1707,10 +1709,10 @@
           <td><b>已完成</b>：<code>main</code> 基準 commit <code>1f347c7</code>（1,177 檔）、<code>.gitattributes</code> 統一 LF、repo-local <code>core.autocrlf=false</code>；之後每項債一個 commit</td>
         </tr>
         <tr>
-          <td><span class="tid">TD-02</span><span class="sev p1">P1</span><b>A2 Cargo.lock 被忽略</b></td>
-          <td><code>.gitignore</code> 有一行 <code>src-tauri/Cargo.lock</code>，但檔案實際存在</td>
+          <td><span class="tid">TD-02</span><span class="sev done">✓ 已還 · P1</span><b>A2 Cargo.lock 被忽略</b></td>
+          <td>檔案實際存在（472 個 package、<code>tauri 2.11.2</code>），<code>.gitignore</code> 第 12 行卻寫著 <code>src-tauri/Cargo.lock</code></td>
           <td>Rust 依賴版本不固定，換機器建置可能拉到不同 minor；更新與打包結果不可重現。</td>
-          <td>刪掉該行（應用程式應提交 lock；只有 library 才忽略）</td>
+          <td>已還：刪掉該行並在原處留下「應用程式要提交 lock，只有 library 才忽略」的說明；<code>Cargo.lock</code> 首次進版控</td>
         </tr>
         <tr>
           <td><span class="tid">TD-03</span><span class="sev p2">P2</span><b>A3 產物與截圖留在樹裡</b></td>
@@ -1817,18 +1819,19 @@
           <td>把這些欄位提升成 <code>TowerData</code> 的可選屬性，或建 <code>ModTowerData extends TowerData</code> 並在 <code>getTowerData</code> 回傳聯合型別</td>
         </tr>
         <tr>
-          <td><span class="tid">TD-16</span><span class="sev p2">P2</span><b>C4 17 個 eslint-disable 卻沒有 ESLint</b></td>
-          <td><code>package.json</code> 沒有 eslint 依賴、根目錄沒有設定檔、沒有 <code>lint</code> 腳本；
-            但程式裡有 17 個 <code>eslint-disable</code>（含 7 個 <code>react-hooks/exhaustive-deps</code>）</td>
+          <td><span class="tid">TD-16</span><span class="sev done">✓ 已還 · P2</span><b>C4 18 個 eslint-disable 卻沒有 ESLint</b></td>
+          <td><code>package.json</code> 沒有 eslint 依賴、根目錄沒有設定檔、沒有 <code>lint</code> 腳本，
+            但程式裡有 18 個 <code>eslint-disable</code>（10 個 <code>react-hooks/exhaustive-deps</code>、7 個 <code>no-explicit-any</code>、1 個 <code>no-console</code>）</td>
           <td>這些註解<u>完全沒有作用</u>：hooks 依賴沒人檢查，<code>no-explicit-any</code> 也沒人管。</td>
-          <td>裝 eslint + <code>@typescript-eslint</code> + <code>react-hooks</code>，只開兩條（<code>no-explicit-any: warn</code>、<code>exhaustive-deps: warn</code>），其餘先關</td>
+          <td>已還：18 處全數清空——10 處 <code>exhaustive-deps</code> 改寫成看得懂的說明並標上 <code>TD-17</code>（記下 deps 由誰手動維護、為什麼），8 處 <code>no-explicit-any</code> 與 1 處 <code>no-console</code> 直接刪（那些 <code>any</code> 由 TD-13 追蹤）；棘輪基準 18 → 0，之後新增會直接打紅。<b>仍未裝 ESLint</b>（原建議的 <code>no-explicit-any: warn</code>／<code>exhaustive-deps: warn</code> 需要加依賴，另開任務）</td>
         </tr>
         <tr>
-          <td><span class="tid">TD-17</span><span class="sev p2">P2</span><b>C5 手動接管的 effect 依賴 7 處</b></td>
+          <td><span class="tid">TD-17</span><span class="sev p2">P2</span><b>C5 手動接管的 effect 依賴 10 處</b></td>
           <td><code>GameCanvas.tsx:272</code>、<code>useGameSceneEffects.ts:663</code>、<code>GameOver.tsx:82</code>、<code>Victory.tsx:139</code>、
-            <code>useMapEditorState.ts:39/48</code>、<code>ModIconEditor.tsx:146</code></td>
+            <code>useMapEditorState.ts:39/48</code>、<code>ModIconEditor.tsx:92/146</code>、<code>FullscreenWaveEditor.tsx:84</code>、<code>model3d/Model3DEditor.tsx:252</code>
+            （清 TD-16 時重新點名，原本漏列 3 處；現在每一處都有一行中文說明它為什麼不該重跑）</td>
           <td>依賴陣列被刻意縮小，改邏輯時很容易 stale closure（讀到舊 state）。</td>
-          <td>抽 <code>useLatestRef</code>／<code>useEvent</code>，並把「為什麼不該重跑」寫在註解</td>
+          <td>抽 <code>useLatestRef</code>／<code>useEvent</code>；「為什麼不該重跑」已在 TD-16 那輪寫成註解，剩下的是把依賴改成 ref 形式</td>
         </tr>
       </tbody>
     </table>
@@ -2047,13 +2050,13 @@
       <tbody>
         <tr>
           <td><b>階段 0</b><br><span class="small">先建立安全網</span></td>
-          <td><b>TD-01</b> git init ✓、<b>TD-02</b> 移除 Cargo.lock ignore、<b>TD-04</b> 生成物移出 src、<b>TD-05</b> 覆蓋率門檻、<b>TD-09</b> SceneName 別名 ✓、<b>TD-10</b> 刪死 barrel ✓、<b>TD-12</b> 刪空目錄、<b>TD-18</b> 刪 7 個死檔</td>
+          <td><b>TD-01</b> git init ✓、<b>TD-02</b> 移除 Cargo.lock ignore ✓、<b>TD-04</b> 生成物移出 src、<b>TD-05</b> 覆蓋率門檻、<b>TD-09</b> SceneName 別名 ✓、<b>TD-10</b> 刪死 barrel ✓、<b>TD-12</b> 刪空目錄、<b>TD-18</b> 刪 7 個死檔</td>
           <td>半天</td>
           <td>低。純刪除／移動，跑 <code>npm run check</code> 即可</td>
         </tr>
         <tr>
           <td><b>階段 1</b><br><span class="small">讓型別真的有用</span></td>
-          <td><b>TD-15</b> → <b>TD-13</b>（Mod 欄位型別）、<b>TD-14</b>（canvas grid 改 <code>Tile[][]</code>）、<b>TD-16</b> 裝 ESLint 只開兩條、<b>TD-29</b> logger、<b>TD-30</b> 三條 rAF 加護欄</td>
+          <td><b>TD-15</b> → <b>TD-13</b>（Mod 欄位型別）、<b>TD-14</b>（canvas grid 改 <code>Tile[][]</code>）、<b>TD-16</b> 真裝 ESLint（無效註解已清空，只差加依賴）、<b>TD-29</b> logger、<b>TD-30</b> 三條 rAF 加護欄</td>
           <td>2–3 天</td>
           <td>低。型別與日誌，不動行為；<code>tsc</code> 會逐一指出要改哪</td>
         </tr>
