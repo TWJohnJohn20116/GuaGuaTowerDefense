@@ -9,7 +9,8 @@ export default function MainMenu() {
   return (
     <SceneShell scrollable={false}>
       <div className="flex h-full w-full flex-col">
-        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        {/* 窄螢幕整頁可捲動（左欄與卡片牆都吃自然高度）；桌機固定在視窗內，各自內部捲動 */}
+        <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto lg:flex-row lg:overflow-hidden">
           <MenuHomeRail />
           <MenuHomeGrid />
         </div>
