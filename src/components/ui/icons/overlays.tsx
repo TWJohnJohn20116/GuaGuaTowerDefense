@@ -211,15 +211,6 @@ export const SaveActionIcon = (p: IconProps) => (
   </svg>
 );
 
-export const NextMapIcon = (p: IconProps) => (
-  <svg {...s(p)}>
-    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" fill="currentColor" fillOpacity="0.1" />
-    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-    <polyline points="14 10 17 13 14 16" />
-    <line x1="9" y1="13" x2="17" y2="13" />
-  </svg>
-);
-
 export const CrownIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M2 19l2-9 5 6 3-12 3 12 5-6 2 9H2z" fill="currentColor" fillOpacity="0.15" />
@@ -382,22 +373,6 @@ export const CheckSquareIcon = (p: IconProps) => (
     <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" fillOpacity="0.1" />
     <rect x="3" y="3" width="18" height="18" rx="2" />
     <polyline points="8 12 11 15 16 9" strokeWidth="2.5" />
-  </svg>
-);
-
-/** 空方框 — 預設色：text-slate-400 */
-export const EmptySquareIcon = (p: IconProps) => (
-  <svg {...s(p)}>
-    <rect x="3" y="3" width="18" height="18" rx="2" />
-  </svg>
-);
-
-/** 建造/施工塔 — 預設色：text-[var(--hl-reach)] */
-export const TowerBuildIcon = (p: IconProps) => (
-  <svg {...s(p)}>
-    <path d="M6 22V4h3V2h6v2h3v18" />
-    <path d="M6 12h12M6 7h12M10 22v-4h4v4" />
-    <path d="M4 22h16" />
   </svg>
 );
 

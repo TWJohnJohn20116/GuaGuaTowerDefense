@@ -6,15 +6,9 @@
  * 面板只有實色 + 1px 線，沒有陰影、沒有漸層、沒有第二個強調色。
  */
 import type React from 'react';
-import type { TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
+import type { TOWER_DATA } from '@/data/gameData';
 import { ThemeIcon } from '@/components/ui/Icons';
 import { Key, SegHead } from '@/components/hl';
-
-/* 相容層：舊呼叫端仍在用這幾個常數名 */
-export const TUTORIAL_HERO_PANEL = 'border border-[var(--hl-line)] bg-[var(--hl-deck)] p-4';
-export const TUTORIAL_BLOCK_PANEL = 'border border-[var(--hl-line)] bg-[var(--hl-deck)] p-4';
-export const TUTORIAL_BLOCK_PANEL_MD = 'border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3.5';
-export const TUTORIAL_BLOCK_PANEL_SM = 'border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3';
 
 type Tone = 'ink' | 'signal' | 'vital' | 'alarm' | 'caution' | 'reach' | 'muted';
 
@@ -83,7 +77,7 @@ export function SpecRow({
 /* -------------------------------------------------------------- SpecKV */
 
 /** 欄位列：標籤在左、值在右，全部 mono。 */
-export function SpecKV({
+function SpecKV({
   label,
   children,
 }: {
@@ -202,34 +196,6 @@ export const TowerCard = ({
       </span>
     </span>
   </button>
-);
-
-// 敵人列
-export const EnemyCard = ({
-  type: _type,
-  data,
-}: {
-  type: string;
-  data: typeof ENEMY_DATA[keyof typeof ENEMY_DATA];
-}) => (
-  <div className="flex items-center gap-3 border border-[var(--hl-line)] bg-[var(--hl-deck)] px-3 py-2.5">
-    <span
-      className="shrink-0 border border-[var(--hl-line-strong)]"
-      style={{
-        backgroundColor: data.color,
-        width: Math.max(24, data.size),
-        height: Math.max(24, data.size),
-      }}
-    />
-    <div className="min-w-0 flex-1">
-      <div className="truncate text-[12.5px] font-medium text-[var(--hl-ink)]">{data.name}</div>
-      <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
-        <span className="text-[var(--hl-alarm)]">{data.health}</span>
-        <span>{data.speed}x</span>
-        <span className="text-[var(--hl-caution)]">${data.reward}</span>
-      </div>
-    </div>
-  </div>
 );
 
 // 快捷鍵列：動作 + <Key>
