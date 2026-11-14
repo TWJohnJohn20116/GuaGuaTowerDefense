@@ -15,7 +15,7 @@ import { ModEditorSettingsTab } from '@/components/scenes/mod-editor-scene/ModEd
 import { PlusIcon, TemplateIcon } from '@/components/ui/Icons';
 import type { ModValidationFlag } from '@/types/game';
 import { getItemValidationLevel, validationRingClass } from '@/components/mod-editor/modValidationFlags';
-import { Btn, Empty } from '@/components/hl';
+import { Btn, Empty, Num } from '@/components/hl';
 
 export type ContentTab = 'settings' | 'towers' | 'enemies' | 'maps' | 'waves';
 
@@ -64,18 +64,18 @@ function TemplateMenu({
       <Btn size="sm" variant="line" icon={<TemplateIcon className="h-3.5 w-3.5" />}>
         {label}
       </Btn>
-      <div className="invisible absolute right-0 top-full z-50 mt-1 max-h-64 w-64 overflow-y-auto border border-[var(--hl-line-strong)] bg-[var(--hl-void-2)] opacity-0 transition-opacity duration-150 group-hover:visible group-hover:opacity-100">
+      <div className="invisible absolute right-0 top-full z-50 mt-1 max-h-64 w-64 overflow-y-auto border border-[var(--arc-line-strong)] bg-[var(--arc-void-2)] opacity-0 transition-opacity duration-150 group-hover:visible group-hover:opacity-100">
         {items.map((item, i) => (
           <button
             key={item.name}
             type="button"
             onClick={() => onPick(i)}
-            className="flex w-full items-center gap-2 border-b border-[var(--hl-line)] px-2.5 py-1.5 text-left transition-colors last:border-b-0 hover:bg-[var(--hl-deck-2)]"
+            className="flex w-full items-center gap-2 border-b border-[var(--cn-line-soft)] px-2.5 py-1.5 text-left transition-colors last:border-b-0 hover:bg-[var(--arc-deck-2)]"
           >
-            <span className="h-3 w-3 shrink-0 border border-[var(--hl-line-strong)]" style={{ backgroundColor: item.color }} />
+            <span className="h-3 w-3 shrink-0 border border-[var(--arc-line-strong)]" style={{ backgroundColor: item.color }} />
             <span className="min-w-0">
-              <span className="block truncate text-[11.5px] text-[var(--hl-ink)]">{item.name}</span>
-              <span className="block truncate font-mono text-[9.5px] text-[var(--hl-ink-4)]">{item.hint}</span>
+              <span className="block truncate text-[11.5px] text-[var(--arc-ink)]">{item.name}</span>
+              <span className="block truncate font-mono text-[9.5px] text-[var(--arc-ink-4)]">{item.hint}</span>
             </span>
           </button>
         ))}
@@ -132,18 +132,21 @@ export function ModEditorContentPanel({
   }));
 
   return (
-    <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--hl-void)]">
+    <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--arc-void)]">
       {/* 帶狀標題 */}
-      <div className="flex h-11 shrink-0 items-center gap-2.5 border-b border-[var(--hl-line)] bg-[var(--hl-void)] px-3">
-        <span className="flex h-5 w-5 shrink-0 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-3)]">
+      <div className="flex h-11 shrink-0 items-center gap-2.5 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-3">
+        <span className="flex h-5 w-5 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-3)]">
           {activeIcon}
         </span>
-        <span className="hl-label whitespace-nowrap">
+        <span className="arc-label whitespace-nowrap">
           {activeLabel} {m.listSuffix}
         </span>
-        <span className="font-mono text-[10.5px] tabular-nums text-[var(--hl-signal)]">
-          {itemCount === null ? '--' : String(itemCount).padStart(2, '0')}
-        </span>
+        <Num
+          value={itemCount === null ? '--' : String(itemCount).padStart(2, '0')}
+          tone="signal"
+          size="sm"
+          className="font-mono tabular-nums"
+        />
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
           {activeTab === 'towers' && (
@@ -162,7 +165,7 @@ export function ModEditorContentPanel({
           )}
           {activeTab !== 'settings' && (
             <>
-              <span className="h-5 w-px bg-[var(--hl-line)]" aria-hidden="true" />
+              <span className="h-5 w-px bg-[var(--arc-line)]" aria-hidden="true" />
               <Btn
                 size="sm"
                 variant="signal"
@@ -216,7 +219,7 @@ export function ModEditorContentPanel({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className={`border-b border-[var(--hl-line)] ${validationRingClass(valLevel)}`}
+                    className={`border-b border-[var(--cn-line-soft)] ${validationRingClass(valLevel)}`}
                   >
                     {activeTab === 'towers' && (
                       <TowerEditor

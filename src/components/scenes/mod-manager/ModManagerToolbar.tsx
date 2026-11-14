@@ -5,7 +5,7 @@
  * 類型／狀態／標籤篩選在左軌，不佔這條帶。
  */
 import { useTranslation } from '@/i18n';
-import { Chip, Btn } from '@/components/hl';
+import { Btn, Chip, IconBtn, Input, Num } from '@/components/hl';
 import { SearchIcon, PlusIcon, XIcon } from '@/components/ui/Icons';
 import type { ModType } from '@/types/game';
 
@@ -49,32 +49,31 @@ export function ModManagerToolbar({
   };
 
   return (
-    <div className="flex h-11 shrink-0 items-center gap-2.5 border-b border-[var(--hl-line)] bg-[var(--hl-void)] px-3">
+    <div className="flex h-11 shrink-0 items-center gap-2.5 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-3">
       {/* 搜尋 */}
       <div className="relative flex items-center">
-        <SearchIcon className="pointer-events-none absolute left-2 h-3.5 w-3.5 text-[var(--hl-ink-4)]" />
-        <input
+        <SearchIcon className="pointer-events-none absolute left-2 h-3.5 w-3.5 text-[var(--arc-ink-4)]" />
+        <Input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={tb.searchPlaceholder}
-          className="hl-input h-7 w-[240px] pl-7 pr-7 text-[11.5px]"
+          className="h-7 w-[240px] pl-7 pr-7 text-[11.5px]"
         />
         {search.trim() !== '' && (
-          <button
-            type="button"
+          <IconBtn
+            label={tb.clearSearch}
             onClick={() => onSearchChange('')}
-            title={tb.clearSearch}
-            className="absolute right-1 flex h-5 w-5 items-center justify-center text-[var(--hl-ink-4)] hover:text-[var(--hl-ink)]"
+            className="absolute right-1 flex h-5 w-5 items-center justify-center text-[var(--arc-ink-4)] hover:text-[var(--arc-ink)]"
           >
             <XIcon className="h-3 w-3" />
-          </button>
+          </IconBtn>
         )}
       </div>
 
-      <span className="h-5 w-px shrink-0 bg-[var(--hl-line)]" aria-hidden="true" />
+      <span className="h-5 w-px shrink-0 bg-[var(--arc-line)]" aria-hidden="true" />
 
       {/* 排序 */}
-      <span className="hl-label shrink-0">{tb.sortLabel}</span>
+      <span className="arc-label shrink-0">{tb.sortLabel}</span>
       <div className="flex items-center gap-1">
         {(Object.keys(sortLabels) as ModSortBy[]).map((id) => (
           <Chip key={id} active={sortBy === id} onClick={() => onSortByChange(id)}>
@@ -87,19 +86,19 @@ export function ModManagerToolbar({
         {sortDir === 'asc' ? tb.sortAsc : tb.sortDesc}
       </Btn>
 
-      <span className="h-5 w-px shrink-0 bg-[var(--hl-line)]" aria-hidden="true" />
+      <span className="h-5 w-px shrink-0 bg-[var(--arc-line)]" aria-hidden="true" />
 
       <Btn size="sm" variant="line" icon={<PlusIcon className="h-3.5 w-3.5" />} onClick={onImport}>
         {tb.importMod}
       </Btn>
 
       {/* 右側計數 */}
-      <div className="ml-auto flex shrink-0 items-center gap-2 border border-[var(--hl-line)] px-2 py-1">
-        <span className="hl-label">rows</span>
-        <span className="hl-num text-[11px] tabular-nums text-[var(--hl-ink)]">{filteredPad(filterTotal)}</span>
-        <span className="text-[var(--hl-ink-4)]">·</span>
-        <span className="hl-label">on</span>
-        <span className="hl-num text-[11px] tabular-nums text-[var(--hl-vital)]">{filteredPad(enabledInView)}</span>
+      <div className="ml-auto flex shrink-0 items-center gap-2 border-[3px] border-[var(--cn-line-soft)] px-2 py-1">
+        <span className="arc-label">rows</span>
+        <Num value={filteredPad(filterTotal)} size="sm" className="tabular-nums" />
+        <span className="text-[var(--arc-ink-4)]">·</span>
+        <span className="arc-label">on</span>
+        <Num value={filteredPad(enabledInView)} tone="vital" size="sm" className="tabular-nums" />
       </div>
     </div>
   );

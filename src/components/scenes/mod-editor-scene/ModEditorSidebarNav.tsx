@@ -7,7 +7,7 @@ import { useTranslation } from '@/i18n';
 import type { ModValidationFlag } from '@/types/game';
 import { countTabValidation } from '@/components/mod-editor/modValidationFlags';
 import type { ContentTab } from '@/components/scenes/mod-editor-scene/ModEditorContentPanel';
-import { Rail, RailItem, Dot } from '@/components/hl';
+import { Dot, Num, Rail, RailItem } from '@/components/hl';
 
 interface TabConfig {
   id: ContentTab;
@@ -54,9 +54,12 @@ export function ModEditorSidebarNav({
                     tone={counts.errors > 0 ? 'alarm' : 'caution'}
                   />
                 )}
-                <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
-                  {count !== undefined ? String(count).padStart(2, '0') : '--'}
-                </span>
+                <Num
+                  value={count !== undefined ? String(count).padStart(2, '0') : '--'}
+                  tone="muted"
+                  size="sm"
+                  className="font-mono tabular-nums"
+                />
               </span>
             }
           />

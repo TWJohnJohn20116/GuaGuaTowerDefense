@@ -60,8 +60,8 @@ export function MapEditorToolbar({
         }
       />
 
-      <div className="flex h-11 shrink-0 items-center gap-2.5 border-b border-[var(--hl-line)] bg-[var(--hl-void)] px-3">
-        <span className="hl-label shrink-0">{t.mapEditor.editMode}</span>
+      <div className="flex h-11 shrink-0 items-center gap-2.5 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-3">
+        <span className="arc-label shrink-0">{t.mapEditor.editMode}</span>
 
         <div className="flex items-center gap-1">
           {MODES.map((mode) => (
@@ -72,7 +72,7 @@ export function MapEditorToolbar({
               onClick={() => onEditModeChange(mode)}
               className={
                 editMode === mode
-                  ? 'border-[var(--hl-signal)] text-[var(--hl-signal)]'
+                  ? 'border-[var(--arc-gold)] text-[var(--arc-gold)]'
                   : undefined
               }
               aria-pressed={editMode === mode}
@@ -82,7 +82,7 @@ export function MapEditorToolbar({
           ))}
         </div>
 
-        <span className="h-5 w-px shrink-0 bg-[var(--hl-line)]" aria-hidden="true" />
+        <span className="h-5 w-px shrink-0 bg-[var(--arc-line)]" aria-hidden="true" />
 
         <Btn size="sm" variant="line" onClick={onUndo} icon={<UndoIcon className="h-3.5 w-3.5" />}>
           {t.common.undo}

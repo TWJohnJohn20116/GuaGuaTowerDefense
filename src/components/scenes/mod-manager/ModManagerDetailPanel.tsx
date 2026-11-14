@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useTranslation } from '@/i18n';
 import { useModStore } from '@/store/modStore';
 import type { Mod } from '@/types/game';
-import { Btn, Empty, Field, Num, SegHead, Dot } from '@/components/hl';
+import { Btn, Deck, Dot, Empty, Field, Num, SegHead } from '@/components/hl';
 import {
   TowerIcon, AlienIcon, MapIcon, WaterWaveIcon,
   CheckIcon, DownloadIcon, TrashIcon, PlusIcon, ThemeIcon,
@@ -80,36 +80,36 @@ export function ModManagerDetailPanel({ mod, onEdit }: ModManagerDetailPanelProp
   return (
     <div className="flex h-full min-h-0 flex-col gap-3">
       {/* 預覽框：外框 1px，內部深底，不加陰影 */}
-      <div className="relative flex h-[132px] shrink-0 items-center justify-center overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+      <Deck tone="sunken" className="relative flex h-[132px] shrink-0 items-center justify-center overflow-hidden">
         {renderModIcon(
           mod.metadata.icon,
           <ThemeIcon icon={cfg.icon} className="h-12 w-12" />,
-          'h-12 w-12 text-[var(--hl-ink-2)]',
+          'h-12 w-12 text-[var(--arc-ink-2)]',
           { rounded: '', translateFactor: 0.3, scaleFactor: 0.6 },
         )}
-        <span className="absolute left-2 top-2 flex items-center gap-1.5 border border-[var(--hl-line)] bg-[var(--hl-void)] px-1.5 py-0.5">
+        <span className="absolute left-2 top-2 flex items-center gap-1.5 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-1.5 py-0.5">
           <Dot tone={mod.enabled ? 'vital' : 'ink'} />
-          <span className={`font-mono text-[9px] uppercase tracking-[0.1em] ${mod.enabled ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-ink-3)]'}`}>
+          <span className={`font-mono text-[9px] uppercase tracking-[0.1em] ${mod.enabled ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-ink-3)]'}`}>
             {mod.enabled ? d.enabled : d.disabled}
           </span>
         </span>
-        <span className="absolute right-2 top-2 border border-[var(--hl-line)] bg-[var(--hl-void)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--hl-ink-3)]">
+        <span className="absolute right-2 top-2 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--arc-ink-3)]">
           {t.workshop.modManagerExt[cfg.labelKey]}
         </span>
-      </div>
+      </Deck>
 
       {/* 識別 */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="min-w-0 text-[15px] font-semibold leading-tight text-[var(--hl-ink)]">
+          <h3 className="arc-title min-w-0 text-[15px] font-semibold leading-tight text-[var(--arc-ink)]">
             {mod.metadata.name}
           </h3>
           <ModBalanceScoreBadge mod={mod} size="md" />
         </div>
-        <p className="hl-micro">{mod.metadata.description}</p>
-        <div className="flex items-center gap-1.5 font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+        <p className="arc-micro">{mod.metadata.description}</p>
+        <div className="flex items-center gap-1.5 font-mono text-[10px] tabular-nums arc-num text-[var(--arc-ink-4)]">
           <span>v{mod.metadata.version}</span>
-          <span className="text-[var(--hl-line-hot)]">·</span>
+          <span className="text-[var(--arc-line-hot)]">·</span>
           <span className="truncate">{mod.metadata.author}</span>
         </div>
       </div>
@@ -122,7 +122,7 @@ export function ModManagerDetailPanel({ mod, onEdit }: ModManagerDetailPanelProp
             key={row.key}
             label={
               <span className="flex items-center gap-1.5">
-                <span className="text-[var(--hl-ink-4)]">{row.icon}</span>
+                <span className="text-[var(--arc-ink-4)]">{row.icon}</span>
                 {row.label}
               </span>
             }
@@ -137,7 +137,7 @@ export function ModManagerDetailPanel({ mod, onEdit }: ModManagerDetailPanelProp
           {mod.metadata.tags.map((tag) => (
             <span
               key={tag}
-              className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.06em] text-[var(--hl-ink-3)]"
+              className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.06em] text-[var(--arc-ink-3)]"
             >
               #{tag}
             </span>
@@ -170,7 +170,7 @@ export function ModManagerDetailPanel({ mod, onEdit }: ModManagerDetailPanelProp
           block
           variant="line"
           onClick={handleExport}
-          icon={showExport ? <CheckIcon className="h-3.5 w-3.5 text-[var(--hl-vital)]" /> : <DownloadIcon className="h-3.5 w-3.5" />}
+          icon={showExport ? <CheckIcon className="h-3.5 w-3.5 text-[var(--arc-vital)]" /> : <DownloadIcon className="h-3.5 w-3.5" />}
         >
           {showExport ? d.copiedJson : d.exportJson}
         </Btn>

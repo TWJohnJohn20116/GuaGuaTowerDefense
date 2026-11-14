@@ -40,20 +40,20 @@ export function ModEditorSaveToast({
           className={[
             'absolute left-1/2 top-3 z-50 -translate-x-1/2 border px-3 py-1.5',
             message.type === 'success'
-              ? 'border-[rgba(56,224,143,0.38)] bg-[rgba(56,224,143,0.12)]'
-              : 'border-[rgba(255,75,62,0.38)] bg-[rgba(255,75,62,0.12)]',
+              ? 'border-[rgba(53,224,138,0.38)] bg-[rgba(53,224,138,0.12)]'
+              : 'border-[rgba(255,61,113,0.38)] bg-[rgba(255,61,113,0.12)]',
           ].join(' ')}
         >
           <span className="flex items-center gap-2">
             {message.type === 'success' ? (
-              <CheckIcon className="h-3.5 w-3.5 text-[var(--hl-vital)]" />
+              <CheckIcon className="h-3.5 w-3.5 text-[var(--arc-vital)]" />
             ) : (
-              <WarningIcon className="h-3.5 w-3.5 text-[var(--hl-alarm)]" />
+              <WarningIcon className="h-3.5 w-3.5 text-[var(--arc-alert)]" />
             )}
             <span
               className={[
                 'font-mono text-[10.5px] uppercase tracking-[0.06em]',
-                message.type === 'success' ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-alarm)]',
+                message.type === 'success' ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-alert)]',
               ].join(' ')}
             >
               {message.text}

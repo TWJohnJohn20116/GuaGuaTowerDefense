@@ -42,7 +42,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border-b border-[var(--hl-line)] px-3 py-2.5">
+    <section className="border-b border-[var(--cn-line-soft)] px-3 py-2.5">
       <SegHead label={title} right={right} className="mb-2" />
       {children}
     </section>
@@ -72,7 +72,7 @@ function SegmentsSection({
         </Btn>
       }
     >
-      <div className="flex max-h-40 flex-col overflow-y-auto border border-[var(--hl-line)]">
+      <div className="flex max-h-40 flex-col overflow-y-auto border-[3px] border-[var(--cn-line-soft)]">
         {segments.map((seg, i) => {
           const isActive = activeSegmentId === seg.id;
           return (
@@ -83,26 +83,30 @@ function SegmentsSection({
               onKeyDown={(e) => { if (e.key === 'Enter') onActiveSegmentChange(seg.id); }}
               onClick={() => onActiveSegmentChange(seg.id)}
               className={[
-                'relative flex cursor-pointer items-center gap-2 border-b border-[var(--hl-line)] px-2 py-1.5 last:border-b-0 transition-colors',
-                isActive ? 'bg-[var(--hl-deck-2)]' : 'hover:bg-[var(--hl-deck-2)]',
+                'relative flex cursor-pointer items-center gap-2 border-b border-[var(--cn-line-soft)] px-2 py-1.5 last:border-b-0 transition-colors',
+                isActive ? 'bg-[var(--arc-deck-2)]' : 'hover:bg-[var(--arc-deck-2)]',
               ].join(' ')}
             >
               <span
                 className={[
                   'absolute left-0 top-0 h-full w-[2px]',
-                  isActive ? 'bg-[var(--hl-signal)]' : 'bg-transparent',
+                  isActive ? 'bg-[var(--arc-gold)]' : 'bg-transparent',
                 ].join(' ')}
               />
-              <span className={['w-4 shrink-0 font-mono text-[9.5px]', isActive ? 'text-[var(--hl-signal)]' : 'text-[var(--hl-ink-4)]'].join(' ')}>
+              <span className={['w-4 shrink-0 font-mono text-[9.5px]', isActive ? 'text-[var(--arc-gold)]' : 'text-[var(--arc-ink-4)]'].join(' ')}>
                 {i === 0 ? 'S' : String(i).padStart(2, '0')}
               </span>
-              <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-[var(--hl-ink-2)]">{seg.id}</span>
-              <span className="shrink-0 font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">
-                {seg.waypoints.length}pt
-              </span>
+              <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-[var(--arc-ink-2)]">{seg.id}</span>
+              <Num
+                value={seg.waypoints.length}
+                unit="pt"
+                tone="muted"
+                size="sm"
+                className="shrink-0 font-mono tabular-nums"
+              />
               <button
                 type="button"
-                className="shrink-0 px-0.5 text-[var(--hl-ink-4)] transition-colors hover:text-[var(--hl-alarm)]"
+                className="shrink-0 px-0.5 text-[var(--arc-ink-4)] transition-colors hover:text-[var(--arc-alert)]"
                 onClick={(e) => {
                   e.stopPropagation();
                   onRemoveSegment(seg.id);
@@ -114,15 +118,15 @@ function SegmentsSection({
           );
         })}
         {segments.length === 0 && (
-          <p className="px-2 py-2 text-center text-[10.5px] text-[var(--hl-ink-4)]">
+          <p className="px-2 py-2 text-center text-[10.5px] text-[var(--arc-ink-4)]">
             {t.mapEditorExt.clickAddFirstSegment}
           </p>
         )}
       </div>
 
       {activeSegment && (
-        <div className="mt-2 border-t border-[var(--hl-line)] pt-2">
-          <p className="hl-label mb-1.5">{t.mapEditorExt.nextSegmentFork}</p>
+        <div className="mt-2 border-t border-[var(--cn-line-soft)] pt-2">
+          <p className="arc-label mb-1.5">{t.mapEditorExt.nextSegmentFork}</p>
           <div className="flex flex-wrap gap-1">
             {segments
               .filter((s) => s.id !== activeSegmentId)
@@ -138,7 +142,7 @@ function SegmentsSection({
                 </Chip>
               ))}
             {segments.length <= 1 && (
-              <p className="text-[10.5px] text-[var(--hl-ink-4)]">{t.mapEditorExt.needMultipleSegments}</p>
+              <p className="text-[10.5px] text-[var(--arc-ink-4)]">{t.mapEditorExt.needMultipleSegments}</p>
             )}
           </div>
         </div>
@@ -177,7 +181,7 @@ function MapInfoSection({
           placeholder={t.mapEditorExt.enterMapDescription}
         />
         <div>
-          <span className="hl-label mb-1 block">{t.mapEditor.difficulty}</span>
+          <span className="arc-label mb-1 block">{t.mapEditor.difficulty}</span>
           <CustomSelect
             value={difficulty}
             onChange={onDifficultyChange}
@@ -228,31 +232,31 @@ function WaypointsSection({
       {waypoints.length === 0 ? (
         <Empty title={t.mapEditor.clickToAdd} className="py-6" />
       ) : (
-        <div className="flex max-h-48 flex-col overflow-y-auto border border-[var(--hl-line)]">
+        <div className="flex max-h-48 flex-col overflow-y-auto border-[3px] border-[var(--cn-line-soft)]">
           {waypoints.map((wp, i) => (
             <div
               key={i}
-              className="flex items-center justify-between gap-2 border-b border-[var(--hl-line)] px-2 py-1.5 last:border-b-0"
+              className="flex items-center justify-between gap-2 border-b border-[var(--cn-line-soft)] px-2 py-1.5 last:border-b-0"
             >
-              <span className="flex min-w-0 items-center gap-2 font-mono text-[11px] tabular-nums">
+              <span className="flex min-w-0 items-center gap-2 font-mono text-[11px] tabular-nums arc-num">
                 <span
                   className={
                     i === 0
-                      ? 'text-[var(--hl-vital)]'
+                      ? 'text-[var(--arc-vital)]'
                       : i === waypoints.length - 1
-                        ? 'text-[var(--hl-alarm)]'
-                        : 'text-[var(--hl-reach)]'
+                        ? 'text-[var(--arc-alert)]'
+                        : 'text-[var(--arc-reach)]'
                   }
                 >
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <span className="text-[var(--hl-ink-2)]">
+                <span className="text-[var(--arc-ink-2)]">
                   {wp.col}, {wp.row}
                 </span>
               </span>
               <button
                 type="button"
-                className="shrink-0 text-[var(--hl-ink-4)] transition-colors hover:text-[var(--hl-alarm)]"
+                className="shrink-0 text-[var(--arc-ink-4)] transition-colors hover:text-[var(--arc-alert)]"
                 onClick={() => onRemoveWaypoint(i)}
               >
                 <XIcon className="h-3 w-3" />
@@ -269,10 +273,10 @@ function InstructionsSection() {
   const { t } = useTranslation();
   return (
     <Section title={t.mapEditor.instructions}>
-      <ul className="flex flex-col gap-1 text-[10.5px] leading-relaxed text-[var(--hl-ink-3)]">
+      <ul className="flex flex-col gap-1 text-[10.5px] leading-relaxed text-[var(--arc-ink-3)]">
         {t.mapEditor.instructionList.map((item, i) => (
           <li key={i} className="flex gap-1.5">
-            <span className="font-mono text-[var(--hl-ink-4)]">{String(i + 1).padStart(2, '0')}</span>
+            <span className="font-mono text-[var(--arc-ink-4)]">{String(i + 1).padStart(2, '0')}</span>
             <span>{item}</span>
           </li>
         ))}
@@ -284,10 +288,10 @@ function InstructionsSection() {
 export function MapEditorPanel(props: MapEditorPanelProps) {
   const { t } = useTranslation();
   return (
-    <aside className="flex w-[336px] shrink-0 flex-col overflow-hidden border-l border-[var(--hl-line)] bg-[var(--hl-deck)]">
-      <div className="flex h-11 shrink-0 items-center gap-2 border-b border-[var(--hl-line)] px-3">
-        <span className="hl-label whitespace-nowrap">{t.mapEditorExt.mapCategory}</span>
-        <span className="h-px flex-1 bg-[var(--hl-line)]" />
+    <aside className="flex w-[336px] shrink-0 flex-col overflow-hidden border-l border-[var(--cn-line-soft)] bg-[var(--arc-deck)]">
+      <div className="flex h-11 shrink-0 items-center gap-2 border-b border-[var(--cn-line-soft)] px-3">
+        <span className="arc-label whitespace-nowrap">{t.mapEditorExt.mapCategory}</span>
+        <span className="h-px flex-1 bg-[var(--arc-line)]" />
         <div className="flex gap-1">
           <Chip
             active={props.mapCategory === 'normal'}

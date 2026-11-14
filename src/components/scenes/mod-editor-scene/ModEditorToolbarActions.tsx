@@ -43,7 +43,7 @@ export function ModEditorToolbarActions({
         {showPreview ? m.hideAnalysis : m.showAnalysis}
       </Btn>
 
-      <span className="h-5 w-px bg-[var(--hl-line)]" aria-hidden="true" />
+      <span className="h-5 w-px bg-[var(--arc-line)]" aria-hidden="true" />
 
       <Btn
         size="sm"

@@ -18,36 +18,36 @@ export const MOD_TYPE_CONFIG: Record<ModType, {
   tower: {
     labelKey: 'modTypeTower',
     icon: '🗼',
-    color: 'text-[var(--hl-reach)]',
-    bg: 'bg-[var(--hl-deck-2)]',
-    border: 'border-[rgba(111,168,255,0.38)]',
+    color: 'text-[var(--arc-reach)]',
+    bg: 'bg-[var(--arc-deck-2)]',
+    border: 'border-[rgba(111,140,255,0.38)]',
   },
   enemy: {
     labelKey: 'modTypeEnemy',
     icon: '👾',
-    color: 'text-[var(--hl-alarm)]',
-    bg: 'bg-[var(--hl-deck-2)]',
-    border: 'border-[rgba(255,75,62,0.38)]',
+    color: 'text-[var(--arc-alert)]',
+    bg: 'bg-[var(--arc-deck-2)]',
+    border: 'border-[rgba(255,61,113,0.38)]',
   },
   map: {
     labelKey: 'modTypeMap',
     icon: '🗺️',
-    color: 'text-[var(--hl-vital)]',
-    bg: 'bg-[var(--hl-deck-2)]',
-    border: 'border-[rgba(56,224,143,0.38)]',
+    color: 'text-[var(--arc-vital)]',
+    bg: 'bg-[var(--arc-deck-2)]',
+    border: 'border-[rgba(53,224,138,0.38)]',
   },
   wave: {
     labelKey: 'modTypeWave',
     icon: '🌊',
-    color: 'text-[var(--hl-ink-2)]',
-    bg: 'bg-[var(--hl-deck-2)]',
-    border: 'border-[var(--hl-line-strong)]',
+    color: 'text-[var(--arc-ink-2)]',
+    bg: 'bg-[var(--arc-deck-2)]',
+    border: 'border-[var(--arc-line-strong)]',
   },
   full: {
     labelKey: 'modTypeFull',
     icon: '📦',
-    color: 'text-[var(--hl-caution)]',
-    bg: 'bg-[var(--hl-deck-2)]',
+    color: 'text-[var(--arc-caution)]',
+    bg: 'bg-[var(--arc-deck-2)]',
     border: 'border-[rgba(255,182,39,0.38)]',
   },
 };
@@ -79,8 +79,8 @@ export const ModCard = ({ mod, onSelect }: { mod: Mod; onSelect: () => void }) =
       className={[
         'group relative flex h-full cursor-pointer flex-col overflow-hidden border p-4 transition-colors duration-150',
         mod.enabled
-          ? 'border-[var(--hl-signal)] bg-[var(--hl-deck)]'
-          : 'border-[var(--hl-line)] bg-[var(--hl-void-2)] hover:border-[var(--hl-line-hot)]',
+          ? 'border-[var(--arc-gold)] bg-[var(--arc-deck)]'
+          : 'border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] hover:border-[var(--arc-line-hot)]',
       ].join(' ')}
       onClick={onSelect}
     >
@@ -99,7 +99,7 @@ export const ModCard = ({ mod, onSelect }: { mod: Mod; onSelect: () => void }) =
             <span>{typeLabel}</span>
           </span>
           {mod.enabled && (
-            <span className="flex items-center gap-1 border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-vital)]">
+            <span className="flex items-center gap-1 border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-vital)]">
               <CheckIcon className="h-3 w-3" />
               {w.enabled}
             </span>
@@ -117,18 +117,18 @@ export const ModCard = ({ mod, onSelect }: { mod: Mod; onSelect: () => void }) =
       </div>
 
       {/* 標題 */}
-      <h3 className="relative z-10 mb-1.5 text-[14px] font-semibold leading-tight text-[var(--hl-ink)]">
+      <h3 className="arc-title relative z-10 mb-1.5 text-[14px] font-semibold leading-tight text-[var(--arc-ink)]">
         {mod.metadata.name}
       </h3>
 
       {/* 描述 */}
-      <p className="relative z-10 mb-4 line-clamp-2 flex-1 text-[11px] leading-relaxed text-[var(--hl-ink-3)]">
+      <p className="relative z-10 mb-4 line-clamp-2 flex-1 text-[11px] leading-relaxed text-[var(--arc-ink-3)]">
         {mod.metadata.description}
       </p>
 
       {/* 元信息與標籤 */}
-      <div className="relative z-10 mt-auto border-t border-[var(--hl-line)] pt-2.5">
-        <div className="mb-2 flex flex-wrap items-center gap-3 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+      <div className="relative z-10 mt-auto border-t border-[var(--cn-line-soft)] pt-2.5">
+        <div className="mb-2 flex flex-wrap items-center gap-3 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
           <span className="flex items-center gap-1">
             <DocumentIcon className="h-3 w-3" />
             v{mod.metadata.version}
@@ -148,13 +148,13 @@ export const ModCard = ({ mod, onSelect }: { mod: Mod; onSelect: () => void }) =
             {mod.metadata.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--hl-ink-4)]"
+                className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--arc-ink-4)]"
               >
                 #{tag}
               </span>
             ))}
             {mod.metadata.tags.length > 3 && (
-              <span className="px-1 py-0.5 font-mono text-[9px] tracking-[0.06em] text-[var(--hl-ink-4)]">
+              <span className="px-1 py-0.5 font-mono text-[9px] tracking-[0.06em] text-[var(--arc-ink-4)]">
                 +{mod.metadata.tags.length - 3}
               </span>
             )}

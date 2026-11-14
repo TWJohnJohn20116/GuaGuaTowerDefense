@@ -84,8 +84,8 @@ export function MapEditorCanvas({ waypoints, setWaypoints, editMode }: MapEditor
     // HARDLINE token 的 canvas 等值色（不用漸層、不用發光）
     const INK = '#eceff2';
     const LINE = '#222831';
-    const REACH = '#6fa8ff';
-    const VITAL = '#38e08f';
+    const REACH = '#6f8cff';
+    const VITAL = '#35e08a';
     const ALARM = '#ff4b3e';
 
     for (let row = 0; row < GRID_ROWS; row++) {
@@ -95,8 +95,8 @@ export function MapEditorCanvas({ waypoints, setWaypoints, editMode }: MapEditor
         let fillColor = 'rgba(236,239,242,0.03)';
         const key = `${col},${row}`;
         if (pathTiles.has(key)) fillColor = 'rgba(236,239,242,0.09)';
-        if (startPos && col === startPos.col && row === startPos.row) fillColor = 'rgba(56,224,143,0.28)';
-        if (endPos && col === endPos.col && row === endPos.row) fillColor = 'rgba(255,75,62,0.28)';
+        if (startPos && col === startPos.col && row === startPos.row) fillColor = 'rgba(53,224,138,0.28)';
+        if (endPos && col === endPos.col && row === endPos.row) fillColor = 'rgba(255,61,113,0.28)';
         ctx.fillStyle = fillColor;
         ctx.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
         ctx.strokeStyle = LINE;
@@ -177,7 +177,7 @@ export function MapEditorCanvas({ waypoints, setWaypoints, editMode }: MapEditor
   );
 
   return (
-    <div ref={containerRef} className="relative h-full flex-1 bg-[var(--hl-void-2)]">
+    <div ref={containerRef} className="relative h-full flex-1 bg-[var(--arc-void-2)]">
       <canvas
         ref={canvasRef}
         width={dimensions.width}

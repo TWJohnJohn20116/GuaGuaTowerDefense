@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import type { Mod } from '@/types/game';
 import { DownloadIcon, WarningIcon, CrossIcon } from '@/components/ui/Icons';
 import { SceneModal } from '@/components/ui/SceneModal';
-import { Btn, SegHead } from '@/components/hl';
+import { Btn, Deck, IconBtn, Num, SegHead } from '@/components/hl';
 import { ModValidationPanel } from '@/components/mod-editor/ModValidationPanel';
 import { ModDiffVisualBars } from '@/components/mod-editor/ModDiffVisualBars';
 import { validateModContent } from '@/components/mod-editor/modValidation';
@@ -59,19 +59,18 @@ export function ImportModDialog({ onClose, onImport }: ImportModDialogProps) {
       padding="p-4"
       zIndex="z-[200]"
       variant="solid"
-      panelClassName="hl-cut-tl flex flex-col gap-3 border border-[var(--hl-line)] bg-[var(--hl-deck)] p-4"
+      panelClassName="arc-cut-tl flex flex-col gap-3 arc-panel p-4"
     >
       <div className="flex items-center gap-2">
-        <span className="hl-label">{w.importModTitle}</span>
-        <span className="h-px flex-1 bg-[var(--hl-line)]" />
-        <button
-          type="button"
+        <span className="arc-label">{w.importModTitle}</span>
+        <span className="h-px flex-1 bg-[var(--arc-line)]" />
+        <IconBtn
+          label={t.common.close}
           onClick={onClose}
-          className="flex h-6 w-6 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-3)] transition-colors hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]"
-          aria-label={t.common.close}
+          className="flex h-6 w-6 items-center justify-center border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-3)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]"
         >
           <CrossIcon className="h-3 w-3" />
-        </button>
+        </IconBtn>
       </div>
 
       <textarea
@@ -79,28 +78,31 @@ export function ImportModDialog({ onClose, onImport }: ImportModDialogProps) {
         onChange={(e) => setJson(e.target.value)}
         placeholder={w.importModPh}
         spellCheck={false}
-        className="h-48 w-full resize-none border border-[var(--hl-line)] bg-[var(--hl-void-2)] p-2.5 font-mono text-[11.5px] leading-relaxed text-[var(--hl-ink)] placeholder:text-[var(--hl-ink-4)] focus:border-[var(--hl-signal)] focus:outline-none"
+        className="h-48 w-full resize-none arc-panel arc-panel--sunken p-2.5 font-mono text-[11.5px] leading-relaxed text-[var(--arc-ink)] placeholder:text-[var(--arc-ink-4)] focus:border-[var(--arc-gold)] focus:outline-none"
       />
 
       {parsed && (
-        <div className="flex flex-col gap-2 border border-[var(--hl-line)] bg-[var(--hl-void-2)] p-2.5">
+        <Deck tone="sunken" className="flex flex-col gap-2 p-2.5">
           <div className="flex items-baseline justify-between gap-3">
-            <span className="truncate text-[12.5px] font-medium text-[var(--hl-ink)]">{parsed.metadata.name}</span>
-            <span className="shrink-0 font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
-              v{parsed.metadata.version} · {parsed.metadata.author}
-            </span>
+            <span className="truncate text-[12.5px] font-medium text-[var(--arc-ink)]">{parsed.metadata.name}</span>
+            <Num
+              value={`v${parsed.metadata.version} · ${parsed.metadata.author}`}
+              tone="muted"
+              size="sm"
+              className="shrink-0 font-mono tabular-nums"
+            />
           </div>
           {preview && <ModValidationPanel result={preview} />}
           {conflictMod && (
             <div className="flex flex-col gap-2">
-              <div className="flex items-start gap-1.5 border border-[rgba(255,182,39,0.38)] bg-[rgba(255,182,39,0.12)] px-2 py-1.5 text-[10.5px] text-[var(--hl-caution)]">
+              <div className="flex items-start gap-1.5 border border-[rgba(255,182,39,0.38)] bg-[rgba(255,182,39,0.12)] px-2 py-1.5 text-[10.5px] text-[var(--arc-caution)]">
                 <WarningIcon className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
                 {m.modImportIdConflict}
               </div>
               <ModDiffVisualBars draft={parsed} baseline={conflictMod} />
             </div>
           )}
-        </div>
+        </Deck>
       )}
 
       <div className="flex items-center gap-2">

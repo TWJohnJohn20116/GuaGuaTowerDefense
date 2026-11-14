@@ -9,7 +9,7 @@ import { useTranslation } from '@/i18n';
 import { PaletteIcon } from '@/components/ui/Icons';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { renderModIcon } from '@/components/ui/ModIcon';
-import { SegHead, Field } from '@/components/hl';
+import { Deck, Field, Input, Num, SegHead } from '@/components/hl';
 
 interface ModEditorSettingsTabProps {
   modName: string;
@@ -27,7 +27,7 @@ interface ModEditorSettingsTabProps {
 }
 
 function L({ children }: { children: React.ReactNode }) {
-  return <span className="hl-label block">{children}</span>;
+  return <span className="arc-label block">{children}</span>;
 }
 
 export function ModEditorSettingsTab({
@@ -59,14 +59,14 @@ export function ModEditorSettingsTab({
             <button
               type="button"
               onClick={onOpenIconEditor}
-              className="group relative flex h-[88px] w-[88px] flex-col items-center justify-center overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)] text-4xl transition-colors hover:border-[var(--hl-signal)]"
+              className="group relative flex h-[88px] w-[88px] flex-col items-center justify-center overflow-hidden arc-panel arc-panel--sunken text-4xl transition-colors hover:border-[var(--arc-gold)]"
             >
               {modIcon ? (
-                renderModIcon(modIcon, <PaletteIcon className="h-7 w-7 text-[var(--hl-ink-4)]" />, 'h-[88px] w-[88px] text-4xl')
+                renderModIcon(modIcon, <PaletteIcon className="h-7 w-7 text-[var(--arc-ink-4)]" />, 'h-[88px] w-[88px] text-4xl')
               ) : (
-                <PaletteIcon className="h-7 w-7 text-[var(--hl-ink-4)]" />
+                <PaletteIcon className="h-7 w-7 text-[var(--arc-ink-4)]" />
               )}
-              <span className="absolute inset-x-0 bottom-0 bg-[var(--hl-void)] py-0.5 text-center font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--hl-ink-2)] opacity-0 transition-opacity group-hover:opacity-100">
+              <span className="absolute inset-x-0 bottom-0 bg-[var(--arc-void)] py-0.5 text-center font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--arc-ink-2)] opacity-0 transition-opacity group-hover:opacity-100">
                 {m.editIcon}
               </span>
             </button>
@@ -75,10 +75,10 @@ export function ModEditorSettingsTab({
           <div className="flex min-w-0 flex-1 flex-col gap-3">
             <div className="flex flex-col gap-1.5">
               <L>{m.modNameLabel}</L>
-              <input
+              <Input
                 value={modName}
                 onChange={(e) => onModNameChange(e.target.value)}
-                className="hl-input h-8 text-[12px]"
+                className="h-8 text-[12px]"
                 placeholder={m.modNamePh}
               />
             </div>
@@ -86,19 +86,19 @@ export function ModEditorSettingsTab({
             <div className="grid grid-cols-3 gap-3">
               <div className="flex flex-col gap-1.5">
                 <L>{m.versionLabel}</L>
-                <input
+                <Input
                   value={modVersion}
                   onChange={(e) => onModVersionChange(e.target.value)}
-                  className="hl-input h-8 font-mono text-[12px] tabular-nums"
+                  className="h-8 font-mono text-[12px] tabular-nums arc-num"
                   placeholder="1.0.0"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
                 <L>{m.authorLabel}</L>
-                <input
+                <Input
                   value={modAuthor}
                   onChange={(e) => onModAuthorChange(e.target.value)}
-                  className="hl-input h-8 text-[12px]"
+                  className="h-8 text-[12px]"
                   placeholder={m.authorPh}
                 />
               </div>
@@ -126,20 +126,20 @@ export function ModEditorSettingsTab({
           <textarea
             value={modDescription}
             onChange={(e) => onModDescriptionChange(e.target.value)}
-            className="h-24 w-full resize-none border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-2.5 py-2 text-[12px] leading-relaxed text-[var(--hl-ink-2)] outline-none transition-colors placeholder:text-[var(--hl-ink-4)] focus:border-[var(--hl-signal)]"
+            className="h-24 w-full resize-none arc-panel arc-panel--sunken px-2.5 py-2 text-[12px] leading-relaxed text-[var(--arc-ink-2)] outline-none transition-colors placeholder:text-[var(--arc-ink-4)] focus:border-[var(--arc-gold)]"
             placeholder={m.modDescPh}
           />
         </div>
 
         {/* 唯讀摘要 */}
-        <div className="border border-[var(--hl-line)] bg-[var(--hl-deck)] px-3">
+        <Deck className="px-3">
           <Field label={m.modTypeLabel}>
-            <span className="font-mono text-[11px] text-[var(--hl-ink-2)]">{modType}</span>
+            <span className="font-mono text-[11px] text-[var(--arc-ink-2)]">{modType}</span>
           </Field>
           <Field label={m.versionLabel}>
-            <span className="font-mono text-[11px] tabular-nums text-[var(--hl-ink-2)]">v{modVersion}</span>
+            <Num value={`v${modVersion}`} size="sm" className="font-mono tabular-nums" />
           </Field>
-        </div>
+        </Deck>
       </div>
     </div>
   );

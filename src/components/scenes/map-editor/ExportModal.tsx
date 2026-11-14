@@ -26,14 +26,14 @@ export function ExportModal({ open, code, onClose }: ExportModalProps) {
       maxWidth="max-w-2xl"
       maxHeight="max-h-[80vh]"
       padding="p-4"
-      panelClassName="hl-cut-tl flex flex-col gap-3 border border-[var(--hl-line)] bg-[var(--hl-deck)] p-4"
+      panelClassName="arc-cut-tl flex flex-col gap-3 arc-panel p-4"
       zIndex="z-50"
       position="absolute"
     >
       <SegHead label={t.mapEditor.exportTitle} />
-      <p className="hl-micro -mt-1">{t.mapEditor.exportHint}</p>
+      <p className="arc-micro -mt-1">{t.mapEditor.exportHint}</p>
 
-      <pre className="max-h-[46vh] overflow-auto border border-[var(--hl-line)] bg-[var(--hl-void-2)] p-2.5 font-mono text-[11.5px] leading-relaxed text-[var(--hl-ink-2)]">
+      <pre className="max-h-[46vh] overflow-auto arc-panel arc-panel--sunken p-2.5 font-mono text-[11.5px] leading-relaxed text-[var(--arc-ink-2)]">
         <code>{code}</code>
       </pre>
 
