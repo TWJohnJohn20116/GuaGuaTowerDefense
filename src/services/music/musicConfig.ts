@@ -42,9 +42,6 @@ const MENU_SCENES = new Set<GameScene>([
   'mapEditor',
   'talentTree',
   'replay',
-  'memorial',
-  'dailyChallenge',
-  'mutatorChallenge',
 ]);
 
 /** 依場景解析應播放的 BGM 曲目 */
