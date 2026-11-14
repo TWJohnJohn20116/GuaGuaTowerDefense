@@ -255,7 +255,6 @@ export function PauseSessionPanel() {
  </div>
  </SectionGroup>
 
- <PauseChallengeRules />
  </div>
  );
 }

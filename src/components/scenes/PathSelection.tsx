@@ -136,7 +136,6 @@ export default function PathSelection() {
   const handleStartGame = (overrideId?: string) => {
     const targetId = overrideId || selectedPath;
     if (!targetId) return;
-    clearPathHandoff();
     let effectiveMaxWaves = endlessMode ? 0 : selectedWaves;
     if (!endlessMode && customWaveSetId) {
       const ws = findPlayableWaveSet(customWaveSetId);

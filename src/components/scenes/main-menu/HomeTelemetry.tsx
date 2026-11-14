@@ -1,5 +1,4 @@
 import { version as APP_VERSION } from '../../../../package.json';
-import { useTranslation } from '@/i18n';
 import { useGameStore } from '@/store/gameStore';
 import { Dot } from '@/components/hl';
 
@@ -8,7 +7,6 @@ import { Dot } from '@/components/hl';
  * 存在目的：讓整個畫面有一條「基線」，不是浮在空中。
  */
 export function HomeTelemetry() {
-  const { t } = useTranslation();
   const scene = useGameStore((s) => s.scene);
 
   return (

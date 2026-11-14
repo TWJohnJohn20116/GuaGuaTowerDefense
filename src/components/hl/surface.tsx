@@ -28,10 +28,8 @@ const TONE: Record<NonNullable<DeckProps['tone']>, string> = {
 export function Deck({
   children,
   className = '',
-  notch = false,
   tone = 'base',
   active = false,
-  bracket = false,
   as: Tag = 'div',
 }: DeckProps) {
   return (

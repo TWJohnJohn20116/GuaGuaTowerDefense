@@ -69,7 +69,6 @@ describe('batch sell confirmation', () => {
     expect(requestBatchSell({
       towers: [{ id: 'a', name: '基礎塔', cost: 100 }],
       confirmSell: false,
-      sellingDisabled: true,
       unitLabel: '個塔',
     })).toBe('blocked');
     expect(useSellConfirmStore.getState().pending).toBeNull();

@@ -75,7 +75,6 @@ export function requestSellTower(input: RequestSellTowerInput): SellIntent {
 
 /** 多選出售：與單塔同一套確認彈窗與「確認出售」設定 */
 export function requestBatchSell(input: RequestBatchSellInput): SellIntent {
-  if (input.sellingDisabled) return 'blocked';
   const summary = summarizeBatchSell(input.towers, input.unitLabel);
   if (summary.towerIds.length === 0) return 'blocked';
   if (!input.confirmSell) return 'sell_now';

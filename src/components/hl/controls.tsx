@@ -4,6 +4,7 @@
  * 按鈕是厚實的糖果鍵：3px 墨線外框、底部 4px 實心投影，按下去整顆下沉。
  * 尺寸比上一版大一級——遊戲的按鈕就是要好按。
  */
+import { forwardRef } from 'react';
 import type React from 'react';
 import { playUiHover } from '@/services/audioService';
 
@@ -102,24 +103,23 @@ export function Chip({
  * 單行輸入框：原生 input 的屬性全部直通，只補 CANDY 外觀。
  * 需要錯誤態時傳 invalid。
  */
-export function Input({
-  className = '',
-  invalid = false,
-  ...rest
-}: React.InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }) {
-  return (
-    <input
-      {...rest}
-      className={[
-        'arc-field',
-        invalid ? 'border-[var(--cn-alert)] shadow-[0_0_0_4px_var(--cn-alert-soft)]' : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
-    />
-  );
-}
+export const Input = forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }
+>(({ className = '', invalid = false, ...rest }, ref) => (
+  <input
+    ref={ref}
+    {...rest}
+    className={[
+      'arc-field',
+      invalid ? 'border-[var(--cn-alert)] shadow-[0_0_0_4px_var(--cn-alert-soft)]' : '',
+      className,
+    ]
+      .filter(Boolean)
+      .join(' ')}
+  />
+));
+Input.displayName = 'Input';
 
 /* ---------------------------------------------------------------- IconBtn */
 

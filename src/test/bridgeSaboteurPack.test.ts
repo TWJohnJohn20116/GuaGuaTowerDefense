@@ -10,7 +10,6 @@ import { checkCondition } from '@/store/achievementStoreCheck';
 import type { PathConfig } from '@/types/game';
 
 const MAP_ID = 'bridge';
-const WAVE_SET_ID = 'official_saboteur_raid';
 
 function collectPoints(path: PathConfig) {
   const points = [...path.waypoints];

@@ -18,8 +18,6 @@ import {
   nudgeIconLayer,
   moveLayerUp as moveLayerUpOp,
   moveLayerDown as moveLayerDownOp,
-  bringToFront as bringToFrontOp,
-  sendToBack as sendToBackOp,
   toggleLayerVisibility,
   toggleLayerLock,
 } from './modIconLayerOps';
@@ -242,14 +240,6 @@ export function ModIconEditor({
 
   const moveLayerDown = (id: string) => {
     setIcons((prev) => moveLayerDownOp(prev, id));
-  };
-
-  const bringToFront = (id: string) => {
-    setIcons((prev) => bringToFrontOp(prev, id));
-  };
-
-  const sendToBack = (id: string) => {
-    setIcons((prev) => sendToBackOp(prev, id));
   };
 
   const toggleVisibility = (id: string) => {

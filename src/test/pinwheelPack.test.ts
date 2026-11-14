@@ -10,7 +10,6 @@ import { checkCondition } from '@/store/achievementStoreCheck';
 import type { PathConfig } from '@/types/game';
 
 const MAP_ID = 'pinwheel';
-const WAVE_SET_ID = 'official_swarm_siege';
 
 function collectPoints(path: PathConfig) {
   const points = [...path.waypoints];
