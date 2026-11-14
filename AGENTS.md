@@ -254,7 +254,7 @@ services → types（只能 import type 或由入口注入）
 
 ## 8. 技術債：可以修，不准新增
 
-完整 42 項清單見 `架構圖.html` §21（含證據與 4 階段順序）。**每項都有固定編號 `TD-01`～`TD-42`**——
+完整 42 項清單見 `架構圖.html` §22（含證據與 4 階段順序）。**每項都有固定編號 `TD-01`～`TD-42`**——
 commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types): 移除 TD-13 的 7 處多餘 as any`），不要用「那個 as any 的債」這種說法。
 
 | 不准 | 現況基準 | 替代做法 |
@@ -275,7 +275,7 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 
 | 文件 | 用途 |
 |---|---|
-| `架構圖.html` | **現況權威**：八層架構、主迴圈、42 項技術債（唯一架構文件，無 Markdown 版） |
+| `架構圖.html` | **現況權威**：八層架構、主迴圈、測試（§19）、42 項技術債（§22）（唯一架構文件，無 Markdown 版） |
 | `docs/SCENE_UI.md` | 場景共用 UI 與五種佈局規範（路徑敘述已過時，以此處程式碼為準） |
 | `docs/2026-11-10-shishan-remediation.md` | 過去重構的決策紀錄（為什麼 grid 只記 id、為什麼 i18n 型別要推導） |
 | `docs/research/` | AI 產出的研究／分析報告（`YYYY-MM-DD-slug.md`，見 §4.8） |
