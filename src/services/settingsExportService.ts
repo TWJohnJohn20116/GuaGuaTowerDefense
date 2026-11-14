@@ -21,9 +21,9 @@ import {
   createDefaultExportSelection,
 } from '@/services/settingsExportSections';
 
-export const SETTINGS_EXPORT_VERSION = 2;
+const SETTINGS_EXPORT_VERSION = 2;
 
-export interface SettingsExportGamePrefs {
+interface SettingsExportGamePrefs {
   soundEnabled: boolean;
   musicEnabled: boolean;
   soundVolume: number;
@@ -46,7 +46,7 @@ export type SettingsImportResult =
   | { ok: true }
   | { ok: false; reason: string };
 
-export interface SettingsExportOptions {
+interface SettingsExportOptions {
   selection?: SettingsExportSelection;
   download?: boolean;
   saveToVault?: boolean;
@@ -66,7 +66,7 @@ function selectedSections(selection: SettingsExportSelection): SettingsExportSec
 }
 
 /** 依勾選項目收集設定快照 */
-export function collectSettingsExportPayload(
+function collectSettingsExportPayload(
   selection: SettingsExportSelection = createDefaultExportSelection(),
 ): SettingsExportPayload | null {
   const sections = selectedSections(selection);
@@ -210,7 +210,7 @@ export function parseSettingsPayload(raw: unknown): SettingsExportPayload | null
 }
 
 /** 套用已驗證的設定快照（可選擇性覆寫區段） */
-export function applySettingsPayload(
+function applySettingsPayload(
   payload: SettingsExportPayload,
   selection?: SettingsExportSelection,
 ): void {
@@ -274,7 +274,7 @@ export function applySettingsPayload(
 }
 
 /** 讀取 JSON 檔並解析（不套用） */
-export async function readSettingsFile(
+async function readSettingsFile(
   file: File,
 ): Promise<{ ok: true; payload: SettingsExportPayload } | { ok: false; reason: string }> {
   try {
@@ -292,7 +292,7 @@ export async function readSettingsFile(
 }
 
 /** 讀取並匯入 JSON 檔（可選是否存入檔案庫、選擇性區段） */
-export async function importSettingsFromFile(
+async function importSettingsFromFile(
   file: File,
   options?: { saveToVault?: boolean; selection?: SettingsExportSelection },
 ): Promise<SettingsImportResult> {

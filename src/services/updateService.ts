@@ -37,7 +37,7 @@ export interface ReleaseInfo {
   htmlUrl: string;
 }
 
-export type UpdateInstallPhase = 'idle' | 'downloading' | 'installing' | 'done' | 'error';
+type UpdateInstallPhase = 'idle' | 'downloading' | 'installing' | 'done' | 'error';
 
 export interface UpdateInstallProgress {
   phase: UpdateInstallPhase;

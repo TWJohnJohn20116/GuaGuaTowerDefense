@@ -17,7 +17,7 @@ const TONE_TEXT = {
   alarm: 'text-[var(--hl-alarm)]',
 } as const;
 
-export interface MutatorDetailPanelProps {
+interface MutatorDetailPanelProps {
   challenge: MutatorChallenge | null;
   record?: MutatorChallengeRecord;
   onStart: (c: MutatorChallenge) => void;

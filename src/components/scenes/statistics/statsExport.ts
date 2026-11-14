@@ -16,7 +16,7 @@ export interface StatsExportOptions {
   includeGlobalSummary: boolean;
 }
 
-export interface StatsExportSummary {
+interface StatsExportSummary {
   exportCount: number;
   totalCount: number;
   victories: number;

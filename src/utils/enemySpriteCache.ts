@@ -16,7 +16,7 @@ import { drawEnemyModel } from '@/utils/enemyRenderer';
  * 行為完全一致——這也是為什麼這支模組可以被單獨測試。
  */
 
-export interface EnemySprite {
+interface EnemySprite {
   image: CanvasImageSource;
   /** 圖片邊長（正方形，含光暈留白） */
   size: number;
@@ -26,7 +26,7 @@ export interface EnemySprite {
   radius: number;
 }
 
-export interface EnemySpriteOptions {
+interface EnemySpriteOptions {
   modelType: string;
   color: string;
   radius: number;

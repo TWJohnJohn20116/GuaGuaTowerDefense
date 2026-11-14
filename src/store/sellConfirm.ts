@@ -1,33 +1,33 @@
 import { useSellConfirmStore, type PendingSell } from '@/store/sellConfirmStore';
 
-export type SellIntent = 'blocked' | 'sell_now' | 'prompt';
+type SellIntent = 'blocked' | 'sell_now' | 'prompt';
 
-export interface ResolveSellIntentInput {
+interface ResolveSellIntentInput {
   confirmSell: boolean;
   locked?: boolean;
   sellingDisabled?: boolean;
 }
 
-export interface RequestSellTowerInput extends ResolveSellIntentInput {
+interface RequestSellTowerInput extends ResolveSellIntentInput {
   towerId: string;
   name: string;
   cost: number;
 }
 
-export interface BatchSellTowerInput {
+interface BatchSellTowerInput {
   id: string;
   name: string;
   cost: number;
   locked?: boolean;
 }
 
-export interface BatchSellSummary {
+interface BatchSellSummary {
   towerIds: string[];
   name: string;
   refund: number;
 }
 
-export interface RequestBatchSellInput {
+interface RequestBatchSellInput {
   towers: BatchSellTowerInput[];
   confirmSell: boolean;
   sellingDisabled?: boolean;

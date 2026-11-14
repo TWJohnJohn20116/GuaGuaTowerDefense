@@ -227,7 +227,7 @@ export interface KeyBindings {
 export type UpgradePath = 'A' | 'B' | null;
 
 // 分支升級加成
-export interface UpgradeBranchBonus {
+interface UpgradeBranchBonus {
   name: string;
   description: string;
   icon: string;
@@ -523,7 +523,7 @@ export type GameScene =
 export type ModType = 'tower' | 'enemy' | 'map' | 'wave' | 'full';
 
 // Mod 元數據
-export interface ModMetadata {
+interface ModMetadata {
   id: string;
   name: string;
   version: string;
@@ -622,7 +622,7 @@ export interface CustomWaveData {
 export type ModItem = CustomTowerData | CustomEnemyData | CustomMapData | CustomWaveData;
 
 // Mod 內容
-export interface ModContent {
+interface ModContent {
   towers?: CustomTowerData[];
   enemies?: CustomEnemyData[];
   maps?: CustomMapData[];
@@ -638,7 +638,7 @@ export interface Mod {
 }
 
 // Mod 驗證結果
-export type ModValidationTab = 'settings' | 'towers' | 'enemies' | 'maps' | 'waves';
+type ModValidationTab = 'settings' | 'towers' | 'enemies' | 'maps' | 'waves';
 
 export interface ModValidationFlag {
   tab: ModValidationTab;

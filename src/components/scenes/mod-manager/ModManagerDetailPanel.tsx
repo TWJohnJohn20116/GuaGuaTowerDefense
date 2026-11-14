@@ -18,7 +18,7 @@ import { renderModIcon } from '@/components/ui/ModIcon';
 import { ModBalanceScoreBadge } from '@/components/mod-editor/ModBalanceScoreBadge';
 import { ModBalanceAdvisor } from '@/components/mod-editor/ModBalanceAdvisor';
 
-export interface ModManagerDetailPanelProps {
+interface ModManagerDetailPanelProps {
   mod: Mod | null;
   onEdit?: () => void;
 }

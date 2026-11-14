@@ -12,7 +12,7 @@ import { SceneModal } from '@/components/ui/SceneModal';
 import { Btn, Deck, Key } from '@/components/hl';
 import type { KeyAction } from '@/types/game';
 
-export interface KeyBindingOverlayProps {
+interface KeyBindingOverlayProps {
   open: boolean;
   action: KeyAction | null;
   label?: string;

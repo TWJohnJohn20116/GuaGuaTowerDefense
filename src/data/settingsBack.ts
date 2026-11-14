@@ -1,4 +1,4 @@
-export type SettingsEscapeAction = 'ignore' | 'go_back';
+type SettingsEscapeAction = 'ignore' | 'go_back';
 
 export function isSettingsTypingTarget(target: EventTarget | null): boolean {
   return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;

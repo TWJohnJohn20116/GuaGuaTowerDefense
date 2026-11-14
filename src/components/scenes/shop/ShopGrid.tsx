@@ -197,7 +197,7 @@ function SkillCard({ skill, coins, unlocked, selected, onSelect }: SkillCardProp
 
 /* ------------------------------------------------------------ 網格容器 */
 
-export interface ShopGridProps {
+interface ShopGridProps {
   tab: 'towers' | 'skills';
   towers: TowerType[];
   coins: number;

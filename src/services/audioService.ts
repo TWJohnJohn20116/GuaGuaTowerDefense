@@ -184,7 +184,7 @@ export const playLeak = (): void => playSfx('error', { category: 'misc' });
 export const playGameOver = (): void => playSfx('game_over', { category: 'misc' });
 export const playVictory = (): void => playSfx('wave_start', { category: 'misc', volume: 1.2 });
 export const playPause = (): void => playSfx('pause', { category: 'ui' });
-export const playUiClick = (): void => playSfx('button_click', { category: 'ui' });
+const playUiClick = (): void => playSfx('button_click', { category: 'ui' });
 export const playUiHover = (): void => playSfx('button_hover', { category: 'ui', volume: 0.7 });
 
 export function initAudio(): void {

@@ -8,7 +8,7 @@ import type React from 'react';
 
 /* ------------------------------------------------------------------ Deck */
 
-export interface DeckProps {
+interface DeckProps {
   children: React.ReactNode;
   className?: string;
   /** 左上切角。容器內有 dropdown / popover 時不要開。 */

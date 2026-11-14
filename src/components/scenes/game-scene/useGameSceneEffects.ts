@@ -25,7 +25,7 @@ import { getProtocolWaveMods } from '@/data/tacticalProtocolData';
 import { shouldApplyQuickPlaceDefaultSync } from '@/data/quickPlaceSync';
 
 // 遊戲場景效果 Hook 回傳值
-export interface GameSceneEffectsReturn {
+interface GameSceneEffectsReturn {
   countdown: number;
   showCountdown: boolean;
 }

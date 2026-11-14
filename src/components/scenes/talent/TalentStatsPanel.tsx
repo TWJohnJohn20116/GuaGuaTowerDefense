@@ -19,7 +19,7 @@ interface StatRow {
   active: boolean;
 }
 
-export interface TalentStatsPanelProps {
+interface TalentStatsPanelProps {
   modifiers: TalentModifiers;
 }
 

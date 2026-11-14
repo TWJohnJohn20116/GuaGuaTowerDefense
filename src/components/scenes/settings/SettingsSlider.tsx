@@ -8,7 +8,7 @@
 import type { ReactNode } from 'react';
 import { playUiHover } from '@/services/audioService';
 
-export interface SettingsSliderProps {
+interface SettingsSliderProps {
   value: number;
   onChange: (v: number) => void;
   disabled?: boolean;

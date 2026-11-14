@@ -5,7 +5,7 @@
  * 即時效果立刻結算；波次效果只在下一波戰鬥中生效。
  */
 
-export type ProtocolEffectKind =
+type ProtocolEffectKind =
   | 'money'
   | 'health'
   | 'towerFireRate'
@@ -21,7 +21,7 @@ export type ProtocolEffectKind =
   | 'towerDamage'
   | 'towerIncome';
 
-export type ProtocolAccent = 'cyan' | 'amber' | 'emerald' | 'violet' | 'blue' | 'rose';
+type ProtocolAccent = 'cyan' | 'amber' | 'emerald' | 'violet' | 'blue' | 'rose';
 
 export type ProtocolIconKey =
   | 'coin'
@@ -48,7 +48,7 @@ export interface TacticalProtocol {
   };
 }
 
-export interface ProtocolWaveMods {
+interface ProtocolWaveMods {
   fireRateMult: number;
   rangeMult: number;
   critChanceAdd: number;
@@ -62,13 +62,13 @@ export interface ProtocolWaveMods {
   incomeMult: number;
 }
 
-export interface ProtocolInstantGrant {
+interface ProtocolInstantGrant {
   money: number;
   health: number;
   nextTowerDiscount: number;
 }
 
-export type AutoBattleStrategy = 'balanced' | 'economy' | 'aggressive' | 'defensive';
+type AutoBattleStrategy = 'balanced' | 'economy' | 'aggressive' | 'defensive';
 
 export const TACTICAL_PROTOCOLS: TacticalProtocol[] = [
   {

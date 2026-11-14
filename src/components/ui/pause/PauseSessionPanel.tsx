@@ -59,7 +59,7 @@ function useElapsedSeconds(startMs: number | null | undefined): number {
 }
 
 /** 標籤：本局模式與狀態快照 */
-export function PauseContextBanner({ bare = false }: { bare?: boolean }) {
+function PauseContextBanner({ bare = false }: { bare?: boolean }) {
  const { t } = useTranslation();
  const selectedPath = useGameStore((s) => s.selectedPath);
  const gameDifficulty = useGameStore((s) => s.gameDifficulty);
@@ -120,7 +120,7 @@ export function PauseContextBanner({ bare = false }: { bare?: boolean }) {
 }
 
 /** 本局難度說明 */
-export function PauseWaveProgress({ bare = false }: { bare?: boolean }) {
+function PauseWaveProgress({ bare = false }: { bare?: boolean }) {
  const { t } = useTranslation();
  const currentWave = useGameStore((s) => s.currentWave);
  const maxWaves = useGameStore((s) => s.maxWaves);
@@ -177,7 +177,7 @@ export function PauseWaveProgress({ bare = false }: { bare?: boolean }) {
 }
 
 /** 本局成就檢查（無傷、無失誤、無減員、限時內） */
-export function PauseSessionMetrics() {
+function PauseSessionMetrics() {
  const { t } = useTranslation();
  const score = useGameStore((s) => s.score);
  const currentGame = useStatsStore((s) => s.currentGame);

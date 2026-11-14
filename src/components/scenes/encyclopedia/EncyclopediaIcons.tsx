@@ -18,7 +18,7 @@ import {
 type IconComp = (p: SVGProps<SVGSVGElement> & { className?: string; style?: React.CSSProperties }) => JSX.Element;
 
 // 狀態效果 SVG 圖示對應
-export const STATUS_EFFECT_ICONS: Record<StatusEffectType, IconComp> = {
+const STATUS_EFFECT_ICONS: Record<StatusEffectType, IconComp> = {
   slow: FootprintsIcon,
   poison: SkullIcon,
   burn: FlameIcon,

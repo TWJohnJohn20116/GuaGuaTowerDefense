@@ -22,7 +22,7 @@ export type IconCategory =
   | 'shapes'
   | 'other';
 
-export type IconSource = 'ui';
+type IconSource = 'ui';
 
 export interface GameIconEntry {
   id: string;
@@ -36,7 +36,7 @@ export interface GameIconEntry {
   Component: ComponentType<SVGProps<SVGSVGElement> & { className?: string }>;
 }
 
-export const ICON_CATEGORY_LABELS: Record<IconCategory, string> = {
+const ICON_CATEGORY_LABELS: Record<IconCategory, string> = {
   currency: '貨幣',
   navigation: '導航與選單',
   gameState: '遊戲狀態',
@@ -155,7 +155,7 @@ function buildRegistry(): GameIconEntry[] {
 export const ALL_GAME_ICONS = buildRegistry();
 
 /** Icons.tsx 匯出的 *Icon 總數（含 ThemeIcon） */
-export const ICONS_TSX_EXPORT_TOTAL = Object.keys(IconModule).filter(
+const ICONS_TSX_EXPORT_TOTAL = Object.keys(IconModule).filter(
   (name) => name.endsWith('Icon') && typeof IconModule[name as keyof typeof IconModule] === 'function',
 ).length;
 

@@ -17,7 +17,7 @@ interface GameTabMeta {
   label?: string;
 }
 
-export const GAME_TABS_META: GameTabMeta[] = [
+const GAME_TABS_META: GameTabMeta[] = [
   { id: 'quickstart', icon: '🚀' },
   { id: 'towers', icon: '🗼' },
   { id: 'enemies', icon: '👾' },
@@ -41,7 +41,7 @@ export const buildGameTabs = (t: Translations) => GAME_TABS_META.map((m) => {
   return { ...m, label: i18nLabel };
 });
 
-export const MOD_TABS_META = [
+const MOD_TABS_META = [
   { id: 'intro' as const, icon: '📦' },
   { id: 'tower' as const, icon: '🗼' },
   { id: 'enemy' as const, icon: '👾' },
@@ -54,7 +54,7 @@ export const buildModTabs = (t: Translations) => MOD_TABS_META.map((m) => ({
   label: t.tutorial.modTabs[m.id],
 }));
 
-export const QUICK_START_ICONS = ['🗺️', '🏗️', '▶️', '⬆️', '🏆'];
+const QUICK_START_ICONS = ['🗺️', '🏗️', '▶️', '⬆️', '🏆'];
 
 export const buildQuickStartSteps = (t: Translations) => [
   { title: t.tutorial.quickStart.step1Title, description: t.tutorial.quickStart.step1Desc, icon: QUICK_START_ICONS[0], tip: t.tutorial.quickStart.step1Tip },
@@ -65,7 +65,7 @@ export const buildQuickStartSteps = (t: Translations) => [
 ];
 
 type TipKey = 'cornerPlacement' | 'slowCombo' | 'keepBudget' | 'priorityUpgrade' | 'observePath' | 'chainEffect' | 'sustainedDamage' | 'areaAttack';
-export const TIPS_META: { icon: string; key: TipKey }[] = [
+const TIPS_META: { icon: string; key: TipKey }[] = [
   { icon: '📍', key: 'cornerPlacement' },
   { icon: '❄️', key: 'slowCombo' },
   { icon: '💰', key: 'keepBudget' },
@@ -83,7 +83,7 @@ export const buildTips = (t: Translations) => TIPS_META.map((m) => ({
 }));
 
 type StrategyKey = 'earlyEconomy' | 'midDevelopment' | 'lateDefense' | 'towerLayout';
-export const STRATEGY_META: { icon: string; key: StrategyKey }[] = [
+const STRATEGY_META: { icon: string; key: StrategyKey }[] = [
   { icon: '💰', key: 'earlyEconomy' },
   { icon: '📈', key: 'midDevelopment' },
   { icon: '🛡️', key: 'lateDefense' },
@@ -114,7 +114,7 @@ export const buildUpgradeGuides = (t: Translations) => [
 ];
 
 type AutoBattleKey = 'whatIs' | 'modes' | 'howEnable' | 'caveats';
-export const AUTO_BATTLE_META: { icon: string; key: AutoBattleKey }[] = [
+const AUTO_BATTLE_META: { icon: string; key: AutoBattleKey }[] = [
   { icon: '🤖', key: 'whatIs' },
   { icon: '🎯', key: 'modes' },
   { icon: '⚙️', key: 'howEnable' },
@@ -130,7 +130,7 @@ export const buildAutoBattleGuides = (t: Translations) => AUTO_BATTLE_META.map((
 // ── 模組教學 ─────────────────────────────────────────────────
 
 type ModIntroStepKey = 'step1' | 'step2' | 'step3' | 'step4' | 'step5';
-export const MOD_INTRO_STEPS_META: { icon: string; key: ModIntroStepKey }[] = [
+const MOD_INTRO_STEPS_META: { icon: string; key: ModIntroStepKey }[] = [
   { icon: '📦', key: 'step1' },
   { icon: '🛠️', key: 'step2' },
   { icon: '➕', key: 'step3' },
@@ -198,7 +198,7 @@ export const buildModMapGuide = (t: Translations) => ({
 // ── 塔角色分類 ───────────────────────────────────────────────
 export type TowerRole = 'damage' | 'control' | 'aoe' | 'economy';
 
-export interface TowerGuideEntry {
+interface TowerGuideEntry {
   id: string;
   role: TowerRole;
   tier: 'S' | 'A' | 'B' | 'C';
@@ -210,7 +210,7 @@ export interface TowerGuideEntry {
   dps: number;
 }
 
-export const TOWER_ROLES_VISUAL: Record<TowerRole, { icon: string; color: string }> = {
+const TOWER_ROLES_VISUAL: Record<TowerRole, { icon: string; color: string }> = {
   damage: { icon: '⚔️', color: 'text-red-400' },
   control: { icon: '❄️', color: 'text-blue-400' },
   aoe: { icon: '💥', color: 'text-orange-400' },
@@ -225,7 +225,7 @@ export const buildTowerRoles = (t: Translations): Record<TowerRole, { label: str
 });
 
 // 塔指南 META（純結構,文字從 i18n 取）
-export interface TowerGuideMeta {
+interface TowerGuideMeta {
   id: string;
   role: TowerRole;
   tier: 'S' | 'A' | 'B' | 'C';
@@ -276,7 +276,7 @@ export const buildTowerGuides = (t: Translations): TowerGuideEntry[] => TOWER_GU
 });
 
 // ── 塔組合推薦 ───────────────────────────────────────────────
-export interface TowerCombo {
+interface TowerCombo {
   name: string;
   towers: { id: string; name: string }[];
   description: string;
@@ -286,7 +286,7 @@ export interface TowerCombo {
 
 type TowerComboKey = 'frostSniper' | 'aoeClear' | 'poisonMachine' | 'economicStart' | 'iceFire' | 'allInOne';
 
-export const TOWER_COMBOS_META: { key: TowerComboKey; towerIds: string[]; rating: number }[] = [
+const TOWER_COMBOS_META: { key: TowerComboKey; towerIds: string[]; rating: number }[] = [
   { key: 'frostSniper',    towerIds: ['frost', 'sniper'],            rating: 5 },
   { key: 'aoeClear',       towerIds: ['cannon', 'lightning'],        rating: 4 },
   { key: 'poisonMachine',  towerIds: ['poison', 'machine'],          rating: 4 },
@@ -312,7 +312,7 @@ export const buildTowerCombos = (t: Translations): TowerCombo[] => TOWER_COMBOS_
 // ── 敵人角色分類 ─────────────────────────────────────────────
 export type EnemyRole = 'basic' | 'speed' | 'tank' | 'special' | 'boss';
 
-export interface EnemyGuideEntry {
+interface EnemyGuideEntry {
   id: string;
   role: EnemyRole;
   danger: 'S' | 'A' | 'B' | 'C';
@@ -323,7 +323,7 @@ export interface EnemyGuideEntry {
   spawnWave: string;
 }
 
-export const ENEMY_ROLES_VISUAL: Record<EnemyRole, { icon: string; color: string }> = {
+const ENEMY_ROLES_VISUAL: Record<EnemyRole, { icon: string; color: string }> = {
   basic:   { icon: '👤', color: 'text-[var(--hl-ink-3)]' },
   speed:   { icon: '💨', color: 'text-green-400' },
   tank:    { icon: '🛡️', color: 'text-blue-400' },
@@ -340,14 +340,14 @@ export const buildEnemyRoles = (t: Translations): Record<EnemyRole, { label: str
 });
 
 // 敵人指南 META
-export interface EnemyGuideMeta {
+interface EnemyGuideMeta {
   id: string;
   role: EnemyRole;
   danger: 'S' | 'A' | 'B' | 'C';
   counterTowerIds: string[];
 }
 
-export const ENEMY_GUIDES_META: EnemyGuideMeta[] = [
+const ENEMY_GUIDES_META: EnemyGuideMeta[] = [
   { id: 'normal',    role: 'basic',   danger: 'C', counterTowerIds: ['basic'] },
   { id: 'fast',      role: 'speed',   danger: 'B', counterTowerIds: ['frost', 'machine'] },
   { id: 'elite',     role: 'basic',   danger: 'B', counterTowerIds: ['sniper'] },
@@ -394,7 +394,7 @@ export const buildEnemyGuides = (t: Translations): EnemyGuideEntry[] => ENEMY_GU
 
 // ── 快捷鍵 ───────────────────────────────────────────────────
 type KeybindKey = 'pause' | 'back' | 'speed1' | 'speed2' | 'speed3' | 'cycleSpeed' | 'startWave' | 'sellTower' | 'upgradeTower';
-export const KEYBINDS_META: { keyName: string; icon: string; i18nKey: KeybindKey }[] = [
+const KEYBINDS_META: { keyName: string; icon: string; i18nKey: KeybindKey }[] = [
   { keyName: 'P',     icon: '⏸️', i18nKey: 'pause' },
   { keyName: 'ESC',   icon: '↩️', i18nKey: 'back' },
   { keyName: '1',     icon: '▶️', i18nKey: 'speed1' },

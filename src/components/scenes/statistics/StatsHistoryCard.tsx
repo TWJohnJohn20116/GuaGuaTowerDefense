@@ -14,7 +14,7 @@ import {
   gameDifficultyLabelsFromDetail,
 } from '@/data/gameRecordLabels';
 
-export interface StatsHistoryCardProps {
+interface StatsHistoryCardProps {
   game: GameRecord;
   selected: boolean;
   onSelect: () => void;

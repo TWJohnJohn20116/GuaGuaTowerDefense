@@ -6,7 +6,7 @@ import { getPathDisplayName } from '@/data/gameData/pathData';
 
 export type ReplayExportScope = 'filtered' | 'all' | 'favorites';
 
-export interface ReplayBatchExportSummary {
+interface ReplayBatchExportSummary {
   count: number;
   victories: number;
   defeats: number;

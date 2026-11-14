@@ -16,7 +16,7 @@ import { AudioDownloadPanel } from '@/components/scenes/settings/AudioDownloadPa
 import { MenuMusicAlbumPanel } from '@/components/scenes/settings/MenuMusicAlbumPanel';
 import { SettingsSlider } from '../SettingsSlider';
 
-export interface AudioSectionProps {
+interface AudioSectionProps {
   filter?: string;
 }
 

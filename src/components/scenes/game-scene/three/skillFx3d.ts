@@ -27,7 +27,7 @@ interface SkillFxEntry {
   seeds: number[];
 }
 
-export interface SkillFx3D {
+interface SkillFx3D {
   syncSkills: (
     anims: PlayerSkillAnimation[],
     toWorld: (c: number, r: number) => [number, number],

@@ -1,7 +1,7 @@
 // 更新日誌 · 工具函式
 import type { ChangeSection } from '@/components/changelog';
 
-export type VersionType = 'major' | 'minor' | 'patch';
+type VersionType = 'major' | 'minor' | 'patch';
 
 export function getVersionType(version: string): VersionType {
   const parts = version.split('.');

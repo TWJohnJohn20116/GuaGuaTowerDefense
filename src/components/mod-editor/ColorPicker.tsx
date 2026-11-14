@@ -44,7 +44,7 @@ const FieldLabel = ({ icon, children, right }: { icon?: React.ReactNode; childre
 );
 
 // 自訂顏色選擇器組件（HSL 滑桿版）
-export const CustomColorPicker = ({ 
+const CustomColorPicker = ({ 
   color, 
   onChange,
   onApply 

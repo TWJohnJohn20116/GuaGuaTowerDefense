@@ -12,7 +12,7 @@ import { PaletteIcon, FlowerIcon, TrophyIcon, StarIcon, CrownIcon } from '@/comp
 export type SkinRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
 // 皮膚類別
-export type SkinCategory = 
+type SkinCategory = 
   | 'default'     // 預設
   | 'seasonal'    // 季節限定
   | 'achievement' // 成就解鎖
@@ -20,7 +20,7 @@ export type SkinCategory =
   | 'premium';    // 高級
 
 // 解鎖條件類型
-export type UnlockConditionType = 
+type UnlockConditionType = 
   | 'default'           // 預設解鎖
   | 'achievement'       // 成就解鎖
   | 'kills'             // 擊殺數

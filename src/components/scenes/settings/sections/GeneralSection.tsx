@@ -17,7 +17,7 @@ import {
   UpArrowIcon, GearIcon,
 } from '@/components/ui/Icons';
 
-export interface GeneralSectionProps {
+interface GeneralSectionProps {
   /** 用於搜尋過濾的關鍵字（小寫） */
   filter?: string;
 }

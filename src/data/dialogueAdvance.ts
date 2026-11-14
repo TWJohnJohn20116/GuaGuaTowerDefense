@@ -1,4 +1,4 @@
-export type DialogueAdvanceKind = 'reveal' | 'next' | 'complete';
+type DialogueAdvanceKind = 'reveal' | 'next' | 'complete';
 
 export function isDialogueAdvanceKey(key: string): boolean {
   return key === 'Enter' || key === ' ';

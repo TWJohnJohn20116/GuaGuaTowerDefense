@@ -5,14 +5,14 @@
 
 import type { TowerType } from '@/types/game';
 
-export interface TowerRef {
+interface TowerRef {
   id: string;
   type: TowerType;
   col: number;
   row: number;
 }
 
-export interface TowerSynergyDef {
+interface TowerSynergyDef {
   id: string;
   a: TowerType;
   b: TowerType;
@@ -24,7 +24,7 @@ export interface TowerSynergyDef {
   incomeMult: number;
 }
 
-export interface SynergyMods {
+interface SynergyMods {
   fireRateMult: number;
   damageMult: number;
   rangeMult: number;
@@ -33,17 +33,17 @@ export interface SynergyMods {
   linkNames: string[];
 }
 
-export interface SynergyLink {
+interface SynergyLink {
   recipeId: string;
   name: string;
   aId: string;
   bId: string;
 }
 
-export const SYNERGY_FIRE_RATE_CAP = 1.45;
-export const SYNERGY_DAMAGE_CAP = 1.35;
-export const SYNERGY_RANGE_CAP = 1.25;
-export const SYNERGY_INCOME_CAP = 1.4;
+const SYNERGY_FIRE_RATE_CAP = 1.45;
+const SYNERGY_DAMAGE_CAP = 1.35;
+const SYNERGY_RANGE_CAP = 1.25;
+const SYNERGY_INCOME_CAP = 1.4;
 
 const IDENTITY: SynergyMods = {
   fireRateMult: 1,
@@ -195,7 +195,7 @@ export function listActiveSynergyLinks(towers: TowerRef[]): SynergyLink[] {
   return links;
 }
 
-export interface EncyclopediaSynergy {
+interface EncyclopediaSynergy {
   recipeId: string;
   name: string;
   description: string;
@@ -203,7 +203,7 @@ export interface EncyclopediaSynergy {
   bonusLabel: string;
 }
 
-export function formatSynergyBonus(recipe: TowerSynergyDef): string {
+function formatSynergyBonus(recipe: TowerSynergyDef): string {
   const parts: string[] = [];
   if (recipe.fireRateMult > 1) parts.push(`攻速 ×${recipe.fireRateMult}`);
   if (recipe.damageMult > 1) parts.push(`傷害 ×${recipe.damageMult}`);
@@ -222,7 +222,7 @@ export function getEncyclopediaSynergiesForTower(type: TowerType): EncyclopediaS
   }));
 }
 
-export interface PlacementSynergyPreview {
+interface PlacementSynergyPreview {
   recipeId: string;
   name: string;
   bonusLabel: string;

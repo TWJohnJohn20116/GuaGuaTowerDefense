@@ -1,4 +1,4 @@
-export type ModIconClearHotkeyAction = 'confirm' | 'cancel' | 'ignore';
+type ModIconClearHotkeyAction = 'confirm' | 'cancel' | 'ignore';
 
 export function resolveModIconClearHotkey(key: string): ModIconClearHotkeyAction {
   if (key === 'Enter') return 'confirm';

@@ -92,7 +92,7 @@ export const DIFFICULTY_VISUAL: Record<string, { icon: string; color: string }> 
 };
 
 // 塔特效類型(顯示名稱由呼叫端透過 i18n 翻譯)
-export type TowerEffectKey = 'splash' | 'slow' | 'poison' | 'chain' | 'flame' | 'knockback';
+type TowerEffectKey = 'splash' | 'slow' | 'poison' | 'chain' | 'flame' | 'knockback';
 
 // 獲取塔特效列表 (回傳 i18n key,而非翻譯後字串)
 export const getTowerEffects = (tower: UnifiedTower) => {
@@ -117,7 +117,7 @@ export function getEncyclopediaTowerSpecials(tower: UnifiedTower): {
 }
 
 // 塔推薦對付類型 ID (顯示名稱由呼叫端翻譯)
-export type RecommendKey =
+type RecommendKey =
   | 'fast_enemies' | 'berserker'
   | 'swarm'
   | 'tank' | 'boss'
@@ -126,7 +126,7 @@ export type RecommendKey =
   | 'armored_enemy'
   | 'normal_elite';
 
-export type ReasonKey =
+type ReasonKey =
   | 'reason_slow_fast' | 'reason_slow_berserk'
   | 'reason_splash_swarm'
   | 'reason_high_dmg_tank' | 'reason_high_dmg_boss'
@@ -166,7 +166,7 @@ export const getTowerRecommendedEnemies = (tower: UnifiedTower): { typeKey: Reco
 };
 
 // 敵人能力 ID 列表(顯示名稱由 i18n abilities 提供)
-export type AbilityKey = 'flying' | 'healing' | 'spawning' | 'shield' | 'stealth' | 'berserk' | 'armored' | 'teleport' | 'miniboss' | 'swarm' | 'phase' | 'explode' | 'sabotage' | 'jam' | 'escort';
+type AbilityKey = 'flying' | 'healing' | 'spawning' | 'shield' | 'stealth' | 'berserk' | 'armored' | 'teleport' | 'miniboss' | 'swarm' | 'phase' | 'explode' | 'sabotage' | 'jam' | 'escort';
 
 // 由呼叫處透過 t.encyclopedia.abilities[ability] 取得名稱
 export const getAbilityKey = (ability?: string): AbilityKey | undefined => {
@@ -176,10 +176,10 @@ export const getAbilityKey = (ability?: string): AbilityKey | undefined => {
 };
 
 // 剋星塔 ID (對應到 t.towers.types[towerKey])
-export type CounterTowerKey = 'frost' | 'wind' | 'sniper' | 'poison' | 'lightning' | 'cannon' | 'machine' | 'basic' | 'flame' | 'laser';
+type CounterTowerKey = 'frost' | 'wind' | 'sniper' | 'poison' | 'lightning' | 'cannon' | 'machine' | 'basic' | 'flame' | 'laser';
 
 // 剋星理由 i18n key
-export type CounterReasonKey =
+type CounterReasonKey =
   | 'cr_speed_frost' | 'cr_speed_wind' | 'cr_speed_cannon'
   | 'cr_health_sniper' | 'cr_health_poison' | 'cr_health_laser' | 'cr_health_flame'
   | 'cr_healer_poison' | 'cr_healer_sniper'

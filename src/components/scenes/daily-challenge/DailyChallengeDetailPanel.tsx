@@ -9,7 +9,7 @@ import type { DailyChallengeInstance } from '@/types/dailyChallenge';
 import { DAILY_CHALLENGE_DIFFICULTY_CONFIG } from '@/types/dailyChallenge';
 import { DailyChallengeRewards } from './DailyChallengeRewards';
 
-export interface DailyChallengeDetailPanelProps {
+interface DailyChallengeDetailPanelProps {
   challenge: DailyChallengeInstance | null;
   loading: boolean;
 }

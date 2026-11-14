@@ -85,7 +85,7 @@ export type AchievementConditionType =
   | 'custom';              // 自定義條件
 
 // 成就條件
-export interface AchievementCondition {
+interface AchievementCondition {
   type: AchievementConditionType;
   target: number;               // 目標數值
   current?: number;             // 當前進度
@@ -98,7 +98,7 @@ export interface AchievementCondition {
 }
 
 // 成就獎勵類型
-export type AchievementRewardType = 
+type AchievementRewardType = 
   | 'points'      // 成就點數
   | 'title'       // 稱號
   | 'badge'       // 徽章
@@ -108,7 +108,7 @@ export type AchievementRewardType =
   | 'unlock';     // 解鎖內容
 
 // 成就獎勵
-export interface AchievementReward {
+interface AchievementReward {
   type: AchievementRewardType;
   value: number | string;
   name?: string;

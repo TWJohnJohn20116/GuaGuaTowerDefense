@@ -149,7 +149,7 @@ function TraitRow({ traits }: { traits: { label: string }[] }) {
 
 /* ------------------------------------------------------------ 主面板 */
 
-export interface ShopDetailPanelProps {
+interface ShopDetailPanelProps {
   selection: ShopSelection | null;
   coins: number;
   unlockedTowers: string[];

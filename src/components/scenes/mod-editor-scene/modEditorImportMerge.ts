@@ -9,7 +9,7 @@ function regenId(prefix = 'item'): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 }
 
-export interface MergedImportContent {
+interface MergedImportContent {
   towers: CustomTowerData[];
   enemies: CustomEnemyData[];
   maps: CustomMapData[];

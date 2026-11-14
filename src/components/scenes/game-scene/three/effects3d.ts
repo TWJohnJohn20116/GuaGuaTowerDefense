@@ -27,7 +27,7 @@ interface DeathFx {
   shardSeeds: { vy0: number; rotAxis: THREE.Vector3; rotSpeed: number }[];
 }
 
-export interface Effects3D {
+interface Effects3D {
   /** 每幀同步（toWorld 為格→世界座標轉換函式） */
   sync: (
     deathAnimations: DeathAnimation[],

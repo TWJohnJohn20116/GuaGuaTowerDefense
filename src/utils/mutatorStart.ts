@@ -6,7 +6,7 @@ import type { MutatorChallenge, MutatorRules } from '@/types/mutatorChallenge';
 import type { DifficultyModifiers, GameDifficulty } from '@/types/game';
 import { findPlayableWaveSet } from '@/utils/waveSets';
 
-export interface MutatorStartConfig {
+interface MutatorStartConfig {
   pathName: string;
   difficulty: GameDifficulty;
   endless: boolean;

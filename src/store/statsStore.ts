@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { TowerType, EnemyType } from '@/types/game';
 import type { StatsGameMode } from '@/store/statsGameMode';
 
-export interface TowerStats {
+interface TowerStats {
   type: TowerType;
   totalDamage: number;
   kills: number;
@@ -15,7 +15,7 @@ export interface TowerStats {
   killsPerMinute: number;
 }
 
-export interface WaveSnapshot {
+interface WaveSnapshot {
   wave: number;
   timestamp: number;
   money: number;
@@ -25,7 +25,7 @@ export interface WaveSnapshot {
   totalDamage: number;
 }
 
-export interface EconomySnapshot {
+interface EconomySnapshot {
   timestamp: number;
   money: number;
   income: number;
@@ -70,7 +70,7 @@ export interface GameRecord {
   damageTaken: number;
 }
 
-export interface CurrentGameTracking {
+interface CurrentGameTracking {
   gameStartTime: number;
   lastSnapshotTime: number;
   

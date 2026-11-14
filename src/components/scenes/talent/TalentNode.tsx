@@ -20,7 +20,7 @@ const nodeNameById = new Map<string, string>(TALENT_NODES.map((n) => [n.id, n.na
 
 const NODE_SIZE = 76;
 
-export interface TalentNodeProps {
+interface TalentNodeProps {
   node: TalentNodeType;
   rank: number;
   ranks: Record<string, number>;

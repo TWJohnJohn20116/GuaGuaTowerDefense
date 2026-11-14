@@ -3,8 +3,8 @@
  */
 import type { CustomTowerData } from '@/types/game';
 
-export const PREVIEW_RANGE_SCALE = 0.3;
-export const TOWER_COLS = 2;
+const PREVIEW_RANGE_SCALE = 0.3;
+const TOWER_COLS = 2;
 
 export function getTowerCanvasPos(index: number): { x: number; y: number } {
   const col = index % TOWER_COLS;
@@ -12,7 +12,7 @@ export function getTowerCanvasPos(index: number): { x: number; y: number } {
   return { x: 60 + col * 100, y: 80 + row * 100 };
 }
 
-export function getPreviewTowerRange(tower: CustomTowerData): number {
+function getPreviewTowerRange(tower: CustomTowerData): number {
   return tower.range * PREVIEW_RANGE_SCALE;
 }
 

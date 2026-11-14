@@ -14,7 +14,7 @@ import {
   gameDifficultyLabelsFromDetail,
 } from '@/data/gameRecordLabels';
 
-export interface StatsGameDetailPanelProps {
+interface StatsGameDetailPanelProps {
   game: GameRecord | null;
   formatDuration: (ms: number) => string;
   formatDate: (timestamp: number) => string;

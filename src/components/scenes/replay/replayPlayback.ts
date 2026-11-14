@@ -13,11 +13,11 @@
 import type { ReplaySnapshot, ReplayEnemyEntity, ReplayTowerEntity, ReplayProjectileEntity } from '@/store/replayStore';
 
 /** 插值後供畫布繪製的敵人（含淡入淡出透明度） */
-export interface RenderEnemy extends ReplayEnemyEntity {
+interface RenderEnemy extends ReplayEnemyEntity {
   alpha: number;
 }
 
-export interface RenderFrame {
+interface RenderFrame {
   towers: ReplayTowerEntity[];
   enemies: RenderEnemy[];
   projectiles: ReplayProjectileEntity[];
@@ -34,7 +34,7 @@ export interface RenderFrame {
 }
 
 /** 二分搜尋：回傳最後一個 time <= t 的快照索引（無則 -1） */
-export function findSnapshotIndex(snapshots: ReplaySnapshot[], t: number): number {
+function findSnapshotIndex(snapshots: ReplaySnapshot[], t: number): number {
   let lo = 0;
   let hi = snapshots.length - 1;
   let ans = -1;

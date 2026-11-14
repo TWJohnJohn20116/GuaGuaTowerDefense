@@ -37,7 +37,7 @@ export const keyCodeToDisplayName = (code: string): string => {
 /** 相容轉出：暫停選單仍使用 @/components/ui/VolumeSlider */
 export { VolumeSlider } from '@/components/ui/VolumeSlider';
 
-export const KeyBindingItem = ({
+const KeyBindingItem = ({
   label,
   action,
   currentKey,

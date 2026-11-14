@@ -5,16 +5,16 @@
 
 import { isAbilitySuppressed } from '@/data/jammerAura';
 
-export const ESCORT_CELL_PX = 50;
+const ESCORT_CELL_PX = 50;
 
-export interface EscortAura {
+interface EscortAura {
   x: number;
   y: number;
   radiusSq: number;
   armor: number;
 }
 
-export interface EscortSource {
+interface EscortSource {
   type: string;
   x: number;
   y: number;
@@ -22,7 +22,7 @@ export interface EscortSource {
   effects?: { type: string; duration: number; startTime: number }[];
 }
 
-export interface EscortDataLike {
+interface EscortDataLike {
   ability?: string;
   escortRadius?: number;
   escortArmor?: number;

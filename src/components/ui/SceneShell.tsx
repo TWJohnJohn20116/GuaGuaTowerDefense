@@ -54,7 +54,7 @@ export function SceneShell({
   );
 }
 
-export interface SceneShellHeaderProps {
+interface SceneShellHeaderProps {
   title: string;
   subtitle?: string;
   icon?: React.ReactNode;
@@ -106,7 +106,7 @@ function SceneShellHeader({
   );
 }
 
-export interface SceneShellBodyProps {
+interface SceneShellBodyProps {
   children: React.ReactNode;
   maxWidth?: string;
   className?: string;

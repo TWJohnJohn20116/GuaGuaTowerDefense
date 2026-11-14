@@ -1,7 +1,7 @@
 /** 統計紀錄用的對局模式 */
 export type StatsGameMode = 'campaign' | 'standard' | 'endless' | 'mutator' | 'mod' | 'unknown';
 
-export const STATS_GAME_MODE_LABELS: Record<StatsGameMode, string> = {
+const STATS_GAME_MODE_LABELS: Record<StatsGameMode, string> = {
   campaign: '戰役',
   standard: '標準',
   endless: '無盡',

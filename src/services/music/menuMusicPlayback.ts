@@ -15,7 +15,7 @@ import { useMenuMusicStore } from '@/store/menuMusicStore';
 import { MUSIC_TRACKS } from './musicConfig';
 import { getMusicArrayBuffer, getMusicBlobUrl } from '../audioCache/audioFetchService';
 
-export interface MenuPlaybackContext {
+interface MenuPlaybackContext {
   albumId: string;
   trackIndex: number;
   trackCount: number;

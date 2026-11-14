@@ -1,4 +1,4 @@
-export type SkipWaveHudInput = {
+type SkipWaveHudInput = {
   tutorialActive: boolean;
   waveActive: boolean;
   allEnemiesSpawned: boolean;
@@ -8,7 +8,7 @@ export type SkipWaveHudInput = {
   maxWaves: number;
 };
 
-export type SkipWaveTitleKey = 'skipWaveReady' | 'skipWaveWait' | 'skipWaveLast';
+type SkipWaveTitleKey = 'skipWaveReady' | 'skipWaveWait' | 'skipWaveLast';
 
 function isLastPlayableWave(input: SkipWaveHudInput): boolean {
   return !input.endlessMode && input.maxWaves > 0 && input.currentWave >= input.maxWaves;

@@ -77,7 +77,7 @@ export interface TacticalScore {
   score: number;
 }
 
-export interface StaticLayerParams {
+interface StaticLayerParams {
   grid: Tile[][];
   hoveredTile: { col: number; row: number } | null;
   selectedTower: Tower | null;

@@ -1,9 +1,9 @@
 import type { Enemy, StatusEffect, Tower } from '@/types/game';
 import { SKILL_DATA, getSkillRangeCells } from '@/data/skillData';
 
-export type SkillAuraKind = 'poison' | 'burn';
+type SkillAuraKind = 'poison' | 'burn';
 
-export interface SkillAuraSpec {
+interface SkillAuraSpec {
   kind: SkillAuraKind;
   rangeCells: number;
   damagePerSecond: number;

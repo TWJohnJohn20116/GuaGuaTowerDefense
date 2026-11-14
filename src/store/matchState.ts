@@ -12,7 +12,7 @@ import { getMatchSessionReset } from '@/data/matchSessionReset';
 import { createInitialPlayerSkillStates } from './gameStorePlayerSkills';
 
 /** 一局戰鬥中、每次開始/結束都必須歸零的欄位 */
-export type MatchOwnedKey =
+type MatchOwnedKey =
   | 'money'
   | 'health'
   | 'score'

@@ -14,7 +14,7 @@ import type { Enemy, PathConfig, PathSegment, GridPosition } from '@/types/game'
 import { getSegmentMap, getWaypointSegLengths } from './gameLoop/pathHelpers';
 
 // 回溯後的敵人路徑狀態（直接覆寫至 Enemy）
-export interface WarpResult {
+interface WarpResult {
   x: number;
   y: number;
   pathIndex: number;

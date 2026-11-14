@@ -7,7 +7,7 @@ import { useTranslation } from '@/i18n';
 import { WarningIcon, RefreshIcon } from '@/components/ui/Icons';
 import { Deck, Btn, Num } from '@/components/hl';
 
-export interface ResetConfirmModalProps {
+interface ResetConfirmModalProps {
   open: boolean;
   totalSpentPoints: number;
   onConfirm: () => void;

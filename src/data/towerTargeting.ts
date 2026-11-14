@@ -4,7 +4,7 @@
 
 import type { TargetPriority } from '@/types/game';
 
-export interface TargetEffectLike {
+interface TargetEffectLike {
   type: string;
   duration: number;
   startTime: number;
@@ -23,7 +23,7 @@ export interface TargetCandidate {
   effects?: TargetEffectLike[];
 }
 
-export interface AbilityLookupEntry {
+interface AbilityLookupEntry {
   ability?: string;
 }
 
@@ -45,7 +45,7 @@ export function getThreatScore(
   return THREAT_SCORE[key] ?? 0;
 }
 
-export function isEnemyMarked(enemy: TargetCandidate, now: number): boolean {
+function isEnemyMarked(enemy: TargetCandidate, now: number): boolean {
   const effects = enemy.effects;
   if (!effects) return false;
   for (const effect of effects) {

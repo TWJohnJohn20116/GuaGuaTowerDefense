@@ -72,7 +72,7 @@ export const generateProjectileId = (): string => {
 };
 
 // Mod 視覺參數
-export interface ModVisuals {
+interface ModVisuals {
   modelType: string;
   modelScale: number;
   glowColor: string | null;
@@ -179,7 +179,7 @@ export const getEnemyVisuals = (enemyType: string): ModVisuals => {
 // 以 spawnTime 推算的純函式，戰鬥邏輯與 2D/3D 渲染共用，無需額外運行時狀態。
 
 /** 隱身淡入淡出時長 (ms)，渲染過渡用 */
-export const STEALTH_FADE_MS = 250;
+const STEALTH_FADE_MS = 250;
 
 /** 敵人目前是否處於隱身狀態（塔無法鎖定為主目標） */
 export const isEnemyStealthed = (
@@ -260,14 +260,14 @@ export const getEnemyPhaseFade = (
 
 // ============ 統一傷害管線（裝甲減傷 / 護盾吸收 / 相位免疫） ============
 
-export interface EnemyDamageOptions {
+interface EnemyDamageOptions {
   /** 跳過裝甲減傷（DoT、火焰持續傷害、玩家技能等「非實彈」傷害） */
   ignoreArmor?: boolean;
   /** 跳過護盾吸收直擊本體（毒系 DoT 的反護盾特性） */
   ignoreShield?: boolean;
 }
 
-export interface EnemyDamageOutcome {
+interface EnemyDamageOutcome {
   /** 結算後生命值 */
   health: number;
   /** 結算後護盾值 */
@@ -374,7 +374,7 @@ export const generatePathTiles = (pathName: string): Set<string> => {
 };
 
 // 找出進階地圖的叉路點（路段末端有多個 next 的位置）
-export const findForkPoints = (path: PathConfig): Set<string> => {
+const findForkPoints = (path: PathConfig): Set<string> => {
   const forkPoints = new Set<string>();
   if (!path.segments) return forkPoints;
   
@@ -389,7 +389,7 @@ export const findForkPoints = (path: PathConfig): Set<string> => {
 };
 
 // 找出進階地圖的所有終點（路段 next 為空的最後一個 waypoint）
-export const findEndPoints = (path: PathConfig): Set<string> => {
+const findEndPoints = (path: PathConfig): Set<string> => {
   const endPoints = new Set<string>();
   if (!path.segments) return endPoints;
   
@@ -403,7 +403,7 @@ export const findEndPoints = (path: PathConfig): Set<string> => {
 };
 
 // 找出進階地圖的起點
-export const findStartPoint = (path: PathConfig): GridPosition | null => {
+const findStartPoint = (path: PathConfig): GridPosition | null => {
   if (!path.segments || !path.startSegmentId) return null;
   const startSeg = path.segments.find(s => s.id === path.startSegmentId);
   return startSeg ? startSeg.waypoints[0] : null;

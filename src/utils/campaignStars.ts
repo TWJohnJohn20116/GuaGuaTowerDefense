@@ -9,7 +9,7 @@
  */
 import { GAME_CONSTANTS } from '@/data/gameData';
 
-export type CampaignStarRating = 1 | 2 | 3;
+type CampaignStarRating = 1 | 2 | 3;
 
 /**
  * 星數門檻：以 `health / startingHealth` 比值為單位。

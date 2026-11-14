@@ -24,7 +24,7 @@ interface DevSearchContextValue {
 }
 
 export const DevSearchContext = createContext<DevSearchContextValue>({ query: '' });
-export const useDevSearch = () => useContext(DevSearchContext);
+const useDevSearch = () => useContext(DevSearchContext);
 
 // ============================================================
 // 區塊群組 — 用於把多個 DevSection 收攏到一個邏輯分組底下

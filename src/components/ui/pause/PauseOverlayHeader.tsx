@@ -5,7 +5,7 @@
 import type { ReactNode } from 'react';
 import { PauseIcon } from '@/components/ui/Icons';
 
-export interface PauseOverlayHeaderProps {
+interface PauseOverlayHeaderProps {
   title: string;
   subtitle: string;
   right?: ReactNode;

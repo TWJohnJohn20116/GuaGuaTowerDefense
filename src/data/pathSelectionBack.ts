@@ -1,4 +1,4 @@
-export type PathSelectionEscapeAction = 'ignore' | 'go_back';
+type PathSelectionEscapeAction = 'ignore' | 'go_back';
 
 export function isPathSelectionTypingTarget(target: EventTarget | null): boolean {
   return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;

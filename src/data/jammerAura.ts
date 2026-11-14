@@ -3,7 +3,7 @@
  * jamRadius 單位為 px，50px = 1 格，與治療光環相同。
  */
 
-export const JAMMER_CELL_PX = 50;
+const JAMMER_CELL_PX = 50;
 
 export interface JammerAura {
   x: number;
@@ -16,13 +16,13 @@ export const JAMMER_SILENCE_DURATION = 1800;
 
 const JAMMER_SUPPRESS_TYPES = new Set(['freeze', 'stun', 'petrify', 'silence']);
 
-export interface JammerEffectLike {
+interface JammerEffectLike {
   type: string;
   duration: number;
   startTime: number;
 }
 
-export interface JammerSource {
+interface JammerSource {
   type: string;
   x: number;
   y: number;
@@ -30,7 +30,7 @@ export interface JammerSource {
   effects?: JammerEffectLike[];
 }
 
-export interface JammerDataLike {
+interface JammerDataLike {
   ability?: string;
   jamRadius?: number;
   jamFireRateMult?: number;

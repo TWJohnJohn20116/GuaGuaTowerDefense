@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export interface TabItem<T extends string = string> {
+interface TabItem<T extends string = string> {
   id: T;
   label: string;
   icon?: React.ReactNode;
@@ -9,9 +9,9 @@ export interface TabItem<T extends string = string> {
   gradient?: string; // e.g. ' '
 }
 
-export type TabsVariant = 'default' | 'pills' | 'underline' | 'solid' | 'minimal' | 'cards' | 'glass';
+type TabsVariant = 'default' | 'pills' | 'underline' | 'solid' | 'minimal' | 'cards' | 'glass';
 
-export interface TabsProps<T extends string = string> {
+interface TabsProps<T extends string = string> {
   tabs: TabItem<T>[];
   activeId: T;
   onChange: (id: T) => void;

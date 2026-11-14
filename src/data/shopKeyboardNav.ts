@@ -18,8 +18,8 @@ export function nextShopSelection(
   return items[next];
 }
 
-export type ShopHotkeyAction = 'ignore' | 'prev' | 'next' | 'activate';
-export type ShopPurchaseKeyAction = 'ignore' | 'start_confirm' | 'purchase';
+type ShopHotkeyAction = 'ignore' | 'prev' | 'next' | 'activate';
+type ShopPurchaseKeyAction = 'ignore' | 'start_confirm' | 'purchase';
 
 export function isShopTypingTarget(target: EventTarget | null): boolean {
   return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;

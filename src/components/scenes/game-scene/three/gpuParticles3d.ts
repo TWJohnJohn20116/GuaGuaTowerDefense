@@ -13,7 +13,7 @@ import * as THREE from 'three';
 
 // ===== 粒子預設 =====
 
-export type ParticlePreset =
+type ParticlePreset =
   | 'deathBurst'     // 死亡爆炸：球形噴射 + 重力
   | 'hitSpark'       // 命中火花：小範圍噴射
   | 'flameBurst'     // 火焰塔命中：暖色擴散
@@ -97,7 +97,7 @@ const DENSITY_LIMITS: Record<string, number> = {
   high: 2048,
 };
 
-export interface GpuParticleSystem {
+interface GpuParticleSystem {
   /** 在指定位置噴發粒子 */
   burst(x: number, y: number, z: number, preset: ParticlePreset, color?: number): void;
   /** 每幀更新 */

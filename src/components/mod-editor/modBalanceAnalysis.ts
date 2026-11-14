@@ -18,7 +18,7 @@ function pushSuggestion(
   list.push({ category, text });
 }
 
-export const ABILITY_THREAT: Record<string, number> = {
+const ABILITY_THREAT: Record<string, number> = {
   stealth: 1.25,
   phase: 1.4,
   shield: 1.2,
@@ -33,12 +33,12 @@ export const ABILITY_THREAT: Record<string, number> = {
   escort: 1.28,
 };
 
-export function enemyThreatScore(enemy: CustomEnemyData): number {
+function enemyThreatScore(enemy: CustomEnemyData): number {
   const mult = enemy.ability ? (ABILITY_THREAT[enemy.ability] ?? 1.05) : 1;
   return enemy.health * mult;
 }
 
-export function resolveEnemyThreat(type: string, enemies: CustomEnemyData[]): number {
+function resolveEnemyThreat(type: string, enemies: CustomEnemyData[]): number {
   const custom = enemies.find((e) => e.id === type);
   if (custom) return enemyThreatScore(custom);
 
@@ -59,7 +59,7 @@ export interface WaveThreatPoint {
   hasBoss: boolean;
 }
 
-export function computeWaveThreats(
+function computeWaveThreats(
   waves: CustomWaveData[],
   enemies: CustomEnemyData[],
 ): WaveThreatPoint[] {

@@ -46,7 +46,7 @@ export const SIZE: Record<SelectSize, SizeStyle> = {
 };
 
 // ── 風格（控制觸發按鈕與面板背景／邊框）────────────────────
-export interface VariantStyle {
+interface VariantStyle {
   trigger: string;
   triggerClosed: string;
   triggerOpen: string;

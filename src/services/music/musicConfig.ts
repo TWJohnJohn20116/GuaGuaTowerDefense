@@ -5,7 +5,7 @@ import type { GameScene } from '@/types/game';
 
 export type MusicTrackId = 'menu' | 'battle' | 'victory' | 'defeat';
 
-export interface MusicTrackDef {
+interface MusicTrackDef {
   id: MusicTrackId;
   /** public/ 下的相對路徑 */
   src: string;

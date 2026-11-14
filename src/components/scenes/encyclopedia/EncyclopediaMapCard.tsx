@@ -9,7 +9,7 @@ import { StarIcon } from '@/components/ui/Icons';
 import type { MapInfo } from './EncyclopediaTypes';
 import { playUiHover } from '@/services/audioService';
 
-export interface EncyclopediaMapCardLabels {
+interface EncyclopediaMapCardLabels {
   viewDetails: string;
   builtInMap: string;
   pathPoints: string;

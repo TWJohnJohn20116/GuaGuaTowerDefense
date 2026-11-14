@@ -24,7 +24,7 @@ import {
 } from './hud/hudChoiceButtons';
 import { useTranslation } from '@/i18n';
 
-export interface HudLayoutSectionProps {
+interface HudLayoutSectionProps {
   filter?: string;
 }
 

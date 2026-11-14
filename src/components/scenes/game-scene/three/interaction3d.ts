@@ -26,7 +26,7 @@ import { useSettingsStore } from '@/store/settingsStore';
 const COLS = GAME_CONSTANTS.GRID_COLS;
 const ROWS = GAME_CONSTANTS.GRID_ROWS;
 
-export interface Interaction3D {
+interface Interaction3D {
   /** 每幀更新（高亮 / 射程圈 / 選中環） */
   update: (now: number) => void;
   /** 互動開關（操控小人模式時停用，避免拖視角誤觸放塔/選塔） */

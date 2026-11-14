@@ -1,4 +1,4 @@
-export type GameEndHotkeyAction = 'primary' | 'none';
+type GameEndHotkeyAction = 'primary' | 'none';
 
 export function isGameEndTypingTarget(target: EventTarget | null): boolean {
   return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;

@@ -57,7 +57,7 @@ const HANDLED_CUSTOM_IDS = new Set([
   'fuse_all_four',
 ]);
 
-export function isCustomAchievementHandled(id: string): boolean {
+function isCustomAchievementHandled(id: string): boolean {
   return id.startsWith('achievement_hunter')
     || id.startsWith('ism_')
     || HANDLED_CUSTOM_IDS.has(id)

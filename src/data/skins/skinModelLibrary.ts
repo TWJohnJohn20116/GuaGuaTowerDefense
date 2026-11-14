@@ -14,9 +14,9 @@
 
 import type { TowerDrawParams } from '@/components/game/TowerModels';
 
-export type SkinModelDrawer = (p: TowerDrawParams) => void;
+type SkinModelDrawer = (p: TowerDrawParams) => void;
 
-export interface SkinModelSet {
+interface SkinModelSet {
   /** 唯一 ID */
   id: string;
   /** 顯示名稱 */
@@ -137,7 +137,7 @@ const drawCrystalGem = (
   drawLevelText(ctx, cx, cy, level, radius * 0.7);
 };
 
-export const CRYSTAL_MODEL_SET: SkinModelSet = {
+const CRYSTAL_MODEL_SET: SkinModelSet = {
   id: 'crystal',
   name: '水晶寶石',
   description: '透明感的多面寶石結構，散發魔法光暈',
@@ -232,7 +232,7 @@ const drawRivets = (
   }
 };
 
-export const CLOCKWORK_MODEL_SET: SkinModelSet = {
+const CLOCKWORK_MODEL_SET: SkinModelSet = {
   id: 'clockwork',
   name: '蒸汽機械',
   description: '黃銅齒輪與鉚釘構成的工業風塔',
@@ -344,7 +344,7 @@ const drawRuneRing = (
   ctx.restore();
 };
 
-export const ARCANE_MODEL_SET: SkinModelSet = {
+const ARCANE_MODEL_SET: SkinModelSet = {
   id: 'arcane',
   name: '奧術符文',
   description: '漂浮的符文環與魔法核心，散發奧術能量',
@@ -495,7 +495,7 @@ export const ARCANE_MODEL_SET: SkinModelSet = {
 // 註冊表
 // ──────────────────────────────────────────────────────────────────────────
 
-export const SKIN_MODEL_SETS: Record<string, SkinModelSet> = {
+const SKIN_MODEL_SETS: Record<string, SkinModelSet> = {
   crystal: CRYSTAL_MODEL_SET,
   clockwork: CLOCKWORK_MODEL_SET,
   arcane: ARCANE_MODEL_SET,

@@ -26,7 +26,7 @@ interface RingGroup {
   circles: number[];
 }
 
-export interface StatusRingBatch {
+interface StatusRingBatch {
   /** 把這隻敵人的狀態環加入批次（不立即繪製） */
   add: (enemy: Enemy, x: number, y: number, radius: number, now: number) => void;
   /** 一次畫完所有分組（會清空批次） */

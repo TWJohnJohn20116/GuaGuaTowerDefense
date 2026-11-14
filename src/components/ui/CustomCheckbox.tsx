@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { ReactNode } from 'react';
 
-export interface CustomCheckboxProps {
+interface CustomCheckboxProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label?: string;

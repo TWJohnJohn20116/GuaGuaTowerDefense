@@ -7,7 +7,7 @@ export function getTowerUpgradeCost(baseCost: number, currentLevel: number): num
   return Math.floor(baseCost * (0.5 + currentLevel * 0.25 + extra));
 }
 
-export interface BatchUpgradeTowerRef {
+interface BatchUpgradeTowerRef {
   level: number;
   upgradePath: UpgradePath | null | undefined;
 }

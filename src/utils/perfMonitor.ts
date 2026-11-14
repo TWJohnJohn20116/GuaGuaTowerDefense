@@ -2,7 +2,7 @@
 // - 預設關閉，啟用後每 1 秒匯總一次快照供 UI 顯示
 // - 關閉時所有開銷壓縮至一次 boolean 判斷
 
-export interface StageSnapshot {
+interface StageSnapshot {
   avg: number;     // 平均每次呼叫耗時 (ms)
   max: number;     // 視窗內單次最大耗時 (ms)
   count: number;   // 呼叫次數

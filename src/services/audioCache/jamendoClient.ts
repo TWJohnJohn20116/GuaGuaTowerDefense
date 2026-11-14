@@ -48,7 +48,7 @@ async function downloadJamendoTrackFile(trackId: string): Promise<{ data: ArrayB
   return { data, mimeType };
 }
 
-export interface JamendoSearchSpec {
+interface JamendoSearchSpec {
   tags?: string;
   duration_min?: number;
   duration_max?: number;

@@ -9,13 +9,13 @@ const GAME_DIFFICULTIES: readonly GameDifficulty[] = [
   'impossible',
 ];
 
-export interface DailyChallengeHandoffInput {
+interface DailyChallengeHandoffInput {
   name: string;
   difficulty: DailyChallengeDifficulty;
   conditions: Array<Pick<DailyChallengeCondition, 'type' | 'difficulty' | 'waveSetId'>>;
 }
 
-export interface DailyChallengeHandoff {
+interface DailyChallengeHandoff {
   category: 'advanced';
   difficulty: GameDifficulty;
   endless: boolean;
@@ -23,7 +23,7 @@ export interface DailyChallengeHandoff {
   challengeName: string;
 }
 
-export function mapDailyDifficultyToGame(difficulty: DailyChallengeDifficulty): GameDifficulty {
+function mapDailyDifficultyToGame(difficulty: DailyChallengeDifficulty): GameDifficulty {
   if (difficulty === 'easy') return 'easy';
   if (difficulty === 'hard') return 'hard';
   return 'normal';

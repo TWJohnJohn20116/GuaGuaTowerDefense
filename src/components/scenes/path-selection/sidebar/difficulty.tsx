@@ -11,7 +11,7 @@ import {
   MAP_DIFFICULTY_ORDER,
 } from '@/i18n/pathMapDifficultyKeys';
 
-export type DifficultyTone = 'vital' | 'reach' | 'caution' | 'alarm';
+type DifficultyTone = 'vital' | 'reach' | 'caution' | 'alarm';
 
 export interface DifficultyMeta {
   tone: DifficultyTone;

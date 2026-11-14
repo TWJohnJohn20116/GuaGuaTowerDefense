@@ -15,7 +15,7 @@ export function nextMutatorSelection(
   return ids[(index + direction + ids.length) % ids.length];
 }
 
-export type MutatorHotkeyAction = 'ignore' | 'prev' | 'next' | 'start';
+type MutatorHotkeyAction = 'ignore' | 'prev' | 'next' | 'start';
 
 export function resolveMutatorHotkey(input: {
   key: string;

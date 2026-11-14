@@ -11,7 +11,7 @@ import type { TowerType } from '@/types/game';
  * - 融合塔不會出現在商店 / 側欄建造清單，只能由兩座已建造的塔合體產生。
  * - 融合費用為兩座來源塔「當前價值」的一部分（見 gameStoreActions.fuseTowers）。
  */
-export interface FusionRecipe {
+interface FusionRecipe {
   /** 來源塔 A（無序） */
   a: TowerType;
   /** 來源塔 B（無序） */
@@ -24,7 +24,7 @@ export interface FusionRecipe {
   description: string;
 }
 
-export const FUSION_RECIPES: FusionRecipe[] = [
+const FUSION_RECIPES: FusionRecipe[] = [
   {
     a: 'frost',
     b: 'lightning',

@@ -15,7 +15,7 @@ import { useTranslation } from '@/i18n';
 import { getPreviewTower, type SkinPreviewAnimMode } from './skinShared';
 import { RarityLabel } from './skinRarityTone';
 
-export interface SkinCardProps {
+interface SkinCardProps {
   skin: TowerSkin;
   selected: boolean;
   unlocked: boolean;

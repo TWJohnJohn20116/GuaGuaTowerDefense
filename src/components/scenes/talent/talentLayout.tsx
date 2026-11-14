@@ -11,7 +11,7 @@ import { CoinIcon, SwordsIcon, ShieldIcon, WrenchIcon } from '@/components/ui/Ic
 import type { Translations } from '@/i18n';
 import type { TalentCategory } from '@/store/talentStore';
 
-export interface CategoryStyle {
+interface CategoryStyle {
   /** 標籤文字用的資料色 class */
   color: string;
 }

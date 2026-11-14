@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckIcon, WarningIcon } from '@/components/ui/Icons';
 
-export interface SaveToastMessage {
+interface SaveToastMessage {
   type: 'success' | 'error';
   text: string;
 }

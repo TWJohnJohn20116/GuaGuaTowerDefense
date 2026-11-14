@@ -8,7 +8,7 @@
 import type React from 'react';
 import { playUiHover } from '@/services/audioService';
 
-export interface SettingsChoiceRowProps {
+interface SettingsChoiceRowProps {
   children: React.ReactNode;
   className?: string;
 }
@@ -17,7 +17,7 @@ export function SettingsChoiceRow({ children, className = '' }: SettingsChoiceRo
   return <div className={`flex w-full flex-wrap items-stretch gap-1.5 ${className}`}>{children}</div>;
 }
 
-export interface SettingsChoiceButtonProps {
+interface SettingsChoiceButtonProps {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;

@@ -9,7 +9,7 @@
 import type { HudLayoutState } from '@/store/settingsStore';
 
 // ----- Pill / 一般 / 中型 三種外型（HARDLINE 全部方角） -----
-export type HudShape = 'pill' | 'panel' | 'card';
+type HudShape = 'pill' | 'panel' | 'card';
 
 const CORNER_CLASS: Record<HudShape, string> = {
   pill: '',
@@ -17,7 +17,7 @@ const CORNER_CLASS: Record<HudShape, string> = {
   card: '',
 };
 
-export interface HudStyleClasses {
+interface HudStyleClasses {
   /** 圓角 class（HARDLINE：永遠空字串＝0 圓角） */
   corner: string;
   /** 底色 class（HARDLINE：實色，不用模糊） */

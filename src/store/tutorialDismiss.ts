@@ -1,15 +1,15 @@
 export type TutorialPart = 'part1' | 'part2' | 'part3';
 
-export interface TutorialDismissState {
+interface TutorialDismissState {
   skipped: boolean;
   completedParts: TutorialPart[];
 }
 
-export const TUTORIAL_DISMISS_STORAGE_KEY = 'guatd-interactive-tutorial-dismiss';
+const TUTORIAL_DISMISS_STORAGE_KEY = 'guatd-interactive-tutorial-dismiss';
 
 const memoryFallback = new Map<string, string>();
 
-export function emptyTutorialDismissState(): TutorialDismissState {
+function emptyTutorialDismissState(): TutorialDismissState {
   return { skipped: false, completedParts: [] };
 }
 
@@ -47,7 +47,7 @@ function isTutorialPart(value: unknown): value is TutorialPart {
   return value === 'part1' || value === 'part2' || value === 'part3';
 }
 
-export function loadTutorialDismissState(): TutorialDismissState {
+function loadTutorialDismissState(): TutorialDismissState {
   try {
     const raw = readStorageRaw();
     if (!raw) return emptyTutorialDismissState();
@@ -64,7 +64,7 @@ export function loadTutorialDismissState(): TutorialDismissState {
   }
 }
 
-export function saveTutorialDismissState(state: TutorialDismissState): void {
+function saveTutorialDismissState(state: TutorialDismissState): void {
   writeStorageRaw(JSON.stringify(state));
 }
 

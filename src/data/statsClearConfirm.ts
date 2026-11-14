@@ -1,4 +1,4 @@
-export type StatsClearHotkeyAction = 'confirm' | 'cancel' | 'ignore';
+type StatsClearHotkeyAction = 'confirm' | 'cancel' | 'ignore';
 
 export function resolveStatsClearHotkey(key: string): StatsClearHotkeyAction {
   if (key === 'Enter') return 'confirm';

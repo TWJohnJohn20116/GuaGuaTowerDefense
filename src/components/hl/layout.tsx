@@ -57,7 +57,7 @@ export function BackKey({
 
 /* ---------------------------------------------------------------- TopBar */
 
-export interface TopBarProps {
+interface TopBarProps {
   title: React.ReactNode;
   /** 標題上方的 mono 路徑，例如 "settings / audio" */
   meta?: React.ReactNode;

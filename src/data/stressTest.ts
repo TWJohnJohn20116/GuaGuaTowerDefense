@@ -111,7 +111,7 @@ const pointAtDistance = (
   };
 };
 
-export interface BuildStressEnemiesOptions {
+interface BuildStressEnemiesOptions {
   count: number;
   path?: PathConfig;
   /** 只生成這個前綴之後的序號，避免和現有壓測實體撞 id */

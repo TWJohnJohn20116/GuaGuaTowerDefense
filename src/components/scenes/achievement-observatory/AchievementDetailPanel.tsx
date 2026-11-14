@@ -21,7 +21,7 @@ import {
 } from './observatoryShared';
 import { useTranslation } from '@/i18n';
 
-export interface AchievementDetailPanelProps {
+interface AchievementDetailPanelProps {
   achievement: Achievement | null;
   status: AchievementStatus | null;
   pct: number;

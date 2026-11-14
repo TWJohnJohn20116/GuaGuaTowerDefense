@@ -15,7 +15,7 @@ export const PURCHASABLE_TOWER_TYPES: TowerType[] = [
 
 const PURCHASABLE_SET = new Set<string>(PURCHASABLE_TOWER_TYPES);
 
-export function isPurchasableTowerType(id: string): id is TowerType {
+function isPurchasableTowerType(id: string): id is TowerType {
   return PURCHASABLE_SET.has(id);
 }
 
@@ -35,7 +35,7 @@ export function talentPointsFromStars(stars: number): number {
   return stars >= 3 ? 2 : 1;
 }
 
-export interface CampaignVictoryGrant {
+interface CampaignVictoryGrant {
   coins: number;
   talentPoints: number;
   unlockedTowers: TowerType[];

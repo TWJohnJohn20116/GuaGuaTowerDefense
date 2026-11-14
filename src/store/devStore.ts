@@ -9,7 +9,7 @@ import { setPerfEnabled } from '@/utils/perfMonitor';
 // 這裡只做別名，不要手抄一份清單——新增場景漏改會讓 Dev 面板的測試清單少一個。
 type SceneName = GameScene;
 
-export interface DevState {
+interface DevState {
   // ============================================================
   // 全域作弊
   // ============================================================

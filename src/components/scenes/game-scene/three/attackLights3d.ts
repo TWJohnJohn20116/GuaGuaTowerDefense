@@ -40,7 +40,7 @@ interface PooledLight {
   startTime: number;
 }
 
-export interface AttackLights3D {
+interface AttackLights3D {
   /** 塔開火時呼叫，在 (worldX, 高度, worldZ) 產生短暫閃光 */
   flash(worldX: number, worldZ: number, towerType: TowerType): void;
   /** 每幀更新衰減 */

@@ -9,7 +9,7 @@ import type React from 'react';
 export type DailyChallengeDifficulty = 'easy' | 'medium' | 'hard';
 
 // 條件類型（沿用部分成就系統概念，但獨立追蹤）
-export type DailyChallengeConditionType =
+type DailyChallengeConditionType =
   | 'win_game'                    // 勝利一場遊戲（任意條件）
   | 'win_difficulty'              // 在指定難度勝利
   | 'win_speed'                   // 在 X 秒內贏得遊戲
@@ -47,7 +47,7 @@ export interface DailyChallengeCondition {
 }
 
 // 獎勵
-export interface DailyChallengeReward {
+interface DailyChallengeReward {
   /** 金幣 */
   coins?: number;
   /** 成就點數 */

@@ -13,7 +13,7 @@ export function towerHotkeyIndexFromDigit(digit: string): number | null {
   return index;
 }
 
-export type BackKeyAction = 'resume' | 'pause' | 'deselect' | 'cancel_fusion';
+type BackKeyAction = 'resume' | 'pause' | 'deselect' | 'cancel_fusion';
 
 export function hasActiveSelection(input: {
   selectedTower: unknown | null;
@@ -35,7 +35,7 @@ export function resolveBackKeyAction(input: {
   return 'pause';
 }
 
-export type MatchKeyAction =
+type MatchKeyAction =
   | { kind: 'speed'; value: 1 | 2 | 3 }
   | { kind: 'cycle_speed' }
   | { kind: 'pause' }

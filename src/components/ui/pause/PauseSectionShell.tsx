@@ -5,7 +5,7 @@
 import type { ReactNode } from 'react';
 import { SegHead } from '@/components/hl';
 
-export interface PauseSectionShellProps {
+interface PauseSectionShellProps {
   title: string;
   icon?: ReactNode;
   /** 舊 API 相容：HARDLINE 只有一種強調色，accent 不再影響外觀 */

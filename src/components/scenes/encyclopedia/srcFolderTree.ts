@@ -19,7 +19,7 @@ export type FileManagerRow =
   | { kind: 'file'; file: EncyclopediaFileEntry };
 
 /** 收集 src 下所有資料夾路徑（含中間層） */
-export function getAllFolderPaths(): string[] {
+function getAllFolderPaths(): string[] {
   const dirs = new Set<string>(['src']);
   for (const file of ALL_ENCYCLOPEDIA_FILES) {
     let current = file.folder;
@@ -59,7 +59,7 @@ export function buildFolderTree(): FolderTreeNode {
 }
 
 /** 目前資料夾內的直接子資料夾 */
-export function getSubfolders(folderPath: string): string[] {
+function getSubfolders(folderPath: string): string[] {
   const prefix = folderPath === 'src' ? 'src/' : `${folderPath}/`;
   const subs = new Set<string>();
 
@@ -73,7 +73,7 @@ export function getSubfolders(folderPath: string): string[] {
 }
 
 /** 目前資料夾內的檔案（不含子資料夾） */
-export function getFilesInFolder(folderPath: string): EncyclopediaFileEntry[] {
+function getFilesInFolder(folderPath: string): EncyclopediaFileEntry[] {
   return ALL_ENCYCLOPEDIA_FILES
     .filter((f) => f.folder === folderPath)
     .sort((a, b) => a.name.localeCompare(b.name, 'en'));

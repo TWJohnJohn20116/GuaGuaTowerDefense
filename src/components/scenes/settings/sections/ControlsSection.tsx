@@ -26,7 +26,7 @@ export interface KeyBindingItem {
   icon: React.ReactNode;
 }
 
-export interface ControlsSectionProps {
+interface ControlsSectionProps {
   filter?: string;
   editingKey: KeyAction | null;
   onStartEditKey: (action: KeyAction) => void;

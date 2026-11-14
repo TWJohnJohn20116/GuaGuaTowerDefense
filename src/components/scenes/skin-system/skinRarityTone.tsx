@@ -7,7 +7,7 @@
 import { SKIN_RARITY_CONFIG } from '@/types/skin';
 import type { SkinRarity } from '@/types/skin';
 
-export const SKIN_RARITY_TONE: Record<SkinRarity, { label: string; className: string }> = {
+const SKIN_RARITY_TONE: Record<SkinRarity, { label: string; className: string }> = {
   common: { label: SKIN_RARITY_CONFIG.common.label, className: 'text-[var(--hl-ink-3)]' },
   uncommon: { label: SKIN_RARITY_CONFIG.uncommon.label, className: 'text-[var(--hl-ink-2)]' },
   rare: { label: SKIN_RARITY_CONFIG.rare.label, className: 'text-[var(--hl-reach)]' },

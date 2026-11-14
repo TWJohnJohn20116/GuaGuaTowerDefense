@@ -18,7 +18,7 @@ export interface TutorialCategory {
 }
 
 // 遊戲基礎教學
-export const GAME_BASICS_TUTORIAL: TutorialStep[] = [
+const GAME_BASICS_TUTORIAL: TutorialStep[] = [
   {
     title: '遊戲目標',
     description: '阻止敵人到達終點！敵人會沿著路徑前進，你需要在路徑旁建造防禦塔來消滅它們。',
@@ -69,7 +69,7 @@ export const GAME_BASICS_TUTORIAL: TutorialStep[] = [
 ];
 
 // 防禦塔詳解
-export const TOWER_TUTORIAL: TutorialStep[] = [
+const TOWER_TUTORIAL: TutorialStep[] = [
   {
     title: '基礎塔',
     description: '最基礎的防禦塔，價格便宜、均衡的傷害和射程。適合早期防禦。',
@@ -143,7 +143,7 @@ export const TOWER_TUTORIAL: TutorialStep[] = [
 ];
 
 // 進階策略
-export const ADVANCED_TUTORIAL: TutorialStep[] = [
+const ADVANCED_TUTORIAL: TutorialStep[] = [
   {
     title: '選擇攻擊目標',
     description: '點擊塔可以設置攻擊優先順序：最前面、最強、最弱、最近。根據情況選擇最佳策略。',
@@ -183,7 +183,7 @@ export const ADVANCED_TUTORIAL: TutorialStep[] = [
 ];
 
 // 模組製作教學
-export const MOD_CREATION_TUTORIAL: TutorialStep[] = [
+const MOD_CREATION_TUTORIAL: TutorialStep[] = [
   {
     title: '什麼是模組？',
     description: '模組（Mod）可以讓你自訂遊戲內容：新的防禦塔、敵人、地圖等。創意無限！',

@@ -13,7 +13,7 @@ export interface BattleInstance {
   templateIndex: number;
 }
 
-export function resolveEnemyTemplateIndex(type: string, enemies: CustomEnemyData[]): number {
+function resolveEnemyTemplateIndex(type: string, enemies: CustomEnemyData[]): number {
   if (enemies.length === 0) return -1;
   const byId = enemies.findIndex((e) => e.id === type);
   if (byId >= 0) return byId;

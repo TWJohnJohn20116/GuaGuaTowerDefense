@@ -5,7 +5,7 @@
 import type { Translations } from '@/i18n';
 
 /** path → encyclopedia.fileMeta 的 key */
-export const FILE_META_PATH_KEYS: Record<string, keyof Translations['encyclopedia']['fileMeta']> = {
+const FILE_META_PATH_KEYS: Record<string, keyof Translations['encyclopedia']['fileMeta']> = {
   'src/data/gameData/towerData.ts': 'towerData',
   'src/data/gameData/enemyData.ts': 'enemyData',
   'src/data/gameData/pathData.ts': 'pathData',
@@ -54,7 +54,7 @@ export const FILE_META_PATH_KEYS: Record<string, keyof Translations['encyclopedi
 };
 
 /** path → encyclopedia.fileMetaExtra 的 key */
-export const FILE_META_EXTRA_PATH_KEYS: Record<string, keyof Translations['encyclopedia']['fileMetaExtra']> = {
+const FILE_META_EXTRA_PATH_KEYS: Record<string, keyof Translations['encyclopedia']['fileMetaExtra']> = {
   'src/data/achievements/progressAchievements.ts': 'progressAchievements',
   'src/data/achievements/challengeAchievements.ts': 'challengeAchievements',
   'src/data/achievements/specialAchievements.ts': 'specialAchievements',

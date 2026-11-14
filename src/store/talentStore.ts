@@ -3,12 +3,12 @@ import { persist } from 'zustand/middleware';
 
 export type TalentCategory = 'economy' | 'offense' | 'defense' | 'utility';
 
-export interface TalentRequirement {
+interface TalentRequirement {
   id: string;
   rank: number;
 }
 
-export interface TalentEffect {
+interface TalentEffect {
   startingMoneyMult?: number;
   startingMoneyFlat?: number;
   startingHealthFlat?: number;
@@ -299,7 +299,7 @@ export const TALENT_NODES: TalentNode[] = [
 
 const nodeById = new Map(TALENT_NODES.map((n) => [n.id, n]));
 
-export const createEmptyTalentRanks = (): Record<string, number> => {
+const createEmptyTalentRanks = (): Record<string, number> => {
   const ranks: Record<string, number> = {};
   for (const node of TALENT_NODES) ranks[node.id] = 0;
   return ranks;

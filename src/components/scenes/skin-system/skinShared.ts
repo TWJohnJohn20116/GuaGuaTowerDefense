@@ -21,15 +21,15 @@ export type SkinTab = 'library' | 'favorites' | 'sets';
 /** 塔分類篩選（對齊商店 all / basic / special） */
 export type TowerGroupFilter = 'all' | 'basic' | 'element' | 'fusion';
 
-export const BASIC_TOWER_GROUP: TowerType[] = [
+const BASIC_TOWER_GROUP: TowerType[] = [
   'basic', 'sniper', 'cannon', 'machine', 'shotgun', 'ballista',
 ];
 
-export const ELEMENT_TOWER_GROUP: TowerType[] = [
+const ELEMENT_TOWER_GROUP: TowerType[] = [
   'frost', 'poison', 'laser', 'lightning', 'flame', 'money', 'wind', 'pulse',
 ];
 
-export const FUSION_TOWER_GROUP: TowerType[] = [
+const FUSION_TOWER_GROUP: TowerType[] = [
   'storm', 'plague', 'demolisher', 'tempest',
 ];
 

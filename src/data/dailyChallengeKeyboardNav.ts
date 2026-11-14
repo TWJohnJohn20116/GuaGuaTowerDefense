@@ -1,5 +1,5 @@
-export type DailyChallengeTabId = 'today' | 'history';
-export type DailyChallengeHotkeyAction = 'ignore' | 'prev' | 'next' | 'start' | 'claim';
+type DailyChallengeTabId = 'today' | 'history';
+type DailyChallengeHotkeyAction = 'ignore' | 'prev' | 'next' | 'start' | 'claim';
 
 export function isDailyChallengeTypingTarget(target: EventTarget | null): boolean {
   return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;

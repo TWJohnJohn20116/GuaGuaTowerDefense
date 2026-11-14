@@ -10,12 +10,12 @@
 import type React from 'react';
 import { Deck, Dot, Rule, Segments, StatCell } from '@/components/hl';
 
-export interface GameEndMetaItem {
+interface GameEndMetaItem {
   label: string;
   value: React.ReactNode;
 }
 
-export interface GameEndResultBandProps {
+interface GameEndResultBandProps {
   tone: 'vital' | 'alarm';
   headline: React.ReactNode;
   tag: React.ReactNode;

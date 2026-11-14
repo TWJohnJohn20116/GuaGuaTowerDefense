@@ -1,7 +1,7 @@
 import type { GameDifficulty, DifficultyModifiers } from '@/types/game';
 import type { MutatorRules } from '@/types/mutatorChallenge';
 
-export interface ReplayRestartSource {
+interface ReplayRestartSource {
   mapId: string;
   difficulty: GameDifficulty;
   endlessMode: boolean;
@@ -14,7 +14,7 @@ export interface ReplayRestartSource {
   mutator?: { id: string; rules: MutatorRules };
 }
 
-export interface ReplayRestartArgs {
+interface ReplayRestartArgs {
   pathName: string;
   difficulty: GameDifficulty;
   endless: boolean;

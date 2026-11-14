@@ -15,7 +15,7 @@ interface EncyclopediaLinkButtonProps {
   className?: string;
 }
 
-export function EncyclopediaLinkButton({
+function EncyclopediaLinkButton({
   tab,
   itemId,
   label,

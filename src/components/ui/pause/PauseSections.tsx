@@ -25,7 +25,7 @@ import { PauseBattleTowerMatch } from './PauseBattleTowerMatch';
 
 // ========== 共用元件 ==========
 
-export const HeroResumeButton = ({ onResume }: { onResume: () => void }) => {
+const HeroResumeButton = ({ onResume }: { onResume: () => void }) => {
  const { t } = useTranslation();
  return (
  <button

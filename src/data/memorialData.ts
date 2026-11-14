@@ -9,7 +9,7 @@ export type MemorialOrigin =
   | 'civilian'           // 平民
   | 'lambda_family';     // Lambda 家族
 
-export type MemorialEra = 'past' | 'present';
+type MemorialEra = 'past' | 'present';
 
 export interface MemorialEntry {
   id: string;

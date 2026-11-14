@@ -24,7 +24,7 @@ import type { SkinPreviewAnimMode } from './skinShared';
 import type { SkinUnlockProgress } from './skinUnlockProgress';
 import { useTranslation } from '@/i18n';
 
-export interface SkinDetailPanelProps {
+interface SkinDetailPanelProps {
   skin: TowerSkin | null;
   isUnlocked: boolean;
   isEquipped: boolean;

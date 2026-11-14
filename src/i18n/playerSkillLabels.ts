@@ -9,7 +9,7 @@ export function getPlayerSkillDesc(skill: PlayerSkill, t: Translations): string 
   return t.playerSkills[skill.id as PlayerSkillId]?.desc ?? skill.descZh;
 }
 
-export function getPlayerSkillById(id: PlayerSkillId, t: Translations): { name: string; desc: string } {
+function getPlayerSkillById(id: PlayerSkillId, t: Translations): { name: string; desc: string } {
   const entry = t.playerSkills[id];
   return entry ?? { name: id, desc: '' };
 }

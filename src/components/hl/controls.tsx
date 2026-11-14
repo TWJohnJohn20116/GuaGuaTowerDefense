@@ -28,7 +28,7 @@ const VARIANT: Record<Variant, string> = {
     'bg-[var(--hl-deck-2)] border-[var(--hl-line)] text-[var(--hl-ink)] hover:bg-[var(--hl-deck-3)] hover:border-[var(--hl-line-hot)]',
 };
 
-export interface BtnProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
+interface BtnProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
   variant?: Variant;
   size?: Size;
   block?: boolean;
@@ -124,7 +124,7 @@ export function Chip({
  * 索引列：主選單與所有清單的統一列型。
  * 左邊 mono 編號（01、02…），中間標題 + 副文，右邊狀態。
  */
-export function IndexRow({
+function IndexRow({
   index,
   title,
   desc,

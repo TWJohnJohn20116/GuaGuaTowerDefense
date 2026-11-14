@@ -96,7 +96,7 @@ export interface Replay {
   notes?: ReplayNote[];        // 註記列表
 }
 
-export interface ReplayRecordingMeta {
+interface ReplayRecordingMeta {
   mapId: string;
   difficulty: GameDifficulty;
   endlessMode: boolean;
@@ -170,7 +170,7 @@ interface ReplayStore {
 }
 
 // 驗證匯入資料是否為合法 Replay
-export function isValidReplay(obj: unknown): obj is Replay {
+function isValidReplay(obj: unknown): obj is Replay {
   if (!obj || typeof obj !== 'object') return false;
   const r = obj as Record<string, unknown>;
   return (

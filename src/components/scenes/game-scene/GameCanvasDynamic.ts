@@ -104,7 +104,7 @@ function drawHitboxes(
 type GetSkinVisuals = (type: TowerType) => any;
 type GetSkinModelSet = (type: TowerType) => string | undefined;
 
-export interface DynamicLayerParams {
+interface DynamicLayerParams {
   upgradeAnimations: { id: string; towerId: string; gridPos: GridPosition; newLevel: number; towerColor: string; startTime: number; isMaxLevel?: boolean }[];
   sellAnimations: { id: string; gridPos: GridPosition; towerColor: string; startTime: number }[];
   fusionAnimations: Array<{ id: string; gridPos: GridPosition; resultType: string; startTime: number; colorA: string; colorB: string }>;

@@ -4,7 +4,7 @@
 import { readAudioCache, writeAudioCache } from '../audioCache/audioCacheDb';
 import type { AudioAttribution } from '../audioCache/audioApiConfig';
 
-export interface MenuAlbumTrackMeta {
+interface MenuAlbumTrackMeta {
   index: number;
   jamendoId: string;
   title: string;
@@ -17,11 +17,11 @@ export interface MenuAlbumCacheMeta {
   updatedAt: number;
 }
 
-export function menuAlbumMetaKey(albumId: string): string {
+function menuAlbumMetaKey(albumId: string): string {
   return `music:menu-album-meta:${albumId}`;
 }
 
-export function menuAlbumTrackKey(albumId: string, index: number): string {
+function menuAlbumTrackKey(albumId: string, index: number): string {
   return `music:menu-album:${albumId}:${index}`;
 }
 

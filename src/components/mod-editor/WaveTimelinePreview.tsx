@@ -30,7 +30,7 @@ function getThemeColor(varName: string, fallback: string): string {
 /* ---------------------------------------------------------------- 資料色 */
 
 /** 圖表只准用四個資料色；同一種敵人永遠拿到同一個色，圖例與堆疊條才會對得上。 */
-export type EnemyBarTone = 'vital' | 'alarm' | 'caution' | 'reach';
+type EnemyBarTone = 'vital' | 'alarm' | 'caution' | 'reach';
 
 const TONE_ORDER: EnemyBarTone[] = ['reach', 'alarm', 'vital', 'caution'];
 
@@ -41,7 +41,7 @@ const TONE_FALLBACK: Record<EnemyBarTone, string> = {
   reach: '#6fa8ff',
 };
 
-export function enemyBarTone(type: string): EnemyBarTone {
+function enemyBarTone(type: string): EnemyBarTone {
   let hash = 0;
   for (let i = 0; i < type.length; i++) hash = (hash * 31 + type.charCodeAt(i)) % 9973;
   return TONE_ORDER[hash % TONE_ORDER.length];
@@ -56,14 +56,14 @@ function toneHex(tone: EnemyBarTone): string {
   return getThemeColor(`--hl-${tone}`, TONE_FALLBACK[tone]);
 }
 
-export interface WaveEnemySegment {
+interface WaveEnemySegment {
   type: string;
   count: number;
   color: string;
   isBoss: boolean;
 }
 
-export interface WaveMetric {
+interface WaveMetric {
   index: number;
   enemyCount: number;
   spawnMs: number;

@@ -2,7 +2,7 @@
  * 合體模式畫布點擊：2D / 3D 共用，避免 3D 只改選取、合體從不觸發。
  */
 
-export type FusionCanvasClick =
+type FusionCanvasClick =
   | { kind: 'none' }
   | { kind: 'cancel' }
   | { kind: 'fuse'; sourceId: string; targetId: string };

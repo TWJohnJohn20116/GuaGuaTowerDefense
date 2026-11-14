@@ -10,7 +10,7 @@
  * 同時對重複錯誤做節流，避免每幀 60 次的 console 洪水把真正的第一個錯誤淹掉。
  */
 
-export interface FrameLoopGuardOptions {
+interface FrameLoopGuardOptions {
   /** 上報時用的標籤（例如 'game-loop'） */
   label?: string;
   /** 同一組訊息的最小上報間隔（毫秒）；期間內的錯誤只計數不上報 */
@@ -19,7 +19,7 @@ export interface FrameLoopGuardOptions {
   onError?: (error: unknown, info: { label: string; count: number; throttled: number }) => void;
 }
 
-export interface FrameLoopGuard {
+interface FrameLoopGuard {
   /** 包住一幀的運算；永不向外拋出 */
   run: (frame: () => void) => void;
   /** 累計異常幀數 */

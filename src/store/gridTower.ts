@@ -16,7 +16,7 @@ export type Grid = Tile[][];
 export const towerIdAt = (grid: Grid, pos: { col: number; row: number }): string | null =>
   grid[pos.row]?.[pos.col]?.towerId ?? null;
 
-export const positionKey = (pos: { col: number; row: number }): string => `${pos.col},${pos.row}`;
+const positionKey = (pos: { col: number; row: number }): string => `${pos.col},${pos.row}`;
 
 /**
  * 設定某格的塔 id（回傳新 grid；沒變就回傳原參考，避免無謂重繪）

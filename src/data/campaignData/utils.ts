@@ -53,14 +53,14 @@ export function isLastLevelOfChapter(levelId: string): boolean {
   return chapter.levels[chapter.levels.length - 1]?.id === levelId;
 }
 
-export function isChapterCompleted(
+function isChapterCompleted(
   chapter: CampaignChapter,
   completedLevels: readonly string[],
 ): boolean {
   return chapter.levels.every((lv) => completedLevels.includes(lv.id));
 }
 
-export function countCompletedChapters(completedLevels: readonly string[]): number {
+function countCompletedChapters(completedLevels: readonly string[]): number {
   return CAMPAIGN_CHAPTERS.filter((c) => isChapterCompleted(c, completedLevels)).length;
 }
 
@@ -112,7 +112,7 @@ export function getCampaignLevelUnlockHint(levelId: string): string {
   return `請先完成「${prev.title}」（${prev.chapter}-${prev.level}）以解鎖`;
 }
 
-export interface CampaignProgressSummary {
+interface CampaignProgressSummary {
   completedLevels: number;
   totalLevels: number;
   percent: number;

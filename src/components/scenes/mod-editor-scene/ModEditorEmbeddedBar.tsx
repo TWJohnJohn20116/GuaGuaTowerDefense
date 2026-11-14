@@ -6,7 +6,7 @@ import { renderModIcon } from '@/components/ui/ModIcon';
 import { PaletteIcon } from '@/components/ui/Icons';
 import { ModEditorToolbarActions } from '@/components/scenes/mod-editor-scene/ModEditorToolbarActions';
 
-export interface ModEditorEmbeddedBarProps {
+interface ModEditorEmbeddedBarProps {
   modName: string;
   modVersion: string;
   modIcon: string;

@@ -8,7 +8,7 @@
 
 import * as THREE from 'three';
 
-export interface EnvironmentOptions {
+interface EnvironmentOptions {
   cols: number;
   rows: number;
   toWorld: (col: number, row: number) => [number, number];
@@ -18,7 +18,7 @@ export interface EnvironmentOptions {
   beaconTiles: { kind: 'start' | 'end'; col: number; row: number }[];
 }
 
-export interface Environment3D {
+interface Environment3D {
   update: (nowMs: number, dtSec: number) => void;
   setPathFlowVisible: (visible: boolean) => void;
   dispose: () => void;

@@ -42,7 +42,7 @@ const safeColor = (c: string | undefined, fallback = 0xffffff): THREE.Color => {
 
 // ===================== 敵人實例池（本體 + 血條） =====================
 
-export interface EnemyInstances {
+interface EnemyInstances {
   sync: (
     enemies: Enemy[],
     toWorld: (c: number, r: number) => [number, number],
@@ -199,7 +199,7 @@ export function createEnemyInstances(scene: THREE.Scene): EnemyInstances {
 
 // ===================== 投射物實例池 =====================
 
-export interface ProjectileInstances {
+interface ProjectileInstances {
   sync: (projectiles: Projectile[], toWorld: (c: number, r: number) => [number, number]) => void;
   dispose: () => void;
 }
@@ -245,7 +245,7 @@ export function createProjectileInstances(scene: THREE.Scene): ProjectileInstanc
 
 // ===================== 命中粒子實例池 =====================
 
-export interface ParticleInstances {
+interface ParticleInstances {
   sync: (
     particles: ImpactParticle[],
     toWorld: (c: number, r: number) => [number, number],

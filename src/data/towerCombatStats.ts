@@ -2,10 +2,10 @@ import type { TowerType, UpgradePath } from '@/types/game';
 import { getUpgradeBonus } from '@/data/upgradeBranches';
 
 /** 尚未選路線時，對局實際使用的每級傷害／射程步進 */
-export const TOWER_LEVEL_DAMAGE_STEP = 0.3;
-export const TOWER_LEVEL_RANGE_STEP = 0.15;
+const TOWER_LEVEL_DAMAGE_STEP = 0.3;
+const TOWER_LEVEL_RANGE_STEP = 0.15;
 
-export interface TowerStatBonus {
+interface TowerStatBonus {
   damageMultiplier: number;
   rangeMultiplier: number;
   fireRateMultiplier: number;
@@ -15,7 +15,7 @@ export interface TowerStatBonus {
   chainCountBonus: number;
 }
 
-export interface TowerStatRef {
+interface TowerStatRef {
   type: TowerType;
   level: number;
   upgradePath: UpgradePath;

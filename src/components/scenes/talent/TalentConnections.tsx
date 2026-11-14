@@ -27,7 +27,7 @@ function buildPath(startX: number, startY: number, endX: number, endY: number): 
           L ${endX} ${endY}`;
 }
 
-export interface TalentConnectionsProps {
+interface TalentConnectionsProps {
   ranks: Record<string, number>;
 }
 

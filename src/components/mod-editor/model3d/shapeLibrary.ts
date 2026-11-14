@@ -5,12 +5,12 @@
 
 import type { Custom3DPart, Custom3DModel } from '@/types/game';
 
-export interface ShapeDef {
+interface ShapeDef {
   id: string;
   name: string;
 }
 
-export interface ShapeCategory {
+interface ShapeCategory {
   name: string;
   shapes: ShapeDef[];
 }
@@ -100,7 +100,7 @@ export const SHAPE_NAME: Record<string, string> = Object.fromEntries(
 
 let partSeq = 0;
 /** 產生唯一部件 id */
-export const newPartId = (): string => `p${Date.now().toString(36)}_${(partSeq++).toString(36)}`;
+const newPartId = (): string => `p${Date.now().toString(36)}_${(partSeq++).toString(36)}`;
 
 /** 建立預設新部件 */
 export const createPart = (shape: string, overrides: Partial<Custom3DPart> = {}): Custom3DPart => ({
@@ -126,7 +126,7 @@ const p = (
   extra: Partial<Custom3DPart> = {},
 ): Custom3DPart => createPart(shape, { material, x, y, z, ...extra });
 
-export interface ModelTemplate {
+interface ModelTemplate {
   name: string;
   build: () => Custom3DModel;
 }

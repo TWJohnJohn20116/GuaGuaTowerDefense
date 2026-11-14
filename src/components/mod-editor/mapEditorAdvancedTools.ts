@@ -17,7 +17,7 @@ export function mirrorWaypointsVertical(
   return waypoints.map((wp) => ({ col: wp.col, row: gridRows - 1 - wp.row }));
 }
 
-export function offsetWaypoints(
+function offsetWaypoints(
   waypoints: GridPosition[],
   dCol: number,
   dRow: number,

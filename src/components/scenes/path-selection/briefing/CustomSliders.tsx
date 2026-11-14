@@ -9,7 +9,7 @@ import type { DifficultyModifiers } from '@/types/game';
 import { useTranslation } from '@/i18n';
 import { Btn } from '@/components/hl';
 
-export interface CustomParamConfig {
+interface CustomParamConfig {
   key: keyof DifficultyModifiers;
   label: string;
   min: number;

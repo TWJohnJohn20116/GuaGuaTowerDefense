@@ -1,4 +1,4 @@
-export type TalentEscapeAction = 'ignore' | 'close_detail' | 'go_back';
+type TalentEscapeAction = 'ignore' | 'close_detail' | 'go_back';
 
 export function isTalentTypingTarget(target: EventTarget | null): boolean {
   return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;

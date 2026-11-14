@@ -228,7 +228,7 @@ SearchInput.displayName = 'SearchInput';
 /**
  * 數字輸入框
  */
-export const NumberInput = forwardRef<HTMLInputElement, CustomInputProps>(
+const NumberInput = forwardRef<HTMLInputElement, CustomInputProps>(
   (props, ref) => (
     <CustomInput
       ref={ref}

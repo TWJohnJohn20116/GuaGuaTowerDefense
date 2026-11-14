@@ -8,7 +8,7 @@ import { ENEMY_DATA } from '@/data/gameData';
 
 const BOSS_TYPES = new Set(['boss', 'miniboss']);
 
-export type ValM = Translations['modEditorExt'];
+type ValM = Translations['modEditorExt'];
 
 const ZH_FALLBACK: Partial<ValM> = {
   valMissingModId: '缺少 Mod ID',
@@ -79,7 +79,7 @@ function findDuplicateIds(
   return errors;
 }
 
-export interface ValidateModOptions {
+interface ValidateModOptions {
   installedModIds?: string[];
   editingModId?: string | null;
 }

@@ -11,7 +11,7 @@ import type React from 'react';
 import type { GameDifficulty, TowerType } from './game';
 
 /** 套用到全場敵人的全域詞綴（於 spawn 時注入敵人物件） */
-export interface EnemyAffix {
+interface EnemyAffix {
   /** 血量乘算（套在難度修正後的 health/maxHealth 上） */
   healthMult?: number;
   /** 速度乘算 */

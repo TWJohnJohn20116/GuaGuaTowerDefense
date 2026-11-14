@@ -5,7 +5,7 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 
-export interface VolumeSliderProps {
+interface VolumeSliderProps {
   value: number;
   onChange: (v: number) => void;
   disabled?: boolean;

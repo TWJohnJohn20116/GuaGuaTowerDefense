@@ -16,7 +16,7 @@ const hpColorOf = (ratio: number): number => {
   return 0xef4444;
 };
 
-export interface TowerHealthBars3D {
+interface TowerHealthBars3D {
   sync: (
     towers: Tower[],
     toWorld: (c: number, r: number) => [number, number],

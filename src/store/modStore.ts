@@ -9,7 +9,7 @@ import { validateModContent, formatValidationMessage } from '@/components/mod-ed
 export type ModEditorFocusTab = 'towers' | 'enemies' | 'maps' | 'waves';
 export type WorkshopTab = 'modEditor' | 'modManager';
 
-export interface ModEditorFocus {
+interface ModEditorFocus {
   tab: ModEditorFocusTab;
   itemId?: string;
 }

@@ -22,7 +22,7 @@ export const COUNTER_KEY_TO_TOWER: Record<string, TowerType> = {
   pulse: 'pulse',
 };
 
-export function getCounterTowerName(key: string): string {
+function getCounterTowerName(key: string): string {
   const towerType = COUNTER_KEY_TO_TOWER[key];
   if (towerType && TOWER_DATA[towerType]) {
     return TOWER_DATA[towerType].name;
@@ -30,7 +30,7 @@ export function getCounterTowerName(key: string): string {
   return key;
 }
 
-export interface CounterHint {
+interface CounterHint {
   towerKey: string;
   towerType: TowerType | null;
   towerName: string;

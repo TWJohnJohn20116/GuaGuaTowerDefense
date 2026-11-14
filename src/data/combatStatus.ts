@@ -12,12 +12,12 @@ export const CANNON_STUN_DURATION = 450;
 export const MACHINE_SILENCE_DURATION = 800;
 export const WIND_FEAR_DURATION = 1400;
 export const PULSE_EXPOSED_DURATION = 1800;
-export const FROSTBITE_DURATION = 2500;
+const FROSTBITE_DURATION = 2500;
 export const FROSTBITE_STACKS_TO_FREEZE = 3;
 export const FROST_FREEZE_DURATION = 700;
 export const FREEZE_BLAST_DURATION = 3000;
 export const POISON_HEAL_MULT = 0.35;
-export const CURSE_HEAL_MULT = 0.25;
+const CURSE_HEAL_MULT = 0.25;
 export const WEAKNESS_DAMAGE_MULT = 1.5;
 export const EXPOSED_ARMOR_MULT = 0.4;
 export const BASIC_MARKED_DAMAGE_MULT = 1.35;
@@ -50,7 +50,7 @@ export interface CombatEffectLike {
   stacks?: number;
 }
 
-export interface TowerHitDamageOpts {
+interface TowerHitDamageOpts {
   ignoreArmor?: boolean;
   ignoreShield?: boolean;
 }

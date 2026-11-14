@@ -21,7 +21,7 @@ export type SrcFileCategory =
   | 'root'
   | 'other';
 
-export type SrcFileFormat =
+type SrcFileFormat =
   | 'typescript'
   | 'tsx'
   | 'javascript'
@@ -52,7 +52,7 @@ interface ManifestEntry {
   imports?: string[];
 }
 
-export const FILE_CATEGORY_LABELS: Record<SrcFileCategory, string> = {
+const FILE_CATEGORY_LABELS: Record<SrcFileCategory, string> = {
   components: 'components',
   data: 'data',
   store: 'store',

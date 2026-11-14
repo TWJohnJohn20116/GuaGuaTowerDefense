@@ -4,7 +4,7 @@ import { GAME_CONSTANTS } from '@/data/gameData';
 import { getSegmentMap } from './gameLoop/pathHelpers';
 
 /** 風塔擊退計算結果 */
-export interface WindKnockbackResult {
+interface WindKnockbackResult {
   x: number;
   y: number;
   targetX: number;

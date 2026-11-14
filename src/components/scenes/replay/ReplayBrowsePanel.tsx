@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/Icons';
 import { getPathDisplayName } from './replayUtils';
 
-export interface ReplayBrowsePanelProps {
+interface ReplayBrowsePanelProps {
   replay: ReplayData | null;
   formatTime: (s: number) => string;
   formatDate: (ts: number) => string;

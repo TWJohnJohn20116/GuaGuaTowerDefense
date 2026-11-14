@@ -46,7 +46,7 @@ export function StatChip({ label, value }: { label: string; value: string | numb
 // 資料標籤
 // ──────────────────────────────────────────────────────────────────────────
 
-export type BadgeTone = 'signal' | 'vital' | 'caution' | 'alarm' | 'muted';
+type BadgeTone = 'signal' | 'vital' | 'caution' | 'alarm' | 'muted';
 
 const BADGE_TONE: Record<BadgeTone, string> = {
   signal: 'border-[var(--hl-signal-edge)] text-[var(--hl-signal)]',
@@ -70,7 +70,7 @@ export function Badge({ label, tone = 'muted' }: { label: string; tone?: BadgeTo
 // Hero
 // ──────────────────────────────────────────────────────────────────────────
 
-export interface BriefingHeroProps {
+interface BriefingHeroProps {
   path: PathConfig;
   /** 標題上方的 mono 路徑（章節／任務目標） */
   eyebrow: string;
@@ -132,7 +132,7 @@ export function BriefingHero({
 // 出擊列
 // ──────────────────────────────────────────────────────────────────────────
 
-export interface BriefingFooterProps {
+interface BriefingFooterProps {
   unlocked?: boolean;
   rewardCoins: number;
   rewardTalent?: number;

@@ -17,7 +17,7 @@ import {
 } from './observatoryShared';
 import { useTranslation } from '@/i18n';
 
-export interface AchievementGridCardProps {
+interface AchievementGridCardProps {
   achievement: Achievement;
   status: AchievementStatus;
   pct: number;

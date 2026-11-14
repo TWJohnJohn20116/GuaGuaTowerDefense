@@ -16,7 +16,7 @@ interface AdvancedIconLayer {
   opacity?: number;
 }
 
-export interface ModIconRenderOptions {
+interface ModIconRenderOptions {
   /** 容器圓角 class（各使用場景尺寸不同） */
   rounded?: string;
   /** 圖層位移縮放係數 */

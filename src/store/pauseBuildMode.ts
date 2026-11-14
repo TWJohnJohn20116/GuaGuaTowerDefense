@@ -1,4 +1,4 @@
-export interface PauseBuildViewState {
+interface PauseBuildViewState {
   isPaused: boolean;
   buildWhilePaused: boolean;
   pauseMenuOpen: boolean;

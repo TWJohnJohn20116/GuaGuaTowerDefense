@@ -12,7 +12,7 @@ import { AchievementGridCard } from './AchievementGridCard';
 
 const PAGE_SIZE = 48;
 
-export interface AchievementsGridProps {
+interface AchievementsGridProps {
   achievements: Achievement[];
   selectedId: string | null;
   highlightId: string | null;

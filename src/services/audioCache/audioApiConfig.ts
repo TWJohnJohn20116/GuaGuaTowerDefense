@@ -41,7 +41,7 @@ export const FREESOUND_SEARCH: Record<SoundId, string> = {
   error: 'error buzz wrong',
 };
 
-export type AudioCacheSource = 'jamendo' | 'freesound' | 'file';
+type AudioCacheSource = 'jamendo' | 'freesound' | 'file';
 
 export interface AudioAttribution {
   title: string;

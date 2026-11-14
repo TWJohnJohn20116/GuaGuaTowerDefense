@@ -78,7 +78,7 @@ export function getEnemyColor(type: EnemyType): string {
   return ENEMY_DATA[type as keyof typeof ENEMY_DATA]?.color ?? '#888';
 }
 
-export interface EnemyTypeGroup {
+interface EnemyTypeGroup {
   type: EnemyType;
   count: number;
   totalHp: number;
@@ -117,7 +117,7 @@ export function groupFieldEnemies(enemies: Enemy[], t: Translations): EnemyTypeG
 }
 
 /** 場上負面狀態彙總 */
-export interface FieldDebuffSummary {
+interface FieldDebuffSummary {
   effectType: StatusEffectType;
   label: string;
   count: number;

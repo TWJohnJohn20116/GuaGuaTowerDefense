@@ -1,14 +1,14 @@
 import type { TowerType, GridPosition, Tile, TowerData } from '@/types/game';
 import { GAME_CONSTANTS } from '@/data/gameData';
 
-export interface TacticalScore {
+interface TacticalScore {
   row: number;
   col: number;
   score: number;
   recommendation: 'best' | 'good' | 'fair' | 'poor';
 }
 
-export interface TacticalScoreParams {
+interface TacticalScoreParams {
   grid: Tile[][];
   waypoints: GridPosition[];
   tileSize: number;

@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type VisualSettingKey = 'animationsEnabled' | 'showTowerRange' | 'screenShake' | 'showDamageNumbers' | 'showHealthBars' | 'bloomEnabled';
-export type ShadowQuality = 'off' | 'low' | 'medium' | 'high';
-export type ParticleDensity = 'low' | 'medium' | 'high';
-export type GameplaySettingKey = 'autoStartWave' | 'showTips' | 'quickPlaceDefault' | 'confirmSell' | 'buildWhilePaused' | 'showEnemyPath' | 'autoUpgradeTowers' | 'showDevButton';
-export type AudioSettingKey = 'sfxAttack' | 'sfxBuild' | 'sfxDeath' | 'sfxUI';
-export type ControlsSettingKey = 'edgePanning' | 'mouseSensitivity' | 'zoomSpeed';
+type VisualSettingKey = 'animationsEnabled' | 'showTowerRange' | 'screenShake' | 'showDamageNumbers' | 'showHealthBars' | 'bloomEnabled';
+type ShadowQuality = 'off' | 'low' | 'medium' | 'high';
+type ParticleDensity = 'low' | 'medium' | 'high';
+type GameplaySettingKey = 'autoStartWave' | 'showTips' | 'quickPlaceDefault' | 'confirmSell' | 'buildWhilePaused' | 'showEnemyPath' | 'autoUpgradeTowers' | 'showDevButton';
+type AudioSettingKey = 'sfxAttack' | 'sfxBuild' | 'sfxDeath' | 'sfxUI';
+type ControlsSettingKey = 'edgePanning' | 'mouseSensitivity' | 'zoomSpeed';
 
 export type SfxType = 'attack' | 'build' | 'death' | 'ui';
 

@@ -8,7 +8,7 @@ import { ALL_ACHIEVEMENTS } from '@/data/achievementData';
 import { sortAchievements } from '@/data/achievementSort';
 
 /** 第二批起新增的 ism_* 成就 */
-export const ISM_ACHIEVEMENT_IDS = [
+const ISM_ACHIEVEMENT_IDS = [
   'ism_late_bloom',
   'ism_rush',
   'ism_watch',
@@ -34,7 +34,7 @@ export const ISM_ACHIEVEMENT_IDS = [
 ] as const;
 
 /** 早期主義成就（名稱含主義或語意對應） */
-export const LEGACY_ISM_ACHIEVEMENT_IDS = [
+const LEGACY_ISM_ACHIEVEMENT_IDS = [
   'no_build_after_wave_5',
   'no_build_after_wave_10',
   'one_type_only',
@@ -51,7 +51,7 @@ const ISM_ID_SET = new Set<string>([
 ]);
 
 /** 是否為流派主義成就 */
-export function isPlaystyleIsmAchievement(achievement: Achievement): boolean {
+function isPlaystyleIsmAchievement(achievement: Achievement): boolean {
   if (ISM_ID_SET.has(achievement.id)) return true;
   return achievement.name.includes('主義');
 }

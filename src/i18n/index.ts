@@ -22,7 +22,7 @@ export type Language =
   | 'pt';    // 葡萄牙文
 
 // 語言名稱對照
-export const LANGUAGE_NAMES: Record<Language, string> = {
+const LANGUAGE_NAMES: Record<Language, string> = {
   'zh-TW': '繁體中文',
   'zh-CN': '简体中文',
   'en': 'English',

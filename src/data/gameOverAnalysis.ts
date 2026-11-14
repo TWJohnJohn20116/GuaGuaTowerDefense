@@ -2,7 +2,7 @@
 
 export const CONTROL_TOWER_TYPES = ['frost', 'poison', 'lightning', 'wind'] as const;
 
-export type FailureAnalysisKey = 'fewTowers' | 'lowUpgrades' | 'noSpecial';
+type FailureAnalysisKey = 'fewTowers' | 'lowUpgrades' | 'noSpecial';
 
 const SUGGESTION_KEY: Record<FailureAnalysisKey, 'buildMore' | 'upgradeMore' | 'useSpecial'> = {
   fewTowers: 'buildMore',

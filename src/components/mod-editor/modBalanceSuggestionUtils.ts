@@ -30,7 +30,7 @@ export function groupBalanceSuggestions(
   })).filter((g) => g.items.length > 0);
 }
 
-export function balanceCategoryLabel(
+function balanceCategoryLabel(
   category: BalanceSuggestionCategory,
   m: BalMsg,
 ): string {

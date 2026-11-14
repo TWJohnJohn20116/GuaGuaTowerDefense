@@ -1,11 +1,11 @@
-export type DevSearchTab = 'state' | 'tools' | 'combat' | 'visual' | 'info';
+type DevSearchTab = 'state' | 'tools' | 'combat' | 'visual' | 'info';
 
-export interface DevSearchEntry {
+interface DevSearchEntry {
   title: string;
   keywords?: string[];
 }
 
-export const DEV_TAB_ORDER: DevSearchTab[] = ['state', 'tools', 'combat', 'visual', 'info'];
+const DEV_TAB_ORDER: DevSearchTab[] = ['state', 'tools', 'combat', 'visual', 'info'];
 
 /** 與各 DevSection 的 title / keywords 對齊，供跨分頁搜尋跳轉。 */
 export const DEV_TAB_SEARCH_ENTRIES: Record<DevSearchTab, DevSearchEntry[]> = {

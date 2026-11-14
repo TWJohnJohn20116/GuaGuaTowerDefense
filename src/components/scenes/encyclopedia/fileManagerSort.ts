@@ -6,7 +6,7 @@ import { getFolderLineTotal } from './encyclopediaFileRegistry';
 import type { FileManagerRow } from './srcFolderTree';
 
 export type FileSortColumn = 'name' | 'type' | 'lines' | 'path';
-export type FileSortDirection = 'asc' | 'desc';
+type FileSortDirection = 'asc' | 'desc';
 
 export interface FileSortState {
   column: FileSortColumn;

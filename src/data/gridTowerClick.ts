@@ -2,7 +2,7 @@
  * 選塔／放塔畫布點擊：2D 與 3D 共用，避免 3D 少了多選與雙擊。
  */
 
-export type GridTowerClickKind = 'toggle_multi' | 'select_type' | 'select' | 'place' | 'clear';
+type GridTowerClickKind = 'toggle_multi' | 'select_type' | 'select' | 'place' | 'clear';
 
 export function resolveGridTowerClick(input: {
   hasTower: boolean;

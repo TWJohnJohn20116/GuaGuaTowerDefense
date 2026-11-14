@@ -1,6 +1,6 @@
 const PATH_LIKE = new Set(['path', 'start', 'end', 'fork']);
 
-export function isEnemyPathTileType(type: string): boolean {
+function isEnemyPathTileType(type: string): boolean {
   return PATH_LIKE.has(type);
 }
 

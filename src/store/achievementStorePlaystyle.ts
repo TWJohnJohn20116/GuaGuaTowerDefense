@@ -76,7 +76,7 @@ function controlTowerRatio(byType: Record<string, number> | undefined): number {
   return control / total;
 }
 
-export interface PlaystyleUnlockInput {
+interface PlaystyleUnlockInput {
   won: boolean;
   wave: number;
   health: number;

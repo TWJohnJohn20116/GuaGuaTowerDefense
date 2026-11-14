@@ -11,7 +11,7 @@ import { CustomSelect } from '@/components/ui/CustomSelect';
 import { renderModIcon } from '@/components/ui/ModIcon';
 import { SegHead, Field } from '@/components/hl';
 
-export interface ModEditorSettingsTabProps {
+interface ModEditorSettingsTabProps {
   modName: string;
   modDescription: string;
   modAuthor: string;

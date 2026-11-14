@@ -6,7 +6,7 @@ import { ENEMY_DATA, WAVE_CONFIGS, generateEndlessWaveConfig } from '@/data/game
 import type { EnemyType } from '@/types/game';
 import { findPlayableWaveSet } from '@/utils/waveSets';
 
-export interface WaveConfigLike {
+interface WaveConfigLike {
   enemies: { type: EnemyType; count: number }[];
 }
 

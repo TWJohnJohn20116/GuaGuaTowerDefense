@@ -82,7 +82,7 @@ export function getTowerEffectIcon(id: TowerEffectId, className = 'h-3 w-3') {
   }
 }
 
-export type TowerEffectLabelKey =
+type TowerEffectLabelKey =
   | 'splashLabel' | 'slowLabel' | 'poisonLabel' | 'chainLabel'
   | 'laserLabel' | 'flameLabel' | 'windLabel' | 'moneyLabel';
 
@@ -101,7 +101,7 @@ export function getTowerEffectLabelKey(id: TowerEffectId): TowerEffectLabelKey {
   return EFFECT_LABEL_KEY[id];
 }
 
-export type TowerEffectShortKey =
+type TowerEffectShortKey =
   | 'fxShortSplash' | 'fxShortSlow' | 'fxShortPoison' | 'fxShortChain'
   | 'fxShortLaser' | 'fxShortFlame' | 'fxShortWind' | 'fxShortMoney';
 
@@ -130,7 +130,7 @@ export function getTowerEffectShortLabel(
 }
 
 /** 簡短標籤（無 i18n 時後備） */
-export const TOWER_EFFECT_SHORT: Record<TowerEffectId, string> = {
+const TOWER_EFFECT_SHORT: Record<TowerEffectId, string> = {
   splash: '範圍',
   slow: '減速',
   poison: '毒素',

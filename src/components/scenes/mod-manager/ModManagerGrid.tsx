@@ -11,7 +11,7 @@ import { renderModIcon } from '@/components/ui/ModIcon';
 import { ModBalanceScoreBadge } from '@/components/mod-editor/ModBalanceScoreBadge';
 import { useTranslation } from '@/i18n';
 
-export interface ModManagerGridProps {
+interface ModManagerGridProps {
   mods: Mod[];
   selectedId: string | null;
   batchSelected?: Set<string>;

@@ -4,7 +4,7 @@
 import { GAME_CONSTANTS } from '@/data/gameData';
 import type { CustomMapData, GridPosition } from '@/types/game';
 
-export interface PathViewport {
+interface PathViewport {
   x: number;
   y: number;
   width: number;
@@ -19,7 +19,7 @@ export const LIVE_PREVIEW_MAP_VIEWPORT: PathViewport = {
 };
 
 /** 依路徑點展開為有序格子序列 */
-export function buildOrderedPathCells(waypoints: GridPosition[]): GridPosition[] {
+function buildOrderedPathCells(waypoints: GridPosition[]): GridPosition[] {
   if (waypoints.length === 0) return [];
   if (waypoints.length === 1) return [waypoints[0]];
 
@@ -49,7 +49,7 @@ export function buildOrderedPathCells(waypoints: GridPosition[]): GridPosition[]
   return cells;
 }
 
-export function cellsToScreenPoints(
+function cellsToScreenPoints(
   cells: GridPosition[],
   viewport: PathViewport,
 ): { x: number; y: number }[] {

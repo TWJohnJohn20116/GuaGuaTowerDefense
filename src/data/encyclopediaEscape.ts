@@ -1,4 +1,4 @@
-export type EncyclopediaEscapeAction = 'ignore' | 'close_detail' | 'go_back';
+type EncyclopediaEscapeAction = 'ignore' | 'close_detail' | 'go_back';
 
 export function isEncyclopediaTypingTarget(target: EventTarget | null): boolean {
   return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;

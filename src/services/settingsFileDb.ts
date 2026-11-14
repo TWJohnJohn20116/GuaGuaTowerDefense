@@ -55,7 +55,7 @@ export async function listStoredSettingsFiles(): Promise<StoredSettingsFile[]> {
   });
 }
 
-export async function getStoredSettingsFile(id: string): Promise<StoredSettingsFile | null> {
+async function getStoredSettingsFile(id: string): Promise<StoredSettingsFile | null> {
   const db = await openDb();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, 'readonly');

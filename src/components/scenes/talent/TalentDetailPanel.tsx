@@ -12,7 +12,7 @@ import { CATEGORY_STYLES, getCategoryIcon, getCategoryLabel } from './talentLayo
 
 const nodeNameById = new Map<string, string>(TALENT_NODES.map((n) => [n.id, n.name]));
 
-export interface TalentDetailPanelProps {
+interface TalentDetailPanelProps {
   node: TalentNodeType | null;
   ranks: Record<string, number>;
   canUpgrade: boolean;

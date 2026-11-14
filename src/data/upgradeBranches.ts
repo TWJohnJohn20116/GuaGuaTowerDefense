@@ -608,7 +608,7 @@ export const getUpgradeBonus = (
 };
 
 // ===== 融合塔升級分支 =====
-export const FUSION_UPGRADE_BRANCHES: Record<'storm' | 'plague' | 'demolisher' | 'tempest', TowerUpgradeBranches> = {
+const FUSION_UPGRADE_BRANCHES: Record<'storm' | 'plague' | 'demolisher' | 'tempest', TowerUpgradeBranches> = {
   storm: {
     pathA: {
       name: '極地雷暴',

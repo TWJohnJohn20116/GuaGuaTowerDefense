@@ -5,7 +5,7 @@
 import { getCatalogAchievements } from '@/store/achievementStoreCheck';
 import type { Achievement, AchievementStatus } from '@/types/achievement';
 
-export interface NearMissEntry {
+interface NearMissEntry {
   achievement: Achievement;
   pct: number;
   progress: number[];

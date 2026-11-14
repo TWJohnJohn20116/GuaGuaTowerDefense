@@ -2,7 +2,7 @@
  * 單局結算報告 · 供勝利／失敗畫面展示
  */
 
-export interface GameEndDailyConditionRow {
+interface GameEndDailyConditionRow {
   label: string;
   current: number;
   target: number;

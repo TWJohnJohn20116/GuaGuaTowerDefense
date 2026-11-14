@@ -7,7 +7,7 @@ const DB_NAME = 'guagua-audio-cache-v1';
 const STORE = 'assets';
 const DB_VERSION = 1;
 
-export interface CachedAudioRecord {
+interface CachedAudioRecord {
   key: string;
   data: ArrayBuffer;
   mimeType: string;

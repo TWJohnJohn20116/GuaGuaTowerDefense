@@ -7,7 +7,7 @@ import { useTranslation } from '@/i18n';
 import { StatsHistoryCard } from './StatsHistoryCard';
 import { StatsTableHead } from './statsShared';
 
-export interface StatsHistoryGridProps {
+interface StatsHistoryGridProps {
   games: GameRecord[];
   selectedId: string | null;
   onSelect: (id: string) => void;

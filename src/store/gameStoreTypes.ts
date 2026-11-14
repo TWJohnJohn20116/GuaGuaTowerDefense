@@ -35,7 +35,7 @@ export interface PlayerSkillAnimation {
 
 // 本局啟動參數快照：供「再玩一次 / 快速重試」完整復原設定
 // （pathName 保存原始入參，戰役關卡為 'chX_lvY'，可正確走戰役分支）
-export interface LastStartArgs {
+interface LastStartArgs {
   pathName: string;
   difficulty: GameDifficulty;
   endless: boolean;

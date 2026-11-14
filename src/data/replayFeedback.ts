@@ -1,6 +1,6 @@
-export type ReplayFeedbackTone = 'success' | 'danger';
+type ReplayFeedbackTone = 'success' | 'danger';
 
-export type ReplayFeedbackMessageKey =
+type ReplayFeedbackMessageKey =
   | 'importSuccess'
   | 'invalidFormat'
   | 'importFailed'

@@ -1,9 +1,9 @@
 /**
  * LivePreview · 造塔／拆塔動畫
  */
-export type TowerDeployFxMode = 'deploy' | 'undeploy';
+type TowerDeployFxMode = 'deploy' | 'undeploy';
 
-export const TOWER_DEPLOY_FX_FRAMES = 18;
+const TOWER_DEPLOY_FX_FRAMES = 18;
 
 export function triggerTowerDeployFx(
   prev: Record<number, { mode: TowerDeployFxMode; frames: number }>,

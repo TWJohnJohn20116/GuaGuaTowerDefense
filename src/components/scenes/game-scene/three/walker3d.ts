@@ -7,7 +7,7 @@
 
 import * as THREE from 'three';
 
-export interface WalkerOptions {
+interface WalkerOptions {
   toWorld: (col: number, row: number) => [number, number];
   /** 各路徑段 waypoints（生成時隨機挑一段走） */
   pathSegments: { col: number; row: number }[][];
@@ -244,7 +244,7 @@ export function createWalkers3D(scene: THREE.Scene, opts: WalkerOptions): Walker
 // 玩家可操控小人（自由方向移動 + 平滑轉身 + 跳躍；相機跟隨由呼叫端處理）
 // ============================================================
 
-export interface PlayerWalkerOptions {
+interface PlayerWalkerOptions {
   /** 出生點（世界座標） */
   spawnAt: { x: number; y: number; z: number };
   /** 可行走範圍（地圖邊界） */

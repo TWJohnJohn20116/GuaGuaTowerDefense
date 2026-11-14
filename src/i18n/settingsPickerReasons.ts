@@ -1,6 +1,6 @@
 /** 設定檔案選擇器 — 使用者取消或非錯誤 dismiss */
-export const SETTINGS_PICKER_CANCELLED = 'cancelled';
-export const SETTINGS_PICKER_NO_FILE = 'no_file';
+const SETTINGS_PICKER_CANCELLED = 'cancelled';
+const SETTINGS_PICKER_NO_FILE = 'no_file';
 
 const LEGACY_DISMISS = new Set(['已取消', '未選擇檔案']);
 

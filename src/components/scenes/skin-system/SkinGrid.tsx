@@ -7,7 +7,7 @@ import { useTranslation } from '@/i18n';
 import { SkinCard } from './SkinCard';
 import type { SkinPreviewAnimMode } from './skinShared';
 
-export interface SkinGridProps {
+interface SkinGridProps {
   skins: TowerSkin[];
   selectedId: string | null;
   isUnlocked: (id: string) => boolean;

@@ -1,4 +1,4 @@
-export type BatchUpgradeHint = 'ready' | 'none' | 'short';
+type BatchUpgradeHint = 'ready' | 'none' | 'short';
 
 /** 多選升級：沒有可升的塔、或錢不夠時給出原因。 */
 export function resolveBatchUpgradeHint(input: {

@@ -1,6 +1,6 @@
 export type ReplayConfirmKind = 'delete' | 'clearAll' | 'replayThis' | 'deleteNote';
-export type ReplayDialogHotkeyAction = 'confirm' | 'cancel' | 'ignore';
-export type ReplayRenameDraftAction = 'apply' | 'ignore';
+type ReplayDialogHotkeyAction = 'confirm' | 'cancel' | 'ignore';
+type ReplayRenameDraftAction = 'apply' | 'ignore';
 
 export function resolveReplayDialogHotkey(key: string): ReplayDialogHotkeyAction {
   if (key === 'Enter') return 'confirm';
@@ -18,7 +18,7 @@ export function resolveReplayRenameDraft(input: {
   return 'apply';
 }
 
-export interface ReplayConfirmCopySource {
+interface ReplayConfirmCopySource {
   delete: string;
   confirmDelete: string;
   clearAll: string;

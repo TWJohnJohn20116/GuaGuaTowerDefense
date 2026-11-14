@@ -3,7 +3,7 @@
  */
 import { useTranslation } from '@/i18n';
 
-export type WorkshopStatsMode = 'editor' | 'manager';
+type WorkshopStatsMode = 'editor' | 'manager';
 
 interface WorkshopHeaderStatsProps {
   mode: WorkshopStatsMode;

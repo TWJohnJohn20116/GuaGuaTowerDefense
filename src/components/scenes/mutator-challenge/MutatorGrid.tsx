@@ -72,7 +72,7 @@ function ChallengeCell({ challenge, record, selected, index, onSelect }: Challen
   );
 }
 
-export interface MutatorGridProps {
+interface MutatorGridProps {
   challenges: MutatorChallenge[];
   records: Record<string, MutatorChallengeRecord>;
   selectedId: string | null;

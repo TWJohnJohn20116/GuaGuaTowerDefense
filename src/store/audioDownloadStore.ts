@@ -10,7 +10,7 @@ export type AudioDownloadItemState =
   | 'failed'
   | 'skipped';
 
-export type AudioDownloadKind = 'music' | 'sfx';
+type AudioDownloadKind = 'music' | 'sfx';
 
 export interface AudioDownloadItem {
   key: string;
@@ -21,7 +21,7 @@ export interface AudioDownloadItem {
   error?: string;
 }
 
-export type AudioDownloadOverallStatus = 'idle' | 'running' | 'done' | 'partial';
+type AudioDownloadOverallStatus = 'idle' | 'running' | 'done' | 'partial';
 
 interface AudioDownloadStore {
   status: AudioDownloadOverallStatus;

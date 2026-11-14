@@ -3,16 +3,16 @@
  */
 
 export const MONEY_AURA_BASE_RANGE = 3;
-export const MONEY_AURA_RANGE_PER_LEVEL = 0.25;
+const MONEY_AURA_RANGE_PER_LEVEL = 0.25;
 export const MONEY_KILL_BONUS_MULT = 0.3;
 
-export interface MoneyAura {
+interface MoneyAura {
   x: number;
   y: number;
   radiusSq: number;
 }
 
-export interface MoneyAuraTower {
+interface MoneyAuraTower {
   type: string;
   gridPos: { col: number; row: number };
   level?: number;
@@ -36,7 +36,7 @@ export function collectMoneyAuras(towers: MoneyAuraTower[]): MoneyAura[] {
   return auras;
 }
 
-export function isInsideMoneyAura(x: number, y: number, auras: MoneyAura[]): boolean {
+function isInsideMoneyAura(x: number, y: number, auras: MoneyAura[]): boolean {
   for (const aura of auras) {
     const dx = x - aura.x;
     const dy = y - aura.y;

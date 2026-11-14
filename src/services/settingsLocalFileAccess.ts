@@ -12,7 +12,7 @@ export interface LocalSettingsFileEntry {
   lastModified: number;
 }
 
-export type LocalBrowseResult =
+type LocalBrowseResult =
   | { ok: true; files: LocalSettingsFileEntry[] }
   | { ok: false; reason: string };
 

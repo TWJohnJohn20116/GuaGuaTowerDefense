@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/Icons';
 import type { ImportMergeMode } from './modEditorImportMerge';
 
-export interface ExportSelection {
+interface ExportSelection {
   towers: boolean;
   enemies: boolean;
   maps: boolean;
