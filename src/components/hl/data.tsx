@@ -49,28 +49,35 @@ export function Meter({
   );
 }
 
-/** 分段計量條：波次、星等、難度 */
+/**
+ * 分段計量條：波次、星等、難度
+ *
+ * fluid 給「格寬會變動」的場合用（例：六格難度卡，每格只有 60–100px）：
+ * 點改成 flex-1 等分，不會像固定 12px 圓點那樣在窄格裡溢出卡片。
+ */
 export function Segments({
   total,
   filled,
   tone = 'signal',
   size = 'md',
+  fluid = false,
   className = '',
 }: {
   total: number;
   filled: number;
   tone?: Tone;
   size?: 'sm' | 'md';
+  fluid?: boolean;
   className?: string;
 }) {
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
+    <div className={`flex items-center gap-1 ${fluid ? 'w-full' : ''} ${className}`}>
       {Array.from({ length: total }).map((_, i) => (
         <span
           key={i}
           className={[
             'block rounded-full border-2 border-[var(--cn-line)]',
-            size === 'sm' ? 'h-3 w-3' : 'h-4 w-4',
+            fluid ? 'h-3 min-w-0 flex-1' : size === 'sm' ? 'h-3 w-3' : 'h-4 w-4',
             i < filled ? BAR[tone] : 'bg-[var(--cn-card)]',
           ].join(' ')}
         />
