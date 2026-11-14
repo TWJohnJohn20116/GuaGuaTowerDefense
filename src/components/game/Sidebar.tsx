@@ -6,7 +6,7 @@ import type { HudHorizontalPosition, HudUiScale } from '@/store/settingsStore';
 import { TopStatsBar } from './sidebar/TopStatsBar';
 import { BottomControls } from './sidebar/BottomControls';
 import { TowerPanel } from './sidebar/TowerPanel';
-import { Deck } from '@/components/hl';
+import { Deck, IconBtn } from '@/components/hl';
 import { ChevronUpIcon } from '@/components/ui/Icons';
 import { HUD_BAND_HEIGHT } from './sidebar/hudStyle';
 
@@ -22,10 +22,13 @@ const SCALE_VALUE: Record<HudUiScale, number> = {
   large: 1.12,
 };
 
+/** 儀表帶外框：浮動白卡 + 3px 墨線 + 貼紙投影 */
+const BAND =
+  'pointer-events-auto absolute inset-x-3 flex items-stretch rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] shadow-[0_4px_0_-1px_rgba(46,36,64,0.18)]';
+
 /**
- * Theater HUD — 上下兩條 h-11 儀表帶 + 右側浮動塔塢。
- * 儀表帶用 1px 分隔線切成方塊格，每格＝mono 標籤 + mono 數值。
- * 塔塢是一張浮在畫布上的 Deck，不佔版面。
+ * 戰鬥 HUD — 上下兩條浮動儀表帶 + 右側浮動塔塢卡片。
+ * 儀表帶是圓角白卡（不再貼邊），塔塢是一張獨立卡片，不佔版面。
  */
 const SidebarImpl = () => {
   const { t } = useTranslation();
@@ -41,10 +44,7 @@ const SidebarImpl = () => {
     <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden" style={{ opacity }}>
       {/* ============ 上儀表帶 ============ */}
       {hudLayout.showStatsBar && (
-        <div
-          className="pointer-events-auto absolute inset-x-0 top-0 flex items-stretch border-b border-[var(--hl-line)] bg-[var(--hl-void-2)]"
-          style={{ height: HUD_BAND_HEIGHT }}
-        >
+        <div className={`${BAND} top-3`} style={{ height: HUD_BAND_HEIGHT }}>
           <div className={`flex min-w-0 flex-1 items-stretch ${HORIZONTAL_TO_JUSTIFY[hudLayout.statsBar]}`}>
             <AnimatePresence initial={false}>
               {!statsCollapsed && (
@@ -60,30 +60,29 @@ const SidebarImpl = () => {
               )}
             </AnimatePresence>
             {statsCollapsed && (
-              <span className="hl-label self-center px-3">{t.game.statsOverview}</span>
+              <span className="arc-label self-center px-3">{t.game.statsOverview}</span>
             )}
           </div>
 
-          <button
-            type="button"
+          <IconBtn
+            label={statsCollapsed ? t.game.expandStatsBar : t.game.collapseStatsBar}
             onClick={() => setStatsCollapsed(!statsCollapsed)}
-            className="flex w-9 shrink-0 items-center justify-center border-l border-[var(--hl-line)] text-[var(--hl-ink-3)] transition-colors hover:bg-[var(--hl-deck-2)] hover:text-[var(--hl-ink)]"
-            title={statsCollapsed ? t.game.expandStatsBar : t.game.collapseStatsBar}
+            className="my-1 mr-1 flex w-9 shrink-0 items-center justify-center rounded-[12px] text-[var(--cn-ink-3)] transition-colors hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)]"
             aria-expanded={!statsCollapsed}
           >
             <ChevronUpIcon
-              className={`h-3.5 w-3.5 transition-transform duration-200 ${statsCollapsed ? 'rotate-180' : ''}`}
+              className={`h-4 w-4 transition-transform duration-200 ${statsCollapsed ? 'rotate-180' : ''}`}
             />
-          </button>
+          </IconBtn>
         </div>
       )}
 
-      {/* ============ 右側浮動塔塢（Deck，絕對定位，不佔版面） ============ */}
+      {/* ============ 右側浮動塔塢（卡片，絕對定位，不佔版面） ============ */}
       {hudLayout.showTowerPanel && (
         <div
           className={[
-            'pointer-events-none absolute top-11 bottom-11 flex items-stretch gap-0',
-            towerOnLeft ? 'left-0' : 'right-0',
+            'pointer-events-none absolute bottom-16 top-16 flex items-stretch gap-2',
+            towerOnLeft ? 'left-3' : 'right-3',
           ].join(' ')}
           style={{ transform: `scale(${scale})`, transformOrigin: towerOnLeft ? 'top left' : 'top right' }}
         >
@@ -109,7 +108,7 @@ const SidebarImpl = () => {
           <button
             type="button"
             onClick={() => setTowersCollapsed(!towersCollapsed)}
-            className="pointer-events-auto flex w-6 shrink-0 flex-col items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-deck-2)] font-mono text-[10px] text-[var(--hl-ink-3)] transition-colors hover:bg-[var(--hl-deck-3)] hover:text-[var(--hl-ink)]"
+            className="pointer-events-auto flex w-8 shrink-0 flex-col items-center justify-center rounded-[var(--cn-r-sm)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] text-[11px] font-extrabold text-[var(--cn-ink-3)] shadow-[0_4px_0_-1px_rgba(46,36,64,0.18)] transition-colors hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)]"
             title={towersCollapsed ? t.game.expandTowerPanel : t.game.collapseTowerPanel}
             aria-expanded={!towersCollapsed}
           >
@@ -128,10 +127,7 @@ const SidebarImpl = () => {
 
       {/* ============ 下儀表帶 ============ */}
       {hudLayout.showBottomControls && (
-        <div
-          className="pointer-events-auto absolute inset-x-0 bottom-0 flex items-stretch border-t border-[var(--hl-line)] bg-[var(--hl-void-2)]"
-          style={{ height: HUD_BAND_HEIGHT }}
-        >
+        <div className={`${BAND} bottom-3`} style={{ height: HUD_BAND_HEIGHT }}>
           <div className={`flex min-w-0 flex-1 items-stretch ${HORIZONTAL_TO_JUSTIFY[hudLayout.bottomControls]}`}>
             <BottomControls />
           </div>
