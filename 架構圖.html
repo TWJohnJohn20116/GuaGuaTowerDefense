@@ -1669,22 +1669,100 @@
     <p class="lead"><b>編號規則：</b>每一項都有固定編號 <span class="tid">TD-01</span>～<span class="tid">TD-42</span>，
       字母前綴代表分類（A 流程與版控、B 架構分層、C 型別、D 死碼重複、E 效能打包、F 可觀測性、G 資料 i18n、H 資產、I 測試）。
       commit、PR、issue、回報請直接寫 <code>TD-13</code>，不要只寫「那個 as any 的債」。</p>
-    <p class="lead"><b>還債進度：</b><span class="sev done">12 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
-      <span class="tid">TD-01</span> 已建立版本控制（branch <code>main</code>、基準 commit <code>1f347c7</code>、1,177 檔納入）；
-      <span class="tid">TD-09</span> 場景清單三份真相收斂成一份（<code>SceneName = GameScene</code>，Dev 面板選單改由 <code>Record&lt;GameScene, string&gt;</code> 產生，補回漏掉的 10 個場景）；
-      <span class="tid">TD-10</span> 刪掉從未被載入的 <code>data/gameData/index.ts</code>（同名 barrel 只剩檔案版一個入口，並清掉 3 處路徑字串與 10 語系的死文案）；
-      <span class="tid">TD-02</span> <code>Cargo.lock</code> 不再被 ignore，472 個 Rust 依賴版本首度鎖進版控；
-      <span class="tid">TD-16</span> 18 個無效的 <code>eslint-disable</code> 全數清空（10 處改寫成 TD-17 的說明），棘輪基準 18 → 0；
-      <span class="tid">TD-11</span> 測試專用 API 移出正式碼：3 個零引用 export 直接刪（136 → 133），檢查器與 class 契約樣本搬進 <code>src/test/contracts/</code>；
-      <span class="tid">TD-17</span> 10 處手動接管的 effect deps 逐一查核：3 處是真 stale closure（已修），其餘 7 處判定為非債並在原地寫明理由；
-      <span class="tid">TD-13</span> 19 處 <code>as any</code> 全數清空：9 處補型別根因（<code>hitEffect</code> 加 <code>'wind'</code>、<code>CustomEnemyData</code> 補兩個難度倍率），10 處是多餘斷言直接刪；棘輪基準 19 → 0；
-      <span class="tid">TD-14</span> 14 處 <code>: any</code> 全數清空：<code>grid: any[][]</code> → <code>Tile[][]</code>、6 個效果 buffer 改 <code>DamageText[]</code>／<code>ImpactParticle[]</code>／<code>DeathAnimation[]</code>，另有一處是變數名誤判（改名 <code>someEnemyTookDamage</code>）；棘輪基準 14 → 0；
-      <span class="tid">TD-15</span> <code>TowerData</code> 的 Mod 欄位（<code>flameEffect</code>／<code>windEffect</code>／<code>laserEffect</code>／<code>lightningEffect</code>／<code>moneyGeneration</code>／<code>damagePerSecond</code>）早已是可選屬性，最後 7 處殘留斷言已隨 TD-13 刪除；
-      <span class="tid">TD-18</span> 7 個零引用檔案全刪（5 個 barrel、<code>ReplayListCard.tsx</code>、以及只被死 barrel 轉出的 <code>utils/animations.ts</code> 309 行）：零引用 export 133 → 88，沒有任何 import 的檔案 6 → 0；
-      <span class="tid">TD-19</span> 零引用 export 全靠實測清空：444 個零外部引用先分「真死 71／檔內自用 373」，373 個收成模組私有、71 個分兩批刪除（含整組被 <code>TutorialPageData.ts</code> 取代的舊教材模組 484 行），重掃 0 個；
-      <span class="tid">TD-07</span> 七個上帝檔案減為六個（<code>Icons.tsx</code> 已拆）；
-      <span class="tid">TD-20</span> <code>Icons.tsx</code> 2,426 行 → 8 個分區模組 + 12 行門面，主 chunk 1,165,958 → <b>1,154,208 bytes</b>；
-      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 27 項待處理。</p>
+    <div class="ok">
+      <b>還債進度：</b><span class="sev done">12 / 42 已還</span>，另有
+      <span class="sev p1">3 項部分償還（TD-07、TD-20、TD-24）</span>。
+      已還的每一項都是獨立 commit，可單獨 revert；其餘 27 項的分類清冊從下面的 A 節開始。
+    </div>
+
+    <h3>已還清單 <span class="tag">12 項</span></h3>
+    <table class="debt-table">
+      <thead><tr><th>項目</th><th>做了什麼</th><th>差多少</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tid">TD-01</span><b>版本控制</b></td>
+          <td>建立 <code>main</code> 分支與基準 commit <code>1f347c7</code></td>
+          <td>1,177 檔納入版控</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-02</span><b>Cargo.lock 被忽略</b></td>
+          <td>刪掉 <code>.gitignore</code> 第 12 行，<code>Cargo.lock</code> 首度進版控</td>
+          <td>472 個 Rust 依賴版本鎖定</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-09</span><b>場景清單三份真相</b></td>
+          <td><code>SceneName = GameScene</code>，Dev 面板選單改由 <code>Record&lt;GameScene, string&gt;</code> 產生</td>
+          <td>補回 10 個點不到的場景</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-10</span><b>死的 gameData barrel</b></td>
+          <td>刪 <code>data/gameData/index.ts</code>，清 3 處路徑字串與 10 語系死文案</td>
+          <td>少一個永不載入的入口</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-11</span><b>測試專用 API 在正式碼</b></td>
+          <td>檢查器與 class 契約樣本搬進 <code>src/test/contracts/</code>，3 個死 export 直接刪</td>
+          <td>零引用 export 136 → 133</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-13</span><b>19 處 <code>as any</code></b></td>
+          <td>9 處補型別根因（<code>hitEffect</code> 加 <code>'wind'</code>、<code>CustomEnemyData</code> 補兩個倍率），10 處是多餘斷言</td>
+          <td>棘輪基準 19 → 0</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-14</span><b>14 處 <code>: any</code></b></td>
+          <td><code>grid: any[][]</code> → <code>Tile[][]</code>，6 個效果 buffer 改具名型別，一處變數名誤判改名</td>
+          <td>棘輪基準 14 → 0</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-15</span><b>Mod 欄位靠斷言探測</b></td>
+          <td>那些欄位早就是 <code>TowerData</code> 的可選屬性，最後 7 處殘留斷言隨 TD-13 移除</td>
+          <td>7 → 0</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-16</span><b>無效的 eslint-disable</b></td>
+          <td>18 處全清（10 處改寫成 deps 說明，8 處直接刪）</td>
+          <td>棘輪基準 18 → 0</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-17</span><b>手動接管的 effect deps</b></td>
+          <td>10 處逐一查核：3 處是真 stale closure（已修），7 處判定非債並寫明理由</td>
+          <td>3 個實際 bug</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-18</span><b>零引用檔案</b></td>
+          <td>刪 7 檔 451 行（5 個死 barrel、<code>ReplayListCard.tsx</code>、只被死 barrel 轉出的 <code>utils/animations.ts</code>）</td>
+          <td>零引用 export 133 → 88</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-19</span><b>零引用 export</b></td>
+          <td>444 個零外部引用：373 個收成模組私有，71 個分兩批刪（含被 <code>TutorialPageData.ts</code> 取代的舊教材模組 484 行）</td>
+          <td>444 → 0</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>部分償還 <span class="tag">3 項 · 還在做</span></h3>
+    <table class="debt-table">
+      <thead><tr><th>項目</th><th>已做的部分</th><th>還差什麼</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tid">TD-07</span><b>上帝檔案</b></td>
+          <td><code>Icons.tsx</code> 2,426 行已拆成 8 個分區模組，7 個 → 6 個</td>
+          <td>剩下 6 個仍超過 888 行</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-20</span><b>Icons 無法按需載入</b></td>
+          <td>拆檔完成、零死 icon（72 個「零引用」全被主題映射或成就資料用到）</td>
+          <td>拆檔本身只省 11,750 bytes——真正的收益要等成就資料改按需</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-24</span><b>主 chunk 過大</b></td>
+          <td>1,333,086 → <b>1,154,208 bytes</b>（−13.4%）</td>
+          <td>距 CI 預算上限 1,180,000 只剩 25,792 bytes，下一步是成就資料 lazy registry（約 −157 KB）</td>
+        </tr>
+      </tbody>
+    </table>
 
     <div class="kpi">
       <div class="good"><b>0</b><span>TODO / FIXME / @ts-ignore</span></div>
