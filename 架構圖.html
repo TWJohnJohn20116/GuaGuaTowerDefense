@@ -1371,12 +1371,28 @@
       <div class="ar">→</div>
       <div class="node" style="--c:var(--l1)"><b>品質閘門</b><span>typecheck → i18n:check → test → build</span></div>
       <div class="ar">→</div>
-      <div class="node" style="--c:var(--l2)"><b>CI</b><span>push / PR（ubuntu + node 24）</span></div>
+      <div class="node" style="--c:var(--l2)"><b>CI</b><span>push / PR（3 平行 job，ubuntu 24.04 + node 24）</span></div>
       <div class="ar">→</div>
       <div class="node" style="--c:var(--l3)"><b>Release</b><span>v* tag → tauri-action</span></div>
       <div class="ar">→</div>
       <div class="node" style="--c:var(--l7)"><b>GitHub Release</b><span>簽章安裝檔 + updater artifacts</span></div>
     </div>
+
+    <h3>依賴更新（Dependabot）</h3>
+    <table>
+      <thead><tr><th>生態系</th><th>目錄</th><th>排程</th><th>PR 上限</th><th>分組</th></tr></thead>
+      <tbody>
+        <tr><td>npm（13 個 deps ＋ 14 個 devDeps）</td><td><code>/</code></td><td>週一 09:00（Asia/Taipei）</td><td>3</td>
+            <td>minor ＋ patch 合成一張 PR；major 各自開一張（要人看 changelog）</td></tr>
+        <tr><td>github-actions（checkout／setup-node／rust-toolchain／rust-cache／tauri-action）</td><td><code>/</code></td>
+            <td>同上</td><td>3</td><td>minor ＋ patch 合成一張</td></tr>
+        <tr><td>cargo（Tauri 殼）</td><td><code>/src-tauri</code></td><td>同上</td><td>2</td><td>minor ＋ patch 合成一張</td></tr>
+      </tbody>
+    </table>
+    <p class="small">設定檔 <code>.github/dependabot.yml</code>。<b>一律不 auto-merge</b>：依賴升級會動到 lock，屬高風險改動
+      （<code>AGENTS.md</code> §13.7），必須 CI 綠 ＋ 本機 <code>npm run check</code>；npm PR 的 lock 要在 Node 24（npm 11）下重生，
+      否則 <code>npm ci</code> 會判定 lock 不完整（<code>Missing: esbuild@0.28.2</code>）。
+      Dependabot 的 PR 走 <code>pull_request</code> 事件，而我們刻意沒給 PR 加路徑過濾，所以依賴 PR 一定會被檢查。</p>
 
     <h3>常用指令</h3>
     <table>
