@@ -16,7 +16,6 @@ export const FILE_META: Record<string, FileMetaEntry> = {
   'src/data/gameData/enemyData.ts': { description: '', relatedTab: 'enemies' },
   'src/data/gameData/pathData.ts': { description: '', relatedTab: 'maps' },
   'src/data/gameData/waveData.ts': { description: '', relatedTab: 'difficulty' },
-  'src/data/gameData/index.ts': { description: '', relatedTab: 'towers' },
   'src/data/gameData/paths/easyPaths.ts': { description: '', relatedTab: 'maps' },
   'src/data/gameData/paths/mediumPaths.ts': { description: '', relatedTab: 'maps' },
   'src/data/gameData/paths/extraMediumPaths.ts': { description: '', relatedTab: 'maps' },

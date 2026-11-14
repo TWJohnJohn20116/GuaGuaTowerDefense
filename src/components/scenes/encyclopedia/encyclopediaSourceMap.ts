@@ -24,7 +24,6 @@ const TAB_BASE_SOURCES: Record<EncyclopediaDataTab, string[]> = {
   ],
   difficulty: [
     'src/data/gameData/waveData.ts',
-    'src/data/gameData/index.ts',
   ],
   effects: [
     'src/data/gameData/enemyData.ts',

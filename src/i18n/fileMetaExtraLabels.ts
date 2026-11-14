@@ -10,7 +10,6 @@ export const FILE_META_PATH_KEYS: Record<string, keyof Translations['encyclopedi
   'src/data/gameData/enemyData.ts': 'enemyData',
   'src/data/gameData/pathData.ts': 'pathData',
   'src/data/gameData/waveData.ts': 'waveData',
-  'src/data/gameData/index.ts': 'gameDataIndex',
   'src/data/gameData/paths/easyPaths.ts': 'easyPaths',
   'src/data/gameData/paths/mediumPaths.ts': 'mediumPaths',
   'src/data/gameData/paths/hardPaths.ts': 'hardPaths',
