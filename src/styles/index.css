@@ -1,8 +1,35 @@
+/* Tailwind v4：三條 @tailwind 指令換成單一 @import（v4 不再有指令式 API）。
+   順序刻意保持 hardline.css 在前——它與 preflight 同屬 base 層，維持既有的覆蓋方向。
+   @config 必須放在 @import "tailwindcss" 之後：放前面會讓 theme 預設值沒載入，
+   @apply font-semibold 這類吃 theme 的工具類會直接變成「未知工具類」。 */
 @import './hardline.css';
+@import "tailwindcss";
+@config "../../tailwind.config.js";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ============================================================================
+   Tailwind v4 相容層 — 只補「v4 拿掉、但專案還在用」的東西，不新增設計語彙
+   1) v4 把 flex-shrink-* 更名為 shrink-*，舊名不再產生任何 CSS；
+      專案內仍有 88 處在用（多為防止 flex 子項被壓縮的 icon），這裡補回等價規則。
+   2) v4 的預設 border-color 從 gray-200 改成 currentColor；
+      這裡還原 v3 的預設，避免只寫 border 沒寫顏色的地方突然變成文字色。
+   ============================================================================ */
+
+@layer utilities {
+  .flex-shrink-0 {
+    flex-shrink: 0;
+  }
+  .flex-shrink {
+    flex-shrink: 1;
+  }
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: #e5e7eb;
+  }
+}
 
 /* ============================================================================
    舊類別相容層 — 名字全部保留，外觀全部換成 HARDLINE
@@ -36,7 +63,13 @@
 
 @layer components {
   /* ---------------- 按鈕 ---------------- */
-  .btn-game {
+  /* v4 起 @apply 只能套用「工具類」與 @utility，不能再 @apply 自己寫的 .btn-game，
+     所以把基底規則掛到所有變體上（行為與原本的 @apply btn-game 相同）。 */
+  .btn-game,
+  .btn-primary,
+  .btn-success,
+  .btn-danger,
+  .btn-accent {
     @apply relative inline-flex items-center justify-center font-semibold;
     height: 2.25rem;
     padding: 0 1rem;
@@ -74,7 +107,6 @@
   }
 
   .btn-primary {
-    @apply btn-game;
     background: var(--hl-signal);
     border-color: var(--hl-signal);
     color: var(--hl-signal-ink);
@@ -85,7 +117,6 @@
   }
 
   .btn-success {
-    @apply btn-game;
     background: transparent;
     border-color: rgba(56, 224, 143, 0.45);
     color: var(--hl-vital);
@@ -96,7 +127,6 @@
   }
 
   .btn-danger {
-    @apply btn-game;
     background: transparent;
     border-color: rgba(255, 75, 62, 0.4);
     color: var(--hl-alarm);
@@ -107,7 +137,6 @@
   }
 
   .btn-accent {
-    @apply btn-game;
     background: transparent;
     border-color: var(--hl-signal-edge);
     color: var(--hl-signal);
@@ -121,7 +150,7 @@
     @apply flex items-center gap-2 whitespace-nowrap;
   }
   .btn-with-icon svg {
-    @apply flex-shrink-0;
+    @apply shrink-0;
   }
 
   /* ---------------- 面板 ---------------- */
