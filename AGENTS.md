@@ -203,7 +203,7 @@ services → types（只能 import type 或由入口注入）
 1. `types/game.ts` → `GameScene`；2. `components/scenes/YourScene.tsx`（default export）
 3. `App.tsx` → `SCENE_COMPONENTS` 加 `lazy(() => import(...))`
 4. 入口：`data/mainMenuHome.ts`（若要在主選單點到）；BGM：`services/musicService.ts`
-5. i18n 文案；`devStore` 的 `SceneName` **不要**再手抄（應改 `GameScene` 別名）
+5. i18n 文案（含 Dev 面板的 `scene*` 標籤）；場景清單只有 `GameScene` 一個真相——`devStore.ts` 的 `SceneName` 是它的別名、Dev 面板選單由 `Record<GameScene, string>` 產生，**都不要手抄**（TD-09 已還）
 
 ### 5.4 新增語言／文案
 1. 新增 `i18n/locales/xx.ts`（`DeepPartial<Translations>`）

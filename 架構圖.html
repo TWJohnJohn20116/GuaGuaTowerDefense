@@ -1667,11 +1667,12 @@
     <p class="lead"><b>編號規則：</b>每一項都有固定編號 <span class="tid">TD-01</span>～<span class="tid">TD-42</span>，
       字母前綴代表分類（A 流程與版控、B 架構分層、C 型別、D 死碼重複、E 效能打包、F 可觀測性、G 資料 i18n、H 資產、I 測試）。
       commit、PR、issue、回報請直接寫 <code>TD-13</code>，不要只寫「那個 as any 的債」。</p>
-    <p class="lead"><b>還債進度：</b><span class="sev done">1 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
+    <p class="lead"><b>還債進度：</b><span class="sev done">2 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
       <span class="tid">TD-01</span> 已建立版本控制（branch <code>main</code>、基準 commit <code>1f347c7</code>、1,177 檔納入）；
+      <span class="tid">TD-09</span> 場景清單三份真相收斂成一份（<code>SceneName = GameScene</code>，Dev 面板選單改由 <code>Record&lt;GameScene, string&gt;</code> 產生，補回漏掉的 10 個場景）；
       <span class="tid">TD-07</span> 七個上帝檔案減為六個（<code>Icons.tsx</code> 已拆）；
       <span class="tid">TD-20</span> <code>Icons.tsx</code> 2,426 行 → 8 個分區模組 + 12 行門面，主 chunk 1,165,958 → <b>1,154,208 bytes</b>；
-      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 38 項待處理。</p>
+      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 37 項待處理。</p>
 
     <div class="kpi">
       <div class="good"><b>0</b><span>TODO / FIXME / @ts-ignore</span></div>
@@ -1754,10 +1755,13 @@
           <td>改 <code>iconKey: 'StarIcon'</code> 字串 + 執行期查表（可 lazy、可 tree-shake）</td>
         </tr>
         <tr>
-          <td><span class="tid">TD-09</span><span class="sev p2">P2</span><b>B3 場景清單雙份真相</b></td>
-          <td><code>types/game.ts</code> 的 <code>GameScene</code>（22）vs <code>store/devStore.ts</code> 手抄的 <code>SceneName</code>（22）</td>
-          <td>新增場景只改一處時，Dev 面板的測試清單會漏（歷史上漏過 3 個編輯器場景）。</td>
-          <td><code>type SceneName = GameScene</code>（一行）</td>
+          <td><span class="tid">TD-09</span><span class="sev done">✓ 已還 · P2</span><b>B3 場景清單雙份真相</b></td>
+          <td>實際是<b>三份</b>：<code>types/game.ts</code> 的 <code>GameScene</code>（22）、<code>store/devStore.ts</code> 手抄的 <code>SceneName</code>（22）、
+            <code>dev-panel/ToolsSection.tsx</code> 手抄的 <code>SceneOption</code> 選單（只有 12 個）。</td>
+          <td>前兩份靠人工同步；第三份已經漏掉 10 個場景——三個編輯器、<code>replay</code>、<code>memorial</code>、<code>statistics</code>、
+            <code>gameOver</code>、<code>victory</code>、<code>dailyChallenge</code>、<code>mutatorChallenge</code> 在 Dev 面板點不到。</td>
+          <td>已還：<code>SceneName = GameScene</code>；選單改由 <code>Record&lt;GameScene, string&gt;</code> 產生（少一個標籤就是型別錯誤），
+            並補上 10 個 <code>scene*</code> 文案鍵。</td>
         </tr>
         <tr>
           <td><span class="tid">TD-10</span><span class="sev p2">P2</span><b>B4 兩個同名 barrel</b></td>
@@ -2038,7 +2042,7 @@
       <tbody>
         <tr>
           <td><b>階段 0</b><br><span class="small">先建立安全網</span></td>
-          <td><b>TD-01</b> git init、<b>TD-02</b> 移除 Cargo.lock ignore、<b>TD-04</b> 生成物移出 src、<b>TD-05</b> 覆蓋率門檻、<b>TD-09</b> SceneName 別名、<b>TD-10</b> 刪死 barrel、<b>TD-12</b> 刪空目錄、<b>TD-18</b> 刪 8 個死檔</td>
+          <td><b>TD-01</b> git init ✓、<b>TD-02</b> 移除 Cargo.lock ignore、<b>TD-04</b> 生成物移出 src、<b>TD-05</b> 覆蓋率門檻、<b>TD-09</b> SceneName 別名 ✓、<b>TD-10</b> 刪死 barrel、<b>TD-12</b> 刪空目錄、<b>TD-18</b> 刪 8 個死檔</td>
           <td>半天</td>
           <td>低。純刪除／移動，跑 <code>npm run check</code> 即可</td>
         </tr>
