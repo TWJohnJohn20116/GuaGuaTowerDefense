@@ -74,24 +74,6 @@ export function SpecRow({
   );
 }
 
-/* -------------------------------------------------------------- SpecKV */
-
-/** 欄位列：標籤在左、值在右，全部 mono。 */
-function SpecKV({
-  label,
-  children,
-}: {
-  label: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-[var(--hl-line)] py-1.5 last:border-b-0">
-      <span className="hl-label shrink-0">{label}</span>
-      <span className="min-w-0 text-right text-[11.5px] leading-snug text-[var(--hl-ink-2)]">{children}</span>
-    </div>
-  );
-}
-
 /* ------------------------------------------------------------- SpecNote */
 
 /** 註記區塊：只有左側 2px 訊號條，不是彩色卡片。 */
