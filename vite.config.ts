@@ -74,6 +74,10 @@ export default defineConfig({
     },
     // 增加分塊大小警告閾值
     chunkSizeWarningLimit: 500,
+    // 不要為了印出 gzip 欄位而對每個 chunk 再壓一次：主 chunk 已 1.15 MB，
+    // 這一步在 CI 要多花 1–2 秒，而真正的大小由 scripts/ci/guards.mjs --bundle
+    // 直接量檔案 bytes，不看這張表。
+    reportCompressedSize: false,
   },
   resolve: {
     alias: {
