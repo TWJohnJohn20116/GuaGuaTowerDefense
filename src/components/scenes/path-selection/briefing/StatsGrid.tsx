@@ -49,9 +49,9 @@ export function StatsGrid({ mod }: StatsGridProps) {
   ];
 
   return (
-    <div className="grid grid-cols-3 border-l border-t border-[var(--hl-line)] sm:grid-cols-6">
+    <div className="grid grid-cols-3 border-l border-t border-[var(--cn-line-soft)] sm:grid-cols-6">
       {cells.map((c) => (
-        <div key={c.label} className="border-b border-r border-[var(--hl-line)] px-3 py-2.5">
+        <div key={c.label} className="border-b border-r border-[var(--cn-line-soft)] px-3 py-2.5">
           <StatCell label={c.label} value={c.value} tone={c.tone} />
         </div>
       ))}

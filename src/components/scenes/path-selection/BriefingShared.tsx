@@ -35,9 +35,9 @@ export function SectionHeader({
 
 export function StatChip({ label, value }: { label: string; value: string | number }) {
   return (
-    <span className="hl-kv border border-[var(--hl-line)] px-2 py-1">
+    <span className="arc-kv border-[3px] border-[var(--cn-line-soft)] px-2 py-1">
       <span className="uppercase tracking-[0.08em]">{label}</span>
-      <span className="tabular-nums text-[var(--hl-ink)]">{value}</span>
+      <span className="tabular-nums text-[var(--arc-ink)]">{value}</span>
     </span>
   );
 }
@@ -49,11 +49,11 @@ export function StatChip({ label, value }: { label: string; value: string | numb
 type BadgeTone = 'signal' | 'vital' | 'caution' | 'alarm' | 'muted';
 
 const BADGE_TONE: Record<BadgeTone, string> = {
-  signal: 'border-[var(--hl-signal-edge)] text-[var(--hl-signal)]',
-  vital: 'border-[var(--hl-vital)]/40 text-[var(--hl-vital)]',
-  caution: 'border-[var(--hl-caution)]/40 text-[var(--hl-caution)]',
-  alarm: 'border-[var(--hl-alarm)]/40 text-[var(--hl-alarm)]',
-  muted: 'border-[var(--hl-line)] text-[var(--hl-ink-3)]',
+  signal: 'border-[var(--arc-gold-edge)] text-[var(--arc-gold)]',
+  vital: 'border-[var(--arc-vital)]/40 text-[var(--arc-vital)]',
+  caution: 'border-[var(--arc-caution)]/40 text-[var(--arc-caution)]',
+  alarm: 'border-[var(--arc-alert)]/40 text-[var(--arc-alert)]',
+  muted: 'border-[var(--cn-line-soft)] text-[var(--arc-ink-3)]',
 };
 
 export function Badge({ label, tone = 'muted' }: { label: string; tone?: BadgeTone }) {
@@ -90,10 +90,10 @@ export function BriefingHero({
   stats,
 }: BriefingHeroProps) {
   return (
-    <div className="grid grid-cols-1 border-b border-[var(--hl-line)] lg:grid-cols-[300px_1fr]">
-      <div className="border-b border-[var(--hl-line)] bg-[var(--hl-void-2)] p-3 lg:border-b-0 lg:border-r">
-        <PathPreview pathConfig={path} size="large" className="w-full border border-[var(--hl-line)]" />
-        <div className="mt-2 flex items-center justify-between font-mono text-[9.5px] uppercase tracking-[0.1em] text-[var(--hl-ink-4)]">
+    <div className="m-3 mb-0 grid grid-cols-1 overflow-hidden rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] lg:grid-cols-[300px_1fr]">
+      <div className="border-b-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] p-3 lg:border-b-0 lg:border-r-[3px]">
+        <PathPreview pathConfig={path} size="large" className="w-full border-[3px] border-[var(--cn-line-soft)]" />
+        <div className="mt-2 flex items-center justify-between font-mono text-[9.5px] uppercase tracking-[0.1em] text-[var(--arc-ink-4)]">
           <span>grid 15 × 11</span>
           <span>{path.category ?? 'path'}</span>
         </div>
@@ -102,8 +102,8 @@ export function BriefingHero({
       <div className="flex min-w-0 flex-col gap-3 p-4 lg:p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <span className="hl-label">{eyebrow}</span>
-            <h2 className="mt-1.5 text-[26px] font-bold leading-[1.15] tracking-[-0.015em] text-[var(--hl-ink)]">
+            <span className="arc-label">{eyebrow}</span>
+            <h2 className="mt-1.5 text-[28px] font-black leading-[1.15] tracking-[-0.02em] text-[var(--arc-ink)]">
               {title}
             </h2>
           </div>
@@ -113,12 +113,12 @@ export function BriefingHero({
         </div>
 
         {description && (
-          <p className="max-w-[76ch] text-[13px] leading-relaxed text-[var(--hl-ink-2)]">
+          <p className="max-w-[76ch] text-[13px] leading-relaxed text-[var(--arc-ink-2)]">
             {description}
           </p>
         )}
 
-        <div className="mt-auto grid grid-cols-2 gap-x-4 gap-y-3 border-t border-[var(--hl-line)] pt-3 sm:grid-cols-4">
+        <div className="mt-auto grid grid-cols-2 gap-2 border-t-[3px] border-[var(--cn-line-soft)] pt-3 sm:grid-cols-4">
           {stats.map((s) => (
             <StatCell key={s.label} label={s.label} value={s.value} unit={s.unit} />
           ))}
@@ -163,7 +163,7 @@ export function BriefingFooter({
   const resolvedLockedButtonLabel = lockedButtonLabel ?? c.locked;
 
   return (
-    <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[var(--hl-line)] bg-[var(--hl-void-2)] px-4 py-2.5">
+    <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] px-4 py-3">
       <div className="flex min-w-0 items-center gap-5">
         <StatCell
           label={unlocked ? resolvedRewardLabel : c.levelLocked}
@@ -181,12 +181,12 @@ export function BriefingFooter({
           <StatCell label={c.rewardTalent} value={rewardTalent} tone="reach" />
         )}
         {!unlocked && (
-          <span className="min-w-0 max-w-[46ch] truncate text-[11px] text-[var(--hl-ink-3)]">
+          <span className="min-w-0 max-w-[46ch] truncate text-[11px] text-[var(--arc-ink-3)]">
             {resolvedLockedHint}
           </span>
         )}
         {unlocked && rewardNote && (
-          <span className="min-w-0 max-w-[46ch] truncate text-[11px] text-[var(--hl-ink-3)]">
+          <span className="min-w-0 max-w-[46ch] truncate text-[11px] text-[var(--arc-ink-3)]">
             {rewardNote}
           </span>
         )}

@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 import { useTranslation } from '@/i18n';
 import { useModStore } from '@/store/modStore';
 import { getPlayableWaveSets, getWaveSetSourceLabel } from '@/utils/waveSets';
-import { Btn, SegHead, Toggle } from '@/components/hl';
+import { Btn, Deck, SegHead, Toggle } from '@/components/hl';
 
 interface ModePanelProps {
   endlessMode: boolean;
@@ -48,12 +48,12 @@ export function ModePanel({
   return (
     <div className="flex flex-col gap-1.5">
       {/* 無盡模式 */}
-      <div className="flex items-center justify-between border border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-3 py-2.5">
+      <Deck className="flex items-center justify-between px-3 py-2.5">
         <div className="min-w-0">
-          <div className="text-[12.5px] font-medium text-[var(--hl-ink)]">
+          <div className="text-[12.5px] font-medium text-[var(--arc-ink)]">
             {t.pathSelection.endlessMode}
           </div>
-          <div className="mt-0.5 text-[10.5px] text-[var(--hl-ink-3)]">
+          <div className="mt-0.5 text-[10.5px] text-[var(--arc-ink-3)]">
             {t.pathSelection.endlessDesc}
           </div>
         </div>
@@ -62,13 +62,13 @@ export function ModePanel({
           onChange={(v) => setEndlessMode(v)}
           label={t.pathSelection.endlessMode}
         />
-      </div>
+      </Deck>
 
       {!endlessMode && (
-        <div className="border border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-3 py-2.5">
+        <Deck className="px-3 py-2.5">
           <div className="mb-2 flex items-center justify-between gap-3">
-            <span className="hl-label">{t.pathSelection.targetWaves}</span>
-            <span className="font-mono text-[11px] tabular-nums text-[var(--hl-ink)]">
+            <span className="arc-label">{t.pathSelection.targetWaves}</span>
+            <span className="font-mono text-[11px] tabular-nums text-[var(--arc-ink)]">
               {usingCustomWaveSet
                 ? `${activeWaveSet?.wavesCount ?? 0} ${t.pathSelection.waves}`
                 : `${selectedWaves} ${t.pathSelection.waves}`}
@@ -89,8 +89,8 @@ export function ModePanel({
                   }}
                   className={`font-mono tabular-nums ${
                     active
-                      ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-                      : 'border-[var(--hl-line)] text-[var(--hl-ink-3)]'
+                      ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
+                      : 'border-[var(--cn-line-soft)] text-[var(--arc-ink-3)]'
                   }`}
                 >
                   {w}
@@ -98,12 +98,12 @@ export function ModePanel({
               );
             })}
           </div>
-        </div>
+        </Deck>
       )}
 
       {!endlessMode && hasWaveSets && (
-        <div className="border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
-          <div className="flex items-center justify-between gap-3 border-b border-[var(--hl-line)] px-3 py-2">
+        <div className="border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--cn-line-soft)] px-3 py-2">
             <SegHead
               label={t.pathSelectionExt.customWaveLabel}
               className="flex-1"
@@ -128,26 +128,26 @@ export function ModePanel({
                   key={ws.id}
                   type="button"
                   onClick={() => setCustomWaveSetId(active ? '' : ws.id)}
-                  className="hl-row hl-row-hover w-full text-left"
+                  className="arc-row arc-row-hover w-full text-left"
                 >
                   <span
                     className={`h-3 w-[2px] shrink-0 ${
-                      active ? 'bg-[var(--hl-signal)]' : 'bg-transparent'
+                      active ? 'bg-[var(--arc-gold)]' : 'bg-transparent'
                     }`}
                   />
                   <span className="min-w-0 flex-1">
                     <span
                       className={`block truncate text-[12px] ${
-                        active ? 'text-[var(--hl-ink)]' : 'text-[var(--hl-ink-2)]'
+                        active ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-2)]'
                       }`}
                     >
                       {ws.name}
                     </span>
-                    <span className="mt-0.5 block truncate font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+                    <span className="mt-0.5 block truncate font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
                       {ws.modName}
                     </span>
                   </span>
-                  <span className="shrink-0 font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+                  <span className="shrink-0 font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                     {ws.wavesCount}
                   </span>
                 </button>

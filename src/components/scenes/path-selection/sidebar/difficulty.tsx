@@ -1,7 +1,7 @@
 /**
  * 地圖難度 · 資料色對照（HARDLINE）
  *
- * 難度是資料狀態，只用 --hl-* 資料色標記；不做漸層 chip、不做發光。
+ * 難度是資料狀態，只用 --arc-* 資料色標記；不做漸層 chip、不做發光。
  * 刻度一律 5 格，餵給 <Segments total={5}>。
  */
 
@@ -24,17 +24,17 @@ export interface DifficultyMeta {
 }
 
 const TONE_TEXT: Record<DifficultyTone, string> = {
-  vital: 'text-[var(--hl-vital)]',
-  reach: 'text-[var(--hl-reach)]',
-  caution: 'text-[var(--hl-caution)]',
-  alarm: 'text-[var(--hl-alarm)]',
+  vital: 'text-[var(--arc-vital)]',
+  reach: 'text-[var(--arc-reach)]',
+  caution: 'text-[var(--arc-caution)]',
+  alarm: 'text-[var(--arc-alert)]',
 };
 
 const TONE_BAR: Record<DifficultyTone, string> = {
-  vital: 'bg-[var(--hl-vital)]',
-  reach: 'bg-[var(--hl-reach)]',
-  caution: 'bg-[var(--hl-caution)]',
-  alarm: 'bg-[var(--hl-alarm)]',
+  vital: 'bg-[var(--arc-vital)]',
+  reach: 'bg-[var(--arc-reach)]',
+  caution: 'bg-[var(--arc-caution)]',
+  alarm: 'bg-[var(--arc-alert)]',
 };
 
 const meta = (tone: DifficultyTone, stars: number): DifficultyMeta => ({

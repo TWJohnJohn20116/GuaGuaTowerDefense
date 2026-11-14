@@ -7,7 +7,7 @@
 import { SegHead } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 
-export type MapCategory = 'campaign' | 'advanced' | 'mod';
+export type MapCategory = 'advanced' | 'mod';
 
 interface SidebarHeaderProps {
   activeCategory: MapCategory;
@@ -18,19 +18,14 @@ export function SidebarHeader({ activeCategory, mapCount }: SidebarHeaderProps) 
   const { t } = useTranslation();
   const c = t.pathSelection.campaign;
 
-  const label =
-    activeCategory === 'campaign'
-      ? c.sidebarCampaign
-      : activeCategory === 'advanced'
-        ? c.sidebarAdvanced
-        : c.sidebarMod;
+  const label = activeCategory === 'advanced' ? c.sidebarAdvanced : c.sidebarMod;
 
   return (
-    <div className="sticky top-0 z-10 border-b border-[var(--hl-line)] bg-[var(--hl-deck)] px-3 py-2.5">
+    <div className="sticky top-0 z-10 border-b border-[var(--cn-line-soft)] bg-[var(--arc-deck)] px-3 py-2.5">
       <SegHead
         label={label}
         right={
-          <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+          <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">
             {String(mapCount).padStart(2, '0')}
           </span>
         }

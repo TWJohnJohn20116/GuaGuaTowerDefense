@@ -7,8 +7,7 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslation } from '@/i18n';
-import { Btn, Empty, Rule } from '@/components/hl';
-import { CampaignList } from './CampaignList';
+import { Btn, Empty, Input, Rule } from '@/components/hl';
 import {
   SidebarHeader,
   DifficultyChips,
@@ -79,37 +78,31 @@ export function MapSidebar({
     setDifficultyFilters(new Set());
   };
 
-  const showSearchAndFilter = activeCategory !== 'campaign';
   const hasActiveFilter = searchText.trim() !== '' || difficultyFilters.size > 0;
 
   return (
-    <div className="flex min-h-0 flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       <SidebarHeader activeCategory={activeCategory} mapCount={currentMaps.length} />
 
-      {showSearchAndFilter && (
-        <div className="border-b border-[var(--hl-line)] px-2 py-2">
-          <input
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            placeholder={c.searchMapsPlaceholder}
-            aria-label={c.searchMapsPlaceholder}
-            className="hl-input"
+      <div className="border-b border-[var(--cn-line-soft)] px-2 py-2">
+        <Input
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          placeholder={c.searchMapsPlaceholder}
+          aria-label={c.searchMapsPlaceholder}
+        />
+        <div className="mt-1.5">
+          <DifficultyChips
+            available={availableDifficulties}
+            activeFilters={difficultyFilters}
+            onToggle={toggleDifficulty}
+            onReset={resetFilters}
           />
-          <div className="mt-1.5">
-            <DifficultyChips
-              available={availableDifficulties}
-              activeFilters={difficultyFilters}
-              onToggle={toggleDifficulty}
-              onReset={resetFilters}
-            />
-          </div>
         </div>
-      )}
+      </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
-        {activeCategory === 'campaign' ? (
-          <CampaignList selectedId={selectedId} onSelect={onSelectMap} />
-        ) : filteredMaps.length > 0 ? (
+        {filteredMaps.length > 0 ? (
           filteredMaps.map((map, i) => (
             <MapRow
               key={map.key}
@@ -134,23 +127,19 @@ export function MapSidebar({
         )}
       </div>
 
-      {showSearchAndFilter && (
-        <>
-          <Rule />
-          <div className="flex items-center justify-between gap-2 px-2 py-2">
-            <span className="min-w-0 truncate font-mono text-[9.5px] tabular-nums uppercase tracking-[0.1em] text-[var(--hl-ink-4)]">
-              {c.mapsCount
-                .replace('{filtered}', String(filteredMaps.length))
-                .replace('{total}', String(currentMaps.length))}
-            </span>
-            {hasActiveFilter && (
-              <Btn size="sm" variant="ghost" onClick={resetFilters}>
-                {c.reset}
-              </Btn>
-            )}
-          </div>
-        </>
-      )}
+      <Rule />
+      <div className="flex items-center justify-between gap-2 px-2 py-2">
+        <span className="min-w-0 truncate font-mono text-[9.5px] tabular-nums uppercase tracking-[0.1em] text-[var(--arc-ink-4)]">
+          {c.mapsCount
+            .replace('{filtered}', String(filteredMaps.length))
+            .replace('{total}', String(currentMaps.length))}
+        </span>
+        {hasActiveFilter && (
+          <Btn size="sm" variant="ghost" onClick={resetFilters}>
+            {c.reset}
+          </Btn>
+        )}
+      </div>
     </div>
   );
 }

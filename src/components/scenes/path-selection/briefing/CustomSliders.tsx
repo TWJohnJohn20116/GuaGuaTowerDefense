@@ -71,9 +71,9 @@ export function CustomSliders({ custom, setCustom }: CustomSlidersProps) {
   ];
 
   return (
-    <div className="hl-enter border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
-      <div className="flex items-center justify-between gap-3 border-b border-[var(--hl-line)] px-3 py-2">
-        <span className="hl-label">{t.pathSelection.customParams}</span>
+    <div className="arc-enter border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--cn-line-soft)] px-3 py-2">
+        <span className="arc-label">{t.pathSelection.customParams}</span>
         <Btn size="sm" variant="ghost" onClick={() => setCustom(DEFAULT_MODIFIERS)}>
           {t.pathSelection.resetDefaults}
         </Btn>
@@ -84,8 +84,8 @@ export function CustomSliders({ custom, setCustom }: CustomSlidersProps) {
           return (
             <div key={p.key}>
               <div className="mb-1.5 flex items-baseline justify-between gap-2">
-                <span className="hl-label">{p.label}</span>
-                <span className="font-mono text-[11px] tabular-nums text-[var(--hl-caution)]">
+                <span className="arc-label">{p.label}</span>
+                <span className="font-mono text-[11px] tabular-nums text-[var(--arc-caution)]">
                   {p.format(value)}
                 </span>
               </div>
@@ -99,7 +99,7 @@ export function CustomSliders({ custom, setCustom }: CustomSlidersProps) {
                 onChange={(e) =>
                   setCustom((prev) => ({ ...prev, [p.key]: parseFloat(e.target.value) }))
                 }
-                className="h-1 w-full cursor-pointer appearance-none bg-[var(--hl-line)] accent-[var(--hl-caution)]"
+                className="h-1 w-full cursor-pointer appearance-none bg-[var(--arc-line)] accent-[var(--arc-caution)]"
               />
             </div>
           );

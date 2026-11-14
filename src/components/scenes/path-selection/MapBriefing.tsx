@@ -98,7 +98,7 @@ export function MapBriefing({
               title={c.sectionDifficulty}
               right={
                 <span className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+                  <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                     {diffMeta.stars > 0 ? `${diffMeta.stars}/5` : '—'}
                   </span>
                   <Segments total={5} filled={diffMeta.stars} size="sm" tone={diffMeta.tone} />
@@ -121,7 +121,7 @@ export function MapBriefing({
             <SectionHeader
               title={c.sectionGameMode}
               right={
-                <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+                <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                   {endlessMode ? '∞' : selectedWaves}
                 </span>
               }

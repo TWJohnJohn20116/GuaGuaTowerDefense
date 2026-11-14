@@ -18,10 +18,10 @@ export interface DifficultyMeta {
 }
 
 const TONE_TEXT: Record<DiffTone, string> = {
-  vital: 'text-[var(--hl-vital)]',
-  reach: 'text-[var(--hl-reach)]',
-  caution: 'text-[var(--hl-caution)]',
-  alarm: 'text-[var(--hl-alarm)]',
+  vital: 'text-[var(--arc-vital)]',
+  reach: 'text-[var(--arc-reach)]',
+  caution: 'text-[var(--arc-caution)]',
+  alarm: 'text-[var(--arc-alert)]',
 };
 
 const meta = (tone: DiffTone, stars: number): DifficultyMeta => ({

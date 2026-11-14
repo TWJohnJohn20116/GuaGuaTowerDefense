@@ -32,14 +32,14 @@ export function DifficultyRow({ selected, onChange }: DifficultyRowProps) {
             aria-pressed={active}
             className={`h-auto flex-col gap-1.5 py-2.5 ${
               active
-                ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]'
-                : 'border-[var(--hl-line)] bg-[var(--hl-deck-2)]'
+                ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
+                : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)]'
             }`}
           >
             <span className="flex w-full items-center justify-between">
               <span
                 className={`font-mono text-[9.5px] tabular-nums ${
-                  active ? 'text-[var(--hl-signal)]' : 'text-[var(--hl-ink-4)]'
+                  active ? 'text-[var(--arc-gold)]' : 'text-[var(--arc-ink-4)]'
                 }`}
               >
                 {String(i + 1).padStart(2, '0')}
@@ -50,7 +50,7 @@ export function DifficultyRow({ selected, onChange }: DifficultyRowProps) {
             </span>
             <span
               className={`w-full truncate text-center text-[11.5px] font-semibold ${
-                active ? 'text-[var(--hl-ink)]' : 'text-[var(--hl-ink-2)]'
+                active ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-2)]'
               }`}
             >
               {getGameDifficultyLabel(t, diff)}
