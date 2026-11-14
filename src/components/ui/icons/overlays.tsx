@@ -1,6 +1,5 @@
 import type { IconProps } from './base';
 import { f, s } from './base';
-import { InfinityIcon } from './ui-basic';
 
 // ── 統計/覆蓋層 ──────────────────────────────────────────────────────
 /** 預設色：text-[var(--hl-vital)] */
