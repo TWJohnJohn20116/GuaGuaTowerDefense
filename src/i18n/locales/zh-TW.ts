@@ -169,6 +169,11 @@ export const zhTW = {
         difficultyTitle: "難度：{difficulty}",
         pathLengthTitle: "路徑長度",
         turnCountTitle: "轉折數",
+        mapLabel: "地圖",
+        deploySummary: "出擊摘要",
+        wavesLabel: "波次",
+        nativeDifficulty: "地圖難度",
+        paramsHint: "數值高於 100% 表示對玩家不利",
     },
   },
   
