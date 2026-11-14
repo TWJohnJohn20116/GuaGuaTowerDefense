@@ -759,7 +759,7 @@
 ├── <span class="d">docs/</span>                       <span class="m"># 設計文件（Nordic UI、3D、戰役、整治紀錄）</span>
 ├── <span class="d">public/</span> <span class="d">sounds/</span> <span class="d">GameVideos/</span> <span class="m"># 靜態資源</span>
 ├── <span class="d">dist/</span>                       <span class="m"># vite build 產物（Tauri 指向此處）</span>
-├── <span class="d">.github/workflows/</span>          <span class="m"># ci.yml（push/PR，3 個平行 job，全繁中）· release.yml（v* tag）</span>
+├── <span class="d">.github/workflows/</span>          <span class="m"># ci.yml（push/PR，靜態 1＋測試 6 平行 job，全繁中）· release.yml（v* tag）</span>
 ├── CHANGELOG.md / README.md / UPDATING.md
 └── <span class="a">架構圖.html</span>                  <span class="m"># ← 本文件（唯一架構文件）</span>
 </div>
@@ -1371,7 +1371,7 @@
       <div class="ar">→</div>
       <div class="node" style="--c:var(--l1)"><b>品質閘門</b><span>typecheck → i18n:check → test → build</span></div>
       <div class="ar">→</div>
-      <div class="node" style="--c:var(--l2)"><b>CI</b><span>push / PR（3 平行 job，ubuntu 24.04 + node 24）</span></div>
+      <div class="node" style="--c:var(--l2)"><b>CI</b><span>push / PR（靜態 1＋測試 6 平行 job，ubuntu 24.04 + node 24）</span></div>
       <div class="ar">→</div>
       <div class="node" style="--c:var(--l3)"><b>Release</b><span>v* tag → tauri-action</span></div>
       <div class="ar">→</div>
@@ -1441,18 +1441,18 @@
       <div class="good"><b>159</b><span>測試檔（<code>src/test/*.test.ts</code>）</span></div>
       <div class="good"><b>710</b><span>測試案例</span></div>
       <div><b>12,083</b><span>測試程式碼行數</span></div>
-      <div class="mid"><b>80<small>s</small></b><span>全跑一次（單進程）；CI 拆 3 片後 30–43 秒/片</span></div>
+      <div class="mid"><b>80<small>s</small></b><span>全跑一次（單進程）；CI 拆 6 片後 7–10 秒/片</span></div>
       <div class="bad"><b>0</b><span>e2e／視覺回歸</span></div>
       <div class="bad"><b>0</b><span>coverage 門檻</span></div>
     </div>
 
     <h3>怎麼跑</h3>
     <p class="small">下表全部<b>由 CI 執行</b>；本機不得編譯或跑測試（<code>AGENTS.md</code> §13.9）。
-      CI 用 <code>--shard=k/3</code> 拆成 3 個平行 job，總牆鐘時間約 50 秒。</p>
+      CI 用 <code>--shard=k/6</code> 拆成 6 個平行 job，總牆鐘時間 <b>27 秒</b>（2026-11-14 實測）。</p>
     <table>
       <thead><tr><th>指令</th><th>做什麼</th><th>備註</th></tr></thead>
       <tbody>
-        <tr><td><code>npm run test</code></td><td>Vitest 全跑一次</td><td>單進程約 80 秒；CI 才是實際閘門（拆 3 片後 30–43 秒/片）</td></tr>
+        <tr><td><code>npm run test</code></td><td>Vitest 全跑一次</td><td>單進程約 80 秒；CI 才是實際閘門（拆 6 片後 7–10 秒/片）</td></tr>
         <tr><td><code>npm run test:watch</code></td><td>監看模式</td><td>本機不得執行（會編譯並跑測試）</td></tr>
         <tr><td><code>npm run test:coverage</code></td><td>v8 覆蓋率</td><td>有 include/exclude，但沒有 thresholds（TD-05）</td></tr>
         <tr><td><code>npm run check</code></td><td>typecheck + i18n:check + test</td><td>CI 專用；本機不得執行</td></tr>
@@ -1516,25 +1516,31 @@
       </ul>
     </div>
 
-    <h3>CI 上的執行方式（3 個平行 job，全繁中）</h3>
+    <h3>CI 上的執行方式（靜態 1＋測試 6 平行 job，全繁中）</h3>
     <table>
       <thead><tr><th>Job（顯示名稱）</th><th>步驟（依序）</th><th>實測</th></tr></thead>
       <tbody>
         <tr><td><b>靜態檢查與建置</b></td>
-            <td>取得原始碼 → 設定 Node 24 → 安裝依賴 → 型別檢查 → 語言鍵對齊 → 技術債棘輪 → 產線建置 → 打包體積預算</td>
-            <td>42s</td></tr>
-        <tr><td><b>單元測試（第 k 片／共 3 片）</b></td>
-            <td><code>vitest run --shard=k/3</code>，3 個 runner 平行；<code>fail-fast: false</code> 讓所有失敗一次看到</td>
-            <td>30–43s</td></tr>
-        <tr><td><b>結果總結</b></td>
-            <td><code>needs: [static, test]</code> ＋ <code>if: always()</code>：寫中文摘要表（關卡／結果／commit／觸發方式），
-                並把「任一關卡失敗」收斂成這一個 job 的紅燈（要設必要檢查就指這個）</td>
-            <td>3s</td></tr>
+            <td>取得原始碼 → 設定 Node 24 → 安裝依賴 → 還原型別檢查快取 → 型別檢查（<code>tsc --noEmit --incremental</code>）→
+                語言鍵對齊 → 技術債棘輪 → 產線建置（<code>TAURI_PLATFORM=windows</code>）→ 打包體積預算</td>
+            <td>26s</td></tr>
+        <tr><td><b>單元測試（第 k 片／共 6 片）</b></td>
+            <td><code>vitest run --shard=k/6</code>，6 個 runner 平行；<code>fail-fast: false</code> 讓所有失敗一次看到</td>
+            <td>17–27s</td></tr>
+        <tr><td><b>結果總結（僅失敗時）</b></td>
+            <td><code>needs: [static, test]</code> ＋ <code>if: failure()</code>：只在有 job 紅的時候跑，寫中文摘要表。
+                成功時它是 skipped，所以<b>不要</b>把它設成分支保護的必要檢查（真要用就改回 <code>if: always()</code>）</td>
+            <td>0s（成功時不跑）</td></tr>
       </tbody>
     </table>
-    <p class="small">整條 CI 實測 wall clock：單一 job 序列 <b>1m31s</b> → 平行 3 片 <b>53s</b>（-42%）。
-      關鍵路徑是「靜態檢查與建置」（typecheck 14s + build 8s + 固定開銷約 16s）與測試第 1 片。
-      <code>guards --bundle</code> 要等 build 產出 <code>dist/assets/index-*.js</code> 才能比預算（上限 1.18 MB，目前 1.15 MB，見 <a href="#debt">22 技術債</a> 的 TD-24）。</p>
+    <p class="small">整條 CI 實測 wall clock：單一 job 序列 <b>1m31s</b> → 3 片 <b>53s</b> → 8 片（11 個 job）<b>41s</b>
+      → 收斂成 7 個 job、型別與建置合併 <b>27s</b>（2026-11-14）。</p>
+    <p class="small">這條 CI 的時間幾乎都花在<b>每個 job 的固定成本</b>，不是花在工作本身：
+      job 啟動 1–3s ＋ checkout 1–5s ＋ setup-node 1–7s ＋ npm ci 3–5s ＝ 6–18s，
+      而真正的工作量是型別 2s（命中增量快取；冷跑 20s）、建置 11s、每片測試 7–10s。
+      所以拆得越細不一定越快：8 片時工作只剩 6–9s，但多個 VM 同時冷啟動，反而量到 41s。
+      現在的片數是「工作量與固定成本對齊」量出來的，不是猜的。</p>
+    <p class="small"><code>guards --bundle</code> 要等 build 產出 <code>dist/assets/index-*.js</code> 才能比預算（上限 1.18 MB，目前 1.15 MB，見 <a href="#debt">22 技術債</a> 的 TD-24）。</p>
 
     <div class="note"><b>要加新測試：</b>在 <code>src/test/</code> 建 <code>&lt;功能&gt;.test.ts</code>，
       fixture 從 <code>src/test/fixtures.ts</code> 拿；先跑 <code>npm run test</code> 確認，再跑 <code>npm run check</code>。</div>

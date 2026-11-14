@@ -522,7 +522,7 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 | `pull_request` | **不可**加 `paths` / `paths-ignore` | 某個 PR 因路徑被過濾而沒觸發時，未來的必要檢查會永遠停在 waiting，那個 PR 無法合併 |
 | `runs-on` | 固定版本（`ubuntu-24.04`），不用 `ubuntu-latest` | `latest` 會在某天默默換 Ubuntu（2026-10-19 起遷 26），同一個 commit 的行為就變了 |
 | Node 版本 | 固定主版本（目前 24），且必須與 `package-lock.json` 的產生環境一致 | npm 10 與 npm 11 對 vitest 的嵌套 `vite` 解析不同，會讓 `npm ci` 誤判「lock 不完整」（實際發生過：`Missing: esbuild@0.28.2`） |
-| Job 切分 | 3 個平行 job：`static`（型別／i18n／棘輪／建置／體積）、`test`（`--shard=k/3`）、`summary`（`if: always()` 收斂紅燈） | 單一 job 序列跑時 44s 的測試會擋住 14s 型別與 8s 建置；實測 wall clock 1m31s → **53s** |
+| Job 切分 | 7 個平行 job：`static`（型別／i18n／棘輪／建置／體積）、`test`（matrix `--shard=k/6`）、`summary`（`if: failure()`，成功時不跑） | 時間幾乎都花在**每個 job 的固定成本**（啟動 1–3s＋checkout 1–5s＋setup-node 1–7s＋npm ci 3–5s＝6–18s），不是工作本身。實測：單一 job 1m31s → 3 片 53s → 8 片（11 個 job）41s（VM 擠爆反而更慢）→ 收斂成 7 個 job 並把型別與建置合併 **27s** |
 | 顯示名稱 | workflow 名、`run-name`、job 名、step 名**一律繁體中文**；但 **job id 必須 ASCII**（`static`／`test`／`summary`），中文只能放在 `name:` | CI 是給人看的介面；job id 有 `^[A-Za-z_][A-Za-z0-9_-]*$` 限制，放中文會讓整份 workflow 解析失敗 |
 
 ### 13.2 改 workflow 後的驗證（不准用「看起來沒問題」結案）
