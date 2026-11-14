@@ -9,7 +9,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { GameDifficulty, DifficultyModifiers } from '@/types/game';
 import { useTranslation } from '@/i18n';
 import { Deck, Segments } from '@/components/hl';
-import { SectionHeader, BriefingHero, BriefingFooter, EmptyBriefing, Badge } from './BriefingShared';
+import { SectionHeader, BriefingHero, EmptyBriefing, Badge } from './BriefingShared';
 import { calculatePathStats } from './utils';
 import { DifficultyRow, StatsGrid, CustomSliders, ModePanel, DIFFICULTY_META } from './briefing';
 import { getPathDifficultyLabel, getDifficultyMeta } from './sidebar/difficulty';
@@ -42,7 +42,6 @@ export function MapBriefing({
   customModifiers,
   setCustomModifiers,
   mod,
-  onStart,
   customWaveSetId,
   setCustomWaveSetId,
 }: MapBriefingProps) {
@@ -66,7 +65,7 @@ export function MapBriefing({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pb-3">
+      <div className="mx-auto min-h-0 w-full max-w-[1180px] flex-1 space-y-3 overflow-y-auto pb-3">
         <BriefingHero
           path={selectedMap.path}
           eyebrow={c.missionObjective}
@@ -99,11 +98,13 @@ export function MapBriefing({
             }
           />
           <DifficultyRow selected={selectedDifficulty} onChange={setSelectedDifficulty} />
-        </Deck>
 
-        <Deck className="mx-3 p-4">
-          <SectionHeader title={c.sectionBattleParams} />
-          <StatsGrid mod={mod} />
+          <div className="mt-4 border-t-[3px] border-[var(--cn-line-soft)] pt-3">
+            <div className="mb-2 text-[11px] font-extrabold tracking-[0.06em] text-[var(--cn-ink-3)]">
+              {c.sectionBattleParams}
+            </div>
+            <StatsGrid mod={mod} />
+          </div>
         </Deck>
 
         {selectedDifficulty === 'custom' && (
@@ -132,13 +133,6 @@ export function MapBriefing({
         </Deck>
       </div>
 
-      <BriefingFooter
-        unlocked
-        rewardCoins={rewardCoins}
-        rewardLabel={t.pathSelection.expectedReward}
-        buttonLabel={t.pathSelection.startBattle}
-        onStart={onStart}
-      />
     </div>
   );
 }
