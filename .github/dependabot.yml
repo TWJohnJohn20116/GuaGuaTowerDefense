@@ -32,7 +32,8 @@ updates:
     commit-message:
       prefix: chore(deps)
       prefix-development: chore(dev-deps)
-      include: scope
+      # 不要加 include: scope：Dependabot 會把偵測到的 scope 再接上去，
+      # 變成 chore(deps)(deps): ... 這種重複的括號（AGENTS §12.3 的格式是 <type>(<scope>):）
     groups:
       # 次要與修補版本全部合成一個 PR：209 個檔案以上的專案不值得為每個 patch 開一張
       npm-minor-patch:
