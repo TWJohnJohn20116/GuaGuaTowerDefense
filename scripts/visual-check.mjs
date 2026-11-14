@@ -8,6 +8,10 @@
  *   node scripts/visual-check.mjs --server=http://localhost:10050   # 重用既有 dev server
  *   node scripts/visual-check.mjs --no-dom                          # 跳過 DOM 健檢
  *   node scripts/visual-check.mjs --concurrency=6
+ *   node scripts/visual-check.mjs --js-file=/tmp/pre.js  # 截圖前執行的頁面腳本（;; 分隔多段）
+ *
+ * 注意：--js 只適合單純運算式。含 => 或引號的腳本請用 --js-file，
+ * 否則會被 shell 吃掉（實測 exit 0 卻完全沒有輸出）。
  *
  * 效能：只啟動「一個」瀏覽器，每個場景用 CDP 開一個分頁截圖。
  *   CLI 版（每次啟動瀏覽器）：3 場景約 20s
@@ -42,6 +46,16 @@ const SETTLE_MAX_MS = Number(argv['settle-max'] ?? 15000);
 const SETTLE_POLL_MS = 200;
 const CONCURRENCY = Math.max(1, Number(argv.concurrency ?? 4));
 const WITH_DOM = argv['no-dom'] !== 'true';
+// 截圖前要執行的頁面腳本（可多段，用 ;; 分隔）：用來打開 details／modal／切 tab
+// 複雜運算式（含 => 或引號）在 shell 裡很容易被吃掉，改用 --js-file 指定檔案
+const PRE_SCRIPT = (() => {
+  const raw = argv['js-file']
+    ? readFileSync(String(argv['js-file']), 'utf8')
+    : argv.js
+      ? String(argv.js)
+      : '';
+  return raw.split(';;').map((s) => s.trim()).filter(Boolean);
+})();
 const REUSE_SERVER = argv.server ?? null;
 
 const log = (...a) => console.log('[visual-check]', ...a);
@@ -198,6 +212,14 @@ async function captureScene(cdp, baseUrl, scene, size, file) {
       await sleep(SETTLE_POLL_MS);
     }
     await sleep(SETTLE_MS); // 穩定後再留一點時間給字型與動畫
+
+    // 需要拍「開啟後」的狀態時，先在頁面內執行腳本（例如點開 details、modal）
+    if (PRE_SCRIPT.length) {
+      for (const expr of PRE_SCRIPT) {
+        await send('Runtime.evaluate', { expression: expr, awaitPromise: true }, sessionId).catch(() => {});
+        await sleep(350);
+      }
+    }
 
     const { data } = await send('Page.captureScreenshot', { format: 'png' }, sessionId);
     writeFileSync(file, Buffer.from(data, 'base64'));
