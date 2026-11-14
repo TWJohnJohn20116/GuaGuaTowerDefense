@@ -1,0 +1,90 @@
+# Dependabot：依賴更新
+#
+# 設計原則（搭配 AGENTS.md §13.8）：
+#   1. minor + patch 合成「一個」PR（groups），避免每週十幾個 PR 洗版；
+#      major 各自開一個，因為 breaking change 一定要人看過。
+#   2. 一律不 auto-merge。依賴升級會動到 package.json / lock，
+#      屬於 §13.7 的高風險改動——必須等 CI 綠，而且本機要重跑 npm run check。
+#   3. Node 版本必須與 package-lock.json 的產生環境一致（目前 Node 24 = npm 11）。
+#      用 npm 10 重生 lock 會讓 npm ci 判定「Missing: esbuild@0.28.2」，這件事踩過。
+#   4. 排程排在週一上午，讓一週有時間處理；同時上限 3 個 PR，避免積一堆紅燈。
+#
+# 注意：Dependabot 開的 PR 會觸發 ci.yml 的 pull_request 事件——
+# 我們的 PR 觸發刻意不加 paths 過濾（見 ci.yml 的 on: 註解），所以依賴 PR 一定會被檢查。
+
+version: 2
+
+updates:
+  # ── npm：遊戲本體（13 個 dependencies + 14 個 devDependencies）─────────────
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Taipei
+    open-pull-requests-limit: 3
+    # 應用程式（有 lock）用 increase：只升到滿足範圍的最新版，不會放寬 package.json 的範圍
+    versioning-strategy: increase
+    labels:
+      - dependencies
+      - npm
+    commit-message:
+      prefix: chore(deps)
+      prefix-development: chore(dev-deps)
+      include: scope
+    groups:
+      # 次要與修補版本全部合成一個 PR：209 個檔案以上的專案不值得為每個 patch 開一張
+      npm-minor-patch:
+        applies-to: version-updates
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+
+  # ── GitHub Actions：checkout／setup-node／rust-toolchain／rust-cache／tauri-action ──
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Taipei
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: ci(actions)
+    groups:
+      actions-minor-patch:
+        applies-to: version-updates
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+
+  # ── Cargo：Tauri 殼（src-tauri）──────────────────────────────────────────
+  - package-ecosystem: cargo
+    directory: /src-tauri
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Taipei
+    open-pull-requests-limit: 2
+    labels:
+      - dependencies
+      - rust
+    commit-message:
+      prefix: chore(cargo)
+    groups:
+      cargo-minor-patch:
+        applies-to: version-updates
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
