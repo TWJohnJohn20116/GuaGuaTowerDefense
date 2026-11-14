@@ -560,7 +560,7 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 | 規則 | 為什麼不抄 |
 |---|---|
 | 「本機不得編譯／建置／執行測試，只能靠 CI」 | 本專案 `npm run check` 約 80 秒、lock 與 CI 同版本，本機跑能省掉 push→等待→修的 round-trip。**但保留它的精神**：本機綠只是必要條件，CI 綠才是判準（13.2-5）。 |
-| 多目標 matrix、Gradle 快取、JDK toolchain、`CI 總結` 彙總 job | 本專案只有一個 job、一支 JS 工具鏈，沒有這些結構；等真的需要再加，不要預先複雜化。 |
+| 多目標 matrix、Gradle 快取、JDK toolchain、跨平台建置矩陣 | 本專案只有一條 JS 工具鏈（npm + vitest + vite），CI 雖然已拆成 3 個平行 job（§13.1）但沒有多平台矩陣需求；等真的需要再加，不要預先複雜化。 |
 | 產物（artifact）上傳與保留策略 | 只有 tag 觸發的 release 需要產物，現由 `tauri-action` 處理。 |
 
 ### 13.7 低風險改動不必等 CI（繼續往下做）
@@ -588,3 +588,24 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 - 正在修的就是 CI 紅的那一條。
 - 準備發版／打 tag／動 release workflow。
 - 連續兩次 push 都被同一類錯誤打紅（代表判斷失準，停下來重新評估）。
+
+### 13.8 Dependabot（依賴更新）
+
+設定檔：`.github/dependabot.yml`。三個生態系，全部排在**週一 09:00（Asia/Taipei）**：
+
+| 生態系 | 目錄 | PR 上限 | 分組 |
+|---|---|---|---|
+| npm（13 deps + 14 devDeps） | `/` | 3 | minor + patch 合成一張；major 各自一張 |
+| github-actions | `/` | 3 | minor + patch 合成一張 |
+| cargo（`src-tauri/`） | `/src-tauri` | 2 | minor + patch 合成一張 |
+
+**規則**
+
+- ❌ **不 auto-merge、不加 `dependabot-auto-merge` 之類的 workflow**。依賴升級會動 `package.json` / lock，屬 §13.7 的高風險改動。
+- ✅ npm 的 PR 要在 **Node 24（npm 11）** 下重生 `package-lock.json`，再用 `npm run check` 驗；用 npm 10 重生會讓 CI 判定 lock 不完整（§13.1）。
+- ✅ 收到 PR 就當成本機任務跑完：`npm ci` → `npm run check` → `npm run build` → `npm run ci:guards`，四關都過才合。
+- ❌ major 版本 PR 若 CI 紅，**在 PR 裡修**，不要合進 `main` 再修（會讓 `main` 有一段時間是紅的）。
+- ⏫ 安全警報（Dependabot alerts／`npm audit`）優先於一般更新；目前 `npm audit` 有 14 個（1 low / 6 moderate / 7 high）尚未處理。
+- ❌ 不要為了讓依賴 PR 變綠而放寬 guards、刪測試或跳過步驟（§13.3）。
+
+**為什麼 PR 一定會被檢查**：`ci.yml` 的 `pull_request` 觸發刻意不加 `paths` 過濾（§13.1），所以 Dependabot 開的 PR 不會靜默跳過 CI。
