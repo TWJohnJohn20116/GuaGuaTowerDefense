@@ -90,6 +90,8 @@ interface TowerRenderFrame {
   lastUpgradeTime?: number;
   locked: boolean;
   fusedFrom?: [TowerType, TowerType];
+  /** 目前鎖定的敵人 id（火焰束等「塔→目標」特效由此解析，不再各自掃 Enemy 陣列） */
+  targetId: string | null;
 }
 
 export interface RenderSnapshot {
@@ -108,6 +110,18 @@ export interface RenderSnapshot {
 
 /** 塔模型的等級縮放（3D 模型與塔血條高度共用同一條公式） */
 export const towerLevelScale = (level: number): number => 1 + (level - 1) * 0.09;
+
+/**
+ * 依 id 找這一幀的敵人 frame（火焰束等「塔→目標」特效用）。
+ * 火焰塔數量少、目標只有一個，線性掃描比每幀建 Map 便宜；找不到代表目標已死。
+ */
+export const enemyFrameById = (snapshot: RenderSnapshot, id: string): EnemyRenderFrame | null => {
+  const frames = snapshot.enemies;
+  for (let i = 0; i < snapshot.enemyCount; i++) {
+    if (frames[i].id === id) return frames[i];
+  }
+  return null;
+};
 
 /** 狀態色調優先序（高 → 低）：2D 環與 3D instance 顏色都依這張表 */
 const STATUS_TINTS: { type: string; color: number; mix: number }[] = [
@@ -184,6 +198,7 @@ const createEmptyTowerFrame = (): TowerRenderFrame => ({
   lastUpgradeTime: undefined,
   locked: false,
   fusedFrom: undefined,
+  targetId: null,
 });
 
 /** 只擴充、不縮減；容量成長時才配置新 slot */
@@ -319,6 +334,7 @@ export const writeRenderSnapshot = (
     frame.lastUpgradeTime = tower.lastUpgradeTime;
     frame.locked = tower.locked === true;
     frame.fusedFrom = tower.fusedFrom;
+    frame.targetId = tower.target ? tower.target.id : null;
   }
   out.towerCount = towerCount;
 

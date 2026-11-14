@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { createRenderSnapshot, writeRenderSnapshot, towerLevelScale } from '@/data/renderSnapshot';
+import { createRenderSnapshot, enemyFrameById, writeRenderSnapshot, towerLevelScale } from '@/data/renderSnapshot';
 import type { Projectile } from '@/types/game';
 import { makeEnemy, makeTower } from './fixtures';
 
@@ -216,6 +216,7 @@ describe('renderSnapshot 塔與投射物投影', () => {
       gridPos: { col: 4, row: 9 },
       fusedFrom: ['basic', 'frost'],
       lastAttackTime: 200,
+      target: makeEnemy({ id: 'e9' }),
     });
 
     writeRenderSnapshot({ enemies: [], towers: [tower] }, snapshot, 500);
@@ -234,6 +235,8 @@ describe('renderSnapshot 塔與投射物投影', () => {
     expect(frame.locked).toBe(true);
     expect(frame.fusedFrom).toEqual(['basic', 'frost']);
     expect(frame.lastAttackTime).toBe(200);
+    // 火焰束靠 targetId 解析目標，不在渲染層回頭掃 Enemy 陣列
+    expect(frame.targetId).toBe('e9');
   });
 
   it('maxHealth 為 0 時塔血量比例是 0 而不是 NaN', () => {
@@ -325,5 +328,28 @@ describe('renderSnapshot 塔與投射物投影', () => {
     expect(towerLevelScale(1)).toBe(1);
     expect(towerLevelScale(3)).toBeCloseTo(1.18);
     expect(towerLevelScale(5)).toBeCloseTo(1.36);
+  });
+});
+
+describe('renderSnapshot 目標解析', () => {
+  it('沒有鎖定目標時 targetId 為 null', () => {
+    const snapshot = createRenderSnapshot();
+    writeRenderSnapshot(
+      { enemies: [], towers: [makeTower({ id: 't1', type: 'flame', target: null })] },
+      snapshot,
+      0,
+    );
+    expect(snapshot.towers[0].targetId).toBeNull();
+  });
+
+  it('enemyFrameById 回傳同一幀的敵人 frame（2D/3D 火焰束共用）', () => {
+    const snapshot = createRenderSnapshot();
+    const enemy = makeEnemy({ id: 'e1', x: 5, y: 6 });
+    writeRenderSnapshot({ enemies: [enemy] }, snapshot, 0);
+
+    const frame = enemyFrameById(snapshot, 'e1');
+    expect(frame).toBe(snapshot.enemies[0]);
+    expect(frame?.x).toBe(5);
+    expect(enemyFrameById(snapshot, 'nope')).toBeNull();
   });
 });
