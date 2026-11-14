@@ -9,7 +9,8 @@ import { tryActivatePlayerSkill } from './gameStoreAutoBattlePlayerSkills';
 import { getFusionRecipe, isFusionTower, computeFusionCost } from '@/data/fusionRecipes';
 import { findSynergyRecipe, getActiveSynergyKindIds, toTowerRef } from '@/data/towerSynergyData';
 import { defaultTargetPriority } from '@/data/towerTargeting';
-import { canBatchUpgradeTower, getTowerUpgradeCost } from '@/data/towerUpgradeCost';
+import { canAutoUpgradeTower, getTowerUpgradeCost } from '@/data/towerUpgradeCost';
+import { getTowerBuildCost } from '@/data/towerCost';
 
 // 延遲導入成就 Store 以避免循環依賴
 const getAchievementStore = () => import('./achievementStore').then(m => m.useAchievementStore);
@@ -727,8 +728,10 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
       }
       
       // --- 嘗試升級 ---
+      // 用 canAutoUpgradeTower 而非 canBatchUpgradeTower：Lv1 也必須放行，
+      // 下面會替 Lv1 選路線（upgradePath），否則 AI 永遠停在 Lv1（B1）。
       const upgradableTowers = curTowers
-        .filter(t => canBatchUpgradeTower(t, maxLevel))
+        .filter(t => canAutoUpgradeTower(t, maxLevel))
         .map(t => {
           const data = getTowerData(t.type);
           if (!data) return null;
@@ -911,11 +914,14 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
       const bestPos = scores[0];
       let selectedType = bestPos.bestTowerType;
       const selectedData = TOWER_DATA[selectedType];
+      const selectedCost = selectedData
+        ? getTowerBuildCost(selectedData.cost, difficultyModifiers.towerCostMult)
+        : Number.POSITIVE_INFINITY;
       
-      if (!selectedData || selectedData.cost > availableMoney) {
+      if (!selectedData || selectedCost > availableMoney) {
         const affordableTypes = config.towerPriorities.filter(type => {
           const data = TOWER_DATA[type];
-          return data && data.cost <= availableMoney;
+          return data && getTowerBuildCost(data.cost, difficultyModifiers.towerCostMult) <= availableMoney;
         });
         if (affordableTypes.length === 0) break;
         if (curComp.money < (config.maxMoneyTowers || 2) && affordableTypes.includes('money')) selectedType = 'money';
@@ -925,7 +931,12 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
       }
       
       const placeTowerData = TOWER_DATA[selectedType];
-      if (!placeTowerData || curMoney < placeTowerData.cost) break;
+      // 建塔費用一律走共用算式（含 towerCostMult）；原本用原始 cost，
+      // 導致 1.3 倍章節少付 23%、0.5 倍章節多付一倍（B2）。
+      const placeCost = placeTowerData
+        ? getTowerBuildCost(placeTowerData.cost, difficultyModifiers.towerCostMult)
+        : Number.POSITIVE_INFINITY;
+      if (!placeTowerData || curMoney < placeCost) break;
       
       const targetTile = curGrid[bestPos.row]?.[bestPos.col];
       if (!targetTile || targetTile.type !== 'empty' || targetTile.towerId) break;
@@ -946,8 +957,8 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
       // 更新本地狀態
       curTowers = [...curTowers, newTower];
       curGrid = setTileTowerId(curGrid, bestPos, newTower.id);
-      curMoney -= placeTowerData.cost;
-      totalMoneySpent += placeTowerData.cost;
+      curMoney -= placeCost;
+      totalMoneySpent += placeCost;
       towersPlacedCount++;
       actionsExecuted++;
       
@@ -973,7 +984,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
       const thinkingSteps: string[] = [
         `[ 決策 ] ${strategyName} (第 ${actionIdx + 1} 輪)`,
         `[ 局勢 ] 威脅 ${(threatLevel * 100).toFixed(0)}% | 波次 ${currentWave} | 敵人 ${enemies.length}`,
-        `[ 資源 ] 資金 $${curMoney + placeTowerData.cost} (可用 $${availableMoney + placeTowerData.cost})`,
+        `[ 資源 ] 資金 $${curMoney + placeCost} (可用 $${availableMoney + placeCost})`,
         `[ 陣容 ] 總數 ${curTowers.length - 1}`,
         `         ├─ 輸出: ${curComp.damage + curComp.dps} | 範圍: ${curComp.aoe}`,
         `         └─ 控制: ${curComp.slow} | 經濟: ${curComp.money}`,
@@ -990,12 +1001,12 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
       if (reasonParts.length > 0) {
         thinkingSteps.push(`         (因: ${reasonParts.join(', ')})`);
       }
-      thinkingSteps.push(`[ 執行 ] ✓ 建造完成 | 花費 $${placeTowerData.cost}`);
+      thinkingSteps.push(`[ 執行 ] ✓ 建造完成 | 花費 $${placeCost}`);
       
       get().addAutoBattleLog('place', `放置 ${placeTowerData.name}`,
-        `花費 $${placeTowerData.cost} | 位置 (${bestPos.col}, ${bestPos.row}) | 評分 ${bestPos.score.toFixed(1)}${reasonParts.length > 0 ? ` | ${reasonParts.join(', ')}` : ''}`, thinkingSteps);
+        `花費 $${placeCost} | 位置 (${bestPos.col}, ${bestPos.row}) | 評分 ${bestPos.score.toFixed(1)}${reasonParts.length > 0 ? ` | ${reasonParts.join(', ')}` : ''}`, thinkingSteps);
       
-      achievementQueue.push({ type: 'place', towerType: selectedType, cost: placeTowerData.cost, wave: currentWave });
+      achievementQueue.push({ type: 'place', towerType: selectedType, cost: placeCost, wave: currentWave });
     }
     
     // ===== 批量寫入 Store =====
