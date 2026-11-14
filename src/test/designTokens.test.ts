@@ -64,13 +64,17 @@ describe('ARCADE 場景外殼 token', () => {
     }
   });
 
-  it('有底色的面板 token 一定帶邊框（厚度來自線，不是陰影）', () => {
+  it('卡片型面板 token 一定帶邊框（厚度來自線，不是陰影）', () => {
     for (const [name, value] of [
       ...collectStringTokens(SCENE_GLASS, 'SCENE_GLASS'),
       ...collectStringTokens(SCENE_BROWSE, 'SCENE_BROWSE'),
     ]) {
       if (!/bg-\[var\(--arc-/.test(value)) continue;
       if (/arc-panel/.test(value)) continue; // arc-panel 自帶邊框與陰影
+      // 滿版內容區（sidebarShell / mainPanel / contentCard / gridPanel）
+      // 的框線由外層容器提供，本身不畫邊框是刻意的
+      const isCard = /rounded-\[/.test(value);
+      if (!isCard) continue;
       expect(value, name).toMatch(/\bborder\b/);
     }
   });
