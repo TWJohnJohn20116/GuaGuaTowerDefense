@@ -55,9 +55,9 @@ export function BackButton({
       onClick={handleClick}
       onMouseEnter={() => playUiHover()}
       className={[
-        'inline-flex items-center border border-[var(--hl-line-strong)] bg-transparent',
-        'font-mono uppercase tracking-[0.12em] text-[var(--hl-ink-2)]',
-        'transition-colors duration-150 hover:border-[var(--hl-signal)] hover:text-[var(--hl-signal)]',
+        'arc-btn arc-btn--ghost inline-flex items-center border border-[var(--arc-line-strong)]',
+        'font-mono uppercase tracking-[0.12em] text-[var(--arc-ink-2)]',
+        'transition-colors duration-150 hover:border-[var(--arc-gold)] hover:text-[var(--arc-gold)]',
         'active:translate-y-px',
         sizeClasses[size],
         className,

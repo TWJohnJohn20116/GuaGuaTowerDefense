@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from '@/i18n';
 import { useSettingsStore } from '@/store/settingsStore';
 import { LOADING_TIP_CLASS, nextLoadingTipIndex, visibleLoadingTip } from '@/data/loadingTips';
+import { Num } from '@/components/hl';
 
 interface LoadingProps {
   message?: string;
@@ -30,12 +31,12 @@ export default function Loading({ message, progress }: LoadingProps) {
   }, [showTips, tips.length]);
 
   return (
-    <div className="hl-grid-bg relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[var(--hl-void)] font-sans">
+    <div className="arc-grid-bg relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[var(--arc-void)] font-sans">
       <div className="relative flex w-[320px] flex-col gap-3">
         {/* 標籤列 */}
-        <div className="flex items-baseline justify-between border-b border-[var(--hl-line)] pb-2">
-          <span className="hl-label">system / load</span>
-          <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+        <div className="flex items-baseline justify-between border-b border-[var(--cn-line-soft)] pb-2">
+          <span className="arc-label">system / load</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
             {displayMessage}
           </span>
         </div>
@@ -45,7 +46,7 @@ export default function Loading({ message, progress }: LoadingProps) {
           {Array.from({ length: 24 }).map((_, i) => (
             <motion.span
               key={i}
-              className="block h-3 w-full bg-[var(--hl-line)]"
+              className="block h-3 w-full bg-[var(--arc-line)]"
               animate={{ backgroundColor: ['#222831', '#333b47', '#222831'] }}
               transition={{ duration: 1.6, repeat: Infinity, delay: i * 0.055, ease: 'linear' }}
             />
@@ -53,17 +54,17 @@ export default function Loading({ message, progress }: LoadingProps) {
         </div>
 
         {/* 進度軌道 */}
-        <div className="relative h-[3px] w-full overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+        <div className="relative h-[3px] w-full overflow-hidden border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
           {progress !== undefined ? (
             <motion.span
-              className="absolute inset-y-0 left-0 block bg-[var(--hl-signal)]"
+              className="absolute inset-y-0 left-0 block bg-[var(--arc-gold)]"
               initial={{ width: 0 }}
               animate={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
               transition={{ duration: 0.3 }}
             />
           ) : (
             <motion.span
-              className="absolute inset-y-0 block w-1/3 bg-[var(--hl-signal)]"
+              className="absolute inset-y-0 block w-1/3 bg-[var(--arc-gold)]"
               animate={{ left: ['-35%', '100%'] }}
               transition={{ duration: 1.4, repeat: Infinity, ease: 'linear' }}
             />
@@ -71,11 +72,14 @@ export default function Loading({ message, progress }: LoadingProps) {
         </div>
 
         <div className="flex items-baseline justify-between">
-          <span className="hl-label">{displayMessage}</span>
+          <span className="arc-label">{displayMessage}</span>
           {progress !== undefined && (
-            <span className="font-mono text-[15px] font-semibold tabular-nums leading-none text-[var(--hl-signal)]">
-              {Math.round(progress)}%
-            </span>
+            <Num
+              value={`${Math.round(progress)}%`}
+              tone="signal"
+              size="md"
+              className="font-mono font-semibold tabular-nums leading-none"
+            />
           )}
         </div>
       </div>
@@ -90,7 +94,7 @@ export default function Loading({ message, progress }: LoadingProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="mx-auto max-w-xl border-l-2 border-[var(--hl-line-strong)] pl-3 text-center"
+              className="mx-auto max-w-xl border-l-2 border-[var(--arc-line-strong)] pl-3 text-center"
             >
               {tipText}
             </motion.p>

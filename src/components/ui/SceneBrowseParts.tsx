@@ -17,11 +17,11 @@ export type SceneFilterAccent =
   | 'cyan'
   | 'rose';
 
-const CHIP_ON = 'border-[var(--hl-signal)] bg-[var(--hl-signal)] font-semibold text-[var(--hl-signal-ink)]';
+const CHIP_ON = 'border-[var(--arc-gold)] bg-[var(--arc-gold)] font-semibold text-[var(--arc-gold-ink)]';
 const CHIP_OFF =
-  'border-[var(--hl-line)] bg-transparent text-[var(--hl-ink-2)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]';
+  'border-[var(--cn-line-soft)] bg-transparent text-[var(--arc-ink-2)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]';
 
-const BAR_FILL = 'bg-[var(--hl-signal)]';
+const BAR_FILL = 'bg-[var(--arc-gold)]';
 
 export interface SceneFilterChipProps {
   active: boolean;
@@ -53,7 +53,7 @@ export function SceneFilterChip({
       disabled={disabled}
       onClick={onClick}
       className={[
-        'inline-flex items-center gap-1 font-mono transition-colors duration-150',
+        'arc-chip inline-flex items-center gap-1 font-mono transition-colors duration-150',
         'border',
         sizeClass,
         active ? CHIP_ON : CHIP_OFF,
@@ -79,7 +79,7 @@ export function SceneFilterChipCount({ count, active }: SceneFilterChipCountProp
   return (
     <span
       className={`ml-1.5 font-mono text-[10px] tabular-nums ${
-        active ? 'text-[var(--hl-signal-ink)]' : 'text-[var(--hl-ink-4)]'
+        active ? 'text-[var(--arc-gold-ink)]' : 'text-[var(--arc-ink-4)]'
       }`}
     >
       {count}
@@ -108,13 +108,13 @@ export function SceneProgressBar({
 
   return (
     <div className={`flex ${minWidthClass} items-center gap-2.5 ${className}`}>
-      <div className="h-1.5 flex-1 overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+      <div className="h-1.5 flex-1 overflow-hidden rounded-sm border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
         <div
           className={`h-full ${BAR_FILL} transition-[width] duration-300 ease-out`}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="whitespace-nowrap font-mono text-[10px] tabular-nums text-[var(--hl-ink-2)]">
+      <span className="whitespace-nowrap font-mono text-[10px] tabular-nums text-[var(--arc-ink-2)]">
         {label}
       </span>
     </div>
@@ -147,7 +147,7 @@ export function SceneCategoryChip({
       type="button"
       onClick={onClick}
       className={[
-        'flex shrink-0 items-center gap-2 border px-2.5 py-1.5 text-left transition-colors duration-150',
+        'arc-chip flex shrink-0 items-center gap-2 border px-2.5 py-1.5 text-left transition-colors duration-150',
         active ? CHIP_ON : CHIP_OFF,
         className,
       ]
@@ -159,7 +159,7 @@ export function SceneCategoryChip({
         <span className="font-mono text-[10px] uppercase leading-none tracking-[0.08em]">{label}</span>
         <span
           className={`mt-1 font-mono text-[9.5px] leading-none tabular-nums ${
-            active ? 'text-[var(--hl-signal-ink)]' : 'text-[var(--hl-ink-4)]'
+            active ? 'text-[var(--arc-gold-ink)]' : 'text-[var(--arc-ink-4)]'
           }`}
         >
           {sub}
@@ -183,9 +183,9 @@ export interface SceneBrowseEmptyStateProps {
 
 const ACTION_TONE: Record<'ghost' | 'cyan', string> = {
   ghost:
-    'border border-[var(--hl-line-strong)] bg-transparent px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-2)] transition-colors hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]',
+    'arc-btn arc-btn--ghost px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-ink-2)] transition-colors hover:text-[var(--arc-ink)]',
   cyan:
-    'border border-[var(--hl-signal)] bg-[var(--hl-signal)] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] font-semibold text-[var(--hl-signal-ink)]',
+    'arc-btn arc-btn--cyan px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] font-semibold',
 };
 
 /** 瀏覽網格 / 列表 · 統一空狀態 */
@@ -208,11 +208,11 @@ export function SceneBrowseEmptyState({
   if (variant === 'panel') {
     return (
       <div
-        className={`flex h-32 items-center justify-center border border-dashed border-[var(--hl-line)] bg-[var(--hl-void-2)] ${className}`}
+        className={`flex h-32 items-center justify-center border border-dashed border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] ${className}`}
       >
         <div className="flex flex-col items-center gap-2 px-4 text-center">
           {icon}
-          <span className="hl-label">{message}</span>
+          <span className="arc-label">{message}</span>
           {action}
         </div>
       </div>
@@ -223,7 +223,7 @@ export function SceneBrowseEmptyState({
     return (
       <div className={`flex flex-col items-center justify-center gap-3 py-16 text-center ${className}`}>
         {icon}
-        <p className="text-[11px] text-[var(--hl-ink-3)]">{message}</p>
+        <p className="text-[11px] text-[var(--arc-ink-3)]">{message}</p>
         {action}
       </div>
     );
@@ -231,10 +231,10 @@ export function SceneBrowseEmptyState({
 
   return (
     <div
-      className={`flex flex-col items-center justify-center gap-3 border border-dashed border-[var(--hl-line)] py-16 text-center ${className}`}
+      className={`flex flex-col items-center justify-center gap-3 border border-dashed border-[var(--cn-line-soft)] py-16 text-center ${className}`}
     >
       {icon}
-      <p className="hl-label">{message}</p>
+      <p className="arc-label">{message}</p>
       {action}
     </div>
   );

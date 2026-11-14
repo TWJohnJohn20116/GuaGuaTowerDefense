@@ -55,9 +55,9 @@ export function SceneSidebarNavButton({
       onClick={onClick}
       onMouseEnter={() => playUiHover()}
       className={[
-        'group relative flex w-full items-center gap-2.5 border-b border-[var(--hl-line)] px-3 py-2.5 text-left',
-        'transition-colors duration-150 hover:bg-[var(--hl-deck-2)]',
-        active ? 'bg-[var(--hl-deck-2)]' : '',
+        'group relative flex w-full items-center gap-2.5 border-b border-[var(--cn-line-soft)] px-3 py-2.5 text-left',
+        'transition-colors duration-150 hover:bg-[var(--arc-deck-2)]',
+        active ? 'bg-[var(--arc-deck-2)]' : '',
         className,
       ]
         .filter(Boolean)
@@ -67,16 +67,16 @@ export function SceneSidebarNavButton({
       <span
         className={[
           'absolute left-0 top-0 h-full w-[2px] transition-colors duration-150',
-          active ? 'bg-[var(--hl-signal)]' : 'bg-transparent',
+          active ? 'bg-[var(--arc-gold)]' : 'bg-transparent',
         ].join(' ')}
       />
 
       <span
         className={[
-          'flex h-6 w-6 shrink-0 items-center justify-center border transition-colors duration-150',
+          'flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border transition-colors duration-150',
           active
-            ? 'border-[var(--hl-signal-edge)] text-[var(--hl-signal)]'
-            : 'border-[var(--hl-line)] text-[var(--hl-ink-3)] group-hover:border-[var(--hl-line-hot)] group-hover:text-[var(--hl-ink-2)]',
+            ? 'border-[var(--arc-gold-edge)] text-[var(--arc-gold)]'
+            : 'border-[var(--cn-line-soft)] text-[var(--arc-ink-3)] group-hover:border-[var(--arc-line-hot)] group-hover:text-[var(--arc-ink-2)]',
         ].join(' ')}
       >
         {item.icon}
@@ -86,13 +86,13 @@ export function SceneSidebarNavButton({
         <span
           className={[
             'block truncate text-[12.5px]',
-            active ? 'font-semibold text-[var(--hl-ink)]' : 'text-[var(--hl-ink-2)]',
+            active ? 'font-semibold text-[var(--arc-ink)]' : 'text-[var(--arc-ink-2)]',
           ].join(' ')}
         >
           {item.label}
         </span>
         {item.description != null && (
-          <span className="mt-0.5 block truncate font-mono text-[9.5px] leading-none text-[var(--hl-ink-4)]">
+          <span className="mt-0.5 block truncate font-mono text-[9.5px] leading-none text-[var(--arc-ink-4)]">
             {item.description}
           </span>
         )}
@@ -145,17 +145,17 @@ export function SceneSectionBanner({
 }: SceneSectionBannerProps) {
   return (
     <div
-      className={`flex items-center gap-3 border-b border-[var(--hl-line)] px-5 py-3 ${className}`}
+      className={`flex items-center gap-3 border-b border-[var(--cn-line-soft)] px-5 py-3 ${className}`}
     >
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-2)]">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-2)]">
         {icon}
       </span>
       <div className="min-w-0">
-        <div className="truncate text-[15px] font-semibold leading-tight text-[var(--hl-ink)]">
+        <div className="arc-title truncate text-[15px] font-semibold leading-tight text-[var(--arc-ink)]">
           {title}
         </div>
         {subtitle != null && (
-          <div className="mt-0.5 truncate font-mono text-[9.5px] uppercase tracking-[0.12em] text-[var(--hl-ink-4)]">
+          <div className="mt-0.5 truncate font-mono text-[9.5px] uppercase tracking-[0.12em] text-[var(--arc-ink-4)]">
             {subtitle}
           </div>
         )}

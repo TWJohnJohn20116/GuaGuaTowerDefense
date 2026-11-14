@@ -5,6 +5,7 @@
  * 沒有圓角、沒有內陰影、沒有彩色發光。
  */
 import type React from 'react';
+import { Deck } from '@/components/hl';
 
 export interface DetailStatCell {
   label: string;
@@ -18,24 +19,24 @@ export interface DetailTraitTag {
   color: string;
 }
 
-const cardBase = 'border border-[var(--hl-line)] bg-[var(--hl-deck)]';
+const cardBase = 'arc-panel--flat rounded-sm';
 
 /** 詳情 · 3 欄數值格 */
 export function DetailStatGrid({ stats }: { stats: DetailStatCell[] }) {
   return (
-    <div className="grid grid-cols-3 gap-0 border border-[var(--hl-line)]">
+    <div className="grid grid-cols-3 gap-0 rounded-sm border-[3px] border-[var(--cn-line-soft)]">
       {stats.map((s, i) => (
         <div
           key={s.label}
           className={[
-            'flex flex-col gap-1.5 px-3 py-2.5 bg-[var(--hl-deck)]',
-            i > 0 ? 'border-l border-[var(--hl-line)]' : '',
+            'flex flex-col gap-1.5 px-3 py-2.5 bg-[var(--arc-deck)]',
+            i > 0 ? 'border-l border-[var(--cn-line-soft)]' : '',
           ].join(' ')}
         >
-          <span className="hl-label truncate">{s.label}</span>
+          <span className="arc-label truncate">{s.label}</span>
           <span
-            className="font-mono text-[13px] font-semibold leading-none tabular-nums"
-            style={{ color: s.color ?? 'var(--hl-ink)' }}
+            className="arc-num font-mono text-[13px] font-semibold leading-none tabular-nums"
+            style={{ color: s.color ?? 'var(--arc-ink)' }}
           >
             {s.value}
           </span>
@@ -75,10 +76,10 @@ export function DetailSectionLabel({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="flex h-4 w-4 items-center justify-center" style={{ color: accent ?? 'var(--hl-ink-3)' }}>
+      <span className="flex h-4 w-4 items-center justify-center" style={{ color: accent ?? 'var(--arc-ink-3)' }}>
         {icon}
       </span>
-      <span className="hl-label">{label}</span>
+      <span className="arc-label">{label}</span>
     </div>
   );
 }
@@ -95,11 +96,11 @@ export function DetailEmptyState({
 }) {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3 px-6 py-10 text-center">
-      <div className="flex h-12 w-12 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-4)]">
+      <div className="flex h-12 w-12 items-center justify-center rounded-sm border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-4)]">
         {icon}
       </div>
-      <div className="hl-label">empty</div>
-      <div className="max-w-[28ch] text-[11.5px] leading-relaxed text-[var(--hl-ink-3)]">{message}</div>
+      <div className="arc-label">empty</div>
+      <div className="max-w-[28ch] text-[11.5px] leading-relaxed text-[var(--arc-ink-3)]">{message}</div>
       {hints}
     </div>
   );
@@ -109,16 +110,16 @@ export function DetailEmptyState({
 export function DetailMiniStatCell({
   label,
   children,
-  valueClassName = 'text-[var(--hl-ink)]',
+  valueClassName = 'text-[var(--arc-ink)]',
 }: {
   label: React.ReactNode;
   children: React.ReactNode;
   valueClassName?: string;
 }) {
   return (
-    <div className="flex flex-col gap-1 border border-[var(--hl-line)] bg-[var(--hl-deck)] px-2.5 py-2">
-      <span className="hl-label truncate">{label}</span>
-      <span className={`font-mono text-[12.5px] font-semibold leading-none tabular-nums ${valueClassName}`}>
+    <div className="flex flex-col gap-1 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-deck)] px-2.5 py-2">
+      <span className="arc-label truncate">{label}</span>
+      <span className={`arc-num font-mono text-[12.5px] font-semibold leading-none tabular-nums ${valueClassName}`}>
         {children}
       </span>
     </div>
@@ -134,7 +135,7 @@ export function DetailHeroSection({
   className?: string;
 }) {
   return (
-    <div className={`flex items-start gap-4 border-b border-[var(--hl-line)] pb-4 ${className}`}>
+    <div className={`flex items-start gap-4 border-b border-[var(--cn-line-soft)] pb-4 ${className}`}>
       {children}
     </div>
   );
@@ -160,7 +161,7 @@ export function DetailCell({
   className?: string;
 }) {
   return (
-    <div className={`flex flex-col gap-1.5 ${cardBase} px-3 py-2.5 ${className}`}>{children}</div>
+    <Deck className={`flex flex-col gap-1.5 ${cardBase} px-3 py-2.5 ${className}`}>{children}</Deck>
   );
 }
 
@@ -173,7 +174,7 @@ export function DetailInset({
   className?: string;
 }) {
   return (
-    <div className={`${cardBase} bg-[var(--hl-void-2)] px-3 py-2.5 ${className}`}>{children}</div>
+    <Deck className={`${cardBase} bg-[var(--arc-void-2)] px-3 py-2.5 ${className}`}>{children}</Deck>
   );
 }
 
@@ -190,7 +191,7 @@ export function DetailRow({
   return (
     <div
       className={[
-        'flex items-center gap-3 border border-[var(--hl-line)] bg-[var(--hl-deck)]',
+        'flex items-center gap-3 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-deck)]',
         size === 'sm' ? 'px-2.5 py-2' : 'px-3 py-2.5',
         className,
       ].join(' ')}
@@ -208,7 +209,7 @@ export function DetailSurface({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <div className={`overflow-hidden ${cardBase} ${className}`}>{children}</div>;
+  return <Deck className={`overflow-hidden ${cardBase} ${className}`}>{children}</Deck>;
 }
 
 /** 等寬字徽章（快捷鍵等） */
@@ -221,7 +222,7 @@ export function SceneMonoBadge({
 }) {
   return (
     <span
-      className={`inline-flex items-center border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums text-[var(--hl-ink)] ${className}`}
+      className={`inline-flex items-center border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums text-[var(--arc-ink)] ${className}`}
     >
       {children}
     </span>

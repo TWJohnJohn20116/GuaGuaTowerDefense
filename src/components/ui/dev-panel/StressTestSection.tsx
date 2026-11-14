@@ -141,11 +141,11 @@ export const StressTestSection = () => {
         />
       )}
 
-      <p className="text-[10px] leading-relaxed text-[var(--hl-ink-4)]">{u.stressHint}</p>
+      <p className="text-[10px] leading-relaxed text-[var(--arc-ink-4)]">{u.stressHint}</p>
       {!inGame && (
-        <p className="text-[10px] font-bold text-[var(--hl-alarm)]">{u.stressNeedGame}</p>
+        <p className="text-[10px] font-bold text-[var(--arc-alert)]">{u.stressNeedGame}</p>
       )}
-      <p className="text-[9px] font-mono text-[var(--hl-ink-4)]/70">
+      <p className="text-[9px] font-mono text-[var(--arc-ink-4)]/70">
         default: {STRESS_DEFAULT_ENEMIES.toLocaleString()} enemies · {STRESS_DEFAULT_TOWERS} towers
       </p>
     </DevSection>

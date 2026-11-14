@@ -12,8 +12,8 @@ interface PauseSectionTitleProps {
 export function PauseSectionTitle({ children, className = '' }: PauseSectionTitleProps) {
  return (
  <div className={`flex items-center gap-2.5 ${className}`}>
- <span className="hl-label whitespace-nowrap">{children}</span>
- <span className="h-px flex-1 bg-[var(--hl-line)]" />
+ <span className="arc-label whitespace-nowrap">{children}</span>
+ <hr className="arc-divider flex-1" />
  </div>
  );
 }

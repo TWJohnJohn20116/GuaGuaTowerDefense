@@ -11,6 +11,7 @@ import { SectionGroup, SettingRow } from '@/components/ui';
 import { SceneChoiceRow, SceneChoiceButton } from '@/components/ui/SceneChoiceParts';
 import { SCENE_TYPOGRAPHY } from '@/components/ui/SceneTypography';
 import { MonitorIcon, SlidersIcon } from '@/components/ui/Icons';
+import { Num } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 
 const UI_SCALE_IDS: HudUiScale[] = ['compact', 'normal', 'large'];
@@ -42,7 +43,7 @@ export function PauseViewHudSettings() {
  columns={1}
  >
  <SettingRow
- icon={<MonitorIcon className="h-4 w-4 text-[var(--hl-ink-2)]"/>}
+ icon={<MonitorIcon className="h-4 w-4 text-[var(--arc-ink-2)]"/>}
  label={t.game.pause3DView}
  description={tutorialActive ? t.game.pause3DViewTutorial : t.game.pause3DViewDesc}
  accent="purple"
@@ -57,11 +58,11 @@ export function PauseViewHudSettings() {
  />
 
  <SettingRow
- icon={<SlidersIcon className="h-4 w-4 text-[var(--hl-reach)]"/>}
+ icon={<SlidersIcon className="h-4 w-4 text-[var(--arc-reach)]"/>}
  label={t.game.pauseHudScale}
  accent="cyan"
  expanded
- control={<span className={`${SCENE_TYPOGRAPHY.micro} font-bold text-[var(--hl-ink-4)]`}>{t.game.pauseHudScaleNote}</span>}
+ control={<span className={`${SCENE_TYPOGRAPHY.micro} font-bold text-[var(--arc-ink-4)]`}>{t.game.pauseHudScaleNote}</span>}
  footer={
  <SceneChoiceRow className="grid grid-cols-3 gap-2">
  {UI_SCALE_IDS.map((id) => (
@@ -80,16 +81,16 @@ export function PauseViewHudSettings() {
  />
 
  <SettingRow
- icon={<SlidersIcon className="h-4 w-4 text-[var(--hl-reach)]"/>}
+ icon={<SlidersIcon className="h-4 w-4 text-[var(--arc-reach)]"/>}
  label={t.game.pauseHudOpacity}
  accent="cyan"
  expanded
- control={<span className={`${SCENE_TYPOGRAPHY.micro} font-bold tabular-nums text-[var(--hl-ink-3)]`}>{Math.round(hudLayout.opacity * 100)}%</span>}
+ control={<Num value={Math.round(hudLayout.opacity * 100)} unit="%" tone="muted" size="sm" className={`${SCENE_TYPOGRAPHY.micro} tabular-nums`} />}
  footer={
  <VolumeSlider
  value={hudLayout.opacity}
  onChange={(v) => setHudLayout('opacity', v)}
- icon={<SlidersIcon className="h-4 w-4 text-[var(--hl-reach)]"/>}
+ icon={<SlidersIcon className="h-4 w-4 text-[var(--arc-reach)]"/>}
  label={t.game.pauseHudOpacity}
  />
  }

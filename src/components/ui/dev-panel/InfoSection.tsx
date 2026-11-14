@@ -5,6 +5,7 @@ import { TOWER_DATA } from '@/data/gameData';
 import { useTranslation } from '@/i18n';
 import { ChartIcon, CoinIcon, HeartIcon, WaveIcon, TowerIcon, AlienIcon, TimerIcon, LightningIcon } from '@/components/ui/Icons';
 import { DevSection, DevInfoRow } from './common';
+import { Deck } from '@/components/hl';
 
 // 即時 FPS 計算 hook（在 InfoSection mount 期間每秒更新）
 const useLiveFPS = () => {
@@ -163,15 +164,15 @@ export const InfoSection = () => {
         keywords={['perf', 'performance', 'fps', '效能', '幀率']}
       >
         <DevInfoRow label="FPS" value={`${fps}`} color={fpsColor} />
-        <div className="h-1.5 bg-black/30  overflow-hidden border border-[var(--hl-line)]">
+        <Deck tone="sunken" className="h-1.5 overflow-hidden">
           <div
             className={`h-full transition-all ${
-              fps >= 55 ? 'bg-emerald-400' : fps >= 40 ? 'bg-amber-400' : 'bg-rose-400'
+              fps >= 55 ? 'bg-[var(--cn-mint)]' : fps >= 40 ? 'bg-[var(--cn-sun)]' : 'bg-[var(--cn-alert)]'
             }`}
             style={{ width: `${Math.min(100, (fps / 60) * 100)}%` }}
           />
-        </div>
-        <div className="text-[9px] text-[var(--hl-ink-4)] tracking-widest uppercase">
+        </Deck>
+        <div className="text-[9px] text-[var(--arc-ink-4)] tracking-widest uppercase">
           {u.fpsTargetHint}
         </div>
       </DevSection>
@@ -195,21 +196,21 @@ export const InfoSection = () => {
                     className="w-2.5 h-2.5  flex-shrink-0 inline-block"
                     style={{ backgroundColor: data?.color || '#888' }}
                   />
-                  <span className="text-[var(--hl-ink-3)]">{data?.name || type}</span>
+                  <span className="text-[var(--arc-ink-3)]">{data?.name || type}</span>
                 </span>
-                <span className="text-[var(--hl-reach)]/90 font-mono">{count}</span>
+                <span className="text-[var(--arc-reach)]/90 font-mono">{count}</span>
               </div>
             );
           })}
         </DevSection>
       )}
 
-      <div className="bg-[var(--hl-deck-2)]  border border-[var(--hl-line)] p-3 flex items-center gap-2">
-        <HeartIcon className="w-3.5 h-3.5 text-[var(--hl-ink-4)] flex-shrink-0" />
-        <span className="text-[10px] text-[var(--hl-ink-4)] leading-relaxed">
+      <Deck className="arc-panel--flat p-3 flex items-center gap-2">
+        <HeartIcon className="w-3.5 h-3.5 text-[var(--arc-ink-4)] flex-shrink-0" />
+        <span className="text-[10px] text-[var(--arc-ink-4)] leading-relaxed">
           {u.infoLiveHint}
         </span>
-      </div>
+      </Deck>
     </div>
   );
 };

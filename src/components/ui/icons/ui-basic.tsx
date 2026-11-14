@@ -2,7 +2,7 @@ import type { IconProps } from './base';
 import { f, s } from './base';
 
 // ── 貨幣 ──────────────────────────────────────────────────────────────
-/** 預設色：text-[var(--hl-caution)] */
+/** 預設色：text-[var(--arc-caution)] */
 export const CoinIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="9" fill="currentColor" fillOpacity="0.15" />
@@ -12,7 +12,7 @@ export const CoinIcon = (p: IconProps) => (
 );
 
 // ── 導航 ──────────────────────────────────────────────────────────────
-/** 預設色：text-[var(--hl-reach)] */
+/** 預設色：text-[var(--arc-reach)] */
 export const GamepadIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="2" y="7" width="20" height="11" rx="3" fill="currentColor" fillOpacity="0.1" />
@@ -23,7 +23,7 @@ export const GamepadIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 預設色：text-[var(--hl-caution)] */
+/** 預設色：text-[var(--arc-caution)] */
 export const TrophyIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M7 3h10v7a5 5 0 0 1-10 0V3z" fill="currentColor" fillOpacity="0.15" />
@@ -33,7 +33,7 @@ export const TrophyIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 預設色：text-[var(--hl-ink-2)] */
+/** 預設色：text-[var(--arc-ink-2)] */
 export const PaletteIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="10" fill="currentColor" fillOpacity="0.1" />
@@ -46,7 +46,7 @@ export const PaletteIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 預設色：text-[var(--hl-caution)] */
+/** 預設色：text-[var(--arc-caution)] */
 export const ShopIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M3 9l1-6h16l1 6" />
@@ -57,7 +57,7 @@ export const ShopIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🛒✅ 確認購買/購物車勾選 — 預設色：text-[var(--hl-vital)] */
+/** 🛒✅ 確認購買/購物車勾選 — 預設色：text-[var(--arc-vital)] */
 export const CartCheckIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="9" cy="21" r="1" />
@@ -67,7 +67,7 @@ export const CartCheckIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 預設色：text-[var(--hl-caution)] */
+/** 預設色：text-[var(--arc-caution)] */
 export const WrenchIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" fill="currentColor" fillOpacity="0.1" />
@@ -75,7 +75,7 @@ export const WrenchIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 預設色：text-[var(--hl-reach)] */
+/** 預設色：text-[var(--arc-reach)] */
 export const BooksIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M4 19V5a2 2 0 0 1 2-2h14v16H4z" fill="currentColor" fillOpacity="0.1" />
@@ -85,7 +85,7 @@ export const BooksIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 預設色：text-[var(--hl-vital)] */
+/** 預設色：text-[var(--arc-vital)] */
 export const OpenBookIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M2 6s1-1 4-1 5 2 6 2 3-2 6-2 4 1 4 1v13s-1-1-4-1-5 2-6 2-3-2-6-2-4 1-4 1V6z" fill="currentColor" fillOpacity="0.1" />
@@ -123,14 +123,14 @@ export const HomeIcon = (p: IconProps) => (
 );
 
 // ── 遊戲狀態 ─────────────────────────────────────────────────────────
-/** 填充 ❤️ — 預設色：text-[var(--hl-alarm)] */
+/** 填充 ❤️ — 預設色：text-[var(--arc-alert)] */
 export const HeartIcon = (p: IconProps) => (
   <svg {...f(p)}>
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
   </svg>
 );
 
-/** 填充（有裂縫） — 預設色：text-[var(--hl-alarm)] */
+/** 填充（有裂縫） — 預設色：text-[var(--arc-alert)] */
 export const BrokenHeartIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" fillOpacity="0.2" />
@@ -139,28 +139,28 @@ export const BrokenHeartIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 預設色：text-[var(--hl-reach)] */
+/** 預設色：text-[var(--arc-reach)] */
 export const WaveIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M2 12c1.5-3 3-4.5 5-4.5s3.5 3 5.5 3S16 7.5 18 7.5s2.5 1.5 4 3M2 17c1.5-3 3-4.5 5-4.5s3.5 3 5.5 3S16 12.5 18 12.5s2.5 1.5 4 3" strokeWidth="2" />
   </svg>
 );
 
-/** 預設色：text-[var(--hl-ink-2)] */
+/** 預設色：text-[var(--arc-ink-2)] */
 export const InfinityIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 12c-2-2.5-4-4-6-4a4 4 0 0 0 0 8c2 0 4-1.5 6-4zm0 0c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4z" strokeWidth="2" />
   </svg>
 );
 
-/** 填充 ★ — 預設色：text-[var(--hl-caution)] */
+/** 填充 ★ — 預設色：text-[var(--arc-caution)] */
 export const StarIcon = (p: IconProps) => (
   <svg {...f(p)}>
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
   </svg>
 );
 
-/** 預設色：text-[var(--hl-alarm)] */
+/** 預設色：text-[var(--arc-alert)] */
 export const LockIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="5" y="11" width="14" height="11" rx="2" fill="currentColor" fillOpacity="0.15" />

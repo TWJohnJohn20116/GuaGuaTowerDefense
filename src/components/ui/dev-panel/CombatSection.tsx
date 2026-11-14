@@ -191,8 +191,8 @@ const EnemyControl = () => {
         disabled={enemyCount === 0}
       />
       {/* 速度倍率 */}
-      <div className="pt-2 mt-1 border-t border-[var(--hl-line)] space-y-1.5">
-        <div className="text-[10px] text-[var(--hl-ink-4)] tracking-widest uppercase font-bold">{u.speedMultiplierHint}</div>
+      <div className="pt-2 mt-1 border-t border-[var(--cn-line-soft)] space-y-1.5">
+        <div className="text-[10px] text-[var(--arc-ink-4)] tracking-widest uppercase font-bold">{u.speedMultiplierHint}</div>
         <div className="grid grid-cols-4 gap-1">
           {[0.25, 1, 2, 4].map((m) => (
             <button
@@ -202,8 +202,8 @@ const EnemyControl = () => {
               disabled={enemyCount === 0}
               className={`py-1.5  text-[10px] font-bold tracking-widest border transition-all ${
                 enemyCount === 0
-                  ? 'bg-[var(--hl-deck-2)] border-[var(--hl-line)] text-[var(--hl-ink-4)] cursor-not-allowed'
-                  : 'bg-[var(--hl-deck-2)] border-[var(--hl-line)] text-[var(--hl-ink-2)] hover:bg-[rgba(255,75,62,0.12)] hover:border-[rgba(255,75,62,0.38)] hover:text-[var(--hl-alarm)]'
+                  ? 'bg-[var(--arc-deck-2)] border-[var(--cn-line-soft)] text-[var(--arc-ink-4)] cursor-not-allowed'
+                  : 'bg-[var(--arc-deck-2)] border-[var(--cn-line-soft)] text-[var(--arc-ink-2)] hover:bg-[rgba(255,61,113,0.12)] hover:border-[rgba(255,61,113,0.38)] hover:text-[var(--arc-alert)]'
               }`}
             >
               {m}x
@@ -243,7 +243,7 @@ const AIControl = () => {
         onChange={toggleAutoBattle}
         accent="emerald"
       />
-      <div className="text-[10px] text-[var(--hl-ink-4)] tracking-widest uppercase font-bold pt-1">{u.strategyLabel}</div>
+      <div className="text-[10px] text-[var(--arc-ink-4)] tracking-widest uppercase font-bold pt-1">{u.strategyLabel}</div>
       <div className="grid grid-cols-4 gap-1">
         {strategies.map((s) => {
           const isActive = autoBattleStrategy === s.id;
@@ -254,8 +254,8 @@ const AIControl = () => {
               onClick={() => setAutoBattleStrategy(s.id)}
               className={`py-2  flex flex-col items-center gap-0.5 border transition-all ${
                 isActive
-                  ? 'bg-[var(--hl-deck-3)] text-[var(--hl-ink)] border-[var(--hl-line-strong)] '
-                  : 'bg-[var(--hl-deck-2)] text-[var(--hl-ink-4)] border-[var(--hl-line)] hover:bg-[var(--hl-deck-3)] hover:text-[var(--hl-ink-2)]'
+                  ? 'bg-[var(--arc-deck-3)] text-[var(--arc-ink)] border-[var(--arc-line-strong)] '
+                  : 'bg-[var(--arc-deck-2)] text-[var(--arc-ink-4)] border-[var(--cn-line-soft)] hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink-2)]'
               }`}
               title={s.label}
             >
@@ -310,7 +310,7 @@ const TowerControl = () => {
     <div className="space-y-2">
       <DevToggle icon={<ShieldIcon className="w-3.5 h-3.5" />} label={u.autoMaxTower} value={maxTowerLevel} onChange={toggleMaxTowerLevel} accent="purple" />
       <DevToggle icon={<CoinIcon className="w-3.5 h-3.5" />} label={u.freeUpgrades} value={freeUpgrades} onChange={toggleFreeUpgrades} accent="purple" />
-      <div className="pt-1 border-t border-[var(--hl-line)] space-y-1.5">
+      <div className="pt-1 border-t border-[var(--cn-line-soft)] space-y-1.5">
         <DevButton
           icon={<PlusIcon className="w-3.5 h-3.5" />}
           label={u.upgradeAllOne.replace('{count}', String(towerCount))}

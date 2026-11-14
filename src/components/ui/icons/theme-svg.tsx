@@ -3,7 +3,7 @@ import { f, s } from './base';
 
 // ── 主題相關 SVG 組件 ─────────────────────────────────────────────────────
 
-/** 🌙 月亮 — 預設色：text-[var(--hl-reach)] */
+/** 🌙 月亮 — 預設色：text-[var(--arc-reach)] */
 export const MoonIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor" fillOpacity="0.15" />
@@ -11,7 +11,7 @@ export const MoonIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ☀️ 太陽 — 預設色：text-[var(--hl-caution)] */
+/** ☀️ 太陽 — 預設色：text-[var(--arc-caution)] */
 export const SunIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="4" fill="currentColor" fillOpacity="0.2" />
@@ -27,7 +27,7 @@ export const SunIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 👁️ 眼睛 — 預設色：text-[var(--hl-reach)] */
+/** 👁️ 眼睛 — 預設色：text-[var(--arc-reach)] */
 export const EyeIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="currentColor" fillOpacity="0.15" />
@@ -36,7 +36,7 @@ export const EyeIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🌲 樹 — 預設色：text-[var(--hl-vital)] */
+/** 🌲 樹 — 預設色：text-[var(--arc-vital)] */
 export const TreeIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 2L4 12l8 10 8-10L12 2z" fill="currentColor" fillOpacity="0.15" />
@@ -46,7 +46,7 @@ export const TreeIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🌅 日出/日落 — 預設色：text-[var(--hl-caution)] */
+/** 🌅 日出/日落 — 預設色：text-[var(--arc-caution)] */
 export const SunriseIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 2v4M4 10h16M5 16l2-4 2 4 2-4 2 4 2-4 2 4" strokeWidth="2" />
@@ -55,7 +55,7 @@ export const SunriseIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 💜 紫色愛心 — 預設色：text-[var(--hl-ink-2)] */
+/** 💜 紫色愛心 — 預設色：text-[var(--arc-ink-2)] */
 export const HeartPurpleIcon = (p: IconProps) => (
   <svg {...f(p)}>
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" fillOpacity="0.15" />
@@ -63,7 +63,7 @@ export const HeartPurpleIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🌸 花 — 預設色：text-[var(--hl-ink-2)] */
+/** 🌸 花 — 預設色：text-[var(--arc-ink-2)] */
 export const FlowerIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="7" r="3" fill="currentColor" fillOpacity="0.2" />
@@ -78,7 +78,7 @@ export const FlowerIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🎄 聖誕樹 — 預設色：text-[var(--hl-vital)] */
+/** 🎄 聖誕樹 — 預設色：text-[var(--arc-vital)] */
 export const ChristmasTreeIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 2L6 10l6 4 6-4L12 2z" fill="currentColor" fillOpacity="0.15" />
@@ -92,7 +92,7 @@ export const ChristmasTreeIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🎃 南瓜 — 預設色：text-[var(--hl-caution)] */
+/** 🎃 南瓜 — 預設色：text-[var(--arc-caution)] */
 export const PumpkinIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <ellipse cx="12" cy="14" rx="9" ry="7" fill="currentColor" fillOpacity="0.15" />

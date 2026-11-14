@@ -10,6 +10,7 @@ import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
 import { VolumeSlider } from '@/components/ui/VolumeSlider';
 import { SectionGroup, SettingRow } from '@/components/ui';
 import { SceneChoiceRow, SceneChoiceButton } from '@/components/ui/SceneChoiceParts';
+import { Btn } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 import {
  LightningIcon, SpeakerIcon, MonitorIcon, GamepadIcon,
@@ -44,10 +45,10 @@ export function PauseSettingsPanel() {
  const toggleAudio = useSettingsStore((st) => st.toggleAudio);
 
  const sfxRows = [
- { key: 'sfxAttack' as const, label: s.sfxAttack, value: audio.sfxAttack, icon: <ExplosionIcon className="w-4 h-4 text-[var(--hl-caution)]"/> },
- { key: 'sfxBuild' as const, label: s.sfxBuild, value: audio.sfxBuild, icon: <ConstructionIcon className="w-4 h-4 text-[var(--hl-reach)]"/> },
- { key: 'sfxDeath' as const, label: s.sfxDeath, value: audio.sfxDeath, icon: <SkullIcon className="w-4 h-4 text-[var(--hl-ink-2)]"/> },
- { key: 'sfxUI' as const, label: s.sfxUI, value: audio.sfxUI, icon: <BellIcon className="w-4 h-4 text-[var(--hl-caution)]"/> },
+ { key: 'sfxAttack' as const, label: s.sfxAttack, value: audio.sfxAttack, icon: <ExplosionIcon className="w-4 h-4 text-[var(--arc-caution)]"/> },
+ { key: 'sfxBuild' as const, label: s.sfxBuild, value: audio.sfxBuild, icon: <ConstructionIcon className="w-4 h-4 text-[var(--arc-reach)]"/> },
+ { key: 'sfxDeath' as const, label: s.sfxDeath, value: audio.sfxDeath, icon: <SkullIcon className="w-4 h-4 text-[var(--arc-ink-2)]"/> },
+ { key: 'sfxUI' as const, label: s.sfxUI, value: audio.sfxUI, icon: <BellIcon className="w-4 h-4 text-[var(--arc-caution)]"/> },
  ];
 
  return (
@@ -66,12 +67,12 @@ export function PauseSettingsPanel() {
  columns={1}
  >
  <SettingRow
- icon={<LightningIcon className="h-4 w-4 text-[var(--hl-caution)]"/>}
+ icon={<LightningIcon className="h-4 w-4 text-[var(--arc-caution)]"/>}
  label={g.pauseCurrentSpeed}
  description={`${gameSpeed}x`}
  accent="amber"
  control={
- <span className="border border-[var(--hl-line)] bg-[rgba(6,7,10,0.55)] px-2 py-0.5 font-mono text-xs font-bold tabular-nums text-[var(--hl-ink)]">
+ <span className="arc-chip font-mono text-xs tabular-nums text-[var(--arc-ink)]">
  {gameSpeed}x
  </span>
  }
@@ -101,7 +102,7 @@ export function PauseSettingsPanel() {
  columns={1}
  >
  <SettingRow
- icon={<MusicNoteIcon className="h-4 w-4 text-[var(--hl-reach)]"/>}
+ icon={<MusicNoteIcon className="h-4 w-4 text-[var(--arc-reach)]"/>}
  label={s.sound}
  accent="blue"
  control={<ToggleSwitch enabled={soundEnabled} onToggle={toggleSound} size="md"/>}
@@ -110,14 +111,14 @@ export function PauseSettingsPanel() {
  value={soundVolume}
  onChange={setSoundVolume}
  disabled={!soundEnabled}
- icon={<MusicNoteIcon className="h-4 w-4 text-[var(--hl-reach)]"/>}
+ icon={<MusicNoteIcon className="h-4 w-4 text-[var(--arc-reach)]"/>}
  label={s.soundVolume}
  />
  }
  expanded
  />
  <SettingRow
- icon={<MusicNotesIcon className="h-4 w-4 text-[var(--hl-ink-2)]"/>}
+ icon={<MusicNotesIcon className="h-4 w-4 text-[var(--arc-ink-2)]"/>}
  label={s.music}
  accent="purple"
  control={<ToggleSwitch enabled={musicEnabled} onToggle={toggleMusic} size="md"activeColor="purple"/>}
@@ -126,7 +127,7 @@ export function PauseSettingsPanel() {
  value={musicVolume}
  onChange={setMusicVolume}
  disabled={!musicEnabled}
- icon={<MusicNotesIcon className="h-4 w-4 text-[var(--hl-ink-2)]"/>}
+ icon={<MusicNotesIcon className="h-4 w-4 text-[var(--arc-ink-2)]"/>}
  label={s.musicVolume}
  />
  }
@@ -166,11 +167,11 @@ export function PauseSettingsPanel() {
  accent="cyan"
  columns={1}
  >
- <SettingRow icon={<MonitorIcon className="h-4 w-4 text-[var(--hl-reach)]"/>} label={s.showRange} accent="cyan"control={<ToggleSwitch enabled={visual.showTowerRange} onToggle={() => toggleVisual('showTowerRange')} size="sm"activeColor="cyan"/>} />
- <SettingRow icon={<MonitorIcon className="h-4 w-4 text-[var(--hl-reach)]"/>} label={s.showDamageNumbers} accent="cyan"control={<ToggleSwitch enabled={visual.showDamageNumbers} onToggle={() => toggleVisual('showDamageNumbers')} size="sm"activeColor="cyan"/>} />
- <SettingRow icon={<MonitorIcon className="h-4 w-4 text-[var(--hl-reach)]"/>} label={s.showHealthBars} accent="cyan"control={<ToggleSwitch enabled={visual.showHealthBars} onToggle={() => toggleVisual('showHealthBars')} size="sm"activeColor="cyan"/>} />
- <SettingRow icon={<MonitorIcon className="h-4 w-4 text-[var(--hl-reach)]"/>} label={s.screenShake} accent="cyan"control={<ToggleSwitch enabled={visual.screenShake} onToggle={() => toggleVisual('screenShake')} size="sm"activeColor="cyan"/>} />
- <SettingRow icon={<MonitorIcon className="h-4 w-4 text-[var(--hl-reach)]"/>} label={s.animations} accent="cyan"control={<ToggleSwitch enabled={visual.animationsEnabled} onToggle={() => toggleVisual('animationsEnabled')} size="sm"activeColor="cyan"/>} />
+ <SettingRow icon={<MonitorIcon className="h-4 w-4 text-[var(--arc-reach)]"/>} label={s.showRange} accent="cyan"control={<ToggleSwitch enabled={visual.showTowerRange} onToggle={() => toggleVisual('showTowerRange')} size="sm"activeColor="cyan"/>} />
+ <SettingRow icon={<MonitorIcon className="h-4 w-4 text-[var(--arc-reach)]"/>} label={s.showDamageNumbers} accent="cyan"control={<ToggleSwitch enabled={visual.showDamageNumbers} onToggle={() => toggleVisual('showDamageNumbers')} size="sm"activeColor="cyan"/>} />
+ <SettingRow icon={<MonitorIcon className="h-4 w-4 text-[var(--arc-reach)]"/>} label={s.showHealthBars} accent="cyan"control={<ToggleSwitch enabled={visual.showHealthBars} onToggle={() => toggleVisual('showHealthBars')} size="sm"activeColor="cyan"/>} />
+ <SettingRow icon={<MonitorIcon className="h-4 w-4 text-[var(--arc-reach)]"/>} label={s.screenShake} accent="cyan"control={<ToggleSwitch enabled={visual.screenShake} onToggle={() => toggleVisual('screenShake')} size="sm"activeColor="cyan"/>} />
+ <SettingRow icon={<MonitorIcon className="h-4 w-4 text-[var(--arc-reach)]"/>} label={s.animations} accent="cyan"control={<ToggleSwitch enabled={visual.animationsEnabled} onToggle={() => toggleVisual('animationsEnabled')} size="sm"activeColor="cyan"/>} />
  </SectionGroup>
 
  <SectionGroup
@@ -179,22 +180,23 @@ export function PauseSettingsPanel() {
  accent="indigo"
  columns={1}
  >
- <SettingRow icon={<GamepadIcon className="h-4 w-4 text-[var(--hl-reach)]"/>} label={s.buildWhilePaused} description={g.pauseBuildWhilePausedDesc} accent="indigo"control={<ToggleSwitch enabled={gameplay.buildWhilePaused} onToggle={() => toggleGameplay('buildWhilePaused')} size="sm"activeColor="blue"/>} />
- <SettingRow icon={<GamepadIcon className="h-4 w-4 text-[var(--hl-reach)]"/>} label={s.showEnemyPath} accent="indigo"control={<ToggleSwitch enabled={gameplay.showEnemyPath} onToggle={() => toggleGameplay('showEnemyPath')} size="sm"activeColor="blue"/>} />
- <SettingRow icon={<GamepadIcon className="h-4 w-4 text-[var(--hl-reach)]"/>} label={s.autoWave} description={s.autoWaveDesc} accent="indigo"control={<ToggleSwitch enabled={gameplay.autoStartWave} onToggle={() => toggleGameplay('autoStartWave')} size="sm"activeColor="blue"/>} />
- <SettingRow icon={<GamepadIcon className="h-4 w-4 text-[var(--hl-reach)]"/>} label={s.confirmSell} description={s.confirmSellDesc} accent="indigo"control={<ToggleSwitch enabled={gameplay.confirmSell} onToggle={() => toggleGameplay('confirmSell')} size="sm"activeColor="blue"/>} />
- <SettingRow icon={<TargetIcon className="h-4 w-4 text-[var(--hl-vital)]"/>} label={s.quickPlace} description={s.quickPlaceDesc} accent="indigo"control={<ToggleSwitch enabled={gameplay.quickPlaceDefault} onToggle={() => toggleGameplay('quickPlaceDefault')} size="sm"activeColor="blue"/>} />
+ <SettingRow icon={<GamepadIcon className="h-4 w-4 text-[var(--arc-reach)]"/>} label={s.buildWhilePaused} description={g.pauseBuildWhilePausedDesc} accent="indigo"control={<ToggleSwitch enabled={gameplay.buildWhilePaused} onToggle={() => toggleGameplay('buildWhilePaused')} size="sm"activeColor="blue"/>} />
+ <SettingRow icon={<GamepadIcon className="h-4 w-4 text-[var(--arc-reach)]"/>} label={s.showEnemyPath} accent="indigo"control={<ToggleSwitch enabled={gameplay.showEnemyPath} onToggle={() => toggleGameplay('showEnemyPath')} size="sm"activeColor="blue"/>} />
+ <SettingRow icon={<GamepadIcon className="h-4 w-4 text-[var(--arc-reach)]"/>} label={s.autoWave} description={s.autoWaveDesc} accent="indigo"control={<ToggleSwitch enabled={gameplay.autoStartWave} onToggle={() => toggleGameplay('autoStartWave')} size="sm"activeColor="blue"/>} />
+ <SettingRow icon={<GamepadIcon className="h-4 w-4 text-[var(--arc-reach)]"/>} label={s.confirmSell} description={s.confirmSellDesc} accent="indigo"control={<ToggleSwitch enabled={gameplay.confirmSell} onToggle={() => toggleGameplay('confirmSell')} size="sm"activeColor="blue"/>} />
+ <SettingRow icon={<TargetIcon className="h-4 w-4 text-[var(--arc-vital)]"/>} label={s.quickPlace} description={s.quickPlaceDesc} accent="indigo"control={<ToggleSwitch enabled={gameplay.quickPlaceDefault} onToggle={() => toggleGameplay('quickPlaceDefault')} size="sm"activeColor="blue"/>} />
  </SectionGroup>
 
- <button
- type="button"
+ <Btn
+ variant="quiet"
+ size="md"
  onClick={() => openSettingsFromPause()}
- className={`flex w-full items-center justify-center gap-2 border border-[var(--hl-line)] bg-[var(--hl-deck-2)] py-3 text-sm font-bold text-[var(--hl-ink-2)] transition-colors hover:bg-[var(--hl-deck-3)] hover:text-[var(--hl-ink)]`}
+ className="w-full gap-2 py-3 text-sm"
  >
  <OpenBookIcon className="h-4 w-4"/>
  {g.pauseOpenFullSettings}
- <GearIcon className="h-4 w-4 text-[var(--hl-ink-4)]"/>
- </button>
+ <GearIcon className="h-4 w-4 text-[var(--arc-ink-4)]"/>
+ </Btn>
  </motion.div>
  );
 }

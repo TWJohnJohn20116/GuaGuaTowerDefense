@@ -140,20 +140,21 @@ export const InteractiveTutorialOverlay: React.FC = () => {
   return (
     <div className="fixed inset-0 z-[9999] pointer-events-none">
       <div className="pointer-events-auto absolute right-3 top-3 z-50">
-        <button
-          type="button"
+        <Btn
+          variant="ghost"
+          size="sm"
           onClick={skipTutorial}
-          className="flex items-center gap-2 border border-[var(--hl-line-strong)] bg-[var(--hl-deck)] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-3)] transition-colors hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]"
+          className="flex items-center gap-2 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-ink-3)] transition-colors hover:text-[var(--arc-ink)]"
         >
           <SkipForwardIcon className="h-3 w-3" />
           {t.tutorial.skipInteractive}
-        </button>
+        </Btn>
       </div>
 
       {/* Background Mask */}
       <div
         className={`absolute inset-0 transition-opacity duration-300 ${
-          step.transparentMask ? 'bg-[rgba(6,7,10,0.15)]' : 'bg-[rgba(6,7,10,0.6)]'
+          step.transparentMask ? 'bg-[rgba(46,36,64,0.15)]' : 'bg-[rgba(46,36,64,0.55)]'
         } ${targetRect ? 'pointer-events-auto' : 'pointer-events-none'}`}
         style={targetRect ? {
           clipPath: `polygon(
@@ -171,7 +172,7 @@ export const InteractiveTutorialOverlay: React.FC = () => {
       {/* 目標框：1px 訊號線 + 訊號膜 */}
       {targetRect && (
         <motion.div
-          className="pointer-events-none absolute border border-[var(--hl-signal)]"
+          className="pointer-events-none absolute border border-[var(--arc-gold)]"
           initial={false}
           animate={{
             top: targetRect.top - 8,
@@ -181,7 +182,7 @@ export const InteractiveTutorialOverlay: React.FC = () => {
           }}
           transition={{ duration: 0.16 }}
         >
-          <div className="absolute inset-0 animate-pulse bg-[var(--hl-signal-veil)]" />
+          <div className="absolute inset-0 animate-pulse bg-[var(--arc-gold-veil)]" />
         </motion.div>
       )}
 
@@ -198,23 +199,23 @@ export const InteractiveTutorialOverlay: React.FC = () => {
         >
           <Deck notch className="flex w-[320px] flex-col gap-2.5 p-3">
             <div className="flex items-start gap-2">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center border border-[var(--hl-line-strong)] text-[var(--hl-signal)]">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center border border-[var(--arc-line-strong)] text-[var(--arc-gold)]">
                 <LightbulbIcon className="h-3.5 w-3.5" />
               </span>
               <div className="min-w-0">
-                <div className="hl-label">tutorial</div>
-                <h3 className="mt-1 text-[17px] font-semibold leading-tight text-[var(--hl-ink)]">
+                <div className="arc-label">tutorial</div>
+                <h3 className="arc-title mt-1 text-[17px] font-semibold leading-tight text-[var(--arc-ink)]">
                   {step.title}
                 </h3>
               </div>
             </div>
 
-            <p className="text-[12.5px] leading-relaxed text-[var(--hl-ink-2)]">
+            <p className="text-[12.5px] leading-relaxed text-[var(--arc-ink-2)]">
               {step.content}
             </p>
 
-            <div className="flex items-center justify-between gap-2 border-t border-[var(--hl-line)] pt-2">
-              <span className="font-mono text-[10px] tabular-nums tracking-[0.06em] text-[var(--hl-ink-4)]">
+            <div className="flex items-center justify-between gap-2 arc-divider pt-2">
+              <span className="font-mono text-[10px] tabular-nums tracking-[0.06em] text-[var(--arc-ink-4)]">
                 {formatStepProgress(t.tutorial.overlayStep, currentStepIndex + 1, INTERACTIVE_TUTORIAL_STEPS.length)}
               </span>
 

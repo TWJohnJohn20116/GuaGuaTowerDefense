@@ -1,6 +1,6 @@
 import { PauseIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
-import { Btn } from '@/components/hl';
+import { Btn, Deck } from '@/components/hl';
 
 interface PauseBuildHudProps {
   onOpenMenu: () => void;
@@ -16,19 +16,19 @@ export function PauseBuildHud({ onOpenMenu, onResume }: PauseBuildHudProps) {
 
   return (
     <div className="pointer-events-none absolute inset-x-0 top-[52px] z-30 flex justify-center px-3">
-      <div className="pointer-events-auto flex items-center gap-2 border border-[var(--hl-line)] border-l-2 border-l-[var(--hl-caution)] bg-[var(--hl-deck)] px-2.5 py-1.5">
-        <PauseIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-caution)]" />
-        <span className="whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-caution)]">
+      <Deck className="pointer-events-auto flex items-center gap-2 arc-panel--flat border-l-2 border-l-[var(--arc-caution)] px-2.5 py-1.5">
+        <PauseIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-caution)]" />
+        <span className="whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-caution)]">
           {t.game.pauseBuildHud}
         </span>
-        <span className="mx-1 h-4 w-px bg-[var(--hl-line)]" />
+        <span className="mx-1 h-4 w-px bg-[var(--arc-line-strong)]" />
         <Btn variant="line" size="sm" onClick={onOpenMenu}>
           {t.game.pauseMenu}
         </Btn>
         <Btn variant="signal" size="sm" onClick={onResume}>
           {t.game.continueGame}
         </Btn>
-      </div>
+      </Deck>
     </div>
   );
 }

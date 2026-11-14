@@ -19,14 +19,14 @@ export type SceneStatColor =
 
 /** 資料色：只用來標記數值狀態 */
 const STAT_INK: Record<SceneStatColor, string> = {
-  red: 'var(--hl-alarm)',
-  yellow: 'var(--hl-caution)',
-  purple: 'var(--hl-reach)',
-  blue: 'var(--hl-reach)',
-  orange: 'var(--hl-caution)',
-  pink: 'var(--hl-reach)',
-  green: 'var(--hl-vital)',
-  cyan: 'var(--hl-reach)',
+  red: 'var(--arc-alert)',
+  yellow: 'var(--arc-caution)',
+  purple: 'var(--arc-reach)',
+  blue: 'var(--arc-reach)',
+  orange: 'var(--arc-caution)',
+  pink: 'var(--arc-reach)',
+  green: 'var(--arc-vital)',
+  cyan: 'var(--arc-reach)',
 };
 
 export function StatRecordSection({
@@ -45,9 +45,9 @@ export function StatRecordSection({
   return (
     <Deck notch className="flex flex-col gap-3 p-4">
       <div className="flex items-center gap-2.5">
-        <span className="flex h-5 w-5 items-center justify-center text-[var(--hl-ink-3)]">{icon}</span>
-        <span className="hl-label text-[var(--hl-ink-2)]">{title}</span>
-        <span className="h-px flex-1 bg-[var(--hl-line)]" />
+        <span className="flex h-5 w-5 items-center justify-center text-[var(--arc-ink-3)]">{icon}</span>
+        <span className="arc-label text-[var(--arc-ink-2)]">{title}</span>
+        <span className="arc-divider flex-1" />
       </div>
       {children}
     </Deck>
@@ -68,32 +68,32 @@ export function StatHeroBlock({
   accent: 'yellow' | 'purple' | 'cyan';
 }) {
   const tone: Record<typeof accent, string> = {
-    yellow: 'var(--hl-caution)',
-    purple: 'var(--hl-reach)',
-    cyan: 'var(--hl-reach)',
+    yellow: 'var(--arc-caution)',
+    purple: 'var(--arc-reach)',
+    cyan: 'var(--arc-reach)',
   };
 
   return (
     <div className="flex items-center gap-3">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-2)]">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-2)]">
         {icon}
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="hl-label">{label}</span>
+        <span className="arc-label">{label}</span>
         <span
-          className="font-mono text-[22px] font-semibold leading-none tabular-nums"
+          className="arc-num font-mono text-[22px] font-semibold leading-none tabular-nums"
           style={{ color: tone[accent] }}
         >
           {value}
         </span>
-        <span className="truncate text-[10.5px] text-[var(--hl-ink-3)]">{sub}</span>
+        <span className="truncate text-[10.5px] text-[var(--arc-ink-3)]">{sub}</span>
       </span>
     </div>
   );
 }
 
 export function StatSectionHeader({ icon, title }: { icon: React.ReactNode; title: string }) {
-  return <SegHead label={title} right={<span className="text-[var(--hl-ink-3)]">{icon}</span>} />;
+  return <SegHead label={title} right={<span className="text-[var(--arc-ink-3)]">{icon}</span>} />;
 }
 
 export function StatCard({
@@ -108,20 +108,20 @@ export function StatCard({
   color: SceneStatColor;
 }) {
   return (
-    <div className="flex flex-col gap-2.5 border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3 transition-colors duration-150 hover:border-[var(--hl-line-hot)]">
+    <Deck className="flex flex-col gap-2.5 arc-panel--flat rounded-sm p-3 transition-colors duration-150 hover:brightness-110">
       <div className="flex items-center gap-2">
         <span className="flex h-4 w-4 items-center justify-center" style={{ color: STAT_INK[color] }}>
           {icon}
         </span>
-        <span className="hl-label truncate">{label}</span>
+        <span className="arc-label truncate">{label}</span>
       </div>
       <p
-        className="font-mono text-[15px] font-semibold leading-none tabular-nums"
+        className="arc-num font-mono text-[15px] font-semibold leading-none tabular-nums"
         style={{ color: STAT_INK[color] }}
       >
         {value}
       </p>
-    </div>
+    </Deck>
   );
 }
 
@@ -135,12 +135,12 @@ export function StatBestRecordCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-2.5 border border-[var(--hl-line)] bg-[var(--hl-void-2)] p-3">
-      <div className="flex items-center gap-2 text-[var(--hl-ink-3)]">
+    <div className="flex flex-col gap-2.5 rounded-sm border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] p-3">
+      <div className="flex items-center gap-2 text-[var(--arc-ink-3)]">
         <span className="flex h-4 w-4 items-center justify-center">{icon}</span>
-        <span className="hl-label truncate">{label}</span>
+        <span className="arc-label truncate">{label}</span>
       </div>
-      <p className="font-mono text-[13.5px] font-semibold leading-none tabular-nums text-[var(--hl-ink)]">
+      <p className="arc-num font-mono text-[13.5px] font-semibold leading-none tabular-nums text-[var(--arc-ink)]">
         {value}
       </p>
     </div>

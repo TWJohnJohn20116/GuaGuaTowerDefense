@@ -15,6 +15,7 @@ import { VisualSection } from './dev-panel/VisualSection';
 import { ToolsSection } from './dev-panel/ToolsSection';
 import { InfoSection } from './dev-panel/InfoSection';
 import { DevSearchContext } from './dev-panel/common';
+import { IconBtn } from '@/components/hl';
 import { DEV_TAB_SEARCH_ENTRIES, pickDevTabForQuery, tabHasMatch } from '@/data/devSearch';
 
 interface DevPanelProps {
@@ -26,11 +27,11 @@ type DevTabId = 'state' | 'tools' | 'combat' | 'visual' | 'info';
 export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
   const { t } = useTranslation();
   const TABS = useMemo<{ id: DevTabId; label: string; icon: React.ReactNode; accent: string }[]>(() => [
-    { id: 'state', label: t.dev.tabState, icon: <CoinIcon className="w-3.5 h-3.5" />, accent: 'text-[var(--hl-caution)]' },
-    { id: 'tools', label: t.dev.tabTools, icon: <GearIcon className="w-3.5 h-3.5" />, accent: 'text-[var(--hl-ink-2)]' },
-    { id: 'combat', label: t.dev.tabCombat, icon: <FlameIcon className="w-3.5 h-3.5" />, accent: 'text-[var(--hl-alarm)]' },
-    { id: 'visual', label: t.dev.tabVisual, icon: <EyeIcon className="w-3.5 h-3.5" />, accent: 'text-[var(--hl-reach)]' },
-    { id: 'info', label: t.dev.tabInfo, icon: <ChartIcon className="w-3.5 h-3.5" />, accent: 'text-[var(--hl-vital)]' },
+    { id: 'state', label: t.dev.tabState, icon: <CoinIcon className="w-3.5 h-3.5" />, accent: 'text-[var(--arc-caution)]' },
+    { id: 'tools', label: t.dev.tabTools, icon: <GearIcon className="w-3.5 h-3.5" />, accent: 'text-[var(--arc-ink-2)]' },
+    { id: 'combat', label: t.dev.tabCombat, icon: <FlameIcon className="w-3.5 h-3.5" />, accent: 'text-[var(--arc-alert)]' },
+    { id: 'visual', label: t.dev.tabVisual, icon: <EyeIcon className="w-3.5 h-3.5" />, accent: 'text-[var(--arc-reach)]' },
+    { id: 'info', label: t.dev.tabInfo, icon: <ChartIcon className="w-3.5 h-3.5" />, accent: 'text-[var(--arc-vital)]' },
   ], [t]);
   const [internalOpen, setInternalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<DevTabId>('state');
@@ -110,8 +111,8 @@ export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
           whileTap={{ scale: 0.95 }}
           className={`fixed bottom-4 left-4 z-[9999] flex items-center gap-2 px-3.5 py-2  border shadow-[0_4px_20px_rgba(0,0,0,0.4)] text-[11px] font-extrabold tracking-widest uppercase transition-colors  ${
             isOpen
-              ? 'bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] text-[var(--hl-caution)]'
-              : 'bg-[#1a1d24]/80 hover:bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] hover:border-[rgba(255,182,39,0.38)] text-[var(--hl-caution)]/90 hover:text-[var(--hl-caution)]'
+              ? 'bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] text-[var(--arc-caution)]'
+              : 'bg-[var(--cn-card)] hover:bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] hover:border-[rgba(255,182,39,0.38)] text-[var(--arc-caution)]/90 hover:text-[var(--arc-caution)]'
           }`}
           title="開發者工具 (Ctrl+Shift+D / ESC)"
         >
@@ -135,7 +136,7 @@ export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
               transition={{ duration: 0.18 }}
               aria-label="關閉開發者工具"
             >
-              <div className="absolute inset-0 bg-black/60 " />
+              <div className="absolute inset-0 bg-[rgba(46,36,64,0.55)] " />
               {/* 動態光暈 */}
               <motion.div
                 className="absolute top-1/4 right-[180px] w-96 h-96  pointer-events-none bg-[rgba(255,182,39,0.12)]"
@@ -151,20 +152,20 @@ export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 380, opacity: 0 }}
               transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-              className="fixed top-0 right-0 h-full w-[380px] max-w-[94vw] z-[9998] flex flex-col bg-[#1a1d24]/95  border-l border-[var(--hl-line)] shadow-[-12px_0_60px_rgba(0,0,0,0.6)]"
+              className="fixed top-0 right-0 h-full w-[380px] max-w-[94vw] z-[9998] flex flex-col bg-[var(--cn-card)]  border-l border-[var(--cn-line-soft)] shadow-[-12px_0_60px_rgba(0,0,0,0.6)]"
             >
               {/* 頂部裝飾光暈 */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-24 bg-amber-500/[0.08] blur-3xl pointer-events-none" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-24 bg-[var(--cn-sun)]/[0.08] blur-3xl pointer-events-none" />
 
               {/* 標題列 */}
-              <header className="relative px-5 py-4 border-b border-[var(--hl-line)] flex items-center justify-between">
+              <header className="relative px-5 py-4 border-b border-[var(--cn-line-soft)] flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11  bg-[rgba(255,182,39,0.12)] border border-[rgba(255,182,39,0.38)] flex items-center justify-center ">
-                    <WrenchIcon className="w-5 h-5 text-[var(--hl-caution)]/90" />
+                    <WrenchIcon className="w-5 h-5 text-[var(--arc-caution)]/90" />
                   </div>
                   <div>
-                    <h2 className="text-base font-extrabold tracking-widest text-[var(--hl-ink)] uppercase">{t.dev.title}</h2>
-                    <p className="text-[10px] text-[var(--hl-ink-4)] tracking-widest uppercase mt-0.5">
+                    <h2 className="arc-title text-base font-extrabold tracking-widest text-[var(--arc-ink)] uppercase">{t.dev.title}</h2>
+                    <p className="text-[10px] text-[var(--arc-ink-4)] tracking-widest uppercase mt-0.5">
                       Ctrl+Shift+D · ESC · 1–5
                     </p>
                   </div>
@@ -174,7 +175,7 @@ export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
                   onClick={toggleOpen}
                   whileHover={{ scale: 1.05, rotate: 90 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-9 h-9  bg-[var(--hl-deck-2)] hover:bg-[rgba(255,75,62,0.12)] border border-[var(--hl-line)] hover:border-[rgba(255,75,62,0.38)] flex items-center justify-center text-[var(--hl-ink-3)] hover:text-[var(--hl-alarm)] transition-colors"
+                  className="arc-btn arc-btn--ghost w-9 h-9 px-0 hover:bg-[rgba(255,61,113,0.12)] flex items-center justify-center text-[var(--arc-ink-3)] hover:text-[var(--arc-alert)] transition-colors"
                   aria-label="關閉"
                   title="關閉 (ESC)"
                 >
@@ -186,8 +187,8 @@ export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
               <DevStatusBar />
 
               {/* 浮動 Tab 列 — 參考創意工坊風格 */}
-              <div className="relative px-3 pt-3 pb-2 border-b border-[var(--hl-line)]">
-                <div className="flex items-center gap-1 bg-black/40  border border-[var(--hl-line)]  p-1 ">
+              <div className="relative px-3 pt-3 pb-2 border-b border-[var(--cn-line-soft)]">
+                <div className="flex items-center gap-1 rounded-sm bg-[var(--cn-card-2)]  border-[3px] border-[var(--cn-line-soft)]  p-1 ">
                   {TABS.map((tab, idx) => {
                     const isActive = resolvedTab === tab.id;
                     return (
@@ -199,18 +200,18 @@ export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
                         title={`${tab.label} (${idx + 1})`}
                         className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2  text-[10px] font-extrabold tracking-widest uppercase transition-all ${
                           isActive
-                            ? 'bg-[var(--hl-deck-3)] text-[var(--hl-ink)]  border border-[var(--hl-line)]'
-                            : 'text-[var(--hl-ink-4)] hover:text-[var(--hl-ink-2)] hover:bg-[var(--hl-deck-2)] border border-transparent'
+                            ? 'bg-[var(--arc-deck-3)] text-[var(--arc-ink)]  border-[3px] border-[var(--cn-line-soft)]'
+                            : 'text-[var(--arc-ink-4)] hover:text-[var(--arc-ink-2)] hover:bg-[var(--arc-deck-2)] border border-transparent'
                         }`}
                       >
                         <span
                           className={`absolute top-0.5 right-1 w-3.5 h-3.5  text-[8px] font-black flex items-center justify-center font-mono ${
-                            isActive ? 'bg-[var(--hl-deck-4)] text-[var(--hl-ink-2)]' : 'bg-[var(--hl-deck-2)] text-[var(--hl-ink-4)]'
+                            isActive ? 'bg-[var(--arc-deck-3)] text-[var(--arc-ink-2)]' : 'bg-[var(--arc-deck-2)] text-[var(--arc-ink-4)]'
                           }`}
                         >
                           {idx + 1}
                         </span>
-                        <span className={isActive ? tab.accent : 'text-[var(--hl-ink-4)]'}>{tab.icon}</span>
+                        <span className={isActive ? tab.accent : 'text-[var(--arc-ink-4)]'}>{tab.icon}</span>
                         <span>{tab.label}</span>
                       </button>
                     );
@@ -221,28 +222,27 @@ export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
               {/* 搜尋欄 */}
               <div className="relative px-3 pb-2">
                 <div
-                  className={`flex items-center gap-2 px-3 py-1.5  border bg-black/30 transition-colors ${
-                    searchQuery ? 'border-[rgba(255,182,39,0.38)]' : 'border-[var(--hl-line)] hover:border-[var(--hl-line-strong)]'
+                  className={`flex items-center gap-2 rounded-sm px-3 py-1.5  border bg-[var(--cn-card-2)] transition-colors ${
+                    searchQuery ? 'border-[rgba(255,182,39,0.38)]' : 'border-[var(--cn-line-soft)] hover:border-[var(--arc-line-strong)]'
                   }`}
                 >
-                  <SearchIcon className={`w-3.5 h-3.5 flex-shrink-0 ${searchQuery ? 'text-[var(--hl-caution)]/90' : 'text-[var(--hl-ink-4)]'}`} />
+                  <SearchIcon className={`w-3.5 h-3.5 flex-shrink-0 ${searchQuery ? 'text-[var(--arc-caution)]/90' : 'text-[var(--arc-ink-4)]'}`} />
                   <input
                     ref={searchInputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="搜尋區塊（Ctrl+F）"
-                    className="flex-1 min-w-0 bg-transparent text-[var(--hl-ink)]/85 text-[11px] font-bold tracking-wider placeholder:text-[var(--hl-ink-4)] focus:outline-none"
+                    className="flex-1 min-w-0 bg-transparent text-[var(--arc-ink)]/85 text-[11px] font-bold tracking-wider placeholder:text-[var(--arc-ink-4)] focus:outline-none"
                   />
                   {searchQuery && (
-                    <button
-                      type="button"
+                    <IconBtn
+                      label="清除搜尋"
                       onClick={() => setSearchQuery('')}
-                      className="w-5 h-5  text-[var(--hl-ink-4)] hover:text-[var(--hl-alarm)] hover:bg-[var(--hl-deck-2)] flex items-center justify-center transition-colors flex-shrink-0"
-                      aria-label="清除搜尋"
+                      className="w-5 h-5  text-[var(--arc-ink-4)] hover:text-[var(--arc-alert)] hover:bg-[var(--arc-deck-2)] flex items-center justify-center transition-colors flex-shrink-0"
                     >
                       <CrossIcon className="w-3 h-3" />
-                    </button>
+                    </IconBtn>
                   )}
                 </div>
               </div>
@@ -264,7 +264,7 @@ export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
                       {resolvedTab === 'tools' && <ToolsSection />}
                       {resolvedTab === 'info' && <InfoSection />}
                       {searchMiss && (
-                        <p className="px-2 py-8 text-center text-[11px] font-bold tracking-widest text-[var(--hl-ink-4)]">
+                        <p className="px-2 py-8 text-center text-[11px] font-bold tracking-widest text-[var(--arc-ink-4)]">
                           {t.dev.searchEmpty}
                         </p>
                       )}
@@ -274,8 +274,8 @@ export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
               </DevSearchContext.Provider>
 
               {/* 頁尾 */}
-              <footer className="relative px-4 py-2.5 border-t border-[var(--hl-line)] bg-black/30 flex items-center justify-between">
-                <div className="text-[10px] text-[var(--hl-ink-4)] tracking-widest uppercase font-mono">
+              <footer className="relative px-4 py-2.5 border-t border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] flex items-center justify-between">
+                <div className="text-[10px] text-[var(--arc-ink-4)] tracking-widest uppercase font-mono">
                   guagua-td · dev · 1–5 · Ctrl+F
                 </div>
                 <div className={`text-[10px] font-extrabold tracking-widest uppercase ${activeTabMeta.accent}`}>
@@ -337,27 +337,27 @@ const DevStatusBar = () => {
   const activeIndicators = indicators.filter((ind) => ind.active);
 
   const accentMap: Record<string, string> = {
-    amber: 'bg-[rgba(255,182,39,0.12)] text-[var(--hl-caution)] border-[rgba(255,182,39,0.38)]',
-    rose: 'bg-[rgba(255,75,62,0.12)] text-[var(--hl-alarm)] border-[rgba(255,75,62,0.38)]',
-    emerald: 'bg-[rgba(56,224,143,0.12)] text-[var(--hl-vital)] border-[rgba(56,224,143,0.38)]',
-    purple: 'bg-purple-500/15 text-[var(--hl-ink-2)] border-[var(--hl-line-strong)]',
-    cyan: 'bg-[rgba(111,168,255,0.12)] text-[var(--hl-reach)] border-[rgba(111,168,255,0.38)]',
+    amber: 'bg-[rgba(255,182,39,0.12)] text-[var(--arc-caution)] border-[rgba(255,182,39,0.38)]',
+    rose: 'bg-[rgba(255,61,113,0.12)] text-[var(--arc-alert)] border-[rgba(255,61,113,0.38)]',
+    emerald: 'bg-[rgba(56,224,143,0.12)] text-[var(--arc-vital)] border-[rgba(56,224,143,0.38)]',
+    purple: 'bg-[var(--cn-grape-soft)] text-[var(--arc-ink-2)] border-[var(--arc-line-strong)]',
+    cyan: 'bg-[rgba(111,140,255,0.12)] text-[var(--arc-reach)] border-[rgba(111,140,255,0.38)]',
   };
 
   return (
-    <div className="relative px-3 pt-2 pb-1 border-b border-[var(--hl-line)]">
+    <div className="relative px-3 pt-2 pb-1 border-b border-[var(--cn-line-soft)]">
       {activeIndicators.length === 0 ? (
-        <div className="text-[9px] text-[var(--hl-ink-4)] tracking-widest uppercase text-center py-1 font-bold">
+        <div className="text-[9px] text-[var(--arc-ink-4)] tracking-widest uppercase text-center py-1 font-bold">
           目前無啟用中的開關
         </div>
       ) : (
         <div className="flex flex-wrap items-center gap-1">
-          <span className="text-[9px] font-black tracking-[0.3em] text-[var(--hl-ink-4)] uppercase mr-0.5">啟用</span>
+          <span className="text-[9px] font-black tracking-[0.3em] text-[var(--arc-ink-4)] uppercase mr-0.5">啟用</span>
           {activeIndicators.map((ind) => (
             <span
               key={ind.id}
               title={ind.title}
-              className={`inline-flex items-center gap-1 px-1.5 py-0.5  border text-[9px] font-black tracking-widest uppercase ${
+              className={`arc-chip inline-flex items-center gap-1 px-1.5 py-0.5  border text-[9px] font-black tracking-widest uppercase ${
                 accentMap[ind.accent] ?? accentMap.cyan
               }`}
             >

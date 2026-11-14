@@ -129,7 +129,7 @@ const createComponents = (compact: boolean): Components => ({
 
   // 水平線
   hr: () => (
-    <hr className="my-3 border-none h-px bg-[var(--hl-deck-2)] from-transparent via-nordic-border/50 to-transparent" />
+    <hr className="my-3 arc-divider" />
   ),
 
   // 表格
@@ -177,7 +177,7 @@ const createComponents = (compact: boolean): Components => ({
       return (
         <span className={`inline-flex items-center justify-center w-4 h-4  border mr-2 flex-shrink-0 ${
           checked
-            ? 'bg-[rgba(56,224,143,0.12)] border-[rgba(56,224,143,0.38)] text-[var(--hl-vital)]'
+            ? 'bg-[rgba(56,224,143,0.12)] border-[rgba(56,224,143,0.38)] text-[var(--arc-vital)]'
             : 'bg-nordic-bg/50 border-nordic-border/50'
         }`}>
           {checked && <span className="text-xs">✓</span>}

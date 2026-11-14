@@ -7,11 +7,12 @@ import type { PlayerSkillId } from '@/data/playerSkillData';
 import { useGameStore } from '@/store/gameStore';
 import { useTranslation } from '@/i18n';
 import { OpenBookIcon } from '@/components/ui/Icons';
+import { IconBtn } from '@/components/hl';
 import { playUiHover } from '@/services/audioService';
 import { COUNTER_KEY_TO_TOWER } from './pauseNextWaveHints';
 
 const iconBtnClass =
- 'inline-flex items-center justify-center w-6 h-6 border border-[var(--hl-line)] bg-[var(--hl-deck-2)] text-[var(--hl-ink)]/45 hover:text-[var(--hl-ink-2)] hover:bg-[var(--hl-deck-2)] hover:border-[var(--hl-line)] transition-colors flex-shrink-0';
+ 'inline-flex items-center justify-center w-6 h-6 border border-[var(--arc-line-strong)] bg-[var(--arc-deck-2)] text-[var(--arc-ink-2)] hover:text-[var(--arc-cyan)] hover:bg-[var(--arc-deck-3)] hover:border-[var(--arc-cyan-edge)] transition-colors flex-shrink-0';
 
 function PauseEncyclopediaIconButton({
  title,
@@ -23,16 +24,14 @@ function PauseEncyclopediaIconButton({
  className?: string;
 }) {
  return (
- <button
- type="button"
+ <IconBtn
+ label={title}
  onClick={onClick}
  onMouseEnter={() => playUiHover()}
  className={`${iconBtnClass} ${className}`}
- title={title}
- aria-label={title}
  >
  <OpenBookIcon className="w-3.5 h-3.5"/>
- </button>
+ </IconBtn>
  );
 }
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getSnapshot, type PerfSnapshot } from '@/utils/perfMonitor';
 import { useDevStore } from '@/store/devStore';
 import { useGameStore } from '@/store/gameStore';
+import { Num } from '@/components/hl';
 
 const POLL_MS = 250;
 
@@ -12,11 +13,11 @@ const formatMs = (v: number): string => {
 };
 
 const colorForAvg = (avg: number): string => {
-  if (avg < 0.5) return 'text-[var(--hl-vital)]';
-  if (avg < 2) return 'text-lime-400';
-  if (avg < 5) return 'text-[var(--hl-caution)]';
-  if (avg < 10) return 'text-[var(--hl-caution)]';
-  return 'text-[var(--hl-alarm)]';
+  if (avg < 0.5) return 'text-[var(--arc-vital)]';
+  if (avg < 2) return 'text-[var(--cn-mint-deep)]';
+  if (avg < 5) return 'text-[var(--arc-caution)]';
+  if (avg < 10) return 'text-[var(--arc-caution)]';
+  return 'text-[var(--arc-alert)]';
 };
 
 export const PerfOverlay = () => {
@@ -42,15 +43,15 @@ export const PerfOverlay = () => {
   const avgLoopMsPerFrame = snapshot.framesInWindow > 0 ? totalLoopMs / snapshot.framesInWindow : 0;
 
   return (
-    <div className="fixed top-4 right-4 z-[9998] bg-black/85 text-[var(--hl-ink)] text-xs font-mono  border border-[rgba(56,224,143,0.38)]  p-3 min-w-[260px] pointer-events-none">
+    <div className="fixed top-4 right-4 z-[9998] bg-[var(--cn-card-2)] text-[var(--arc-ink)] text-xs font-mono  border border-[rgba(56,224,143,0.38)]  p-3 min-w-[260px] pointer-events-none">
       <div className="flex items-center justify-between border-b border-[rgba(56,224,143,0.38)] pb-1.5 mb-2">
-        <span className="text-[var(--hl-vital)] font-semibold tracking-wider">PERF MONITOR</span>
-        <span className="text-[var(--hl-vital)]">{fps} fps</span>
+        <span className="text-[var(--arc-vital)] font-semibold tracking-wider">PERF MONITOR</span>
+        <Num value={`${fps} fps`} tone="vital" size="sm" />
       </div>
       <div className="grid grid-cols-3 gap-x-2 text-[10px] text-nordic-muted mb-1.5">
-        <div>敵人 <span className="text-[var(--hl-ink)]">{enemyCount}</span></div>
-        <div>塔 <span className="text-[var(--hl-ink)]">{towerCount}</span></div>
-        <div>子彈 <span className="text-[var(--hl-ink)]">{projectileCount}</span></div>
+        <div>敵人 <span className="text-[var(--arc-ink)]">{enemyCount}</span></div>
+        <div>塔 <span className="text-[var(--arc-ink)]">{towerCount}</span></div>
+        <div>子彈 <span className="text-[var(--arc-ink)]">{projectileCount}</span></div>
       </div>
       <div className="border-t border-[rgba(56,224,143,0.38)] pt-1.5">
         <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-2 text-[10px] text-nordic-muted/80 mb-1">

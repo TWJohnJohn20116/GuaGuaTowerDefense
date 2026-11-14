@@ -42,19 +42,19 @@ export function Tabs<T extends string = string>({
     switch (variant) {
       case 'default':
       case 'glass':
-        return `${baseStyles} ${widthStyles} gap-1.5 p-1.5  bg-black/20 border border-[var(--hl-line)] `;
+        return `${baseStyles} ${widthStyles} gap-1.5 p-1.5  bg-[var(--cn-card-2)] border-[3px] border-[var(--cn-line-soft)] `;
       case 'pills':
-        return `${baseStyles} ${widthStyles} p-1.5 bg-black/30  border border-[var(--hl-line)]`;
+        return `${baseStyles} ${widthStyles} p-1.5 bg-[var(--cn-card-2)]  border-[3px] border-[var(--cn-line-soft)]`;
       case 'underline':
-        return `${baseStyles} ${widthStyles} gap-4 border-b border-[var(--hl-line)]`;
+        return `${baseStyles} ${widthStyles} gap-4 border-b border-[var(--cn-line-soft)]`;
       case 'solid':
-        return `${baseStyles} ${widthStyles} p-1 bg-black/40 border border-[var(--hl-line)] `;
+        return `${baseStyles} ${widthStyles} p-1 bg-[var(--cn-card-2)] border-[3px] border-[var(--cn-line-soft)] `;
       case 'minimal':
         return `${baseStyles} ${widthStyles} gap-2`;
       case 'cards':
         return `${baseStyles} ${widthStyles} gap-2`;
       default:
-        return `${baseStyles} ${widthStyles} gap-1.5 p-1.5  bg-black/20 border border-[var(--hl-line)]`;
+        return `${baseStyles} ${widthStyles} gap-1.5 p-1.5  bg-[var(--cn-card-2)] border-[3px] border-[var(--cn-line-soft)]`;
     }
   };
 
@@ -67,38 +67,38 @@ export function Tabs<T extends string = string>({
       case 'default':
         return `${baseStyles} ${flexStyles} px-4 py-2.5 
           ${isActive
-            ? `bg-[var(--hl-deck-2)] ${gradient} text-[var(--hl-ink)] `
-            : 'text-[var(--hl-ink-4)] hover:text-[var(--hl-ink)] hover:bg-[var(--hl-deck-2)]'
+            ? `bg-[var(--arc-deck-2)] ${gradient} text-[var(--arc-ink)] `
+            : 'text-[var(--arc-ink-4)] hover:text-[var(--arc-ink)] hover:bg-[var(--arc-deck-2)]'
           }`;
       
       case 'pills':
         return `${baseStyles} ${flexStyles} px-5 py-2.5 
           ${isActive
-            ? `bg-[var(--hl-deck-2)] ${gradient} text-[var(--hl-ink)] shadow-[0_0_20px_rgba(255,255,255,0.1)] border border-[var(--hl-line-strong)]`
-            : 'bg-black/20 text-[var(--hl-ink-4)] border border-[var(--hl-line)] hover:bg-[var(--hl-deck-2)] hover:text-[var(--hl-ink)]'
+            ? `bg-[var(--arc-deck-2)] ${gradient} text-[var(--arc-ink)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)] border border-[var(--arc-line-strong)]`
+            : 'bg-[var(--cn-card-2)] text-[var(--arc-ink-4)] border-[3px] border-[var(--cn-line-soft)] hover:bg-[var(--arc-deck-2)] hover:text-[var(--arc-ink)]'
           }`;
           
       case 'underline':
-          return `${baseStyles} ${flexStyles} px-1 py-3 hover:text-[var(--hl-ink)]
-            ${isActive ? 'text-[var(--hl-ink)]' : 'text-[var(--hl-ink-4)]'}`;
+          return `${baseStyles} ${flexStyles} px-1 py-3 hover:text-[var(--arc-ink)]
+            ${isActive ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-4)]'}`;
           
       case 'solid':
           return `${baseStyles} ${flexStyles} px-4 py-2.5 
             ${isActive
-              ? 'bg-[var(--hl-deck-3)] text-[var(--hl-ink)]  border border-[var(--hl-line)]'
-              : 'text-[var(--hl-ink-4)] hover:text-[var(--hl-ink)] hover:bg-[var(--hl-deck-2)]'
+              ? 'bg-[var(--arc-deck-3)] text-[var(--arc-ink)]  border-[3px] border-[var(--cn-line-soft)]'
+              : 'text-[var(--arc-ink-4)] hover:text-[var(--arc-ink)] hover:bg-[var(--arc-deck-2)]'
             }`;
           
       case 'minimal':
         case 'glass':
           return `${baseStyles} ${flexStyles} px-3 py-1.5 
-            ${isActive ? 'text-[var(--hl-ink)] font-black tracking-widest uppercase text-[11px]' : 'text-[var(--hl-ink-4)] hover:text-[var(--hl-ink)] font-bold tracking-widest uppercase text-[11px]'}`;
+            ${isActive ? 'text-[var(--arc-ink)] font-black tracking-widest uppercase text-[11px]' : 'text-[var(--arc-ink-4)] hover:text-[var(--arc-ink)] font-bold tracking-widest uppercase text-[11px]'}`;
           
       case 'cards':
         return `${baseStyles} ${flexStyles} px-4 py-3 -t-xl border-t border-l border-r border-transparent
           ${isActive 
-            ? 'bg-black/40 border-[var(--hl-line)] text-[var(--hl-ink)] z-10' 
-            : 'bg-black/20 text-[var(--hl-ink-4)] hover:bg-[var(--hl-deck-2)] border-b border-[var(--hl-line)]'}`;
+            ? 'bg-[var(--cn-card-2)] border-[var(--cn-line-soft)] text-[var(--arc-ink)] z-10' 
+            : 'bg-[var(--cn-card-2)] text-[var(--arc-ink-4)] hover:bg-[var(--arc-deck-2)] border-b border-[var(--cn-line-soft)]'}`;
             
       default:
         return baseStyles;
@@ -106,7 +106,7 @@ export function Tabs<T extends string = string>({
   };
 
   return (
-    <div className={`${getContainerStyles()} ${className}`}>
+    <div className={`${getContainerStyles()} rounded-sm ${className}`}>
       {tabs.map((tab) => {
         const isActive = activeId === tab.id;
         const activeGradient = tab.gradient || 'from-nordic-primary to-nordic-accent';
@@ -123,7 +123,7 @@ export function Tabs<T extends string = string>({
             {isActive && variant === 'underline' && (
               <motion.div
                 layoutId={`underline-${activeGradient}`}
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--hl-deck-2)]   -t-full shadow-[0_-2px_8px_rgba(96,165,250,0.5)]"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--arc-deck-2)]   -t-full shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]"
                 initial={false}
                 transition={{ type: "spring", stiffness: 500, damping: 35 }}
               />
@@ -134,10 +134,10 @@ export function Tabs<T extends string = string>({
                 layoutId="activeTabBackground"
                 className={`absolute inset-0 ${
                   variant === 'solid' 
-                    ? 'bg-[var(--hl-deck-3)] border border-[var(--hl-line-strong)] shadow-[0_0_15px_rgba(255,255,255,0.15)]'
+                    ? 'bg-[var(--arc-deck-3)] border border-[var(--arc-line-strong)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]'
                     : variant === 'minimal' || variant === 'glass'
-                      ? 'bg-[var(--hl-deck-3)] border border-[var(--hl-line)] '
-                      : 'bg-[var(--hl-deck-3)] border border-[var(--hl-line)] shadow-[0_2px_10px_rgba(0,0,0,0.2)]'
+                      ? 'bg-[var(--arc-deck-3)] border-[3px] border-[var(--cn-line-soft)] '
+                      : 'bg-[var(--arc-deck-3)] border-[3px] border-[var(--cn-line-soft)] shadow-[0_2px_10px_rgba(0,0,0,0.2)]'
                 }  mix-blend-overlay pointer-events-none`}
                 initial={false}
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -145,7 +145,7 @@ export function Tabs<T extends string = string>({
             )}
             
             {tab.icon && (
-              <span className={`flex-shrink-0 flex items-center justify-center relative z-10 ${isActive && (variant === 'default' || variant === 'pills') ? '[&>svg]:!text-[var(--hl-ink)]' : ''}`}>
+              <span className={`flex-shrink-0 flex items-center justify-center relative z-10 ${isActive && (variant === 'default' || variant === 'pills') ? '[&>svg]:!text-[var(--arc-ink)]' : ''}`}>
                 {tab.icon}
               </span>
             )}
@@ -153,7 +153,7 @@ export function Tabs<T extends string = string>({
             {tab.badge !== undefined && (
               <span className={`
                 flex-shrink-0 px-2 py-0.5  text-[9px] font-extrabold leading-none relative z-10 
-                ${isActive && (variant === 'default' || variant === 'pills') ? 'bg-black/30 text-[var(--hl-ink)] border border-black/20' : 'bg-black/40 text-[var(--hl-ink-3)] border border-[var(--hl-line)]'}
+                ${isActive && (variant === 'default' || variant === 'pills') ? 'bg-[var(--cn-card-2)] text-[var(--arc-ink)] border border-black/20' : 'bg-[var(--cn-card-2)] text-[var(--arc-ink-3)] border-[3px] border-[var(--cn-line-soft)]'}
               `}>
                 {tab.badge}
               </span>

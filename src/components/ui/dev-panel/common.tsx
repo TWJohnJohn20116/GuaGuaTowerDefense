@@ -2,17 +2,18 @@ import { createContext, useContext } from 'react';
 import { motion } from 'framer-motion';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { sectionMatches } from '@/data/devSearch';
+import { Deck, Btn, Input } from '@/components/hl';
 
 export type Accent = 'cyan' | 'emerald' | 'purple' | 'violet' | 'amber' | 'rose' | 'white';
 
 const accentTextMap: Record<Accent, string> = {
-  cyan: 'text-[var(--hl-reach)]',
-  emerald: 'text-[var(--hl-vital)]',
-  purple: 'text-[var(--hl-ink-2)]',
-  violet: 'text-violet-300',
-  amber: 'text-[var(--hl-caution)]',
-  rose: 'text-[var(--hl-alarm)]',
-  white: 'text-[var(--hl-ink-2)]',
+  cyan: 'text-[var(--arc-reach)]',
+  emerald: 'text-[var(--arc-vital)]',
+  purple: 'text-[var(--arc-ink-2)]',
+  violet: 'text-[var(--cn-grape-deep)]',
+  amber: 'text-[var(--arc-caution)]',
+  rose: 'text-[var(--arc-alert)]',
+  white: 'text-[var(--arc-ink-2)]',
 };
 
 // ============================================================
@@ -38,12 +39,12 @@ export const DevGroup = ({ label, icon, accent = 'white', children }: {
 }) => (
   <div className="space-y-2">
     <div className="flex items-center gap-2 px-1 pt-1">
-      <div className={`h-px flex-1 bg-[var(--hl-deck-2)] from-transparent  to-transparent`} />
+      <hr className={`arc-divider flex-1`} />
       {icon && <span className={accentTextMap[accent]}>{icon}</span>}
       <span className={`text-[9px] font-black tracking-[0.3em] uppercase ${accentTextMap[accent]}`}>
         {label}
       </span>
-      <div className={`h-px flex-1 bg-[var(--hl-deck-2)] from-transparent  to-transparent`} />
+      <hr className={`arc-divider flex-1`} />
     </div>
     <div className="space-y-3">
       {children}
@@ -66,15 +67,15 @@ export const DevSection = ({ title, icon, children, accent = 'white', keywords }
   if (!sectionMatches(title, keywords, query)) return null;
 
   return (
-    <div className="bg-[#0e1015]/60   border border-[var(--hl-line)] shadow-[0_4px_20px_rgba(0,0,0,0.3)] overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-[var(--hl-line)] flex items-center gap-2 bg-[var(--hl-deck-2)]">
+    <Deck className="overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-[var(--cn-line-soft)] flex items-center gap-2 bg-[var(--arc-deck-2)]">
         {icon && <span className={accentTextMap[accent]}>{icon}</span>}
-        <span className="text-[11px] font-extrabold tracking-widest text-[var(--hl-ink)]/85 uppercase">{title}</span>
+        <span className="text-[11px] font-extrabold tracking-widest text-[var(--arc-ink)]/85 uppercase">{title}</span>
       </div>
       <div className="p-3 space-y-2">
         {children}
       </div>
-    </div>
+    </Deck>
   );
 };
 
@@ -90,12 +91,12 @@ export const DevToggle = ({ icon, label, value, onChange, accent = 'cyan' }: {
   accent?: 'cyan' | 'emerald' | 'purple' | 'violet' | 'amber' | 'rose';
 }) => {
   const accentMap = {
-    cyan: 'bg-[rgba(111,168,255,0.12)] text-[var(--hl-reach)]/90 border-[rgba(111,168,255,0.38)]',
-    emerald: 'bg-[rgba(56,224,143,0.12)] text-[var(--hl-vital)]/90 border-[rgba(56,224,143,0.38)]',
-    purple: 'bg-purple-500/15 text-[var(--hl-ink-2)]/90 border-[var(--hl-line-strong)]',
-    violet: 'bg-violet-500/15 text-violet-200/90 border-violet-400/40',
-    amber: 'bg-[rgba(255,182,39,0.12)] text-[var(--hl-caution)]/90 border-[rgba(255,182,39,0.38)]',
-    rose: 'bg-[rgba(255,75,62,0.12)] text-[var(--hl-alarm)]/90 border-[rgba(255,75,62,0.38)]',
+    cyan: 'bg-[rgba(111,140,255,0.12)] text-[var(--arc-reach)]/90 border-[rgba(111,140,255,0.38)]',
+    emerald: 'bg-[rgba(56,224,143,0.12)] text-[var(--arc-vital)]/90 border-[rgba(56,224,143,0.38)]',
+    purple: 'bg-[var(--cn-grape-soft)] text-[var(--arc-ink-2)]/90 border-[var(--arc-line-strong)]',
+    violet: 'bg-[var(--cn-grape-soft)] text-[var(--cn-grape-deep)] border-[var(--cn-grape)]/40',
+    amber: 'bg-[rgba(255,182,39,0.12)] text-[var(--arc-caution)]/90 border-[rgba(255,182,39,0.38)]',
+    rose: 'bg-[rgba(255,61,113,0.12)] text-[var(--arc-alert)]/90 border-[rgba(255,61,113,0.38)]',
   };
 
   return (
@@ -105,16 +106,16 @@ export const DevToggle = ({ icon, label, value, onChange, accent = 'cyan' }: {
       className={`w-full flex items-center gap-2.5 px-3 py-2  transition-all border ${
         value
           ? accentMap[accent]
-          : 'bg-[var(--hl-deck-2)] border-[var(--hl-line)] text-[var(--hl-ink-3)] hover:bg-[var(--hl-deck-2)] hover:text-[var(--hl-ink)]'
+          : 'bg-[var(--arc-deck-2)] border-[var(--cn-line-soft)] text-[var(--arc-ink-3)] hover:bg-[var(--arc-deck-2)] hover:text-[var(--arc-ink)]'
       }`}
     >
       {icon && <span className="flex-shrink-0">{icon}</span>}
       <span className="flex-1 text-left text-[11px] font-bold tracking-widest uppercase">{label}</span>
       <div className={`w-9 h-5  transition-colors relative flex-shrink-0 ${
-        value ? 'bg-[var(--hl-deck-4)]' : 'bg-[var(--hl-deck-3)]'
+        value ? 'bg-[var(--arc-deck-3)]' : 'bg-[var(--arc-deck-3)]'
       }`}>
         <div
-          className="w-3.5 h-3.5  bg-[var(--hl-ink)] absolute top-0.5 "
+          className="w-3.5 h-3.5  bg-[var(--arc-ink)] absolute top-0.5 "
           style={{ transform: `translateX(${value ? 18 : 4}px)`, transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)' }}
         />
       </div>
@@ -135,11 +136,11 @@ export const DevButton = ({ icon, label, onClick, variant = 'default', disabled,
   title?: string;
 }) => {
   const variantMap = {
-    default: 'bg-[var(--hl-deck-2)] hover:bg-[var(--hl-deck-3)] text-[var(--hl-ink-2)] border-[var(--hl-line)]',
-    primary: 'bg-[rgba(111,168,255,0.12)] hover:bg-[rgba(111,168,255,0.12)] text-[var(--hl-reach)]/90 border-[rgba(111,168,255,0.38)]',
-    success: 'bg-[rgba(56,224,143,0.12)] hover:bg-[rgba(56,224,143,0.12)] text-[var(--hl-vital)]/90 border-[rgba(56,224,143,0.38)]',
-    warning: 'bg-[rgba(255,182,39,0.12)] hover:bg-[rgba(255,182,39,0.12)] text-[var(--hl-caution)]/90 border-[rgba(255,182,39,0.38)]',
-    danger: 'bg-[rgba(255,75,62,0.12)] hover:bg-[rgba(255,75,62,0.12)] text-[var(--hl-alarm)]/90 border-[rgba(255,75,62,0.38)]',
+    default: 'bg-[var(--arc-deck-2)] hover:bg-[var(--arc-deck-3)] text-[var(--arc-ink-2)] border-[var(--cn-line-soft)]',
+    primary: 'bg-[rgba(111,140,255,0.12)] hover:bg-[rgba(111,140,255,0.12)] text-[var(--arc-reach)]/90 border-[rgba(111,140,255,0.38)]',
+    success: 'bg-[rgba(56,224,143,0.12)] hover:bg-[rgba(56,224,143,0.12)] text-[var(--arc-vital)]/90 border-[rgba(56,224,143,0.38)]',
+    warning: 'bg-[rgba(255,182,39,0.12)] hover:bg-[rgba(255,182,39,0.12)] text-[var(--arc-caution)]/90 border-[rgba(255,182,39,0.38)]',
+    danger: 'bg-[rgba(255,61,113,0.12)] hover:bg-[rgba(255,61,113,0.12)] text-[var(--arc-alert)]/90 border-[rgba(255,61,113,0.38)]',
   };
 
   return (
@@ -151,7 +152,7 @@ export const DevButton = ({ icon, label, onClick, variant = 'default', disabled,
       whileTap={disabled ? {} : { scale: 0.97 }}
       className={`w-full flex items-center justify-center gap-2 px-3 py-2  border text-[11px] font-bold tracking-widest uppercase transition-all ${
         disabled
-          ? 'bg-[var(--hl-deck-2)] border-[var(--hl-line)] text-[var(--hl-ink-4)] cursor-not-allowed'
+          ? 'bg-[var(--arc-deck-2)] border-[var(--cn-line-soft)] text-[var(--arc-ink-4)] cursor-not-allowed'
           : variantMap[variant]
       }`}
     >
@@ -183,33 +184,35 @@ export const DevNumberInput = ({ label, value, onChange, min, max, step = 1, suf
 
   return (
     <div className="flex items-center gap-2">
-      {label && <span className="text-[10px] font-bold tracking-widest text-[var(--hl-ink-3)] uppercase flex-shrink-0">{label}</span>}
-      <div className="flex items-center bg-black/30 border border-[var(--hl-line)]  overflow-hidden flex-1">
-        <button
-          type="button"
+      {label && <span className="text-[10px] font-bold tracking-widest text-[var(--arc-ink-3)] uppercase flex-shrink-0">{label}</span>}
+      <Deck tone="sunken" className="flex items-center overflow-hidden flex-1">
+        <Btn
+          variant="ghost"
+          size="sm"
           onClick={() => onChange(clamp(value - step))}
-          className="px-2.5 py-1.5 text-[var(--hl-ink-4)] hover:bg-[var(--hl-deck-3)] hover:text-[var(--hl-ink)] transition-colors text-sm font-bold"
+          className="px-2.5 py-1.5 text-[var(--arc-ink-4)] hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink)] transition-colors text-sm font-bold"
         >
           −
-        </button>
-        <input
+        </Btn>
+        <Input
           type="number"
-          className="flex-1 min-w-0 bg-transparent text-center text-[var(--hl-ink)] text-xs font-mono font-bold px-1 py-1.5 focus:outline-none"
+          className="flex-1 min-w-0 bg-transparent text-center text-[var(--arc-ink)] text-xs font-mono font-bold px-1 py-1.5 focus:outline-none"
           value={value}
           onChange={(e) => onChange(clamp(Number(e.target.value) || 0))}
           min={min}
           max={max}
           step={step}
         />
-        {suffix && <span className="px-2 text-[10px] text-[var(--hl-ink-4)] font-mono">{suffix}</span>}
-        <button
-          type="button"
+        {suffix && <span className="px-2 text-[10px] text-[var(--arc-ink-4)] font-mono">{suffix}</span>}
+        <Btn
+          variant="ghost"
+          size="sm"
           onClick={() => onChange(clamp(value + step))}
-          className="px-2.5 py-1.5 text-[var(--hl-ink-4)] hover:bg-[var(--hl-deck-3)] hover:text-[var(--hl-ink)] transition-colors text-sm font-bold"
+          className="px-2.5 py-1.5 text-[var(--arc-ink-4)] hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink)] transition-colors text-sm font-bold"
         >
           +
-        </button>
-      </div>
+        </Btn>
+      </Deck>
     </div>
   );
 };
@@ -225,7 +228,7 @@ export const DevSelect = <T extends string,>({ label, value, onChange, options }
   options: { value: T; label: string }[];
 }) => (
   <div className="flex items-center gap-2">
-    {label && <span className="text-[10px] font-bold tracking-widest text-[var(--hl-ink-3)] uppercase flex-shrink-0">{label}</span>}
+    {label && <span className="text-[10px] font-bold tracking-widest text-[var(--arc-ink-3)] uppercase flex-shrink-0">{label}</span>}
     <CustomSelect<T>
       value={value}
       onChange={onChange}
@@ -248,18 +251,18 @@ export const DevInfoRow = ({ label, value, color = 'white' }: {
   color?: 'white' | 'cyan' | 'emerald' | 'amber' | 'rose' | 'purple' | 'violet';
 }) => {
   const colorMap = {
-    white: 'text-[var(--hl-ink)]',
-    cyan: 'text-[var(--hl-reach)]/90',
-    emerald: 'text-[var(--hl-vital)]/90',
-    amber: 'text-[var(--hl-caution)]/90',
-    rose: 'text-[var(--hl-alarm)]/90',
-    purple: 'text-[var(--hl-ink-2)]/90',
-    violet: 'text-violet-300/90',
+    white: 'text-[var(--arc-ink)]',
+    cyan: 'text-[var(--arc-reach)]/90',
+    emerald: 'text-[var(--arc-vital)]/90',
+    amber: 'text-[var(--arc-caution)]/90',
+    rose: 'text-[var(--arc-alert)]/90',
+    purple: 'text-[var(--arc-ink-2)]/90',
+    violet: 'text-[var(--cn-grape-deep)]',
   };
 
   return (
     <div className="flex items-center justify-between text-[11px] font-bold tracking-widest uppercase">
-      <span className="text-[var(--hl-ink-4)]">{label}</span>
+      <span className="text-[var(--arc-ink-4)]">{label}</span>
       <span className={`font-mono ${colorMap[color]}`}>{value}</span>
     </div>
   );

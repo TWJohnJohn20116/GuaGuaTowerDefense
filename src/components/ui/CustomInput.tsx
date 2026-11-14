@@ -57,28 +57,28 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(({
 
   const variantClasses = {
     default: `
-      bg-black/20 border border-[var(--hl-line)] 
-      focus:border-[rgba(111,168,255,0.38)] focus:ring-1 focus:ring-cyan-400/50
-      hover:border-[var(--hl-line-strong)] text-[var(--hl-ink)] 
-      ${error ? 'border-[rgba(255,75,62,0.38)] focus:border-red-500 focus:ring-red-500/20 bg-[rgba(255,75,62,0.12)]' : ''}
+      bg-[var(--cn-card-2)] border-[3px] border-[var(--cn-line-soft)] 
+      focus:border-[rgba(111,140,255,0.38)] focus:ring-1 focus:ring-[var(--cn-sky)]
+      hover:border-[var(--arc-line-strong)] text-[var(--arc-ink)] 
+      ${error ? 'border-[rgba(255,61,113,0.38)] focus:border-[var(--cn-alert)] focus:ring-[var(--cn-alert)]/20 bg-[rgba(255,61,113,0.12)]' : ''}
     `,
     filled: `
-      bg-[var(--hl-deck-2)] border border-transparent
-      focus:bg-[var(--hl-deck-3)] focus:border-[rgba(111,168,255,0.38)] focus:ring-1 focus:ring-cyan-400/50
-      hover:bg-[var(--hl-deck-3)] text-[var(--hl-ink)] 
-      ${error ? 'bg-[rgba(255,75,62,0.12)] focus:bg-[rgba(255,75,62,0.12)]' : ''}
+      bg-[var(--arc-deck-2)] border border-transparent
+      focus:bg-[var(--arc-deck-3)] focus:border-[rgba(111,140,255,0.38)] focus:ring-1 focus:ring-[var(--cn-sky)]
+      hover:bg-[var(--arc-deck-3)] text-[var(--arc-ink)] 
+      ${error ? 'bg-[rgba(255,61,113,0.12)] focus:bg-[rgba(255,61,113,0.12)]' : ''}
     `,
     ghost: `
       bg-transparent border border-transparent
-      focus:bg-[var(--hl-deck-2)] focus:border-[var(--hl-line)]
-      hover:bg-black/20 text-[var(--hl-ink)]
-      ${error ? 'text-[var(--hl-alarm)] placeholder:text-[var(--hl-alarm)]/50' : ''}
+      focus:bg-[var(--arc-deck-2)] focus:border-[var(--cn-line-soft)]
+      hover:bg-[var(--cn-card-2)] text-[var(--arc-ink)]
+      ${error ? 'text-[var(--arc-alert)] placeholder:text-[var(--arc-alert)]/50' : ''}
     `,
     glass: `
-      bg-black/20 border border-[var(--hl-line)] 
-      focus:bg-black/30 focus:border-[var(--hl-line-strong)]
-      hover:bg-black/30 hover:border-[var(--hl-line-strong)] text-[var(--hl-ink)] placeholder-white/30
-      ${error ? 'border-[rgba(255,75,62,0.38)] focus:border-red-500 bg-[rgba(255,75,62,0.12)]' : ''}
+      bg-[var(--cn-card-2)] border-[3px] border-[var(--cn-line-soft)] 
+      focus:bg-[var(--cn-card-2)] focus:border-[var(--arc-line-strong)]
+      hover:bg-[var(--cn-card-2)] hover:border-[var(--arc-line-strong)] text-[var(--arc-ink)] placeholder-white/30
+      ${error ? 'border-[rgba(255,61,113,0.38)] focus:border-[var(--cn-alert)] bg-[rgba(255,61,113,0.12)]' : ''}
     `
   };
 
@@ -90,7 +90,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(({
       {/* 標籤 */}
       {label && (
         <label className={`
-          block font-extrabold tracking-widest text-[var(--hl-ink-3)] uppercase
+          arc-label block font-extrabold tracking-widest text-[var(--arc-ink-3)] uppercase
           flex items-center gap-1.5
           ${sizeClasses[size].label}
         `}>
@@ -108,10 +108,10 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(({
             pointer-events-none transition-colors duration-300
             ${sizeClasses[size].icon}
             ${error 
-              ? 'text-[var(--hl-alarm)]' 
+              ? 'text-[var(--arc-alert)]' 
               : isFocused 
-                ? 'text-[var(--hl-ink)]'
-                : 'text-[var(--hl-ink-4)] group-hover:text-[var(--hl-ink-3)]'}
+                ? 'text-[var(--arc-ink)]'
+                : 'text-[var(--arc-ink-4)] group-hover:text-[var(--arc-ink-3)]'}
           `}>
             {typeof icon === 'string' ? <span>{icon}</span> : icon}
           </div>
@@ -132,7 +132,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(({
             props.onBlur?.(e);
           }}
           className={`
-            w-full 
+            w-full rounded-sm
             placeholder-white/30
             outline-none
             ${sizeClasses[size].input}
@@ -156,7 +156,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(({
               className={`
                 absolute right-0 top-0 bottom-0
                 flex items-center justify-center
-                text-[var(--hl-ink-4)] hover:text-[var(--hl-ink)]
+                text-[var(--arc-ink-4)] hover:text-[var(--arc-ink)]
                 transition-colors w-10
               `}
               initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
@@ -173,7 +173,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(({
         {isFocused && variant === 'glass' && (
           <motion.div
             layoutId={`input-focus-${props.name || 'default'}`}
-            className="absolute bottom-0 left-2 right-2 h-[1px] bg-[var(--hl-deck-4)] -t-full pointer-events-none"
+            className="absolute bottom-0 left-2 right-2 h-[1px] bg-[var(--arc-deck-3)] -t-full pointer-events-none"
             initial={{ opacity: 0, scaleX: 0 }}
             animate={{ opacity: 1, scaleX: 1 }}
             exit={{ opacity: 0, scaleX: 0 }}
@@ -186,7 +186,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(({
       <AnimatePresence>
         {error && (
           <motion.p
-            className="mt-1.5 text-xs text-[var(--hl-alarm)] flex items-center gap-1.5 font-medium"
+            className="mt-1.5 text-xs text-[var(--arc-alert)] flex items-center gap-1.5 font-medium"
             initial={{ opacity: 0, y: -5, height: 0 }}
             animate={{ opacity: 1, y: 0, height: 'auto' }}
             exit={{ opacity: 0, y: -5, height: 0 }}
@@ -198,7 +198,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(({
 
       {/* 提示文字 */}
       {hint && !error && (
-        <p className="mt-1.5 text-xs text-[var(--hl-ink-4)] font-bold tracking-widest uppercase">
+        <p className="mt-1.5 text-xs text-[var(--arc-ink-4)] font-bold tracking-widest uppercase">
           {hint}
         </p>
       )}

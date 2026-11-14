@@ -11,6 +11,7 @@ import { useGetTowerData } from '@/components/game/hooks';
 import type { Tower } from '@/types/game';
 import { SparklesIcon, AlienIcon, SwordsIcon, TowerIcon, TargetIcon, ChartIcon, CoinIcon, SkullIcon, UpArrowIcon, TrashIcon, PlayIcon, DoorExitIcon, HeartIcon, WaveIcon } from '@/components/ui/Icons';
 import { SectionGroup } from '@/components/ui';
+import { Btn, Deck } from '@/components/hl';
 import { SCENE_TYPOGRAPHY } from '@/components/ui/SceneTypography';
 import { SCENE_GLASS } from '@/components/ui/SceneWorkshopLayout';
 import { PauseSectionTitle } from './PauseSectionTitle';
@@ -28,14 +29,15 @@ import { PauseBattleTowerMatch } from './PauseBattleTowerMatch';
 const HeroResumeButton = ({ onResume }: { onResume: () => void }) => {
  const { t } = useTranslation();
  return (
- <button
- type="button"
+ <Btn
+ variant="signal"
+ size="md"
  onClick={onResume}
- className="hl-btn-cut flex h-11 w-full items-center justify-center gap-2 border border-[var(--hl-signal)] bg-[var(--hl-signal)] text-[var(--hl-signal-ink)] transition-colors hover:bg-[#e6ff74]"
+ className="flex h-11 w-full items-center justify-center gap-2"
  >
  <PlayIcon className="h-4 w-4"/>
  <span className="text-[13px] font-semibold tracking-[0.04em]">{t.game.continueGame}</span>
- </button>
+ </Btn>
  );
 };
 
@@ -45,11 +47,11 @@ const SmallStatCard = ({ icon, value, label, color }: {
  label: string;
  color: string;
 }) => (
- <div className="flex flex-col items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-void-2)] p-2.5">
+ <Deck className="p-2.5 flex flex-col items-center justify-center">
  <div className={`mb-1 ${color}`}>{icon}</div>
- <div className="font-mono text-[15px] font-semibold text-[var(--hl-ink)] tabular-nums">{value}</div>
+ <div className="font-mono text-[15px] font-semibold text-[var(--arc-ink)] tabular-nums">{value}</div>
  <div className={`${SCENE_TYPOGRAPHY.microMuted} mt-1 uppercase tracking-widest`}>{label}</div>
- </div>
+ </Deck>
 );
 
 // ========== 主控台 Tab ==========
@@ -73,20 +75,22 @@ export const MainSection = ({ onResume, onQuit, onStrategy }: {
  <HeroResumeButton onResume={onResume} />
 
  <div className="flex flex-col gap-1.5">
- <button
- type="button"
+ <Btn
+ variant="line"
+ size="sm"
  onClick={onStrategy}
- className="flex h-9 w-full items-center justify-center gap-2 border border-[var(--hl-line-strong)] text-[12px] font-medium text-[var(--hl-ink-2)] transition-colors hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]"
+ className="flex h-9 w-full items-center justify-center gap-2 border border-[var(--arc-line-strong)] text-[12px] font-medium text-[var(--arc-ink-2)] transition-colors hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]"
  >
  <TargetIcon className="h-3.5 w-3.5"/> {t.game.pauseStrategicMode}
- </button>
- <button
- type="button"
+ </Btn>
+ <Btn
+ variant="line"
+ size="sm"
  onClick={onQuit}
- className="flex h-9 w-full items-center justify-center gap-2 border border-[rgba(255,75,62,0.4)] text-[12px] font-medium text-[var(--hl-alarm)] transition-colors hover:bg-[rgba(255,75,62,0.1)] hover:border-[var(--hl-alarm)]"
+ className="flex h-9 w-full items-center justify-center gap-2 border border-[rgba(255,61,113,0.4)] text-[12px] font-medium text-[var(--arc-alert)] transition-colors hover:bg-[rgba(255,61,113,0.1)] hover:border-[var(--arc-alert)]"
  >
  <DoorExitIcon className="h-3.5 w-3.5"/> {t.mainMenu.exitGame}
- </button>
+ </Btn>
  </div>
 
  <PauseSessionPanel />
@@ -167,12 +171,12 @@ export const BattleStatusSection = () => {
  columns={1}
  >
  <div className="col-span-full grid grid-cols-3 gap-2">
- <SmallStatCard icon={<SkullIcon className="w-4 h-4"/>} value={totalKills} label={t.game.pauseStatTotalKills} color="text-[var(--hl-alarm)]"/>
- <SmallStatCard icon={<SwordsIcon className="w-4 h-4"/>} value={Math.floor(totalDamage).toLocaleString()} label={t.game.pauseStatTotalDamage} color="text-[var(--hl-caution)]"/>
- <SmallStatCard icon={<UpArrowIcon className="w-4 h-4"/>} value={upgradeStats.totalUpgrades} label={t.game.pauseStatUpgrades} color="text-[var(--hl-reach)]"/>
- <SmallStatCard icon={<TowerIcon className="w-4 h-4"/>} value={placementStats.totalPlaced} label={t.game.pauseStatBuilt} color="text-[var(--hl-reach)]"/>
- <SmallStatCard icon={<TrashIcon className="w-4 h-4"/>} value={placementStats.totalSold} label={t.game.pauseStatSold} color="text-[var(--hl-ink-2)]"/>
- <SmallStatCard icon={<CoinIcon className="w-4 h-4"/>} value={`$${efficiency.totalSpent}`} label={t.game.pauseStatTotalSpent} color="text-[var(--hl-caution)]"/>
+ <SmallStatCard icon={<SkullIcon className="w-4 h-4"/>} value={totalKills} label={t.game.pauseStatTotalKills} color="text-[var(--arc-alert)]"/>
+ <SmallStatCard icon={<SwordsIcon className="w-4 h-4"/>} value={Math.floor(totalDamage).toLocaleString()} label={t.game.pauseStatTotalDamage} color="text-[var(--arc-caution)]"/>
+ <SmallStatCard icon={<UpArrowIcon className="w-4 h-4"/>} value={upgradeStats.totalUpgrades} label={t.game.pauseStatUpgrades} color="text-[var(--arc-reach)]"/>
+ <SmallStatCard icon={<TowerIcon className="w-4 h-4"/>} value={placementStats.totalPlaced} label={t.game.pauseStatBuilt} color="text-[var(--arc-reach)]"/>
+ <SmallStatCard icon={<TrashIcon className="w-4 h-4"/>} value={placementStats.totalSold} label={t.game.pauseStatSold} color="text-[var(--arc-ink-2)]"/>
+ <SmallStatCard icon={<CoinIcon className="w-4 h-4"/>} value={`$${efficiency.totalSpent}`} label={t.game.pauseStatTotalSpent} color="text-[var(--arc-caution)]"/>
  </div>
  </SectionGroup>
 
@@ -184,15 +188,15 @@ export const BattleStatusSection = () => {
  <div className="grid grid-cols-3 gap-3">
  <div>
  <div className={`${SCENE_TYPOGRAPHY.microMuted} mb-0.5`}>{t.game.pauseStatKillsPerTower}</div>
- <div className="text-base font-bold text-[var(--hl-ink)] font-mono">{efficiency.killPerTower}</div>
+ <div className="text-base font-bold text-[var(--arc-ink)] font-mono">{efficiency.killPerTower}</div>
  </div>
  <div>
  <div className={`${SCENE_TYPOGRAPHY.microMuted} mb-0.5`}>{t.game.pauseStatAverageLevel}</div>
- <div className="text-base font-bold text-[var(--hl-ink)] font-mono">{efficiency.avgLevel}</div>
+ <div className="text-base font-bold text-[var(--arc-ink)] font-mono">{efficiency.avgLevel}</div>
  </div>
  <div>
  <div className={`${SCENE_TYPOGRAPHY.microMuted} mb-0.5`}>{t.game.pauseStatMoneyEff}</div>
- <div className="text-base font-bold text-[var(--hl-ink)] font-mono">{efficiency.moneyEff}</div>
+ <div className="text-base font-bold text-[var(--arc-ink)] font-mono">{efficiency.moneyEff}</div>
  </div>
  </div>
  </PauseSectionShell>
@@ -231,26 +235,27 @@ function TowerDistributionPanel({
  title={t.game.pauseTypeDistribution}
  icon={<TowerIcon className="h-5 w-5"/>}
  accent="blue"
- action={<span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">?{towers.length}</span>}
+ action={<span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">?{towers.length}</span>}
  >
  {grouped.length > 0 ? (
  <div className="flex max-h-36 flex-wrap gap-1.5 overflow-y-auto no-scrollbar">
  {grouped.map(([type, count]) => {
  const data = getTowerData(type as keyof typeof ENEMY_DATA);
  return (
- <div
+ <Deck
  key={type}
- className="flex items-center gap-1.5 border border-[var(--hl-line)] bg-[rgba(6,7,10,0.55)] px-2 py-1"
+ tone="sunken"
+ className="flex items-center gap-1.5 px-2 py-1"
  >
  <span className="h-2.5 w-2.5 "style={{ backgroundColor: data?.color || '#888' }} />
- <span className="text-[10px] font-bold text-[var(--hl-ink-2)]">{data?.name || type}</span>
- <span className="font-mono text-[10px] font-bold text-[var(--hl-ink)]">?{count}</span>
- </div>
+ <span className="text-[10px] font-bold text-[var(--arc-ink-2)]">{data?.name || type}</span>
+ <span className="font-mono text-[10px] font-bold text-[var(--arc-ink)]">?{count}</span>
+ </Deck>
  );
  })}
  </div>
  ) : (
- <div className="py-4 text-center text-xs text-[var(--hl-ink-4)]">{t.game.pauseNoTowers}</div>
+ <div className="py-4 text-center text-xs text-[var(--arc-ink-4)]">{t.game.pauseNoTowers}</div>
  )}
  </PauseSectionShell>
  );
@@ -278,54 +283,58 @@ export const StrategyModeView = ({ onResume, onBackToMenu }: {
  >
  <div className={`${SCENE_GLASS.panel} p-4 w-[260px]`}>
  <div className="flex items-center gap-2 mb-3">
- <div className="w-9 h-9 bg-[var(--hl-deck-2)] border border-[var(--hl-line)] flex items-center justify-center">
- <TargetIcon className="w-4 h-4 text-[var(--hl-ink-2)]"/>
- </div>
+ <Deck tone="sunken" className="w-9 h-9 flex items-center justify-center">
+ <TargetIcon className="w-4 h-4 text-[var(--arc-ink-2)]"/>
+ </Deck>
  <div>
- <div className="text-sm font-black text-[var(--hl-ink)] tracking-wide">{t.game.pauseStrategicMode}</div>
- <div className="text-[10px] text-[var(--hl-ink-2)]">{t.game.pauseStrategicHint}</div>
+ <div className="text-sm font-black text-[var(--arc-ink)] tracking-wide">{t.game.pauseStrategicMode}</div>
+ <div className="text-[10px] text-[var(--arc-ink-2)]">{t.game.pauseStrategicHint}</div>
  </div>
  </div>
 
  <div className="grid grid-cols-3 gap-2 mb-3">
- <div className="bg-[rgba(6,7,10,0.55)] border border-[var(--hl-line)] p-2 text-center">
- <CoinIcon className="w-3 h-3 text-[var(--hl-caution)] mx-auto mb-0.5"/>
- <div className="text-sm font-bold text-[var(--hl-caution)]">${money}</div>
- </div>
- <div className="bg-[rgba(6,7,10,0.55)] border border-[var(--hl-line)] p-2 text-center">
- <HeartIcon className="w-3 h-3 text-[var(--hl-alarm)] mx-auto mb-0.5"/>
- <div className="text-sm font-bold text-[var(--hl-alarm)]">{health}</div>
- </div>
- <div className="bg-[rgba(6,7,10,0.55)] border border-[var(--hl-line)] p-2 text-center">
- <WaveIcon className="w-3 h-3 text-[var(--hl-reach)] mx-auto mb-0.5"/>
- <div className="text-sm font-bold text-[var(--hl-reach)]">{currentWave}</div>
- </div>
+ <Deck tone="sunken" className="p-2 text-center">
+ <CoinIcon className="w-3 h-3 text-[var(--arc-caution)] mx-auto mb-0.5"/>
+ <div className="text-sm font-bold text-[var(--arc-caution)]">${money}</div>
+ </Deck>
+ <Deck tone="sunken" className="p-2 text-center">
+ <HeartIcon className="w-3 h-3 text-[var(--arc-alert)] mx-auto mb-0.5"/>
+ <div className="text-sm font-bold text-[var(--arc-alert)]">{health}</div>
+ </Deck>
+ <Deck tone="sunken" className="p-2 text-center">
+ <WaveIcon className="w-3 h-3 text-[var(--arc-reach)] mx-auto mb-0.5"/>
+ <div className="text-sm font-bold text-[var(--arc-reach)]">{currentWave}</div>
+ </Deck>
  </div>
 
  <div className="grid grid-cols-2 gap-2 mb-3">
- <div className="bg-[rgba(6,7,10,0.55)] border border-[var(--hl-line)] p-2 flex items-center justify-between">
- <span className={`${SCENE_TYPOGRAPHY.microMuted} flex items-center gap-1`}><TowerIcon className="w-3 h-3 text-[var(--hl-reach)]"/> {t.game.pauseTowerShort}</span>
- <span className="text-sm font-bold text-[var(--hl-reach)]">{towers.length}</span>
- </div>
- <div className="bg-[rgba(6,7,10,0.55)] border border-[var(--hl-line)] p-2 flex items-center justify-between">
- <span className={`${SCENE_TYPOGRAPHY.microMuted} flex items-center gap-1`}><AlienIcon className="w-3 h-3 text-[var(--hl-alarm)]"/> {t.game.pauseEnemyShort}</span>
- <span className="text-sm font-bold text-[var(--hl-alarm)]">{enemies.length}</span>
- </div>
+ <Deck tone="sunken" className="p-2 flex items-center justify-between">
+ <span className={`${SCENE_TYPOGRAPHY.microMuted} flex items-center gap-1`}><TowerIcon className="w-3 h-3 text-[var(--arc-reach)]"/> {t.game.pauseTowerShort}</span>
+ <span className="text-sm font-bold text-[var(--arc-reach)]">{towers.length}</span>
+ </Deck>
+ <Deck tone="sunken" className="p-2 flex items-center justify-between">
+ <span className={`${SCENE_TYPOGRAPHY.microMuted} flex items-center gap-1`}><AlienIcon className="w-3 h-3 text-[var(--arc-alert)]"/> {t.game.pauseEnemyShort}</span>
+ <span className="text-sm font-bold text-[var(--arc-alert)]">{enemies.length}</span>
+ </Deck>
  </div>
 
  <div className="flex gap-2">
- <button
+ <Btn
+ variant="quiet"
+ size="md"
  onClick={onResume}
- className="flex-1 py-2 bg-[var(--hl-deck-2)] border border-[var(--hl-line)] text-[var(--hl-vital)] text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-[var(--hl-deck-2)]"
+ className="flex-1 py-2 text-[var(--arc-vital)] text-xs gap-1.5"
  >
  <PlayIcon className="w-3.5 h-3.5"/> {t.game.continue}
- </button>
- <button
+ </Btn>
+ <Btn
+ variant="quiet"
+ size="md"
  onClick={onBackToMenu}
- className="px-3 py-2 border border-[var(--hl-line)] bg-[var(--hl-deck-2)] text-[var(--hl-ink)] text-xs font-bold hover:border-[var(--hl-signal)]"
+ className="px-3 py-2 text-xs gap-1.5 hover:border-[var(--arc-gold)]"
  >
  {t.game.pauseBack}
- </button>
+ </Btn>
  </div>
  </div>
  </motion.div>

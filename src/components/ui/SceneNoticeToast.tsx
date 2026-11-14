@@ -23,10 +23,10 @@ export function SceneNoticeToast({
     <AnimatePresence>
       {message && (
         <motion.div
-          className={`fixed left-1/2 top-3 z-[200] -translate-x-1/2 border border-[var(--hl-line)] border-l-2 bg-[var(--hl-deck)] px-3 py-2 font-mono text-[10.5px] uppercase tracking-[0.06em] ${
+          className={`fixed left-1/2 top-3 z-[200] -translate-x-1/2 arc-panel--flat border-l-2 px-3 py-2 font-mono text-[10.5px] uppercase tracking-[0.06em] ${
             success
-              ? 'border-l-[var(--hl-vital)] text-[var(--hl-vital)]'
-              : 'border-l-[var(--hl-alarm)] text-[var(--hl-alarm)]'
+              ? 'border-l-[var(--arc-vital)] text-[var(--arc-vital)]'
+              : 'border-l-[var(--arc-alert)] text-[var(--arc-alert)]'
           }`}
           initial={{ y: -8, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

@@ -18,44 +18,44 @@ export type PanelAccent = 'cyan' | 'blue' | 'amber' | 'yellow' | 'purple' | 'pin
 
 const ACCENT_STYLES: Record<PanelAccent, { bar: string; text: string; iconBox: string }> = {
   cyan: {
-    bar: 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]',
-    text: 'text-[var(--hl-reach)]',
-    iconBox: 'bg-[rgba(111,168,255,0.12)] border-[rgba(111,168,255,0.38)] text-[var(--hl-reach)]',
+    bar: 'bg-[var(--cn-sky)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+    text: 'text-[var(--arc-reach)]',
+    iconBox: 'bg-[rgba(111,140,255,0.12)] border-[rgba(111,140,255,0.38)] text-[var(--arc-reach)]',
   },
   blue: {
-    bar: 'bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]',
-    text: 'text-[var(--hl-reach)]',
-    iconBox: 'bg-[rgba(111,168,255,0.12)] border-[rgba(111,168,255,0.38)] text-[var(--hl-reach)]',
+    bar: 'bg-[var(--cn-sky)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+    text: 'text-[var(--arc-reach)]',
+    iconBox: 'bg-[rgba(111,140,255,0.12)] border-[rgba(111,140,255,0.38)] text-[var(--arc-reach)]',
   },
   amber: {
-    bar: 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]',
-    text: 'text-[var(--hl-caution)]',
-    iconBox: 'bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] text-[var(--hl-caution)]',
+    bar: 'bg-[var(--cn-sun)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+    text: 'text-[var(--arc-caution)]',
+    iconBox: 'bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] text-[var(--arc-caution)]',
   },
   yellow: {
-    bar: 'bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)]',
-    text: 'text-[var(--hl-caution)]',
-    iconBox: 'bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] text-[var(--hl-caution)]',
+    bar: 'bg-[var(--cn-sun)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+    text: 'text-[var(--arc-caution)]',
+    iconBox: 'bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] text-[var(--arc-caution)]',
   },
   purple: {
-    bar: 'bg-violet-400 shadow-[0_0_8px_rgba(167,139,250,0.8)]',
-    text: 'text-[var(--hl-ink-2)]',
-    iconBox: 'bg-violet-500/15 border-[var(--hl-line-strong)] text-[var(--hl-ink-2)]',
+    bar: 'bg-[var(--cn-grape)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+    text: 'text-[var(--arc-ink-2)]',
+    iconBox: 'bg-[var(--cn-grape-soft)] border-[var(--arc-line-strong)] text-[var(--arc-ink-2)]',
   },
   pink: {
-    bar: 'bg-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.8)]',
-    text: 'text-[var(--hl-ink-2)]',
-    iconBox: 'bg-pink-500/15 border-[var(--hl-line-strong)] text-[var(--hl-ink-2)]',
+    bar: 'bg-[var(--cn-rose)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+    text: 'text-[var(--arc-ink-2)]',
+    iconBox: 'bg-[var(--cn-coral-soft)] border-[var(--arc-line-strong)] text-[var(--arc-ink-2)]',
   },
   emerald: {
-    bar: 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]',
-    text: 'text-[var(--hl-vital)]',
-    iconBox: 'bg-[rgba(56,224,143,0.12)] border-[rgba(56,224,143,0.38)] text-[var(--hl-vital)]',
+    bar: 'bg-[var(--cn-mint)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+    text: 'text-[var(--arc-vital)]',
+    iconBox: 'bg-[rgba(56,224,143,0.12)] border-[rgba(56,224,143,0.38)] text-[var(--arc-vital)]',
   },
   red: {
-    bar: 'bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.8)]',
-    text: 'text-[var(--hl-alarm)]',
-    iconBox: 'bg-[rgba(255,75,62,0.12)] border-[rgba(255,75,62,0.38)] text-[var(--hl-alarm)]',
+    bar: 'bg-[var(--cn-alert)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+    text: 'text-[var(--arc-alert)]',
+    iconBox: 'bg-[rgba(255,61,113,0.12)] border-[rgba(255,61,113,0.38)] text-[var(--arc-alert)]',
   },
 };
 
@@ -101,7 +101,7 @@ function TitleBlock({
       className="flex items-center gap-3 min-w-0"
     >
       {icon && (
-        <div className={`w-10 h-10  flex items-center justify-center border  flex-shrink-0 ${a.iconBox}`}>
+        <div className={`w-10 h-10 rounded-sm flex items-center justify-center border  flex-shrink-0 ${a.iconBox}`}>
           {icon}
         </div>
       )}
@@ -114,11 +114,11 @@ function TitleBlock({
             </span>
           </div>
         )}
-        <h1 className="text-lg font-extrabold tracking-widest uppercase text-[var(--hl-ink)] drop- truncate leading-tight">
+        <h1 className="arc-title text-lg font-extrabold tracking-widest uppercase text-[var(--arc-ink)] drop- truncate leading-tight">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-[9px] font-bold tracking-widest uppercase text-[var(--hl-ink-4)] mt-0.5 truncate">
+          <p className="text-[9px] font-bold tracking-widest uppercase text-[var(--arc-ink-4)] mt-0.5 truncate">
             {subtitle}
           </p>
         )}

@@ -45,29 +45,29 @@ export function SectionGroup({
     <section className="flex flex-col">
       {/* 區段頭：mono 標籤 + 延伸線 */}
       <header className="flex items-center gap-2.5 pb-2">
-        <span className="flex h-5 w-5 shrink-0 items-center justify-center text-[var(--hl-ink-3)]">
+        <span className="flex h-5 w-5 shrink-0 items-center justify-center text-[var(--arc-ink-3)]">
           {icon}
         </span>
-        <span className="hl-label whitespace-nowrap text-[var(--hl-ink-2)]">{title}</span>
+        <span className="arc-label whitespace-nowrap text-[var(--arc-ink-2)]">{title}</span>
 
         {badge && (
-          <span className="border border-[var(--hl-signal-edge)] px-1.5 py-0.5 font-mono text-[10px] uppercase leading-none tracking-[0.1em] text-[var(--hl-signal)]">
+          <span className="rounded-sm border border-[var(--arc-gold-edge)] px-1.5 py-0.5 font-mono text-[10px] uppercase leading-none tracking-[0.1em] text-[var(--arc-gold)]">
             {badge}
           </span>
         )}
         {typeof count === 'number' && (
-          <span className="font-mono text-[10px] tabular-nums leading-none text-[var(--hl-ink-4)]">
+          <span className="font-mono text-[10px] tabular-nums leading-none text-[var(--arc-ink-4)]">
             {String(count).padStart(2, '0')}
           </span>
         )}
 
-        <span className="h-px flex-1 bg-[var(--hl-line)]" />
+        <span className="arc-divider flex-1" />
 
         {action && <span className="flex shrink-0 items-center gap-2">{action}</span>}
       </header>
 
       {description && (
-        <p className="pb-2 text-[11px] leading-relaxed text-[var(--hl-ink-3)]">{description}</p>
+        <p className="pb-2 text-[11px] leading-relaxed text-[var(--arc-ink-3)]">{description}</p>
       )}
 
       <Deck notch className="overflow-hidden">

@@ -44,7 +44,7 @@ export interface SelectOption<T extends string = string> {
 export interface SelectGroup {
   id: string;
   label: string;
-  /** 群組標頭文字色 class，如 `text-[var(--hl-vital)]` */
+  /** 群組標頭文字色 class，如 `text-[var(--arc-vital)]` */
   color?: string;
 }
 
@@ -329,14 +329,14 @@ export function CustomSelect<T extends string = string>({
   const panel = (
     <>
       {searchable && (
-        <div className="p-2.5 border-b border-[var(--hl-line)] flex items-center gap-2 bg-black/20">
-          <SearchIcon className="w-3.5 h-3.5 text-[var(--hl-ink-4)] flex-shrink-0" />
+        <div className="p-2.5 border-b border-[var(--cn-line-soft)] flex items-center gap-2 bg-[var(--cn-card-2)]">
+          <SearchIcon className="w-3.5 h-3.5 text-[var(--arc-ink-4)] flex-shrink-0" />
           <input
             ref={searchRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={searchPlaceholder}
-            className="flex-1 bg-transparent border-none text-[11px] text-[var(--hl-ink)] placeholder:text-[var(--hl-ink-4)] focus:outline-none"
+            className="flex-1 bg-transparent border-none text-[11px] text-[var(--arc-ink)] placeholder:text-[var(--arc-ink-4)] focus:outline-none"
           />
         </div>
       )}
@@ -350,7 +350,7 @@ export function CustomSelect<T extends string = string>({
         `}
       >
         {ordered.length === 0 && (
-          <div className="text-center py-8 text-[10px] font-bold tracking-widest text-[var(--hl-ink-4)] uppercase">
+          <div className="text-center py-8 text-[10px] font-bold tracking-widest text-[var(--arc-ink-4)] uppercase">
             {emptyText}
           </div>
         )}
@@ -361,7 +361,7 @@ export function CustomSelect<T extends string = string>({
               if (items.length === 0) return null;
               return (
                 <div key={g.id}>
-                  <h4 className={`text-[9px] font-extrabold tracking-widest mb-1.5 px-1 ${g.color ?? 'text-[var(--hl-ink-3)]'}`}>
+                  <h4 className={`arc-label text-[9px] font-extrabold tracking-widest mb-1.5 px-1 ${g.color ?? 'text-[var(--arc-ink-3)]'}`}>
                     {g.label}
                   </h4>
                   {isGrid ? (
@@ -378,7 +378,7 @@ export function CustomSelect<T extends string = string>({
       </div>
 
       {footer && (
-        <div className="px-3 py-2 border-t border-[var(--hl-line)] bg-black/20 text-[9px] font-bold tracking-widest text-[var(--hl-ink-4)] uppercase">
+        <div className="px-3 py-2 border-t border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] text-[9px] font-bold tracking-widest text-[var(--arc-ink-4)] uppercase">
           {footer}
         </div>
       )}
@@ -410,18 +410,18 @@ export function CustomSelect<T extends string = string>({
           <span className="flex items-center gap-2.5 min-w-0 flex-1">
             {selectedOption?.preview && (
               <span
-                className="flex-shrink-0 inline-flex items-center justify-center  p-0.5 border border-[var(--hl-line)] overflow-hidden"
+                className="flex-shrink-0 inline-flex items-center justify-center  p-0.5 border-[3px] border-[var(--cn-line-soft)] overflow-hidden"
                 style={{ backgroundColor: selectedOption.previewBg }}
               >
                 {selectedOption.preview}
               </span>
             )}
             <span className="flex-1 min-w-0 text-left">
-              <span className={`block ${sz.richLabel} font-extrabold tracking-wider truncate ${selectedOption ? 'text-[var(--hl-ink)]' : 'text-[var(--hl-ink-4)]'}`}>
+              <span className={`block ${sz.richLabel} font-extrabold tracking-wider truncate ${selectedOption ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-4)]'}`}>
                 {selectedOption?.label || placeholder}
               </span>
               {selectedOption?.description && (
-                <span className="block text-[9px] text-[var(--hl-ink-4)] font-mono truncate mt-0.5">
+                <span className="block text-[9px] text-[var(--arc-ink-4)] font-mono truncate mt-0.5">
                   {selectedOption.description}
                 </span>
               )}
@@ -520,7 +520,7 @@ function OptionRow({
         ${sz.option}
         w-full flex items-center text-left transition-colors duration-100
         ${option.disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
-        ${isSelected ? accent.text : 'text-[var(--hl-ink)]/85'}
+        ${isSelected ? accent.text : 'text-[var(--arc-ink)]/85'}
       `}
       initial={false}
       animate={{
@@ -530,7 +530,7 @@ function OptionRow({
     >
       {option.preview ? (
         <span
-          className="flex-shrink-0 inline-flex items-center justify-center  p-0.5 border border-[var(--hl-line)] overflow-hidden"
+          className="flex-shrink-0 inline-flex items-center justify-center  p-0.5 border-[3px] border-[var(--cn-line-soft)] overflow-hidden"
           style={{ backgroundColor: option.previewBg }}
         >
           {option.preview}
@@ -541,7 +541,7 @@ function OptionRow({
       <div className="flex-1 min-w-0">
         <div className={`font-medium truncate ${isSelected ? accent.text : ''}`}>{option.label}</div>
         {option.description && (
-          <div className="text-[10px] text-[var(--hl-ink-4)] truncate mt-0.5">{option.description}</div>
+          <div className="text-[10px] text-[var(--arc-ink-4)] truncate mt-0.5">{option.description}</div>
         )}
         {option.meta && <div className="mt-0.5">{option.meta}</div>}
       </div>
@@ -563,8 +563,8 @@ function GridCard({
   const selectedStyle = isSelected
     ? { backgroundColor: accent.rowBg, boxShadow: `0 0 14px -4px ${accent.glow}` }
     : undefined;
-  const base = `relative  border text-left transition-all ${
-    isSelected ? accent.ring : 'border-[var(--hl-line)] bg-[var(--hl-deck-2)] hover:bg-[var(--hl-deck-3)] hover:border-[var(--hl-line-strong)]'
+  const base = `relative rounded-sm border text-left transition-all ${
+    isSelected ? accent.ring : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)] hover:bg-[var(--arc-deck-3)] hover:border-[var(--arc-line-strong)]'
   } ${option.disabled ? 'opacity-40 cursor-not-allowed' : ''}`;
 
   if (cardLayout === 'horizontal') {
@@ -585,20 +585,20 @@ function GridCard({
       >
         {option.preview && (
           <span
-            className="flex-shrink-0 inline-flex items-center justify-center  border border-[var(--hl-line)] overflow-hidden"
+            className="flex-shrink-0 inline-flex items-center justify-center  border-[3px] border-[var(--cn-line-soft)] overflow-hidden"
             style={{ backgroundColor: option.previewBg }}
           >
             {option.preview}
           </span>
         )}
         <div className="flex-1 min-w-0">
-          <div className={`text-[10px] font-extrabold tracking-wider truncate ${isSelected ? accent.text : 'text-[var(--hl-ink)]'}`}>
+          <div className={`text-[10px] font-extrabold tracking-wider truncate ${isSelected ? accent.text : 'text-[var(--arc-ink)]'}`}>
             {option.label}
           </div>
           {showMeta && option.meta
             ? <div className="mt-0.5">{option.meta}</div>
             : option.description && (
-              <div className="text-[9px] text-[var(--hl-ink-4)] font-mono truncate mt-0.5">{option.description}</div>
+              <div className="text-[9px] text-[var(--arc-ink-4)] font-mono truncate mt-0.5">{option.description}</div>
             )}
         </div>
       </motion.button>
@@ -622,7 +622,7 @@ function GridCard({
     >
       {isSelected && (
         <span className={`absolute -top-1 -right-1 w-4 h-4  ${accent.badge} border-2 border-[#1a1d24] flex items-center justify-center`}>
-          <CheckIcon className="w-2.5 h-2.5 text-[var(--hl-ink)]" />
+          <CheckIcon className="w-2.5 h-2.5 text-[var(--arc-ink)]" />
         </span>
       )}
       <div
@@ -631,7 +631,7 @@ function GridCard({
       >
         {option.preview ?? option.icon}
       </div>
-      <span className={`text-[9px] font-bold tracking-wider mt-1 truncate w-full text-center ${isSelected ? accent.text : 'text-[var(--hl-ink-3)]'}`}>
+      <span className={`text-[9px] font-bold tracking-wider mt-1 truncate w-full text-center ${isSelected ? accent.text : 'text-[var(--arc-ink-3)]'}`}>
         {option.label}
       </span>
     </motion.button>

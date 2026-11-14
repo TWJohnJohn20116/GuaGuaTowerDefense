@@ -3,7 +3,7 @@
  */
 
 import type { ReactNode } from 'react';
-import { SegHead } from '@/components/hl';
+import { Deck, SegHead } from '@/components/hl';
 
 interface PauseSectionShellProps {
   title: string;
@@ -26,22 +26,22 @@ export function PauseSectionShell({
   children,
 }: PauseSectionShellProps) {
   return (
-    <section className="border border-[var(--hl-line)] bg-[var(--hl-deck)] p-2.5">
+    <Deck as="section" className="p-2.5">
       <SegHead
         label={
           <span className="flex items-center gap-1.5">
-            {icon && <span className="flex h-3.5 w-3.5 items-center justify-center text-[var(--hl-ink-3)]">{icon}</span>}
+            {icon && <span className="flex h-3.5 w-3.5 items-center justify-center text-[var(--arc-ink-3)]">{icon}</span>}
             {title}
             {typeof count === 'number' && (
-              <span className="font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">×{count}</span>
+              <span className="font-mono text-[9.5px] tabular-nums text-[var(--arc-ink-4)]">×{count}</span>
             )}
           </span>
         }
         right={action}
       />
-      {description && <p className="mt-1.5 text-[10.5px] leading-snug text-[var(--hl-ink-3)]">{description}</p>}
+      {description && <p className="mt-1.5 text-[10.5px] leading-snug text-[var(--arc-ink-3)]">{description}</p>}
       <div className="mt-2 space-y-2">{children}</div>
-    </section>
+    </Deck>
   );
 }
 

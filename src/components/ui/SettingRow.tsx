@@ -36,19 +36,19 @@ export function SettingRow({
   void accent;
 
   return (
-    <div className="group border-b border-[var(--hl-line)] transition-colors duration-150 last:border-b-0 hover:bg-[var(--hl-deck-2)]">
+    <div className="group border-b border-[var(--cn-line-soft)] transition-colors duration-150 last:border-b-0 hover:bg-[var(--arc-deck-2)]">
       <div className={`flex items-center gap-3 px-4 ${expanded ? 'py-3' : 'h-[52px]'}`}>
         {/* 圖示框：28px 方框，hover 才亮 */}
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-3)] transition-colors duration-150 group-hover:border-[var(--hl-line-hot)] group-hover:text-[var(--hl-ink-2)]">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-3)] transition-colors duration-150 group-hover:border-[var(--arc-line-hot)] group-hover:text-[var(--arc-ink-2)]">
           {icon}
         </span>
 
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[13px] font-medium leading-tight text-[var(--hl-ink)]">
+          <span className="block truncate text-[13px] font-medium leading-tight text-[var(--arc-ink)]">
             {label}
           </span>
           {description && (
-            <span className="mt-0.5 block truncate text-[10.5px] leading-tight text-[var(--hl-ink-3)]">
+            <span className="mt-0.5 block truncate text-[10.5px] leading-tight text-[var(--arc-ink-3)]">
               {description}
             </span>
           )}

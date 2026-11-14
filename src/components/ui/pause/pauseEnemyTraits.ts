@@ -8,7 +8,7 @@ import type { StringValuedKeys, Translations } from '@/i18n';
 
 export interface EnemyTraitTag {
   text: string;
-  tone: 'armor' | 'shield' | 'special' | 'mutator' | 'debuff';
+  tone: 'armor' | 'shield' | 'special' | 'debuff';
 }
 
 const FIELD_EFFECT_KEYS: Partial<Record<StatusEffectType, StringValuedKeys<Translations['game']>>> = {
@@ -46,12 +46,6 @@ export function getEnemyTraitTags(
     tags.push({
       text: g.pauseTraitArmorPerHit.replace('{value}', String(data.armorValue)),
       tone: 'armor',
-    });
-  }
-  if (sample?.armorBonus != null && sample.armorBonus > 0) {
-    tags.push({
-      text: g.pauseTraitMutatorArmor.replace('{value}', String(sample.armorBonus)),
-      tone: 'mutator',
     });
   }
   if (data.shieldAmount != null && data.shieldAmount > 0) {

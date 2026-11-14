@@ -10,7 +10,7 @@ export { PauseSectionShell } from './PauseSectionShell';
 export { PauseOverlayHeader } from './PauseOverlayHeader';
 export { PauseSectionTitle } from './PauseSectionTitle';
 export { PauseSections } from './PauseSections';
-export { PauseSessionPanel, PauseDailyMini, PauseMutatorRules } from './PauseSessionPanel';
+export { PauseSessionPanel } from './PauseSessionPanel';
 export { PauseSettingsPanel } from './PauseSettingsPanel';
 export { PausePreviewSection } from './PausePreviewSection';
 export { PauseSkillCooldowns } from './PauseSkillCooldowns';

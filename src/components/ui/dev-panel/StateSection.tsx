@@ -7,6 +7,7 @@ import { useTranslation } from '@/i18n';
 import { CoinIcon, HeartIcon, StarIcon, WaveIcon, EyeIcon, WarningIcon, MapIcon, InfinityIcon } from '@/components/ui/Icons';
 import EnemyPreview from '@/components/ui/EnemyPreview';
 import { DevSection, DevToggle, DevButton, DevNumberInput, DevInfoRow, DevSelect } from './common';
+import { Deck } from '@/components/hl';
 
 // ============================================================
 // 金錢調整
@@ -166,7 +167,7 @@ const PathControl = () => {
         onChange={switchPath}
         options={pathOptions}
       />
-      <div className="text-[9px] text-[var(--hl-ink-4)] leading-relaxed">
+      <div className="text-[9px] text-[var(--arc-ink-4)] leading-relaxed">
         {isPlaying ? u.mapSwitchPlaying : u.mapSwitchIdle}
       </div>
     </div>
@@ -242,8 +243,8 @@ const DifficultyControl = () => {
               onClick={() => applyDifficulty(d.id)}
               className={`py-2  text-[10px] font-bold tracking-widest uppercase border transition-all ${
                 isActive
-                  ? 'bg-[var(--hl-deck-3)] text-[var(--hl-ink)] border-[var(--hl-line-strong)] '
-                  : 'bg-[var(--hl-deck-2)] text-[var(--hl-ink-4)] border-[var(--hl-line)] hover:bg-[var(--hl-deck-3)] hover:text-[var(--hl-ink-2)]'
+                  ? 'bg-[var(--arc-deck-3)] text-[var(--arc-ink)] border-[var(--arc-line-strong)] '
+                  : 'bg-[var(--arc-deck-2)] text-[var(--arc-ink-4)] border-[var(--cn-line-soft)] hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink-2)]'
               }`}
             >
               {d.label}
@@ -251,7 +252,7 @@ const DifficultyControl = () => {
           );
         })}
       </div>
-      <div className="text-[9px] text-[var(--hl-ink-4)] leading-relaxed">
+      <div className="text-[9px] text-[var(--arc-ink-4)] leading-relaxed">
         {u.diffApplyHint}
       </div>
     </div>
@@ -288,7 +289,7 @@ const WavePreview = () => {
 
   if (waves.length === 0) {
     return (
-      <div className="text-[10px] text-[var(--hl-ink-4)] text-center py-3 tracking-widest uppercase">
+      <div className="text-[10px] text-[var(--arc-ink-4)] text-center py-3 tracking-widest uppercase">
         {u.noMoreWaves}
       </div>
     );
@@ -297,10 +298,10 @@ const WavePreview = () => {
   return (
     <div className="space-y-2">
       {waves.map(({ wave, enemies }) => (
-        <div key={wave} className="bg-[var(--hl-deck-2)] border border-[var(--hl-line)]  p-2.5">
+        <Deck key={wave} className="arc-panel--flat p-2.5">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] font-extrabold tracking-widest text-[var(--hl-reach)]/90 uppercase">{u.waveN.replace('{n}', String(wave))}</span>
-            <span className="text-[9px] text-[var(--hl-ink-4)] font-mono">{u.enemyUnit.replace('{count}', String(enemies.reduce((s, e) => s + e.count, 0)))}</span>
+            <span className="text-[10px] font-extrabold tracking-widest text-[var(--arc-reach)]/90 uppercase">{u.waveN.replace('{n}', String(wave))}</span>
+            <span className="text-[9px] text-[var(--arc-ink-4)] font-mono">{u.enemyUnit.replace('{count}', String(enemies.reduce((s, e) => s + e.count, 0)))}</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {enemies.map((g, i) => {
@@ -308,18 +309,18 @@ const WavePreview = () => {
               return (
                 <div
                   key={i}
-                  className="flex items-center gap-1 bg-black/30 border border-[var(--hl-line)]  pl-1 pr-2 py-0.5"
+                  className="arc-panel--sunken flex items-center gap-1 pl-1 pr-2 py-0.5"
                   title={`${data?.name || g.type} × ${g.count}`}
                 >
                   <div className="w-5 h-5  flex items-center justify-center" style={{ backgroundColor: `${data?.color || '#888'}15` }}>
                     <EnemyPreview enemyId={g.type} size={16} />
                   </div>
-                  <span className="text-[10px] font-bold text-[var(--hl-ink-2)] tracking-wider">×{g.count}</span>
+                  <span className="text-[10px] font-bold text-[var(--arc-ink-2)] tracking-wider">×{g.count}</span>
                 </div>
               );
             })}
           </div>
-        </div>
+        </Deck>
       ))}
     </div>
   );

@@ -7,6 +7,7 @@ import { useGameStore } from '@/store/gameStore';
 import { useTranslation } from '@/i18n';
 import { BackButton } from '@/components/ui/BackButton';
 import { BooksIcon, GearIcon, OpenBookIcon } from '@/components/ui/Icons';
+import { Btn } from '@/components/hl';
 import { getPauseEncyclopediaTabLabel, usePauseEncyclopediaCatalog } from './pauseEncyclopediaData';
 import {
  PauseEncEnemyDetail,
@@ -40,7 +41,7 @@ export function PauseEncyclopediaSheet({ focus, onClose }: PauseEncyclopediaShee
  <motion.button
  type="button"
  aria-label={g.pauseEncCloseAria}
- className="absolute inset-0 bg-[rgba(6,7,10,0.55)]"
+ className="absolute inset-0 bg-[var(--cn-card-2)]"
  initial={{ opacity: 0 }}
  animate={{ opacity: 1 }}
  exit={{ opacity: 0 }}
@@ -51,7 +52,7 @@ export function PauseEncyclopediaSheet({ focus, onClose }: PauseEncyclopediaShee
  role="dialog"
  aria-modal="true"
  aria-label={getPauseEncyclopediaTabLabel(focus.tab, g)}
- className="relative z-[1] w-full sm:max-w-[420px] max-h-[min(88vh,640px)] flex flex-col bg-[#14161c] border border-[var(--hl-line)] (0,0,0,0.5)] sm: sm: overflow-hidden"
+ className="arc-panel relative z-[1] flex max-h-[min(88vh,640px)] w-full flex-col overflow-hidden sm:max-w-[420px]"
  initial={{ y: '100%' }}
  animate={{ y: 0 }}
  exit={{ y: '100%' }}
@@ -59,13 +60,13 @@ export function PauseEncyclopediaSheet({ focus, onClose }: PauseEncyclopediaShee
  onClick={(ev) => ev.stopPropagation()}
  >
  <div className="flex justify-center pt-3 pb-1 sm:hidden flex-shrink-0">
- <div className="w-10 h-1 bg-[var(--hl-deck-4)]"/>
+ <div className="w-10 h-1 bg-[var(--arc-deck-3)]"/>
  </div>
 
- <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--hl-line)] flex-shrink-0">
+ <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--cn-line-soft)] flex-shrink-0">
  <BackButton size="sm"variant="glass"label={g.pauseEncClose} onClick={onClose} />
- <BooksIcon className="w-4 h-4 text-[var(--hl-ink-2)] flex-shrink-0"/>
- <span className="text-xs font-bold text-[var(--hl-ink-2)] tracking-wide truncate">
+ <BooksIcon className="w-4 h-4 text-[var(--arc-ink-2)] flex-shrink-0"/>
+ <span className="arc-title truncate text-xs tracking-wide">
  {getPauseEncyclopediaTabLabel(focus.tab, g)}
  </span>
  </div>
@@ -79,23 +80,25 @@ export function PauseEncyclopediaSheet({ focus, onClose }: PauseEncyclopediaShee
  )}
  </div>
 
- <div className="flex-shrink-0 px-4 py-3 border-t border-[var(--hl-line)] space-y-2 bg-[rgba(6,7,10,0.55)]">
- <button
- type="button"
+ <div className="flex-shrink-0 px-4 py-3 border-t border-[var(--cn-line-soft)] space-y-2 bg-[var(--cn-card-2)]">
+ <Btn
+ variant="signal"
+ size="md"
  onClick={() => openEncyclopedia(focus)}
- className="w-full py-2.5 bg-[var(--hl-deck-2)] border border-[var(--hl-line)] text-[var(--hl-ink-2)] text-xs font-bold flex items-center justify-center gap-2 hover:bg-[var(--hl-deck-2)] transition-colors"
+ className="w-full gap-2"
  >
  <OpenBookIcon className="w-4 h-4"/>
  {g.pauseEncOpenFull}
- </button>
- <button
- type="button"
+ </Btn>
+ <Btn
+ variant="quiet"
+ size="md"
  onClick={() => openSettingsFromPause()}
- className="w-full py-2 bg-[var(--hl-deck-2)] border border-[var(--hl-line)] text-[var(--hl-ink-3)] text-[11px] font-bold flex items-center justify-center gap-2 hover:bg-[var(--hl-deck-3)] hover:text-[var(--hl-ink-2)] transition-colors"
+ className="w-full gap-2 text-[11px]"
  >
  <GearIcon className="w-3.5 h-3.5"/>
  {g.pauseEncOpenSettings}
- </button>
+ </Btn>
  </div>
  </motion.div>
  </motion.div>

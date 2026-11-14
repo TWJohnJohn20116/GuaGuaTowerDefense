@@ -568,7 +568,7 @@ const TowerShootPreview = ({
   }, [draw]);
 
   return (
-    <div className="relative  overflow-hidden bg-[#0f1115] border border-[var(--hl-line)] ">
+    <div className="relative rounded-sm overflow-hidden bg-[#0f1115] border-[3px] border-[var(--cn-line-soft)] ">
       <canvas ref={canvasRef} style={{ width, height, display: 'block' }} />
     </div>
   );

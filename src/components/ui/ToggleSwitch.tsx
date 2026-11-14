@@ -28,15 +28,15 @@ export const ToggleSwitch = ({
       role="switch"
       aria-checked={enabled}
       onClick={onToggle}
-      className={`${dims.track} relative flex-shrink-0 border transition-colors duration-150 ${
+      className={`${dims.track} relative flex-shrink-0 rounded-sm border transition-colors duration-150 ${
         enabled
-          ? 'border-[var(--hl-signal)] bg-[var(--hl-signal)]'
-          : 'border-[var(--hl-line-strong)] bg-[var(--hl-void-2)]'
+          ? 'border-[var(--arc-gold)] bg-[var(--arc-gold)]'
+          : 'border-[var(--arc-line-strong)] bg-[var(--arc-void-2)]'
       }`}
     >
       <motion.span
-        className={`${dims.ball} absolute top-1/2 ${
-          enabled ? 'bg-[var(--hl-signal-ink)]' : 'bg-[var(--hl-ink-3)]'
+        className={`${dims.ball} absolute top-1/2 rounded-sm ${
+          enabled ? 'bg-[var(--arc-gold-ink)]' : 'bg-[var(--arc-ink-3)]'
         }`}
         style={{ y: '-50%' }}
         animate={{ x: enabled ? dims.onX : dims.offX }}

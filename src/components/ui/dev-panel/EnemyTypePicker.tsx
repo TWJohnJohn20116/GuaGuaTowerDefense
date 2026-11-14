@@ -38,9 +38,9 @@ export const EnemyTypePicker = ({ value, onChange }: EnemyTypePickerProps) => {
         }),
         meta: (
           <span className="flex items-center gap-2 text-[10px]">
-            <span className="flex items-center gap-1 text-[var(--hl-alarm)]/90"><HeartIcon className="w-2.5 h-2.5" /> {d?.health || 0}</span>
-            <span className="flex items-center gap-1 text-[var(--hl-reach)]/90"><LightningIcon className="w-2.5 h-2.5" /> {d?.speed?.toFixed(1) || 0}</span>
-            <span className="flex items-center gap-1 text-[var(--hl-caution)]/90"><CoinIcon className="w-2.5 h-2.5" /> ${d?.reward || 0}</span>
+            <span className="flex items-center gap-1 text-[var(--arc-alert)]/90"><HeartIcon className="w-2.5 h-2.5" /> {d?.health || 0}</span>
+            <span className="flex items-center gap-1 text-[var(--arc-reach)]/90"><LightningIcon className="w-2.5 h-2.5" /> {d?.speed?.toFixed(1) || 0}</span>
+            <span className="flex items-center gap-1 text-[var(--arc-caution)]/90"><CoinIcon className="w-2.5 h-2.5" /> ${d?.reward || 0}</span>
           </span>
         ),
       };

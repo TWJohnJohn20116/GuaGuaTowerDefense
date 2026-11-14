@@ -20,6 +20,7 @@ import { PauseSectionShell } from './PauseSectionShell';
 import { SceneFilterChip } from '@/components/ui/SceneBrowseParts';
 import { SceneChoiceButton } from '@/components/ui/SceneChoiceParts';
 import { SCENE_TYPOGRAPHY } from '@/components/ui/SceneTypography';
+import { Deck } from '@/components/hl';
 
 interface WaveEnemyGroup {
  type: EnemyType;
@@ -130,9 +131,9 @@ export function PausePreviewSection() {
  {waveMeta ? (
  <div className="flex gap-2 overflow-x-auto no-scrollbar">
  <MetaChip label={g.pauseEnemyCountLabel} value={waveMeta.total} />
- <MetaChip label={g.pausePreviewTypes} value={waveMeta.types} tone="text-[var(--hl-ink-2)]"/>
- <MetaChip label={g.pausePreviewTotalHp} value={waveMeta.totalHp.toLocaleString()} tone="text-[var(--hl-alarm)]"/>
- <MetaChip label={g.pausePreviewEstimate} value={`${waveMeta.estSec}s`} tone="text-[var(--hl-reach)]"/>
+ <MetaChip label={g.pausePreviewTypes} value={waveMeta.types} tone="text-[var(--arc-ink-2)]"/>
+ <MetaChip label={g.pausePreviewTotalHp} value={waveMeta.totalHp.toLocaleString()} tone="text-[var(--arc-alert)]"/>
+ <MetaChip label={g.pausePreviewEstimate} value={`${waveMeta.estSec}s`} tone="text-[var(--arc-reach)]"/>
  {waveMeta.hasBoss && <BadgeChip label={g.waveTagBoss} tone="rose"/>}
  {waveMeta.hasElite && <BadgeChip label={g.pausePreviewElite} tone="amber"/>}
  </div>
@@ -202,24 +203,24 @@ export function PausePreviewSection() {
 function MetaChip({
  label,
  value,
- tone = 'text-[var(--hl-ink)]',
+ tone = 'text-[var(--arc-ink)]',
 }: {
  label: string;
  value: string | number;
  tone?: string;
 }) {
  return (
- <div className="flex-shrink-0 bg-[rgba(6,7,10,0.55)] border border-[var(--hl-line)] px-3 py-2 min-w-[4.5rem] text-center">
+ <Deck tone="sunken" className="flex-shrink-0 px-3 py-2 min-w-[4.5rem] text-center">
  <div className={`${SCENE_TYPOGRAPHY.microMuted} uppercase`}>{label}</div>
  <div className={`text-sm font-bold font-mono ${tone}`}>{value}</div>
- </div>
+ </Deck>
  );
 }
 
 function BadgeChip({ label, tone }: { label: string; tone: 'rose' | 'amber' }) {
  const cls = tone === 'rose'
- ? 'text-[var(--hl-alarm)] border-[var(--hl-line)] bg-[var(--hl-deck-2)]'
- : 'text-[var(--hl-caution)] border-[var(--hl-line)] bg-[var(--hl-deck-2)]';
+ ? 'text-[var(--arc-alert)] border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)]'
+ : 'text-[var(--arc-caution)] border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)]';
  return (
  <span className={`flex-shrink-0 self-center text-[9px] font-black tracking-widest px-2 py-1.5 border ${cls}`}>
  {label}
@@ -248,11 +249,11 @@ function EnemyChip({
  onClick={onSelect}
  className="flex min-w-[5.5rem] flex-shrink-0 flex-col items-center gap-1.5 px-3 py-2.5 normal-case tracking-normal"
  >
- <div className="flex h-10 w-10 items-center justify-center border border-[var(--hl-line)] bg-[rgba(6,7,10,0.55)]">
+ <Deck tone="sunken" className="flex h-10 w-10 items-center justify-center">
  <EnemyPreview enemyId={group.type} color={data?.color || '#888'} size={28} />
- </div>
+ </Deck>
  <span className="max-w-[5rem] truncate text-[10px] font-bold">{data?.name || group.type}</span>
- <span className="font-mono text-[10px] text-[var(--hl-ink)]/45">?{group.count}</span>
+ <span className="font-mono text-[10px] text-[var(--arc-ink)]/45">?{group.count}</span>
  </SceneFilterChip>
  );
  }
@@ -264,12 +265,12 @@ function EnemyChip({
  onClick={onSelect}
  className="flex w-full items-center gap-2.5 px-2.5 py-2 text-left normal-case tracking-normal"
  >
- <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center border border-[var(--hl-line)] bg-[rgba(6,7,10,0.55)]">
+ <Deck tone="sunken" className="flex h-9 w-9 flex-shrink-0 items-center justify-center">
  <EnemyPreview enemyId={group.type} color={data?.color || '#888'} size={24} />
- </div>
+ </Deck>
  <div className="min-w-0 flex-1">
- <div className="truncate text-xs font-bold text-[var(--hl-ink)]">{data?.name || group.type}</div>
- <div className="font-mono text-[10px] text-[var(--hl-ink)]/45">?{group.count}</div>
+ <div className="truncate text-xs font-bold text-[var(--arc-ink)]">{data?.name || group.type}</div>
+ <div className="font-mono text-[10px] text-[var(--arc-ink)]/45">?{group.count}</div>
  </div>
  </SceneChoiceButton>
  );
@@ -300,13 +301,13 @@ function EnemyTacticDetail({
  return (
  <div className="space-y-3">
  <div className="flex items-start gap-3">
- <div className="w-12 h-12 bg-[rgba(6,7,10,0.55)] border border-[var(--hl-line)] flex items-center justify-center flex-shrink-0">
+ <Deck tone="sunken" className="w-12 h-12 flex items-center justify-center flex-shrink-0">
  <EnemyPreview enemyId={type} color={data?.color || '#888'} size={34} />
- </div>
+ </Deck>
  <div className="flex-1 min-w-0">
  <div className="flex items-center gap-2">
- <h4 className="text-base font-bold text-[var(--hl-ink)] truncate">{data?.name || type}</h4>
- <span className="text-xs font-mono text-[var(--hl-ink-3)] flex-shrink-0">?{count}</span>
+ <h4 className="text-base font-bold text-[var(--arc-ink)] truncate">{data?.name || type}</h4>
+ <span className="text-xs font-mono text-[var(--arc-ink-3)] flex-shrink-0">?{count}</span>
  <PauseEncyclopediaEnemyLink enemyType={type} className="ml-auto"/>
  </div>
  <div className={`${SCENE_TYPOGRAPHY.microMuted} font-mono mt-1`}>
@@ -324,10 +325,10 @@ function EnemyTacticDetail({
  )}
 
  {guide?.weakness && (
- <div className="bg-[var(--hl-deck-2)] border border-[var(--hl-line)] px-3 py-2 text-[11px] text-[var(--hl-ink-2)] flex items-start gap-2">
- <TargetIcon className="w-3.5 h-3.5 text-[var(--hl-alarm)] flex-shrink-0 mt-0.5"/>
+ <Deck className="arc-panel--flat px-3 py-2 text-[11px] text-[var(--arc-ink-2)] flex items-start gap-2">
+ <TargetIcon className="w-3.5 h-3.5 text-[var(--arc-alert)] flex-shrink-0 mt-0.5"/>
  <span>{g.pausePreviewWeaknessPrefix}{guide.weakness}</span>
- </div>
+ </Deck>
  )}
 
  {counters.length > 0 && (
@@ -340,30 +341,30 @@ function EnemyTacticDetail({
  key={c.towerKey}
  className={`flex items-center gap-2 px-2.5 py-2 border text-[11px] ${
  c.owned
- ? 'bg-[var(--hl-deck-2)] border-[var(--hl-line)]'
- : 'bg-[var(--hl-deck-2)] border-[var(--hl-line)]'
+ ? 'bg-[var(--arc-deck-2)] border-[var(--cn-line-soft)]'
+ : 'bg-[var(--arc-deck-2)] border-[var(--cn-line-soft)]'
  }`}
  >
  {c.owned ? (
- <CheckIcon className="w-3.5 h-3.5 text-[var(--hl-vital)] flex-shrink-0"/>
+ <CheckIcon className="w-3.5 h-3.5 text-[var(--arc-vital)] flex-shrink-0"/>
  ) : (
- <TowerIcon className="w-3.5 h-3.5 text-[var(--hl-caution)] flex-shrink-0"/>
+ <TowerIcon className="w-3.5 h-3.5 text-[var(--arc-caution)] flex-shrink-0"/>
  )}
- <span className={`font-bold truncate max-w-[4.5rem] sm:max-w-none ${c.owned ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-caution)]'}`}>
+ <span className={`font-bold truncate max-w-[4.5rem] sm:max-w-none ${c.owned ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-caution)]'}`}>
  {c.towerName}
  </span>
  <PauseEncyclopediaTowerLink towerType={c.towerType} towerKey={c.towerKey} />
- <span className="text-[var(--hl-ink-3)] flex-1 min-w-0 line-clamp-2 sm:line-clamp-1">{c.reason}</span>
+ <span className="text-[var(--arc-ink-3)] flex-1 min-w-0 line-clamp-2 sm:line-clamp-1">{c.reason}</span>
  </div>
  ))}
  </div>
  )}
 
  {topTip && (
- <div className="bg-[var(--hl-deck-2)] border border-[var(--hl-line)] px-3 py-2 text-[10px] text-[var(--hl-ink-3)] flex items-start gap-2">
- <LightbulbIcon className="w-3.5 h-3.5 text-[var(--hl-caution)] flex-shrink-0 mt-0.5"/>
+ <Deck className="arc-panel--flat px-3 py-2 text-[10px] text-[var(--arc-ink-3)] flex items-start gap-2">
+ <LightbulbIcon className="w-3.5 h-3.5 text-[var(--arc-caution)] flex-shrink-0 mt-0.5"/>
  <span>{topTip}</span>
- </div>
+ </Deck>
  )}
  </div>
  );

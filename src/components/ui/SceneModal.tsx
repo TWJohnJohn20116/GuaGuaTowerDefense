@@ -9,6 +9,7 @@
 import type React from 'react';
 import { motion } from 'framer-motion';
 import { CrossIcon } from './Icons';
+import { Btn, IconBtn } from '@/components/hl';
 
 export type SceneModalVariant = 'glass' | 'solid';
 
@@ -31,8 +32,8 @@ export interface SceneModalProps {
   position?: 'fixed' | 'absolute';
 }
 
-const BACKDROP = 'bg-[rgba(6,7,10,0.82)]';
-const PANEL = 'border border-[var(--hl-line)] bg-[var(--hl-deck)] hl-cut-tl';
+const BACKDROP = 'bg-[rgba(46,36,64,0.55)]';
+const PANEL = 'arc-panel';
 
 function panelBaseClasses(variant: SceneModalVariant) {
   if (variant === 'solid') {
@@ -89,26 +90,26 @@ export function SceneModalHeader({
   title,
   icon,
   onClose,
-  borderClass = 'border-[var(--hl-line)]',
+  borderClass = 'border-[var(--cn-line-soft)]',
   className = '',
 }: SceneModalHeaderProps) {
   return (
     <div className={`flex items-center justify-between gap-3 border-b px-4 py-3 ${borderClass} ${className}`}>
       <div className="flex min-w-0 items-center gap-2.5">
         {icon && (
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-2)]">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-2)]">
             {icon}
           </span>
         )}
-        <h3 className="truncate text-[17px] font-semibold leading-tight text-[var(--hl-ink)]">{title}</h3>
+        <h3 className="arc-title truncate text-[17px] font-semibold leading-tight text-[var(--arc-ink)]">{title}</h3>
       </div>
-      <button
-        type="button"
+      <IconBtn
+        label="close"
         onClick={onClose}
-        className="flex h-7 w-7 shrink-0 items-center justify-center border border-[var(--hl-line-strong)] text-[var(--hl-ink-3)] transition-colors hover:border-[var(--hl-alarm)] hover:text-[var(--hl-alarm)]"
+        className="h-7 w-7 shrink-0 items-center justify-center px-0 text-[var(--arc-ink-3)] transition-colors hover:text-[var(--arc-alert)]"
       >
         <CrossIcon className="h-3.5 w-3.5" />
-      </button>
+      </IconBtn>
     </div>
   );
 }
@@ -137,7 +138,7 @@ export interface SceneModalFooterProps {
 export function SceneModalFooter({
   children,
   className = '',
-  borderClass = 'border-[var(--hl-line)]',
+  borderClass = 'border-[var(--cn-line-soft)]',
 }: SceneModalFooterProps) {
   return (
     <div className={`flex gap-2 border-t px-4 py-3 ${borderClass} ${className}`}>
@@ -156,13 +157,14 @@ export interface SceneModalCloseBarProps {
 export function SceneModalCloseBar({ onClose, label, className = '' }: SceneModalCloseBarProps) {
   return (
     <div className={`mb-3 flex justify-end ${className}`}>
-      <button
-        type="button"
+      <Btn
+        variant="ghost"
+        size="sm"
         onClick={onClose}
-        className="border border-[var(--hl-line-strong)] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-3)] transition-colors hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]"
+        className="px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-ink-3)] transition-colors hover:text-[var(--arc-ink)]"
       >
         {label}
-      </button>
+      </Btn>
     </div>
   );
 }

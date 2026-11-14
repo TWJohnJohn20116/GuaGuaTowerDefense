@@ -7,6 +7,7 @@ import { useTranslation } from '@/i18n';
 import EnemyPreview from '@/components/ui/EnemyPreview';
 import { SCENE_TYPOGRAPHY } from '@/components/ui/SceneTypography';
 import { AlienIcon } from '@/components/ui/Icons';
+import { Deck } from '@/components/hl';
 import {
  groupFieldEnemies,
  summarizeFieldDebuffs,
@@ -17,7 +18,7 @@ import { PauseEnemyTraitChip } from './PauseEnemyTraitChip';
 import { PauseSectionShell } from './PauseSectionShell';
 
 const TRAIT_TONE_CLASS: Record<string, string> = {
- debuff: 'bg-[var(--hl-deck-2)] text-[var(--hl-caution)] border-[var(--hl-line)]',
+ debuff: 'bg-[var(--arc-deck-2)] text-[var(--arc-caution)] border-[var(--cn-line-soft)]',
 };
 
 export function PauseEnemyInsights({ embedded = false }: { embedded?: boolean }) {
@@ -39,7 +40,7 @@ export function PauseEnemyInsights({ embedded = false }: { embedded?: boolean })
 
  if (enemies.length === 0) {
  const empty = (
- <div className={`text-center text-xs py-5 border border-dashed border-[var(--hl-line)] ${SCENE_TYPOGRAPHY.microMuted}`}>
+ <div className={`text-center text-xs py-5 border border-dashed border-[var(--cn-line-soft)] ${SCENE_TYPOGRAPHY.microMuted}`}>
  {g.pauseNoEnemies}
  </div>
  );
@@ -59,15 +60,15 @@ export function PauseEnemyInsights({ embedded = false }: { embedded?: boolean })
  const body = (
  <div className="space-y-3">
  <div className="flex items-center justify-end">
- <span className={`${SCENE_TYPOGRAPHY.micro} text-[var(--hl-alarm)] font-mono tabular-nums`}>
+ <span className={`${SCENE_TYPOGRAPHY.micro} arc-num text-[11px] text-[var(--arc-alert)] font-mono tabular-nums`}>
  {g.pauseFieldTotalHpLabel} {Math.floor(fieldStats.totalHp).toLocaleString()}
  </span>
  </div>
 
  <div className="grid grid-cols-3 gap-2">
  <MiniStat label={g.pauseFieldTypeCount} value={groups.length} />
- <MiniStat label={g.pauseFieldShielded} value={fieldStats.shielded} tone="text-[var(--hl-reach)]"/>
- <MiniStat label={g.pauseFieldArmored} value={fieldStats.armored} tone="text-[var(--hl-ink-2)]"/>
+ <MiniStat label={g.pauseFieldShielded} value={fieldStats.shielded} tone="text-[var(--arc-reach)]"/>
+ <MiniStat label={g.pauseFieldArmored} value={fieldStats.armored} tone="text-[var(--arc-ink-2)]"/>
  </div>
 
  {debuffs.length > 0 && (
@@ -86,16 +87,16 @@ export function PauseEnemyInsights({ embedded = false }: { embedded?: boolean })
 
  <div className="space-y-2 max-h-48 overflow-y-auto no-scrollbar">
  {groups.map((grp) => (
- <div key={grp.type} className="bg-[rgba(6,7,10,0.55)] border border-[var(--hl-line)] p-2.5">
+ <Deck key={grp.type} tone="sunken" className="p-2.5">
  <div className="flex items-center gap-2 mb-1.5">
- <div className="w-8 h-8 bg-[rgba(6,7,10,0.55)] border border-[var(--hl-line)] flex items-center justify-center flex-shrink-0">
+ <Deck tone="sunken" className="w-8 h-8 flex items-center justify-center flex-shrink-0">
  <EnemyPreview enemyId={grp.type} color={getEnemyColor(grp.type)} size={22} />
- </div>
+ </Deck>
  <div className="flex-1 min-w-0">
  <div className="flex items-center gap-1.5">
- <span className="text-xs font-bold text-[var(--hl-ink)] truncate flex-1">{grp.data?.name ?? grp.type}</span>
+ <span className="text-xs font-bold text-[var(--arc-ink)] truncate flex-1">{grp.data?.name ?? grp.type}</span>
  <PauseEncyclopediaEnemyLink enemyType={grp.type} />
- <span className="text-[11px] font-black text-[var(--hl-ink-2)] font-mono tabular-nums">?{grp.count}</span>
+ <span className="arc-num text-[11px] font-black text-[var(--arc-ink-2)] font-mono tabular-nums">?{grp.count}</span>
  </div>
  <div className={`${SCENE_TYPOGRAPHY.microMuted} font-mono`}>
  HP {Math.floor(grp.totalHp).toLocaleString()} · {g.pauseFieldHpAvg} {grp.avgHpPercent}%
@@ -109,7 +110,7 @@ export function PauseEnemyInsights({ embedded = false }: { embedded?: boolean })
  ))}
  </div>
  )}
- </div>
+ </Deck>
  ))}
  </div>
  </div>
@@ -129,12 +130,12 @@ export function PauseEnemyInsights({ embedded = false }: { embedded?: boolean })
  );
 }
 
-function MiniStat({ label, value, tone = 'text-[var(--hl-ink)]' }: { label: string; value: number; tone?: string }) {
+function MiniStat({ label, value, tone = 'text-[var(--arc-ink)]' }: { label: string; value: number; tone?: string }) {
  return (
- <div className="bg-[rgba(6,7,10,0.55)] border border-[var(--hl-line)] p-2 text-center">
+ <Deck tone="sunken" className="p-2 text-center">
  <div className={`${SCENE_TYPOGRAPHY.microMuted} uppercase tracking-wider mb-0.5`}>{label}</div>
- <div className={`text-sm font-bold font-mono ${tone}`}>{value}</div>
- </div>
+ <div className={`arc-num text-sm font-mono ${tone}`}>{value}</div>
+ </Deck>
  );
 }
 

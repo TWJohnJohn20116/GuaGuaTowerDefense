@@ -77,7 +77,7 @@ export const PauseOverlay = ({ onResume, onQuit }: PauseOverlayProps) => {
 
   return (
     <motion.div
-      className={`absolute inset-0 z-40 flex items-center justify-center bg-[rgba(6,7,10,0.82)] p-3 sm:p-6 ${!isPaused ? 'pointer-events-none' : ''}`}
+      className={`absolute inset-0 z-40 flex items-center justify-center bg-[rgba(46,36,64,0.55)] p-3 sm:p-6 ${!isPaused ? 'pointer-events-none' : ''}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.12 } }}
@@ -91,15 +91,15 @@ export const PauseOverlay = ({ onResume, onQuit }: PauseOverlayProps) => {
       >
         <Deck notch className="flex max-h-[86vh] flex-col overflow-hidden">
           {/* 標題列：mono 小標 + 17px 標題 + 儀表格 */}
-          <header className="flex shrink-0 flex-wrap items-center gap-3 border-b border-[var(--hl-line)] px-4 py-2.5">
+          <header className="flex shrink-0 flex-wrap items-center gap-3 border-b border-[var(--cn-line-soft)] px-4 py-2.5">
             <div className="min-w-0 flex-1">
-              <div className="hl-label">theater / paused</div>
-              <h2 className="mt-1 truncate text-[17px] font-semibold leading-tight text-[var(--hl-ink)]">
+              <div className="arc-label">theater / paused</div>
+              <h2 className="arc-title mt-1 truncate text-[17px] font-semibold leading-tight text-[var(--arc-ink)]">
                 {t.game.paused}
               </h2>
             </div>
 
-            <div className="flex items-stretch border border-[var(--hl-line)]">
+            <div className="flex items-stretch rounded-sm border-[3px] border-[var(--cn-line-soft)]">
               {[
                 { icon: <WaveIcon className="h-3 w-3" />, label: t.game.wave, value: waveHeader },
                 { icon: <HeartIcon className="h-3 w-3" />, label: t.game.health, value: health },
@@ -108,22 +108,22 @@ export const PauseOverlay = ({ onResume, onQuit }: PauseOverlayProps) => {
               ].map((cell) => (
                 <div
                   key={cell.label}
-                  className="flex min-w-[62px] flex-col gap-1 border-r border-[var(--hl-line)] px-2.5 py-1.5 last:border-r-0"
+                  className="flex min-w-[62px] flex-col gap-1 border-r border-[var(--cn-line-soft)] px-2.5 py-1.5 last:border-r-0"
                 >
-                  <span className="hl-label flex items-center gap-1">{cell.icon}{cell.label}</span>
+                  <span className="arc-label flex items-center gap-1">{cell.icon}{cell.label}</span>
                   <Num value={cell.value} size="sm" />
                 </div>
               ))}
             </div>
 
-            <span className="hidden font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)] sm:inline">
+            <span className="hidden font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)] sm:inline">
               {t.game.pauseResumeHint}
             </span>
           </header>
 
           {/* 左分頁軌 + 內容 */}
           <div className="flex min-h-0 flex-1 flex-col sm:flex-row">
-            <nav className="flex shrink-0 gap-0 overflow-x-auto border-b border-[var(--hl-line)] bg-[var(--hl-void-2)] no-scrollbar sm:w-[176px] sm:flex-col sm:overflow-visible sm:border-b-0 sm:border-r">
+            <nav className="flex shrink-0 gap-0 overflow-x-auto border-b border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] no-scrollbar sm:w-[176px] sm:flex-col sm:overflow-visible sm:border-b-0 sm:border-r">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -135,17 +135,17 @@ export const PauseOverlay = ({ onResume, onQuit }: PauseOverlayProps) => {
                       if (pauseEncyclopediaFocus) closePauseEncyclopedia();
                       setActiveTab(tab.id);
                     }}
-                    className={`relative flex flex-1 items-center gap-2 whitespace-nowrap border-b border-[var(--hl-line)] px-3 py-2.5 text-left transition-colors duration-[110ms] sm:flex-none ${
+                    className={`relative flex flex-1 items-center gap-2 whitespace-nowrap border-b border-[var(--cn-line-soft)] px-3 py-2.5 text-left transition-colors duration-[110ms] sm:flex-none ${
                       isActive
-                        ? 'bg-[var(--hl-deck-2)] text-[var(--hl-ink)]'
-                        : 'text-[var(--hl-ink-2)] hover:bg-[var(--hl-deck-2)] hover:text-[var(--hl-ink)]'
+                        ? 'bg-[var(--arc-deck-2)] text-[var(--arc-ink)]'
+                        : 'text-[var(--arc-ink-2)] hover:bg-[var(--arc-deck-2)] hover:text-[var(--arc-ink)]'
                     }`}
                   >
                     {/* 選中：左緣 2px 訊號條 */}
                     <span
-                      className={`absolute left-0 top-0 h-full w-[2px] ${isActive ? 'bg-[var(--hl-signal)]' : 'bg-transparent'}`}
+                      className={`absolute left-0 top-0 h-full w-[2px] ${isActive ? 'bg-[var(--arc-gold)]' : 'bg-transparent'}`}
                     />
-                    <Icon className={`h-3.5 w-3.5 shrink-0 ${isActive ? 'text-[var(--hl-signal)]' : ''}`} />
+                    <Icon className={`h-3.5 w-3.5 shrink-0 ${isActive ? 'text-[var(--arc-gold)]' : ''}`} />
                     <span className={`text-[12px] ${isActive ? 'font-semibold' : ''}`}>{tab.label}</span>
                   </button>
                 );

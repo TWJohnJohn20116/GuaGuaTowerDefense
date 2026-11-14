@@ -8,11 +8,10 @@ import { playUiHover } from '@/services/audioService';
 import type { EnemyTraitTag } from './pauseEnemyTraits';
 
 const TRAIT_TONE_CLASS: Record<EnemyTraitTag['tone'], string> = {
- armor: 'bg-[var(--hl-deck-2)] text-[var(--hl-ink-2)] border-[var(--hl-line)] hover:bg-[var(--hl-deck-2)]',
- shield: 'bg-[var(--hl-deck-2)] text-[var(--hl-reach)] border-[var(--hl-line)] hover:bg-[var(--hl-deck-2)]',
- special: 'bg-[var(--hl-deck-2)] text-[var(--hl-ink-2)] border-[var(--hl-line)] hover:bg-[var(--hl-deck-2)]',
- mutator: 'bg-[var(--hl-deck-2)] text-[var(--hl-alarm)] border-[var(--hl-line)] hover:bg-[var(--hl-deck-2)]',
- debuff: 'bg-[var(--hl-deck-2)] text-[var(--hl-caution)] border-[var(--hl-line)] hover:bg-[var(--hl-deck-2)]',
+ armor: 'bg-[var(--arc-deck-2)] text-[var(--arc-ink-2)] border-[var(--cn-line-soft)] hover:bg-[var(--arc-deck-2)]',
+ shield: 'bg-[var(--arc-deck-2)] text-[var(--arc-reach)] border-[var(--cn-line-soft)] hover:bg-[var(--arc-deck-2)]',
+ special: 'bg-[var(--arc-deck-2)] text-[var(--arc-ink-2)] border-[var(--cn-line-soft)] hover:bg-[var(--arc-deck-2)]',
+ debuff: 'bg-[var(--arc-deck-2)] text-[var(--arc-caution)] border-[var(--cn-line-soft)] hover:bg-[var(--arc-deck-2)]',
 };
 
 interface PauseEnemyTraitChipProps {

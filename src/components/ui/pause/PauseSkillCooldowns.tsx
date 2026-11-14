@@ -54,7 +54,6 @@ export function PauseSkillCooldowns({ embedded = false }: { embedded?: boolean }
  const g = t.game;
  const unlockedSkills = useShopStore((s) => s.unlockedPlayerSkills);
  const playerSkillStates = useGameStore((s) => s.playerSkillStates);
- const mutatorRules = useGameStore((s) => s.mutatorRules);
  const [, setTick] = useState(0);
 
  useEffect(() => {
@@ -74,8 +73,6 @@ export function PauseSkillCooldowns({ embedded = false }: { embedded?: boolean }
  }
 
  const now = Date.now();
- const skillsDisabled = Boolean(mutatorRules?.skillsDisabled);
-
  const list = (
  <div className="space-y-2">
  {skills.map((skill) => {
@@ -84,7 +81,7 @@ export function PauseSkillCooldowns({ embedded = false }: { embedded?: boolean }
  const activeUntil = state?.activeUntil ?? 0;
  const elapsed = lastUsed === 0 ? skill.cooldown : now - lastUsed;
  const cdRemaining = lastUsed === 0 ? 0 : Math.max(0, skill.cooldown - elapsed);
- const ready = cdRemaining <= 0 && !skillsDisabled;
+ const ready = cdRemaining <= 0;
  const isActive = activeUntil > now;
  const activeRemaining = isActive ? activeUntil - now : 0;
  const cdRatio = lastUsed === 0 ? 0 : Math.min(1, cdRemaining / skill.cooldown);
@@ -95,14 +92,14 @@ export function PauseSkillCooldowns({ embedded = false }: { embedded?: boolean }
  key={skill.id}
  className={`flex items-center gap-3 p-2.5 border ${
  isActive
- ? 'bg-[var(--hl-deck-2)] border-[var(--hl-line)]'
+ ? 'bg-[var(--arc-deck-2)] border-[var(--cn-line-soft)]'
  : ready
- ? 'bg-[var(--hl-deck-2)] border-[var(--hl-line)]'
- : 'bg-[rgba(6,7,10,0.55)] border-[var(--hl-line)]'
+ ? 'bg-[var(--arc-deck-2)] border-[var(--cn-line-soft)]'
+ : 'bg-[var(--cn-card-2)] border-[var(--cn-line-soft)]'
  }`}
  >
  <div
- className="w-9 h-9 flex items-center justify-center border border-[var(--hl-line)] flex-shrink-0"
+ className="w-9 h-9 arc-panel--sunken flex items-center justify-center flex-shrink-0"
  style={{ backgroundColor: `${skill.iconColor}18` }}
  >
  <Icon className="w-4 h-4"style={{ color: skill.iconColor }} />
@@ -111,19 +108,19 @@ export function PauseSkillCooldowns({ embedded = false }: { embedded?: boolean }
  <div className="flex-1 min-w-0">
  <div className="flex items-center justify-between gap-2 mb-1">
  <div className="flex items-center gap-1.5 min-w-0">
- <span className="text-[11px] font-bold text-[var(--hl-ink)]/85 truncate">
+ <span className="text-[11px] font-bold text-[var(--arc-ink)]/85 truncate">
  {getPlayerSkillName(skill, t)}
-              <span className="text-[var(--hl-ink-4)] font-normal ml-1.5">[{skill.hotkey}]</span>
+              <span className="text-[var(--arc-ink-4)] font-normal ml-1.5">[{skill.hotkey}]</span>
  </span>
  <PauseEncyclopediaSkillLink skillId={skill.id} />
  </div>
  <span
  className={`text-[10px] font-bold font-mono tabular-nums flex-shrink-0 ${
  isActive
- ? 'text-[var(--hl-ink-2)]'
+ ? 'text-[var(--arc-ink-2)]'
  : ready
- ? 'text-[var(--hl-vital)]'
- : 'text-[var(--hl-caution)]'
+ ? 'text-[var(--arc-vital)]'
+ : 'text-[var(--arc-caution)]'
  }`}
  >
  {isActive
@@ -131,10 +128,10 @@ export function PauseSkillCooldowns({ embedded = false }: { embedded?: boolean }
  : formatCooldownMs(cdRemaining, g)}
  </span>
  </div>
- <div className="h-1.5 bg-[var(--hl-deck-3)] overflow-hidden">
+ <div className="h-1.5 bg-[var(--arc-deck-3)] border-[3px] border-[var(--cn-line-soft)] overflow-hidden">
  <div
  className={`h-full transition-all ${
- isActive ? 'bg-[var(--hl-deck-2)]' : ready ? 'bg-[var(--hl-deck-2)]' : 'bg-[var(--hl-deck-2)]'
+ isActive ? 'bg-[var(--arc-deck-2)]' : ready ? 'bg-[var(--arc-deck-2)]' : 'bg-[var(--arc-deck-2)]'
  }`}
  style={{
  width: isActive
@@ -160,11 +157,6 @@ export function PauseSkillCooldowns({ embedded = false }: { embedded?: boolean }
  if (embedded) {
  return (
  <>
- {skillsDisabled && (
- <div className={`mb-2 ${SCENE_TYPOGRAPHY.micro} text-[var(--hl-alarm)] font-bold px-2 py-1 bg-[var(--hl-deck-2)] border border-[var(--hl-line)] text-center`}>
- {g.pauseSkillDisabled}
- </div>
- )}
  {list}
  {footer}
  </>
@@ -176,13 +168,6 @@ export function PauseSkillCooldowns({ embedded = false }: { embedded?: boolean }
  title={g.pauseSkillStatus}
  icon={<SparklesIcon className="h-5 w-5"/>}
  accent="purple"
- action={
- skillsDisabled ? (
- <span className={` border border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-2 py-0.5 ${SCENE_TYPOGRAPHY.micro} font-bold text-[var(--hl-alarm)]`}>
- {g.pauseSkillDisabled}
- </span>
- ) : undefined
- }
  >
  {list}
  {footer}

@@ -40,7 +40,7 @@ export function renderModIcon(
       const layers = (parsed.icons as AdvancedIconLayer[]).slice().sort((a, b) => a.zIndex - b.zIndex);
       return (
         <div
-          className={`relative overflow-hidden flex items-center justify-center border border-[var(--hl-line)] ${rounded} ${className}`}
+          className={`relative overflow-hidden flex items-center justify-center border-[3px] border-[var(--cn-line-soft)] ${rounded} ${className}`}
           style={{ backgroundColor: parsed.bgColor === 'transparent' ? 'rgba(0,0,0,0.2)' : parsed.bgColor }}
         >
           {layers.map((icon) => (

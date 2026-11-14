@@ -8,22 +8,22 @@ import type React from 'react';
 export type SceneChoiceAccent = 'purple' | 'amber' | 'cyan' | 'emerald' | 'violet' | 'blue';
 
 const ACCENT_ACTIVE: Record<SceneChoiceAccent, string> = {
-  purple: 'border-[var(--hl-line-strong)] bg-purple-500/15 text-[var(--hl-ink-2)] shadow-[0_0_18px_rgba(168,85,247,0.18)]',
-  amber: 'border-[rgba(255,182,39,0.38)] bg-[rgba(255,182,39,0.12)] text-[var(--hl-caution)] shadow-[0_0_18px_rgba(245,158,11,0.18)]',
-  cyan: 'border-[rgba(111,168,255,0.38)] bg-[rgba(111,168,255,0.12)] text-[var(--hl-reach)] shadow-[0_0_18px_rgba(34,211,238,0.18)]',
-  emerald: 'border-[rgba(56,224,143,0.38)] bg-[rgba(56,224,143,0.12)] text-[var(--hl-vital)] shadow-[0_0_18px_rgba(16,185,129,0.18)]',
-  violet: 'border-[var(--hl-line-strong)] bg-violet-500/15 text-[var(--hl-ink-2)] shadow-[0_0_18px_rgba(167,139,250,0.18)]',
-  blue: 'border-[rgba(111,168,255,0.38)] bg-[rgba(111,168,255,0.12)] text-[var(--hl-reach)] shadow-[0_0_12px_rgba(59,130,246,0.4)]',
+  purple: 'border-[var(--arc-line-strong)] bg-[var(--cn-grape-soft)] text-[var(--arc-ink-2)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+  amber: 'border-[rgba(255,182,39,0.38)] bg-[rgba(255,182,39,0.12)] text-[var(--arc-caution)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+  cyan: 'border-[rgba(111,140,255,0.38)] bg-[rgba(111,140,255,0.12)] text-[var(--arc-reach)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+  emerald: 'border-[rgba(56,224,143,0.38)] bg-[rgba(56,224,143,0.12)] text-[var(--arc-vital)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+  violet: 'border-[var(--arc-line-strong)] bg-[var(--cn-grape-soft)] text-[var(--arc-ink-2)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+  blue: 'border-[rgba(111,140,255,0.38)] bg-[rgba(111,140,255,0.12)] text-[var(--arc-reach)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
 };
 
 const IDLE =
-  'border-[var(--hl-line)] bg-[var(--hl-deck-2)] text-[var(--hl-ink-3)] hover:border-[var(--hl-line-strong)] hover:bg-[var(--hl-deck-3)] hover:text-[var(--hl-ink-2)]';
+  'border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)] text-[var(--arc-ink-3)] hover:border-[var(--arc-line-strong)] hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink-2)]';
 
 const LAYOUT_BASE = {
   inline:
-    'group flex flex-1 items-center justify-center gap-2  border px-3 py-2.5 text-[11px] font-bold uppercase tracking-widest transition-all',
+    'group arc-btn h-auto flex flex-1 items-center justify-center gap-2  border px-3 py-2.5 text-[11px] font-bold uppercase tracking-widest transition-all',
   stack:
-    'group flex flex-1 flex-col items-center justify-center gap-1  border px-3 py-2.5 transition-all',
+    'group arc-btn h-auto flex flex-1 flex-col items-center justify-center gap-1  border px-3 py-2.5 transition-all',
 } as const;
 
 /** 供特殊佈局（如 9 宮格）直接取 class */

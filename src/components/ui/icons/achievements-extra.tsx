@@ -1,7 +1,7 @@
 import type { IconProps } from './base';
 import { s } from './base';
 
-/** 🏦 銀行 — 預設色：text-[var(--hl-caution)] */
+/** 🏦 銀行 — 預設色：text-[var(--arc-caution)] */
 export const BankIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M3 21h18M5 21V7l7-4 7 4v14M8 21v-6h8v6" fill="currentColor" fillOpacity="0.1" />
@@ -25,7 +25,7 @@ export const DashIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ⚡ 閃電 — 預設色：text-[var(--hl-caution)] */
+/** ⚡ 閃電 — 預設色：text-[var(--arc-caution)] */
 export const ZapIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" fillOpacity="0.2" />
@@ -33,7 +33,7 @@ export const ZapIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🌵 仙人掌 — 預設色：text-[var(--hl-vital)] */
+/** 🌵 仙人掌 — 預設色：text-[var(--arc-vital)] */
 export const CactusIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 22V8M12 8c-3 0-4-2-4-2M12 8c3 0 4-2 4-2M8 12H4M20 12h-4" strokeWidth="2" />
@@ -42,7 +42,7 @@ export const CactusIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🌻 向日葵 — 預設色：text-[var(--hl-caution)] */
+/** 🌻 向日葵 — 預設色：text-[var(--arc-caution)] */
 export const SunflowerIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="4" fill="currentColor" fillOpacity="0.3" />
@@ -51,7 +51,7 @@ export const SunflowerIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🐲 龍 — 預設色：text-[var(--hl-vital)] */
+/** 🐲 龍 — 預設色：text-[var(--arc-vital)] */
 export const DragonIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M9 20c-3-1-6-4-4-7 1-2 3-2 4-2h4c3 0 6 2 5 5 0 2-2 3-5 4-1 0-2 1-4 0" fill="currentColor" fillOpacity="0.15" />
@@ -70,7 +70,7 @@ export const Timer2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** ⌛ 沙漏 — 預設色：text-[var(--hl-caution)] */
+/** ⌛ 沙漏 — 預設色：text-[var(--arc-caution)] */
 export const Hourglass2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M5 22h14M5 2h14M17 22l-5-10-5 10M7 2l5 10 5-10" strokeWidth="1.5" />
@@ -87,7 +87,7 @@ export const ClockIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 📅 日曆 — 預設色：text-[var(--hl-reach)] */
+/** 📅 日曆 — 預設色：text-[var(--arc-reach)] */
 export const CalendarIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="3" y="4" width="18" height="18" rx="2" fill="currentColor" fillOpacity="0.1" />
@@ -125,7 +125,7 @@ export const LaptopIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🖥️ 螢幕 — 預設色：text-[var(--hl-reach)] */
+/** 🖥️ 螢幕 — 預設色：text-[var(--arc-reach)] */
 export const Monitor2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="2" y="3" width="20" height="14" rx="2" fill="currentColor" fillOpacity="0.1" />
@@ -152,7 +152,7 @@ export const CloudIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🌧️ 雨 — 預設色：text-[var(--hl-reach)] */
+/** 🌧️ 雨 — 預設色：text-[var(--arc-reach)] */
 export const RainIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" fill="currentColor" fillOpacity="0.1" />
@@ -160,7 +160,7 @@ export const RainIcon = (p: IconProps) => (
     <path d="M8 19v2M12 19v2M16 19v2" />
   </svg>
 );
-/** 🌨️ 小雪花 — 預設色：text-[var(--hl-reach)] */
+/** 🌨️ 小雪花 — 預設色：text-[var(--arc-reach)] */
 export const SnowIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M2 12h20M12 2v20" strokeWidth="2" />
@@ -168,7 +168,7 @@ export const SnowIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🥶 冷 — 預設色：text-[var(--hl-reach)] */
+/** 🥶 冷 — 預設色：text-[var(--arc-reach)] */
 export const ColdFaceIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="10" fill="currentColor" fillOpacity="0.1" />
@@ -179,7 +179,7 @@ export const ColdFaceIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 😎 酷 — 預設色：text-[var(--hl-caution)] */
+/** 😎 酷 — 預設色：text-[var(--arc-caution)] */
 export const CoolFaceIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="10" fill="currentColor" fillOpacity="0.1" />
@@ -197,7 +197,7 @@ export const BoneIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🩸 血 — 預設色：text-[var(--hl-alarm)] */
+/** 🩸 血 — 預設色：text-[var(--arc-alert)] */
 export const BloodIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 22c-4 0-7-3-7-7 0-3 2-5 4-6 1-1 2-2 3-3 1 1 2 2 3 3 2 1 4 3 4 6 0 4-3 7-7 7z" fill="currentColor" fillOpacity="0.15" />
@@ -205,7 +205,7 @@ export const BloodIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🧬 DNA — 預設色：text-[var(--hl-ink-2)] */
+/** 🧬 DNA — 預設色：text-[var(--arc-ink-2)] */
 export const DNAIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
@@ -213,7 +213,7 @@ export const DNAIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🧠 腦 — 預設色：text-[var(--hl-ink-2)] */
+/** 🧠 腦 — 預設色：text-[var(--arc-ink-2)] */
 export const BrainIcon2 = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z" fill="currentColor" fillOpacity="0.15" />
@@ -222,7 +222,7 @@ export const BrainIcon2 = (p: IconProps) => (
   </svg>
 );
 
-/** 👣 腳印 — 預設色：text-[var(--hl-caution)] */
+/** 👣 腳印 — 預設色：text-[var(--arc-caution)] */
 export const FootprintsIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="6" cy="6" r="2" fill="currentColor" fillOpacity="0.15" />
@@ -232,7 +232,7 @@ export const FootprintsIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🏃 跑步 — 預設色：text-[var(--hl-caution)] */
+/** 🏃 跑步 — 預設色：text-[var(--arc-caution)] */
 export const RunIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="13" cy="4" r="2" fill="currentColor" fillOpacity="0.2" />
@@ -250,14 +250,14 @@ export const WalkIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🛑 停止 — 預設色：text-[var(--hl-alarm)] */
+/** 🛑 停止 — 預設色：text-[var(--arc-alert)] */
 export const StopSignIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
   </svg>
 );
 
-/** ⚠️ 警告 — 預設色：text-[var(--hl-caution)] */
+/** ⚠️ 警告 — 預設色：text-[var(--arc-caution)] */
 export const Warning2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" fill="currentColor" fillOpacity="0.15" />
@@ -267,7 +267,7 @@ export const Warning2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** ℹ️ 資訊 — 預設色：text-[var(--hl-reach)] */
+/** ℹ️ 資訊 — 預設色：text-[var(--arc-reach)] */
 export const InfoIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="10" fill="currentColor" fillOpacity="0.1" />
@@ -287,7 +287,7 @@ export const QuestionIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ❌ 叉 — 預設色：text-[var(--hl-alarm)] */
+/** ❌ 叉 — 預設色：text-[var(--arc-alert)] */
 export const XIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <line x1="18" y1="6" x2="6" y2="18" />
@@ -295,14 +295,14 @@ export const XIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ✅ 勾 — 預設色：text-[var(--hl-vital)] */
+/** ✅ 勾 — 預設色：text-[var(--arc-vital)] */
 export const Check2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <polyline points="20 6 9 17 4 12" />
   </svg>
 );
 
-/** ➕ 加 — 預設色：text-[var(--hl-vital)] */
+/** ➕ 加 — 預設色：text-[var(--arc-vital)] */
 export const Plus2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <line x1="12" y1="5" x2="12" y2="19" />
@@ -310,14 +310,14 @@ export const Plus2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** ➖ 減 — 預設色：text-[var(--hl-alarm)] */
+/** ➖ 減 — 預設色：text-[var(--arc-alert)] */
 export const MinusIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 );
 
-/** ✖️ 乘 — 預設色：text-[var(--hl-alarm)] */
+/** ✖️ 乘 — 預設色：text-[var(--arc-alert)] */
 export const MultiplyIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <line x1="4" y1="4" x2="20" y2="20" />
@@ -325,7 +325,7 @@ export const MultiplyIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ➗ 除 — 預設色：text-[var(--hl-reach)] */
+/** ➗ 除 — 預設色：text-[var(--arc-reach)] */
 export const DivideIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <line x1="4" y1="12" x2="20" y2="12" />
@@ -334,7 +334,7 @@ export const DivideIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🟢 綠點 — 預設色：text-[var(--hl-vital)] */
+/** 🟢 綠點 — 預設色：text-[var(--arc-vital)] */
 export const GreenDotIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="8" fill="currentColor" fillOpacity="0.2" />
@@ -342,7 +342,7 @@ export const GreenDotIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🔴 紅點 — 預設色：text-[var(--hl-alarm)] */
+/** 🔴 紅點 — 預設色：text-[var(--arc-alert)] */
 export const RedDotIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="8" fill="currentColor" fillOpacity="0.2" />
@@ -350,7 +350,7 @@ export const RedDotIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🟡 黃點 — 預設色：text-[var(--hl-caution)] */
+/** 🟡 黃點 — 預設色：text-[var(--arc-caution)] */
 export const YellowDotIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="8" fill="currentColor" fillOpacity="0.2" />
@@ -358,7 +358,7 @@ export const YellowDotIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🔵 藍點 — 預設色：text-[var(--hl-reach)] */
+/** 🔵 藍點 — 預設色：text-[var(--arc-reach)] */
 export const BlueDotIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="8" fill="currentColor" fillOpacity="0.2" />
@@ -381,7 +381,7 @@ export const WhiteDotIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🟠 橙點 — 預設色：text-[var(--hl-caution)] */
+/** 🟠 橙點 — 預設色：text-[var(--arc-caution)] */
 export const OrangeDotIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="8" fill="currentColor" fillOpacity="0.2" />
@@ -389,7 +389,7 @@ export const OrangeDotIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🟣 紫點 — 預設色：text-[var(--hl-ink-2)] */
+/** 🟣 紫點 — 預設色：text-[var(--arc-ink-2)] */
 export const PurpleDotIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="8" fill="currentColor" fillOpacity="0.2" />
@@ -397,7 +397,7 @@ export const PurpleDotIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🟤 棕點 — 預設色：text-[var(--hl-caution)] */
+/** 🟤 棕點 — 預設色：text-[var(--arc-caution)] */
 export const BrownDotIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="8" fill="currentColor" fillOpacity="0.2" />
@@ -412,7 +412,7 @@ export const WhiteSquareIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🟥 紅方塊 — 預設色：text-[var(--hl-alarm)] */
+/** 🟥 紅方塊 — 預設色：text-[var(--arc-alert)] */
 export const RedSquareIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" fillOpacity="0.2" />
@@ -420,7 +420,7 @@ export const RedSquareIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🟧 橙方塊 — 預設色：text-[var(--hl-caution)] */
+/** 🟧 橙方塊 — 預設色：text-[var(--arc-caution)] */
 export const OrangeSquareIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" fillOpacity="0.2" />
@@ -428,7 +428,7 @@ export const OrangeSquareIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🟨 黃方塊 — 預設色：text-[var(--hl-caution)] */
+/** 🟨 黃方塊 — 預設色：text-[var(--arc-caution)] */
 export const YellowSquareIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" fillOpacity="0.2" />
@@ -436,7 +436,7 @@ export const YellowSquareIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🟩 綠方塊 — 預設色：text-[var(--hl-vital)] */
+/** 🟩 綠方塊 — 預設色：text-[var(--arc-vital)] */
 export const GreenSquareIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" fillOpacity="0.2" />
@@ -444,7 +444,7 @@ export const GreenSquareIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🟦 藍方塊 — 預設色：text-[var(--hl-reach)] */
+/** 🟦 藍方塊 — 預設色：text-[var(--arc-reach)] */
 export const BlueSquareIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" fillOpacity="0.2" />
@@ -452,7 +452,7 @@ export const BlueSquareIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🟪 紫方塊 — 預設色：text-[var(--hl-ink-2)] */
+/** 🟪 紫方塊 — 預設色：text-[var(--arc-ink-2)] */
 export const PurpleSquareIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" fillOpacity="0.2" />
@@ -460,7 +460,7 @@ export const PurpleSquareIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🟫 棕方塊 — 預設色：text-[var(--hl-caution)] */
+/** 🟫 棕方塊 — 預設色：text-[var(--arc-caution)] */
 export const BrownSquareIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" fillOpacity="0.2" />
@@ -468,7 +468,7 @@ export const BrownSquareIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ⭕ 紅圈 — 預設色：text-[var(--hl-alarm)] */
+/** ⭕ 紅圈 — 預設色：text-[var(--arc-alert)] */
 export const RedCircleIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="10" fill="currentColor" fillOpacity="0.2" />
@@ -482,7 +482,7 @@ export const SolidBlackSquareIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🚀 火箭 — 預設色：text-[var(--hl-alarm)] */
+/** 🚀 火箭 — 預設色：text-[var(--arc-alert)] */
 export const RocketIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2l.5-.5a5.4 5.4 0 0 0 1 1.5c2.5 2.5 6.5 2.5 9.5-.5s3-7 .5-9.5a5.4 5.4 0 0 0-1.5-1l.5-.5Z" fill="currentColor" fillOpacity="0.15" />
@@ -500,7 +500,7 @@ export const KeyboardIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ✏️ 鉛筆 — 預設色：text-[var(--hl-caution)] */
+/** ✏️ 鉛筆 — 預設色：text-[var(--arc-caution)] */
 export const PencilIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" fill="currentColor" fillOpacity="0.15" />
@@ -517,7 +517,7 @@ export const GunIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🎓 畢業帽 — 預設色：text-[var(--hl-ink-2)] */
+/** 🎓 畢業帽 — 預設色：text-[var(--arc-ink-2)] */
 export const GraduationCapIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M22 10L12 5 2 10l10 5 10-5z" fill="currentColor" fillOpacity="0.15" />

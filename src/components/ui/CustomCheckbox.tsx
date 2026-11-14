@@ -25,11 +25,11 @@ export function CustomCheckbox({
   return (
     <label
       className={`
-        flex items-center gap-4 p-4  border transition-all 
+        flex items-center gap-4 p-4 rounded-sm border transition-all 
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         ${checked 
-          ? `border-${color}/30 bg-${color}/10 shadow-[0_0_20px_var(--color-${color},rgba(255,255,255,0.1))]` 
-          : 'border-[var(--hl-line)] bg-[var(--hl-deck-2)] hover:bg-[var(--hl-deck-3)]'
+          ? `border-${color}/30 bg-${color}/10 shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]` 
+          : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)] hover:bg-[var(--arc-deck-3)]'
         }
         ${className}
       `}
@@ -44,10 +44,10 @@ export function CustomCheckbox({
         />
         <div
           className={`
-            w-6 h-6  border-2 flex items-center justify-center transition-all
+            w-6 h-6 rounded-sm border-2 flex items-center justify-center transition-all
             ${checked 
               ? `bg-${color} border-${color}` 
-              : 'border-[var(--hl-line-strong)] bg-black/20 group-hover:border-[var(--hl-line-hot)]'
+              : 'border-[var(--arc-line-strong)] bg-[var(--cn-card-2)] group-hover:border-[var(--arc-line-hot)]'
             }
           `}
         >
@@ -59,7 +59,7 @@ export function CustomCheckbox({
               unchecked: { scale: 0.5, opacity: 0 }
             }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="w-4 h-4 text-[var(--hl-ink)] pointer-events-none"
+            className="w-4 h-4 text-[var(--arc-ink)] pointer-events-none"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -71,7 +71,7 @@ export function CustomCheckbox({
       </div>
 
       {icon && (
-        <div className={`w-6 h-6 ${checked ? `text-${color}` : 'text-[var(--hl-ink-4)]'}`}>
+        <div className={`w-6 h-6 ${checked ? `text-${color}` : 'text-[var(--arc-ink-4)]'}`}>
           {icon}
         </div>
       )}
@@ -79,12 +79,12 @@ export function CustomCheckbox({
       {(label || description) && (
         <div className="flex-1">
           {label && (
-            <div className={`text-sm font-bold ${checked ? 'text-[var(--hl-ink)]' : 'text-[var(--hl-ink-3)]'}`}>
+            <div className={`text-sm font-bold ${checked ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-3)]'}`}>
               {label}
             </div>
           )}
           {description && (
-            <div className="text-[10px] text-[var(--hl-ink-4)] mt-0.5 tracking-wider">
+            <div className="text-[10px] text-[var(--arc-ink-4)] mt-0.5 tracking-wider">
               {description}
             </div>
           )}

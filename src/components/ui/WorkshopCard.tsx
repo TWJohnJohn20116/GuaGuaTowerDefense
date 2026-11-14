@@ -50,20 +50,20 @@ export const WorkshopCard = forwardRef<HTMLDivElement | HTMLButtonElement, {
       )}
       <div className="relative p-6 flex items-start gap-4 transition-colors">
         {icon && (
-          <div className={`flex h-12 w-12 shrink-0 items-center justify-center text-[var(--hl-ink-2)] transition-all duration-500 group-hover:text-[var(--hl-ink)] ${SCENE_GLASS.workshopIcon}`}>
+          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-sm text-[var(--arc-ink-2)] transition-all duration-500 group-hover:text-[var(--arc-ink)] ${SCENE_GLASS.workshopIcon}`}>
             <div className="scale-110">{icon}</div>
           </div>
         )}
         <div className="flex-1 min-w-0 flex flex-col justify-center min-h-[3rem]">
           <div className="flex items-center gap-3">
-            <h3 className="text-base font-bold text-[var(--hl-ink)] tracking-wide truncate">{title}</h3>
+            <h3 className="arc-title text-base font-bold text-[var(--arc-ink)] tracking-wide truncate">{title}</h3>
             {badge && (
               <span className={`px-2.5 py-0.5 ${SCENE_GLASS.workshopBadge}`}>
                 {badge}
               </span>
             )}
           </div>
-          {description && <p className="text-[11px] font-medium tracking-wide text-[var(--hl-ink-4)] mt-1 line-clamp-2">{description}</p>}
+          {description && <p className="arc-micro text-[11px] font-medium tracking-wide text-[var(--arc-ink-4)] mt-1 line-clamp-2">{description}</p>}
         </div>
       </div>
       {children && (

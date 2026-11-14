@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CelebrationIcon, XIcon, DownloadIcon, RefreshIcon } from '@/components/ui/Icons';
 import { playUiHover } from '@/services/audioService';
-import { Btn } from '@/components/hl';
+import { Btn, Deck, IconBtn, Num } from '@/components/hl';
 import {
   APP_VERSION,
   checkForUpdates,
@@ -91,40 +91,40 @@ export default function UpdateNotification() {
           exit={{ opacity: 0, x: 16 }}
           transition={{ duration: 0.16 }}
         >
-          <div className="overflow-hidden border border-[var(--hl-line)] border-l-2 border-l-[var(--hl-signal)] bg-[var(--hl-deck)]">
-            <header className="flex items-start gap-2.5 border-b border-[var(--hl-line)] px-3 py-2.5">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[var(--hl-line-strong)] text-[var(--hl-signal)]">
+          <Deck className="arc-panel--flat rounded-sm overflow-hidden border-l-2 border-l-[var(--arc-gold)]">
+            <header className="flex items-start gap-2.5 border-b border-[var(--cn-line-soft)] px-3 py-2.5">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-[var(--arc-line-strong)] text-[var(--arc-gold)]">
                 <CelebrationIcon className="h-3.5 w-3.5" />
               </span>
               <div className="min-w-0 flex-1">
-                <div className="hl-label text-[var(--hl-signal)]">update / available</div>
-                <h3 className="mt-1 truncate text-[15px] font-semibold leading-tight text-[var(--hl-ink)]">
+                <div className="arc-label text-[var(--arc-gold)]">update / available</div>
+                <h3 className="arc-title mt-1 truncate text-[15px] font-semibold leading-tight text-[var(--arc-ink)]">
                   發現新版本
                 </h3>
-                <p className="mt-0.5 truncate font-mono text-[9.5px] uppercase tracking-[0.06em] text-[var(--hl-ink-4)]">
+                <p className="mt-0.5 truncate font-mono text-[9.5px] uppercase tracking-[0.06em] text-[var(--arc-ink-4)]">
                   {canInstallInApp ? '可遊戲內更新' : 'Guagua TD 更新'}
                 </p>
               </div>
               {!isInstalling && (
-                <button
-                  type="button"
-                  className="flex h-6 w-6 shrink-0 items-center justify-center border border-[var(--hl-line-strong)] text-[var(--hl-ink-3)] transition-colors hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]"
+                <IconBtn
+                  label="close"
+                  className="flex h-6 w-6 shrink-0 items-center justify-center text-[var(--arc-ink-3)] transition-colors hover:text-[var(--arc-ink)]"
                   onClick={() => setVisible(false)}
                 >
                   <XIcon className="h-3 w-3" />
-                </button>
+                </IconBtn>
               )}
             </header>
 
             <div className="px-3 py-2.5">
-              <div className="flex items-baseline gap-2 border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-2 py-1.5 font-mono text-[11px] tabular-nums">
-                <span className="text-[var(--hl-ink-4)]">v{APP_VERSION}</span>
-                <span className="text-[var(--hl-ink-4)]">→</span>
-                <span className="font-semibold text-[var(--hl-signal)]">v{updateInfo.latestVersion}</span>
+              <div className="arc-num flex items-baseline gap-2 rounded-sm border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-2 py-1.5 font-mono text-[11px] tabular-nums">
+                <span className="text-[var(--arc-ink-4)]">v{APP_VERSION}</span>
+                <span className="text-[var(--arc-ink-4)]">→</span>
+                <span className="font-semibold text-[var(--arc-gold)]">v{updateInfo.latestVersion}</span>
               </div>
 
               {preview && !isInstalling && (
-                <p className="mt-2 line-clamp-3 text-[11px] leading-relaxed text-[var(--hl-ink-3)]">
+                <p className="mt-2 line-clamp-3 text-[11px] leading-relaxed text-[var(--arc-ink-3)]">
                   {preview}
                   {updateInfo.releaseNotes.length > 120 ? '…' : ''}
                 </p>
@@ -133,17 +133,20 @@ export default function UpdateNotification() {
               {isInstalling && (
                 <div className="mt-2">
                   <div className="flex items-baseline justify-between">
-                    <span className="hl-label flex items-center gap-1.5">
-                      <RefreshIcon className="h-3 w-3 animate-spin text-[var(--hl-signal)]" />
+                    <span className="arc-label flex items-center gap-1.5">
+                      <RefreshIcon className="h-3 w-3 animate-spin text-[var(--arc-gold)]" />
                       {installProgress.phase === 'installing' ? '正在安裝…' : '正在下載…'}
                     </span>
-                    <span className="font-mono text-[11px] tabular-nums text-[var(--hl-signal)]">
-                      {installProgress.percent}%
-                    </span>
+                    <Num
+                      value={`${installProgress.percent}%`}
+                      tone="signal"
+                      size="sm"
+                      className="font-mono tabular-nums"
+                    />
                   </div>
-                  <div className="mt-1.5 h-1.5 w-full overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-sm border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
                     <motion.div
-                      className="h-full bg-[var(--hl-signal)]"
+                      className="h-full bg-[var(--arc-gold)]"
                       initial={{ width: 0 }}
                       animate={{ width: `${installProgress.percent}%` }}
                       transition={{ duration: 0.2 }}
@@ -153,7 +156,7 @@ export default function UpdateNotification() {
               )}
 
               {installProgress.phase === 'error' && (
-                <p className="mt-2 border-l-2 border-[var(--hl-alarm)] pl-2 text-[11px] text-[var(--hl-alarm)]">
+                <p className="mt-2 border-l-2 border-[var(--arc-alert)] pl-2 text-[11px] text-[var(--arc-alert)]">
                   {installProgress.errorMessage}
                 </p>
               )}
@@ -194,7 +197,7 @@ export default function UpdateNotification() {
                 </Btn>
               )}
             </div>
-          </div>
+          </Deck>
         </motion.div>
       )}
     </AnimatePresence>

@@ -49,13 +49,13 @@ export default function AchievementNotification() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 16 }}
                 transition={{ duration: 0.16 }}
-                className="pointer-events-auto cursor-pointer border border-[var(--hl-line)] border-l-2 bg-[var(--hl-deck)]"
+                className="pointer-events-auto cursor-pointer arc-panel--flat rounded-sm border-l-2"
                 style={{ borderLeftColor: rarityConfig.color }}
                 onClick={() => dismissNotification(notification.id)}
               >
                 <div className="flex items-start gap-2.5 p-2.5">
                   <span
-                    className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--hl-line)] text-[15px]"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border-[3px] border-[var(--cn-line-soft)] text-[15px]"
                     style={{ backgroundColor: rarityConfig.bgColor }}
                   >
                     {achievement.icon}
@@ -64,17 +64,17 @@ export default function AchievementNotification() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <TrophyIcon className="h-3 w-3 shrink-0" style={{ color: rarityConfig.color }} />
-                      <span className="hl-label" style={{ color: rarityConfig.color }}>
+                      <span className="arc-label" style={{ color: rarityConfig.color }}>
                         成就解鎖！
                       </span>
-                      <span className="ml-auto shrink-0 font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--hl-ink-4)]">
+                      <span className="ml-auto shrink-0 font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--arc-ink-4)]">
                         {rarityConfig.label}
                       </span>
                     </div>
-                    <div className="mt-1 truncate text-[12.5px] font-semibold text-[var(--hl-ink)]">
+                    <div className="mt-1 truncate text-[12.5px] font-semibold text-[var(--arc-ink)]">
                       {achievement.name}
                     </div>
-                    <div className="mt-0.5 truncate text-[10.5px] text-[var(--hl-ink-3)]">
+                    <div className="mt-0.5 truncate text-[10.5px] text-[var(--arc-ink-3)]">
                       {achievement.description}
                     </div>
                   </div>

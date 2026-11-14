@@ -86,7 +86,7 @@ export const RainbowIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🏰 城堡 — 預設色：text-[var(--hl-caution)] */
+/** 🏰 城堡 — 預設色：text-[var(--arc-caution)] */
 export const CastleIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M4 22V10l4-6h8l4 6v12H4z" fill="currentColor" fillOpacity="0.1" />
@@ -98,7 +98,7 @@ export const CastleIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🗼 塔 — 預設色：text-[var(--hl-reach)] */
+/** 🗼 塔 — 預設色：text-[var(--arc-reach)] */
 export const TowerIcon2 = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M6 22V8l6-6 6 6v14H6z" fill="currentColor" fillOpacity="0.15" />
@@ -110,7 +110,7 @@ export const TowerIcon2 = (p: IconProps) => (
   </svg>
 );
 
-/** 👾 外星人/敵人 — 預設色：text-[var(--hl-vital)] */
+/** 👾 外星人/敵人 — 預設色：text-[var(--arc-vital)] */
 export const AlienMonsterIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 4c-4 0-7 3-7 7 0 2 1 4 3 5v4h8v-4c2-1 3-3 3-5 0-4-3-7-7-7z" fill="currentColor" fillOpacity="0.15" />
@@ -122,7 +122,7 @@ export const AlienMonsterIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🗺️ 地圖 — 預設色：text-[var(--hl-caution)] */
+/** 🗺️ 地圖 — 預設色：text-[var(--arc-caution)] */
 export const MapPinIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="currentColor" fillOpacity="0.15" />
@@ -131,7 +131,7 @@ export const MapPinIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 📦 箱子 — 預設色：text-[var(--hl-caution)] */
+/** 📦 箱子 — 預設色：text-[var(--arc-caution)] */
 export const PackageBoxIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" fillOpacity="0.15" />
@@ -141,7 +141,7 @@ export const PackageBoxIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🏗️ 建造 — 預設色：text-[var(--hl-caution)] */
+/** 🏗️ 建造 — 預設色：text-[var(--arc-caution)] */
 export const BuildIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" fill="currentColor" fillOpacity="0.15" />
@@ -149,7 +149,7 @@ export const BuildIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ▶️ 播放 — 預設色：text-[var(--hl-vital)] */
+/** ▶️ 播放 — 預設色：text-[var(--arc-vital)] */
 export const Play2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" fillOpacity="0.2" />
@@ -157,7 +157,7 @@ export const Play2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** ⏩ 快轉 — 預設色：text-[var(--hl-vital)] */
+/** ⏩ 快轉 — 預設色：text-[var(--arc-vital)] */
 export const FastForwardIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <polygon points="5 4 15 12 5 20 5 4" fill="currentColor" fillOpacity="0.2" />
@@ -167,7 +167,7 @@ export const FastForwardIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ⏪ 倒帶 — 預設色：text-[var(--hl-caution)] */
+/** ⏪ 倒帶 — 預設色：text-[var(--arc-caution)] */
 export const RewindIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <polygon points="19 4 9 12 19 20 19 4" fill="currentColor" fillOpacity="0.2" />
@@ -177,7 +177,7 @@ export const RewindIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ⏸️ 暫停 — 預設色：text-[var(--hl-caution)] */
+/** ⏸️ 暫停 — 預設色：text-[var(--arc-caution)] */
 export const Pause2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="6" y="4" width="4" height="16" fill="currentColor" fillOpacity="0.2" />
@@ -187,7 +187,7 @@ export const Pause2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** ⬆️ 向上 — 預設色：text-[var(--hl-vital)] */
+/** ⬆️ 向上 — 預設色：text-[var(--arc-vital)] */
 export const UpIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <line x1="12" y1="19" x2="12" y2="5" />
@@ -195,7 +195,7 @@ export const UpIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🏆 獎杯 — 預設色：text-[var(--hl-caution)] */
+/** 🏆 獎杯 — 預設色：text-[var(--arc-caution)] */
 export const Trophy2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M6 9H4a2 2 0 0 1-2-2V4c0-.6.4-1 1-1h4" />
@@ -207,7 +207,7 @@ export const Trophy2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** 📍 圖釘 — 預設色：text-[var(--hl-alarm)] */
+/** 📍 圖釘 — 預設色：text-[var(--arc-alert)] */
 export const PinIcon2 = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="currentColor" fillOpacity="0.15" />
@@ -216,7 +216,7 @@ export const PinIcon2 = (p: IconProps) => (
   </svg>
 );
 
-/** 💰 金幣 — 預設色：text-[var(--hl-caution)] */
+/** 💰 金幣 — 預設色：text-[var(--arc-caution)] */
 export const MoneyIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="10" fill="currentColor" fillOpacity="0.15" />
@@ -226,7 +226,7 @@ export const MoneyIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ⚔️ 劍交叉 — 預設色：text-[var(--hl-alarm)] */
+/** ⚔️ 劍交叉 — 預設色：text-[var(--arc-alert)] */
 export const SwordsCrossIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M15 3l4 4-8 8-4-4 8-8z" fill="currentColor" fillOpacity="0.15" />
@@ -236,7 +236,7 @@ export const SwordsCrossIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ✨ 閃光 — 預設色：text-[var(--hl-caution)] */
+/** ✨ 閃光 — 預設色：text-[var(--arc-caution)] */
 export const Sparkle2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 3v18M3 12h18" strokeWidth="2.5" />
@@ -244,7 +244,7 @@ export const Sparkle2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** 📈 圖表上升 — 預設色：text-[var(--hl-vital)] */
+/** 📈 圖表上升 — 預設色：text-[var(--arc-vital)] */
 export const ChartUpIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M23 6l-9.5 9.5-5-5L1 18" />
@@ -252,7 +252,7 @@ export const ChartUpIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 📊 圖表 — 預設色：text-[var(--hl-reach)] */
+/** 📊 圖表 — 預設色：text-[var(--arc-reach)] */
 export const ChartIcon2 = (p: IconProps) => (
   <svg {...s(p)}>
     <line x1="18" y1="20" x2="18" y2="10" />
@@ -261,7 +261,7 @@ export const ChartIcon2 = (p: IconProps) => (
   </svg>
 );
 
-/** 🛡️ 盾牌 — 預設色：text-[var(--hl-reach)] */
+/** 🛡️ 盾牌 — 預設色：text-[var(--arc-reach)] */
 export const Shield2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="currentColor" fillOpacity="0.15" />
@@ -269,7 +269,7 @@ export const Shield2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** 🏗️ 建造 — 預設色：text-[var(--hl-caution)] */
+/** 🏗️ 建造 — 預設色：text-[var(--arc-caution)] */
 export const Construction2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M2 22h20" />
@@ -281,7 +281,7 @@ export const Construction2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** 👑 皇冠 — 預設色：text-[var(--hl-caution)] */
+/** 👑 皇冠 — 預設色：text-[var(--arc-caution)] */
 export const Crown2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M2 17l3-7 5 4 2-6 2 6 5-4 3 7H2z" fill="currentColor" fillOpacity="0.15" />
@@ -290,7 +290,7 @@ export const Crown2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** 🎯 目標 — 預設色：text-[var(--hl-alarm)] */
+/** 🎯 目標 — 預設色：text-[var(--arc-alert)] */
 export const Target2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="10" fill="currentColor" fillOpacity="0.1" />
@@ -300,14 +300,14 @@ export const Target2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** 🧩 拼圖 — 預設色：text-[var(--hl-ink-2)] */
+/** 🧩 拼圖 — 預設色：text-[var(--arc-ink-2)] */
 export const PuzzleIcon2 = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.228-.968-.452-.12-.184-.176-.408-.164-.644.011-.236.076-.455.19-.646a2.1 2.1 0 0 1 .57-.454c.178-.088.388-.112.61-.069.222.043.424.143.595.297.17.154.306.348.401.571.095.223.135.468.117.722-.018.254-.087.503-.204.734-.117.231-.278.436-.476.608-.199.172-.424.295-.665.365-.241.07-.497.086-.753.045a1.11 1.11 0 0 1-.657-.227c-.175-.103-.327-.237-.45-.4a1.47 1.47 0 0 1-.285-.591c-.062-.232-.077-.478-.045-.724.032-.245.114-.482.242-.699.128-.217.297-.405.499-.555.202-.15.435-.248.686-.289.25-.04.507-.01.752.09.245.1.467.247.656.434.19.188.336.42.434.685.098.266.138.553.118.84-.02.288-.096.567-.227.822-.13.256-.308.482-.525.668-.217.186-.466.33-.735.427a1.47 1.47 0 0 1-.76.153 1.09 1.09 0 0 1-.626-.17c-.2-.108-.377-.248-.52-.415a2.1 2.1 0 0 1-.33-.608c-.093-.244-.137-.504-.13-.766.007-.261.05-.517.126-.757.076-.24.185-.463.322-.658.137-.195.3-.37.48-.518.181-.148.383-.27.598-.361.215-.091.443-.15.672-.174a1.2 1.2 0 0 1 .602.067z" />
   </svg>
 );
 
-/** 🎖️ 獎牌 — 預設色：text-[var(--hl-caution)] */
+/** 🎖️ 獎牌 — 預設色：text-[var(--arc-caution)] */
 export const MedalIcon2 = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 2l3 7h7l-5.5 5 2 7.5L12 16l-6.5 5.5 2-7.5L2 9h7l3-7z" fill="currentColor" fillOpacity="0.15" />
@@ -315,7 +315,7 @@ export const MedalIcon2 = (p: IconProps) => (
   </svg>
 );
 
-/** 🎵 音符 — 預設色：text-[var(--hl-ink-2)] */
+/** 🎵 音符 — 預設色：text-[var(--arc-ink-2)] */
 export const MusicNoteIcon2 = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M9 18V5l12-2v13" />
@@ -324,7 +324,7 @@ export const MusicNoteIcon2 = (p: IconProps) => (
   </svg>
 );
 
-/** 🎼 樂譜 — 預設色：text-[var(--hl-reach)] */
+/** 🎼 樂譜 — 預設色：text-[var(--arc-reach)] */
 export const MusicNotesIcon2 = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M9 18V5l12-2v13" />
@@ -352,7 +352,7 @@ export const BombIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 💎 寶石 — 預設色：text-[var(--hl-reach)] */
+/** 💎 寶石 — 預設色：text-[var(--arc-reach)] */
 export const GemIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M6 3h12l4 6-10 12L2 9l4-6z" fill="currentColor" fillOpacity="0.15" />
@@ -361,7 +361,7 @@ export const GemIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🌀 漩渦 — 預設色：text-[var(--hl-ink-2)] */
+/** 🌀 漩渦 — 預設色：text-[var(--arc-ink-2)] */
 export const SwirlIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 3c-1.5 3-2 5-2 7s2 4 4 5c2-1 3-3 3-5s-1-4-2-7c-1 3-2 5-2 7s1 3 3 4c2-1 3-2 3-4s-1-4-2-7" strokeWidth="1.5" />
@@ -377,7 +377,7 @@ export const StormIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🌩️ 閃電 — 預設色：text-[var(--hl-caution)] */
+/** 🌩️ 閃電 — 預設色：text-[var(--arc-caution)] */
 export const Lightning2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" fillOpacity="0.2" />
@@ -403,14 +403,14 @@ export const SpiderIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🐍 蛇 — 預設色：text-[var(--hl-vital)] */
+/** 🐍 蛇 — 預設色：text-[var(--arc-vital)] */
 export const SnakeIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M4 14c2-2 4-2 6 0s4 2 6 0 4-2 6 0M4 10c2-2 4-2 6 0s4 2 6 0M4 6c2-2 4-2 6 0s4 2 6 0" strokeWidth="1.5" />
   </svg>
 );
 
-/** 🦂 蠍子 — 預設色：text-[var(--hl-alarm)] */
+/** 🦂 蠍子 — 預設色：text-[var(--arc-alert)] */
 export const ScorpionIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 4c-4 0-6 2-6 6 0 2 1 4 3 5 1 0 2 1 3 1s2-1 3-1c2-1 3-3 3-5 0-4-2-6-6-6z" fill="currentColor" fillOpacity="0.15" />
@@ -419,7 +419,7 @@ export const ScorpionIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 👹 惡魔 — 預設色：text-[var(--hl-alarm)] */
+/** 👹 惡魔 — 預設色：text-[var(--arc-alert)] */
 export const DemonIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 3c-3 0-6 3-6 7 0 3 2 5 4 6v4h4v-4c2-1 4-3 4-6 0-4-3-7-6-7z" fill="currentColor" fillOpacity="0.15" />
@@ -440,7 +440,7 @@ export const GhostIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🐜 螞蟻 — 預設色：text-[var(--hl-caution)] */
+/** 🐜 螞蟻 — 預設色：text-[var(--arc-caution)] */
 export const AntIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="6" r="3" fill="currentColor" fillOpacity="0.15" />
@@ -478,7 +478,7 @@ export const Wrench2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** 🧪 試管 — 預設色：text-[var(--hl-vital)] */
+/** 🧪 試管 — 預設色：text-[var(--arc-vital)] */
 export const TestTubeIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M6 2v6l4 8a4 4 0 1 0 4 0V2" fill="currentColor" fillOpacity="0.15" />
@@ -487,7 +487,7 @@ export const TestTubeIcon = (p: IconProps) => (
   </svg>
 );
 
-/** ☣️ 放射性 — 預設色：text-[var(--hl-vital)] */
+/** ☣️ 放射性 — 預設色：text-[var(--arc-vital)] */
 export const RadioactiveIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="2" />
@@ -496,7 +496,7 @@ export const RadioactiveIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🕳️ 黑洞 — 預設色：text-[var(--hl-ink-2)] */
+/** 🕳️ 黑洞 — 預設色：text-[var(--arc-ink-2)] */
 export const BlackHoleIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="10" fill="currentColor" fillOpacity="0.1" />
@@ -505,7 +505,7 @@ export const BlackHoleIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🌿 草 — 預設色：text-[var(--hl-vital)] */
+/** 🌿 草 — 預設色：text-[var(--arc-vital)] */
 export const HerbIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 22v-8M8 14c-2-2-2-6 0-8M12 14c2-2 2-6 0-8M16 14c2-2 2-6 0-8" strokeWidth="1.5" />
@@ -513,7 +513,7 @@ export const HerbIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🍀 四葉草 — 預設色：text-[var(--hl-vital)] */
+/** 🍀 四葉草 — 預設色：text-[var(--arc-vital)] */
 export const CloverIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <path d="M12 8c-2-2-2-4 0-4s4 0 4 2c0 2-2 4-4 4z" fill="currentColor" fillOpacity="0.15" />
@@ -527,7 +527,7 @@ export const CloverIcon = (p: IconProps) => (
   </svg>
 );
 
-/** 🪙 金幣 — 預設色：text-[var(--hl-caution)] */
+/** 🪙 金幣 — 預設色：text-[var(--arc-caution)] */
 export const Coin2Icon = (p: IconProps) => (
   <svg {...s(p)}>
     <circle cx="12" cy="12" r="10" fill="currentColor" fillOpacity="0.15" />
@@ -536,7 +536,7 @@ export const Coin2Icon = (p: IconProps) => (
   </svg>
 );
 
-/** 💵 鈔票 — 預設色：text-[var(--hl-vital)] */
+/** 💵 鈔票 — 預設色：text-[var(--arc-vital)] */
 export const BillIcon = (p: IconProps) => (
   <svg {...s(p)}>
     <rect x="2" y="6" width="20" height="12" rx="2" fill="currentColor" fillOpacity="0.15" />

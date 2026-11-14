@@ -96,21 +96,21 @@ const useFrameSampler = (active: boolean): FrameStats => {
 const ms = (v: number): string => (v >= 10 ? v.toFixed(1) : v.toFixed(2));
 
 const fpsTone = (fps: number): string => {
-  if (fps >= 55) return 'text-[var(--hl-vital)]';
-  if (fps >= 30) return 'text-[var(--hl-caution)]';
-  return 'text-[var(--hl-alarm)]';
+  if (fps >= 55) return 'text-[var(--arc-vital)]';
+  if (fps >= 30) return 'text-[var(--arc-caution)]';
+  return 'text-[var(--arc-alert)]';
 };
 
 const frameTone = (v: number): string => {
-  if (v <= JANK_THRESHOLD_MS) return 'text-[var(--hl-vital)]';
-  if (v <= 33) return 'text-[var(--hl-caution)]';
-  return 'text-[var(--hl-alarm)]';
+  if (v <= JANK_THRESHOLD_MS) return 'text-[var(--arc-vital)]';
+  if (v <= 33) return 'text-[var(--arc-caution)]';
+  return 'text-[var(--arc-alert)]';
 };
 
 const Row = ({ label, value, tone = '' }: { label: string; value: string; tone?: string }) => (
   <div className="flex items-baseline justify-between gap-3">
-    <span className="text-[9.5px] uppercase tracking-[0.12em] text-[var(--hl-ink-4)]">{label}</span>
-    <span className={`font-mono text-[11px] font-bold ${tone || 'text-[var(--hl-ink)]'}`}>{value}</span>
+    <span className="text-[9.5px] uppercase tracking-[0.12em] text-[var(--arc-ink-4)]">{label}</span>
+    <span className={`arc-num font-mono text-[11px] font-bold ${tone || 'text-[var(--arc-ink)]'}`}>{value}</span>
   </div>
 );
 
@@ -160,17 +160,17 @@ export const StressTestHud = () => {
 
   return (
     <div
-      className="pointer-events-none fixed left-4 top-4 z-[9997] w-[286px] border border-[rgba(255,75,62,0.45)] bg-black/88 p-3 font-mono text-[11px] text-[var(--hl-ink)] backdrop-blur-none"
+      className="pointer-events-none fixed left-4 top-4 z-[9997] w-[286px] rounded-sm border border-[rgba(255,61,113,0.45)] bg-[var(--cn-card-2)] p-3 font-mono text-[11px] text-[var(--arc-ink)]"
       role="status"
       aria-label="壓力測試監控"
     >
-      <div className="mb-2 flex items-center justify-between border-b border-[rgba(255,75,62,0.35)] pb-1.5">
-        <span className="text-[9.5px] font-black uppercase tracking-[0.28em] text-[var(--hl-alarm)]">
+      <div className="mb-2 flex items-center justify-between border-b border-[rgba(255,61,113,0.35)] pb-1.5">
+        <span className="text-[9.5px] font-black uppercase tracking-[0.28em] text-[var(--arc-alert)]">
           Stress Test
         </span>
         <span className={`text-[20px] leading-none font-black tabular-nums ${fpsTone(stats.fps)}`}>
           {stats.fps}
-          <span className="ml-1 text-[9px] font-bold uppercase tracking-widest text-[var(--hl-ink-4)]">fps</span>
+          <span className="ml-1 text-[9px] font-bold uppercase tracking-widest text-[var(--arc-ink-4)]">fps</span>
         </span>
       </div>
 
@@ -181,12 +181,12 @@ export const StressTestHud = () => {
         <Row
           label={`jank >${JANK_THRESHOLD_MS}ms`}
           value={`${stats.jank} / ${stats.samples}`}
-          tone={stats.jank > stats.samples * 0.3 ? 'text-[var(--hl-alarm)]' : 'text-[var(--hl-ink-2)]'}
+          tone={stats.jank > stats.samples * 0.3 ? 'text-[var(--arc-alert)]' : 'text-[var(--arc-ink-2)]'}
         />
       </div>
 
-      <div className="mt-2 space-y-1 border-t border-[var(--hl-line)] pt-2">
-        <Row label="enemies" value={enemies.toLocaleString()} tone={enemies > 5000 ? 'text-[var(--hl-alarm)]' : ''} />
+      <div className="mt-2 space-y-1 border-t border-[var(--cn-line-soft)] pt-2">
+        <Row label="enemies" value={enemies.toLocaleString()} tone={enemies > 5000 ? 'text-[var(--arc-alert)]' : ''} />
         <Row label="towers" value={towers.toLocaleString()} />
         <Row label="projectiles" value={projectiles.toLocaleString()} />
         <Row label="particles" value={impactParticles.toLocaleString()} />
@@ -195,7 +195,7 @@ export const StressTestHud = () => {
         {heapMb !== null && <Row label="js heap" value={`${heapMb.toFixed(1)} MB`} />}
       </div>
 
-      <div className="mt-2 space-y-1 border-t border-[var(--hl-line)] pt-2">
+      <div className="mt-2 space-y-1 border-t border-[var(--cn-line-soft)] pt-2">
         <Row label="logic / frame" value={`${ms(logicPerFrame)} ms`} tone={frameTone(logicPerFrame)} />
         {stages.slice(0, 6).map(([name, s]) => (
           <Row key={name} label={name} value={`${ms(s.avg)} ms · max ${ms(s.max)}`} />
@@ -203,7 +203,7 @@ export const StressTestHud = () => {
         {stages.length === 0 && <Row label="stages" value="收集…" />}
       </div>
 
-      <div className="mt-2 border-t border-[var(--hl-line)] pt-1.5 text-[9px] uppercase tracking-[0.1em] text-[var(--hl-ink-4)]">
+      <div className="mt-2 border-t border-[var(--cn-line-soft)] pt-1.5 text-[9px] uppercase tracking-[0.1em] text-[var(--arc-ink-4)]">
         <div className="flex justify-between">
           <span>tactical view</span>
           <span>{showTacticalView ? 'on' : 'off'}</span>

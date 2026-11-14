@@ -51,12 +51,9 @@ const SceneTest = () => {
     modManager: u.sceneModManager,
     mapEditor: u.sceneMapEditor,
     replay: u.sceneReplay,
-    memorial: u.sceneMemorial,
     statistics: u.sceneStatistics,
     gameOver: u.sceneGameOver,
     victory: u.sceneVictory,
-    dailyChallenge: u.sceneDailyChallenge,
-    mutatorChallenge: u.sceneMutatorChallenge,
   };
 
   const sceneOptions: { value: SceneOption; label: string }[] = [
@@ -74,7 +71,7 @@ const SceneTest = () => {
         onChange={(v) => setTestScene(v === '' ? null : v)}
         options={sceneOptions}
       />
-      <div className="text-[10px] text-[var(--hl-ink-4)] px-1">
+      <div className="text-[10px] text-[var(--arc-ink-4)] px-1">
         {testScene ? u.testSceneActive.replace('{scene}', sceneLabels[testScene]) : u.testSceneIdle}
       </div>
     </div>
@@ -113,7 +110,7 @@ const OverlayTest = () => {
         onClick={toggleGameOverScene}
         variant={testScene === 'gameOver' ? 'danger' : 'default'}
       />
-      <div className="text-[10px] text-[var(--hl-ink-4)] px-1 leading-relaxed">
+      <div className="text-[10px] text-[var(--arc-ink-4)] px-1 leading-relaxed">
         {u.overlayHint}
       </div>
     </div>
@@ -138,8 +135,8 @@ const SpeedControl = () => {
           onClick={() => setGameSpeed(s)}
           className={`py-1.5  text-[11px] font-bold tracking-widest border transition-all ${
             gameSpeed === s
-              ? 'bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] text-[var(--hl-caution)]/90 '
-              : 'bg-[var(--hl-deck-2)] border-[var(--hl-line)] text-[var(--hl-ink-3)] hover:bg-[var(--hl-deck-3)] hover:text-[var(--hl-ink)]'
+              ? 'bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] text-[var(--arc-caution)]/90 '
+              : 'bg-[var(--arc-deck-2)] border-[var(--cn-line-soft)] text-[var(--arc-ink-3)] hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink)]'
           }`}
         >
           {s}x
@@ -185,7 +182,7 @@ const FlowControl = () => {
         onClick={() => { resetGame(); setScene('mainMenu'); }}
         variant="default"
       />
-      <div className="pt-2 mt-1 border-t border-[var(--hl-line)]">
+      <div className="pt-2 mt-1 border-t border-[var(--cn-line-soft)]">
         <DevButton
           icon={<RefreshIcon className="w-3.5 h-3.5" />}
           label={u.resetDevSettings}
@@ -290,7 +287,7 @@ const SnapshotControl = () => {
         disabled={!hasSnapshot}
       />
       {feedback && (
-        <div className="text-[10px] text-[var(--hl-vital)]/90 font-bold tracking-widest uppercase text-center py-1 bg-[rgba(56,224,143,0.12)]  border border-[rgba(56,224,143,0.38)]">
+        <div className="text-[10px] text-[var(--arc-vital)]/90 font-bold tracking-widest uppercase text-center py-1 bg-[rgba(56,224,143,0.12)]  border border-[rgba(56,224,143,0.38)]">
           {feedback}
         </div>
       )}
@@ -540,7 +537,7 @@ const PersistenceControl = () => {
         onClick={lockAllButBasic}
         variant="warning"
       />
-      <div className="pt-2 mt-1 border-t border-[var(--hl-line)]">
+      <div className="pt-2 mt-1 border-t border-[var(--cn-line-soft)]">
         <DevButton
           icon={<WarningIcon className="w-3.5 h-3.5" />}
           label={confirmReset ? u.confirmClearStorage : u.clearLocalStorage}
@@ -550,7 +547,7 @@ const PersistenceControl = () => {
         />
       </div>
       {feedback && (
-        <div className="text-[10px] text-[var(--hl-vital)]/90 font-bold tracking-widest uppercase text-center py-1 bg-[rgba(56,224,143,0.12)]  border border-[rgba(56,224,143,0.38)]">
+        <div className="text-[10px] text-[var(--arc-vital)]/90 font-bold tracking-widest uppercase text-center py-1 bg-[rgba(56,224,143,0.12)]  border border-[rgba(56,224,143,0.38)]">
           {feedback}
         </div>
       )}

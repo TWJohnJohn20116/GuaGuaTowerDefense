@@ -10,6 +10,7 @@ import type { EnemyType, TowerType } from '@/types/game';
 import { TOWER_DATA } from '@/data/gameData';
 import { TowerIcon, CheckIcon, WarningIcon, TargetIcon } from '@/components/ui/Icons';
 import { SCENE_TYPOGRAPHY } from '@/components/ui/SceneTypography';
+import { Deck } from '@/components/hl';
 import { COUNTER_KEY_TO_TOWER } from './pauseNextWaveHints';
 import { getEnemyDisplayName } from './pauseEnemyTraits';
 import { PauseEncyclopediaTowerLink } from './PauseEncyclopediaEnemyLink';
@@ -112,7 +113,7 @@ export function PauseBattleTowerMatch({ embedded = false }: { embedded?: boolean
 
  if (rows.length === 0) {
  const empty = (
- <div className="text-center text-[var(--hl-ink-4)] text-xs py-4">
+ <div className="text-center text-[var(--arc-ink-4)] text-xs py-4">
  {g.pauseMatchNoNeed}
  </div>
  );
@@ -131,12 +132,12 @@ export function PauseBattleTowerMatch({ embedded = false }: { embedded?: boolean
  const headerBadges = (
  <div className="flex gap-2 text-[10px] font-bold">
  {readyCount > 0 && (
- <span className="text-[var(--hl-vital)] px-2 py-0.5 bg-[var(--hl-deck-2)] border border-[var(--hl-line)]">
+ <span className="arc-chip text-[var(--arc-vital)]">
  {g.pauseMatchReady.replace('{count}', String(readyCount))}
  </span>
  )}
  {gapCount > 0 && (
- <span className="text-[var(--hl-caution)] px-2 py-0.5 bg-[var(--hl-deck-2)] border border-[var(--hl-line)]">
+ <span className="arc-chip text-[var(--arc-caution)]">
  {g.pauseMatchGap.replace('{count}', String(gapCount))}
  </span>
  )}
@@ -148,45 +149,45 @@ export function PauseBattleTowerMatch({ embedded = false }: { embedded?: boolean
  {embedded && <div className="flex justify-end mb-2">{headerBadges}</div>}
  <div className={`${SCENE_TYPOGRAPHY.microMuted} mb-2`}>
  {g.pauseMatchHintPrefix && `${g.pauseMatchHintPrefix} `}
- <strong className="text-[var(--hl-ink-3)] font-normal">{g.pauseMatchHintField}</strong>
+ <strong className="text-[var(--arc-ink-3)] font-normal">{g.pauseMatchHintField}</strong>
  {` ${g.pauseMatchHintAnd} `}
- <strong className="text-[var(--hl-ink-3)] font-normal">{g.pauseMatchHintNext}</strong>
+ <strong className="text-[var(--arc-ink-3)] font-normal">{g.pauseMatchHintNext}</strong>
  {g.pauseMatchHintSuffix && ` ${g.pauseMatchHintSuffix}`}
  </div>
  <div className="space-y-2 max-h-44 overflow-y-auto no-scrollbar">
  {rows.map((row) => (
- <div
+ <Deck
  key={row.towerType}
- className={` border p-3 ${
+ className={`arc-panel--flat p-3 ${
  row.needed
- ? 'bg-[var(--hl-deck-2)] border-[var(--hl-line)]'
- : 'bg-[var(--hl-deck-2)] border-[var(--hl-line)]'
+ ? 'bg-[var(--arc-deck-2)] border-[var(--cn-line-soft)]'
+ : 'bg-[var(--arc-deck-2)] border-[var(--cn-line-soft)]'
  }`}
  >
  <div className="flex items-center justify-between gap-2 mb-1.5">
  <div className="flex items-center gap-2 min-w-0">
  {row.needed ? (
- <WarningIcon className="w-4 h-4 text-[var(--hl-caution)] flex-shrink-0"/>
+ <WarningIcon className="w-4 h-4 text-[var(--arc-caution)] flex-shrink-0"/>
  ) : (
- <CheckIcon className="w-4 h-4 text-[var(--hl-vital)] flex-shrink-0"/>
+ <CheckIcon className="w-4 h-4 text-[var(--arc-vital)] flex-shrink-0"/>
  )}
  <span
  className="w-2.5 h-2.5 flex-shrink-0"
  style={{ backgroundColor: row.color }}
  />
- <span className="text-sm font-bold text-[var(--hl-ink)] truncate">{row.towerName}</span>
+ <span className="text-sm font-bold text-[var(--arc-ink)] truncate">{row.towerName}</span>
  <PauseEncyclopediaTowerLink towerType={row.towerType} />
  </div>
- <span className="text-[11px] font-mono tabular-nums flex items-center gap-1 flex-shrink-0">
+ <span className="arc-num text-[11px] font-mono tabular-nums flex items-center gap-1 flex-shrink-0">
  <TowerIcon className="w-3 h-3 opacity-50"/>
- <span className={row.builtCount > 0 ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-caution)]'}>
+ <span className={row.builtCount > 0 ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-caution)]'}>
  ?{row.builtCount}
  </span>
  </span>
  </div>
  <ul className="space-y-0.5 pl-6">
  {row.reasons.slice(0, 2).map((r) => (
- <li key={r} className="text-[10px] text-[var(--hl-ink-3)] leading-snug list-disc">
+ <li key={r} className="text-[10px] text-[var(--arc-ink-3)] leading-snug list-disc">
  {r}
  </li>
  ))}
@@ -196,7 +197,7 @@ export function PauseBattleTowerMatch({ embedded = false }: { embedded?: boolean
  </li>
  )}
  </ul>
- </div>
+ </Deck>
  ))}
  </div>
  </>
