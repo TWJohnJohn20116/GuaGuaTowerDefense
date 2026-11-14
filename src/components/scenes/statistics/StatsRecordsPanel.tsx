@@ -9,9 +9,9 @@ export function StatsRecordsPanel() {
   const getBestGames = useStatsStore((s) => s.getBestGames);
 
   const sections = [
-    { icon: <TrophyIcon className="h-3.5 w-3.5 text-[var(--hl-ink-4)]" />, title: e.statsHighScoreRank, games: getBestGames('score') },
-    { icon: <HeartIcon className="h-3.5 w-3.5 text-[var(--hl-ink-4)]" />, title: e.statsHighWaveRank, games: getBestGames('wave') },
-    { icon: <ClockIcon className="h-3.5 w-3.5 text-[var(--hl-ink-4)]" />, title: e.statsFastestRank, games: getBestGames('duration') },
+    { icon: <TrophyIcon className="h-3.5 w-3.5 text-[var(--arc-ink-4)]" />, title: e.statsHighScoreRank, games: getBestGames('score') },
+    { icon: <HeartIcon className="h-3.5 w-3.5 text-[var(--arc-ink-4)]" />, title: e.statsHighWaveRank, games: getBestGames('wave') },
+    { icon: <ClockIcon className="h-3.5 w-3.5 text-[var(--arc-ink-4)]" />, title: e.statsFastestRank, games: getBestGames('duration') },
   ];
 
   return (

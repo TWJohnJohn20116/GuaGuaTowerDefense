@@ -19,11 +19,11 @@ export function StatsHistoryPanel({ onSelectGame }: Props) {
 
   return (
     <Deck className="flex flex-col overflow-hidden">
-      <div className="flex items-center gap-2.5 border-b border-[var(--hl-line)] px-3 py-2">
-        <span className="flex items-center gap-1.5 text-[var(--hl-ink-3)]">
+      <div className="flex items-center gap-2.5 border-b border-[var(--cn-line-soft)] px-3 py-2">
+        <span className="flex items-center gap-1.5 text-[var(--arc-ink-3)]">
           <ClockIcon className="h-3.5 w-3.5" />
         </span>
-        <span className="hl-label text-[var(--hl-ink)]">{e.statsCompleteHistory}</span>
+        <span className="arc-label text-[var(--arc-ink)]">{e.statsCompleteHistory}</span>
         {gameHistory.length > 0 && (
           <Btn
             variant="danger"
@@ -38,7 +38,7 @@ export function StatsHistoryPanel({ onSelectGame }: Props) {
       </div>
 
       {gameHistory.length === 0 ? (
-        <div className="hl-micro px-3 py-6 text-center">{e.statsNoRecord}</div>
+        <div className="arc-micro px-3 py-6 text-center">{e.statsNoRecord}</div>
       ) : (
         <div className="flex max-h-[600px] flex-col overflow-y-auto">
           {gameHistory.map((game) => (

@@ -82,10 +82,10 @@ export function StatsExportDialog({
         type="checkbox"
         checked={checked}
         onChange={(ev) => onChange(ev.target.checked)}
-        style={{ accentColor: 'var(--hl-signal)' }}
-        className="h-3 w-3 border border-[var(--hl-line-strong)]"
+        style={{ accentColor: 'var(--arc-gold)' }}
+        className="h-3 w-3 border border-[var(--arc-line-strong)]"
       />
-      <span className="font-mono text-[10.5px] text-[var(--hl-ink-2)]">{label}</span>
+      <span className="font-mono text-[10.5px] text-[var(--arc-ink-2)]">{label}</span>
     </label>
   );
 
@@ -95,11 +95,11 @@ export function StatsExportDialog({
       onClick={onClose}
     >
       <div className="w-full max-w-[460px]" onClick={(ev) => ev.stopPropagation()}>
-        <Deck notch className="hl-enter flex max-h-[86vh] w-full flex-col overflow-hidden" as="section">
+        <Deck notch className="arc-enter flex max-h-[86vh] w-full flex-col overflow-hidden" as="section">
           {/* 標題 */}
-          <div className="flex items-center gap-2.5 border-b border-[var(--hl-line)] px-4 py-2.5">
-            <ChartIcon className="h-3.5 w-3.5 text-[var(--hl-ink-3)]" />
-            <span className="text-[15px] font-semibold text-[var(--hl-ink)]">{d.title}</span>
+          <div className="flex items-center gap-2.5 border-b border-[var(--cn-line-soft)] px-4 py-2.5">
+            <ChartIcon className="h-3.5 w-3.5 text-[var(--arc-ink-3)]" />
+            <span className="text-[15px] font-semibold text-[var(--arc-ink)]">{d.title}</span>
             <Btn size="sm" variant="ghost" className="ml-auto" onClick={onClose}>
               {c.cancel}
             </Btn>
@@ -119,16 +119,16 @@ export function StatsExportDialog({
                 ].map((row) => (
                   <div
                     key={row.label}
-                    className="flex items-center justify-between border-b border-[var(--hl-line)] py-1.5 last:border-b-0"
+                    className="flex items-center justify-between border-b border-[var(--cn-line-soft)] py-1.5 last:border-b-0"
                   >
-                    <span className="hl-label">{row.label}</span>
+                    <span className="arc-label">{row.label}</span>
                     <Num value={row.value} size="sm" tone="muted" />
                   </div>
                 ))}
                 {summary.oldestDate && (
                   <div className="flex items-center justify-between py-1.5">
-                    <span className="hl-label">{d.timeSpan}</span>
-                    <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+                    <span className="arc-label">{d.timeSpan}</span>
+                    <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                       {new Date(summary.oldestDate).toLocaleDateString('zh-TW')}
                       {' — '}
                       {new Date(summary.newestDate!).toLocaleDateString('zh-TW')}
@@ -141,7 +141,7 @@ export function StatsExportDialog({
                 {Object.entries(summary.modeBreakdown).map(([mode, count]) => (
                   <span
                     key={mode}
-                    className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--hl-ink-3)]"
+                    className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--arc-ink-3)]"
                   >
                     {mode} {count}
                   </span>
@@ -157,15 +157,15 @@ export function StatsExportDialog({
                   {summary.preview.map((row) => (
                     <div
                       key={row.id}
-                      className="flex items-center gap-2.5 border-b border-[var(--hl-line)] py-1.5 last:border-b-0"
+                      className="flex items-center gap-2.5 border-b border-[var(--cn-line-soft)] py-1.5 last:border-b-0"
                     >
-                      <span className="min-w-0 flex-1 truncate font-mono text-[10.5px] text-[var(--hl-ink-2)]">
+                      <span className="min-w-0 flex-1 truncate font-mono text-[10.5px] text-[var(--arc-ink-2)]">
                         {row.map}
                       </span>
                       <span
                         className={[
-                          'hl-label',
-                          row.result === e.statsVictory ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-alarm)]',
+                          'arc-label',
+                          row.result === e.statsVictory ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-alert)]',
                         ].join(' ')}
                       >
                         {row.result}
@@ -214,35 +214,35 @@ export function StatsExportDialog({
             </div>
 
             {/* 確認 */}
-            <label className="mt-3 flex cursor-pointer items-start gap-2 border border-[var(--hl-caution)] px-2.5 py-2">
+            <label className="mt-3 flex cursor-pointer items-start gap-2 border border-[var(--arc-caution)] px-2.5 py-2">
               <input
                 type="checkbox"
                 checked={confirmed}
                 onChange={(ev) => setConfirmed(ev.target.checked)}
-                style={{ accentColor: 'var(--hl-caution)' }}
+                style={{ accentColor: 'var(--arc-caution)' }}
                 className="mt-0.5 h-3 w-3"
               />
-              <span className="font-mono text-[10.5px] leading-relaxed text-[var(--hl-caution)]">
+              <span className="font-mono text-[10.5px] leading-relaxed text-[var(--arc-caution)]">
                 {d.confirmText.replace('{count}', String(summary.exportCount)).replace('{format}', format.toUpperCase())}
               </span>
             </label>
 
             {result === 'success' && (
-              <p className="mt-2 flex items-center gap-1.5 text-[var(--hl-vital)]">
+              <p className="mt-2 flex items-center gap-1.5 text-[var(--arc-vital)]">
                 <CheckIcon className="h-3 w-3" />
-                <span className="hl-label text-[var(--hl-vital)]">{d.success}</span>
+                <span className="arc-label text-[var(--arc-vital)]">{d.success}</span>
               </p>
             )}
             {result === 'fail' && (
-              <p className="mt-2 flex items-center gap-1.5 text-[var(--hl-alarm)]">
+              <p className="mt-2 flex items-center gap-1.5 text-[var(--arc-alert)]">
                 <WarningIcon className="h-3 w-3" />
-                <span className="hl-label text-[var(--hl-alarm)]">{d.fail}</span>
+                <span className="arc-label text-[var(--arc-alert)]">{d.fail}</span>
               </p>
             )}
           </div>
 
           {/* 動作 */}
-          <div className="flex flex-col gap-2 border-t border-[var(--hl-line)] p-3">
+          <div className="flex flex-col gap-2 border-t border-[var(--cn-line-soft)] p-3">
             <Btn
               variant="signal"
               size="lg"

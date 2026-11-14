@@ -1,7 +1,7 @@
 /**
  * 戰績中心 · 共用列與徽章（HARDLINE）
  *
- * 全部走 hl-row 結構：密集列、1px 分隔線、數值一律 mono tabular。
+ * 全部走 arc-row 結構：密集列、1px 分隔線、數值一律 mono tabular。
  */
 import type { GameRecord } from '@/store/statsStore';
 import { useTranslation } from '@/i18n';import { Num, Dot } from '@/components/hl';
@@ -9,14 +9,14 @@ import { getStatsGameModeLabel } from '@/store/statsGameMode';
 import {
   formatGameRecordDifficulty,
   formatGameRecordMap,
-  gameDifficultyLabelsFromDetail,
+  gameDifficultyLabelsFromGameCopy,
 } from '@/data/gameRecordLabels';
 
 /* --------------------------------------------------------- 模式徽章 */
 
 export function GameModeBadge({ mode }: { mode?: Parameters<typeof getStatsGameModeLabel>[0] }) {
   return (
-    <span className="inline-flex items-center border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--hl-ink-3)]">
+    <span className="inline-flex items-center border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--arc-ink-3)]">
       {getStatsGameModeLabel(mode)}
     </span>
   );
@@ -49,14 +49,14 @@ export function StatsTableHead({
   };
 }) {
   return (
-    <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-[var(--hl-line)] bg-[var(--hl-void)] px-3 py-1.5">
-      <span className={`${STATS_COLS.result} hl-label`}>{labels.result}</span>
-      <span className={`${STATS_COLS.map} hl-label`}>{labels.map}</span>
-      <span className={`${STATS_COLS.mode} hl-label`}>{labels.mode}</span>
-      <span className={`${STATS_COLS.wave} hl-label`}>{labels.wave}</span>
-      <span className={`${STATS_COLS.score} hl-label`}>{labels.score}</span>
-      <span className={`${STATS_COLS.duration} hl-label`}>{labels.duration}</span>
-      <span className={`${STATS_COLS.date} hl-label`}>{labels.date}</span>
+    <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-3 py-1.5">
+      <span className={`${STATS_COLS.result} arc-label`}>{labels.result}</span>
+      <span className={`${STATS_COLS.map} arc-label`}>{labels.map}</span>
+      <span className={`${STATS_COLS.mode} arc-label`}>{labels.mode}</span>
+      <span className={`${STATS_COLS.wave} arc-label`}>{labels.wave}</span>
+      <span className={`${STATS_COLS.score} arc-label`}>{labels.score}</span>
+      <span className={`${STATS_COLS.duration} arc-label`}>{labels.duration}</span>
+      <span className={`${STATS_COLS.date} arc-label`}>{labels.date}</span>
     </div>
   );
 }
@@ -76,20 +76,20 @@ export function GameHistoryRow({
 }) {
   const { t } = useTranslation();
   const e = t.encyclopedia;
-  const diffLabels = gameDifficultyLabelsFromDetail(t.mutatorChallenge.detail);
+  const diffLabels = gameDifficultyLabelsFromGameCopy(t.game);
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="hl-row hl-row-hover w-full text-left"
+      className="arc-row arc-row-hover w-full text-left"
     >
       <span className={`${STATS_COLS.result} flex items-center gap-1.5`}>
         <Dot tone={game.isVictory ? 'vital' : 'alarm'} />
         <span
           className={[
-            'hl-label',
-            game.isVictory ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-alarm)]',
+            'arc-label',
+            game.isVictory ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-alert)]',
           ].join(' ')}
         >
           {game.isVictory ? e.statsVictory : e.statsDefeat}
@@ -97,9 +97,9 @@ export function GameHistoryRow({
       </span>
 
       <span className={`${STATS_COLS.map} min-w-0`}>
-        <span className="block truncate text-[12.5px] text-[var(--hl-ink)]">
+        <span className="block truncate text-[12.5px] text-[var(--arc-ink)]">
           {formatGameRecordMap(game.mapId)}
-          <span className="ml-1.5 font-mono text-[10px] text-[var(--hl-ink-3)]">
+          <span className="ml-1.5 font-mono text-[10px] text-[var(--arc-ink-3)]">
             {formatGameRecordDifficulty(game.difficulty, diffLabels)}
           </span>
         </span>
@@ -122,7 +122,7 @@ export function GameHistoryRow({
       </span>
 
       <span className={STATS_COLS.date}>
-        <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+        <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">
           {formatDate(game.date)}
         </span>
       </span>
@@ -143,37 +143,37 @@ export function TopGamesList({
 }) {
   const { t } = useTranslation();
   const e = t.encyclopedia;
-  const diffLabels = gameDifficultyLabelsFromDetail(t.mutatorChallenge.detail);
+  const diffLabels = gameDifficultyLabelsFromGameCopy(t.game);
 
   if (games.length === 0) {
-    return <div className="hl-micro px-3 py-4 text-center">{e.statsNoRecord}</div>;
+    return <div className="arc-micro px-3 py-4 text-center">{e.statsNoRecord}</div>;
   }
 
   return (
     <div className="flex flex-col">
       {games.map((game, index) => (
-        <div key={game.id} className="flex items-center gap-3 border-b border-[var(--hl-line)] px-3 py-2 last:border-b-0">
+        <div key={game.id} className="flex items-center gap-3 border-b border-[var(--cn-line-soft)] px-3 py-2 last:border-b-0">
           <span
             className={[
               'w-6 shrink-0 border text-center font-mono text-[10px] tabular-nums',
               index === 0
-                ? 'border-[var(--hl-signal)] text-[var(--hl-signal)]'
-                : 'border-[var(--hl-line)] text-[var(--hl-ink-3)]',
+                ? 'border-[var(--arc-gold)] text-[var(--arc-gold)]'
+                : 'border-[var(--cn-line-soft)] text-[var(--arc-ink-3)]',
             ].join(' ')}
           >
             {index + 1}
           </span>
 
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[12.5px] text-[var(--hl-ink)]">
+            <span className="block truncate text-[12.5px] text-[var(--arc-ink)]">
               {formatGameRecordMap(game.mapId)}
-              <span className="ml-1.5 font-mono text-[10px] text-[var(--hl-ink-3)]">
+              <span className="ml-1.5 font-mono text-[10px] text-[var(--arc-ink-3)]">
                 {formatGameRecordDifficulty(game.difficulty, diffLabels)}
               </span>
             </span>
             <span className="mt-0.5 flex items-center gap-1.5">
               <GameModeBadge mode={game.gameMode} />
-              <span className="font-mono text-[10px] text-[var(--hl-ink-4)]">{formatDate(game.date)}</span>
+              <span className="font-mono text-[10px] text-[var(--arc-ink-4)]">{formatDate(game.date)}</span>
             </span>
           </span>
 

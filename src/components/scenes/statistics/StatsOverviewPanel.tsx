@@ -51,7 +51,7 @@ export function StatsOverviewPanel({ onSelectGame }: Props) {
 
       {/* 戰鬥統計 */}
       <div className="flex flex-col gap-2">
-        <SegHead label={st.overview.combatStats} right={<FlameIcon className="h-3.5 w-3.5 text-[var(--hl-ink-4)]" />} />
+        <SegHead label={st.overview.combatStats} right={<FlameIcon className="h-3.5 w-3.5 text-[var(--arc-ink-4)]" />} />
         <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-5">
           {[
             { icon: <SkullIcon className="h-3.5 w-3.5" />, label: e.statsTotalKills, value: globalStats.totalEnemiesKilled.toLocaleString() },
@@ -61,9 +61,9 @@ export function StatsOverviewPanel({ onSelectGame }: Props) {
             { icon: <TowerIcon className="h-3.5 w-3.5" />, label: st.fieldLabels.totalTowersSold, value: (globalStats.totalTowersSold ?? 0).toLocaleString() },
           ].map((item) => (
             <Deck key={item.label} className="flex flex-col gap-1.5 px-3 py-2.5">
-              <span className="flex items-center gap-1.5 text-[var(--hl-ink-3)]">
+              <span className="flex items-center gap-1.5 text-[var(--arc-ink-3)]">
                 {item.icon}
-                <span className="hl-label truncate">{item.label}</span>
+                <span className="arc-label truncate">{item.label}</span>
               </span>
               <Num value={item.value} size="md" />
             </Deck>
@@ -73,7 +73,7 @@ export function StatsOverviewPanel({ onSelectGame }: Props) {
 
       {/* 個人最佳 */}
       <div className="flex flex-col gap-2">
-        <SegHead label={e.statsPersonalBests} right={<MedalIcon className="h-3.5 w-3.5 text-[var(--hl-ink-4)]" />} />
+        <SegHead label={e.statsPersonalBests} right={<MedalIcon className="h-3.5 w-3.5 text-[var(--arc-ink-4)]" />} />
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
           {[
             { icon: <StarIcon className="h-3 w-3" />, label: e.statsHighestScore, value: personalBests.highestScore.toLocaleString() },
@@ -83,9 +83,9 @@ export function StatsOverviewPanel({ onSelectGame }: Props) {
             { icon: <SkullIcon className="h-3 w-3" />, label: e.statsMostKills, value: personalBests.mostKills.toLocaleString() },
           ].map((item) => (
             <Deck key={item.label} tone="sunken" className="flex items-center justify-between px-3 py-2">
-              <span className="flex min-w-0 items-center gap-1.5 text-[var(--hl-ink-3)]">
+              <span className="flex min-w-0 items-center gap-1.5 text-[var(--arc-ink-3)]">
                 {item.icon}
-                <span className="hl-label truncate">{item.label}</span>
+                <span className="arc-label truncate">{item.label}</span>
               </span>
               <Num value={item.value} size="sm" />
             </Deck>
@@ -95,10 +95,10 @@ export function StatsOverviewPanel({ onSelectGame }: Props) {
 
       {/* 最近戰局 */}
       <div className="flex flex-col gap-2">
-        <SegHead label={e.statsRecentGames} right={<ClockIcon className="h-3.5 w-3.5 text-[var(--hl-ink-4)]" />} />
+        <SegHead label={e.statsRecentGames} right={<ClockIcon className="h-3.5 w-3.5 text-[var(--arc-ink-4)]" />} />
         <Deck className="overflow-hidden">
           {gameHistory.length === 0 ? (
-            <div className="hl-micro px-3 py-6 text-center">{e.statsNoRecord}</div>
+            <div className="arc-micro px-3 py-6 text-center">{e.statsNoRecord}</div>
           ) : (
             <div className="flex flex-col">
               {gameHistory.slice(0, 5).map((game) => (
@@ -117,7 +117,7 @@ export function StatsOverviewPanel({ onSelectGame }: Props) {
 
       {/* 排行榜：保留在總覽的快速一覽（前三名） */}
       <div className="flex flex-col gap-2">
-        <SegHead label={e.statsHighScoreRank} right={<TrophyIcon className="h-3.5 w-3.5 text-[var(--hl-ink-4)]" />} />
+        <SegHead label={e.statsHighScoreRank} right={<TrophyIcon className="h-3.5 w-3.5 text-[var(--arc-ink-4)]" />} />
         <Deck tone="sunken" className="overflow-hidden">
           <TopGamesList
             games={getBestGames('score').slice(0, 3)}
