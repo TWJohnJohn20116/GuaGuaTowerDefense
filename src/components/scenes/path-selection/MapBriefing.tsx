@@ -112,7 +112,7 @@ export function MapBriefing({
               </span>
               {t.mainMenu.advancedSettings}
               <span className="ml-auto text-[11px] font-bold text-[var(--cn-ink-4)]">
-                {t.pathSelection.sectionBattleParams} · {t.pathSelection.sectionGameMode}
+                {c.sectionBattleParams} · {c.sectionGameMode}
               </span>
             </summary>
 
