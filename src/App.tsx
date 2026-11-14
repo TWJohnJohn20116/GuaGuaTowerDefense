@@ -85,13 +85,23 @@ function App() {
     document.documentElement.classList.toggle('no-anim', !animationsEnabled);
   }, [animationsEnabled]);
 
-  // 開發用：?scene=xxx 直接跳場景，方便逐畫面驗收（僅 dev 生效）
+  // 開發用：?scene=xxx 或 #<scene> 直接跳場景（僅 dev 生效）
+  //
+  // hash 形式是給視覺驗證工具用的：同一分頁改 hash 就能換場景，
+  // 不必重新載入（Vite dev 對原始碼送 no-cache，每次重載要抓上千個模組，單頁 4–5 秒）。
   useEffect(() => {
     if (!import.meta.env.DEV) return;
-    const target = new URLSearchParams(window.location.search).get('scene');
-    if (!target) return;
-    useGameStore.getState().setScene(target as GameScene);
-    useDevStore.getState().setTestScene(null);
+    const apply = () => {
+      const target =
+        window.location.hash.replace(/^#/, '') ||
+        new URLSearchParams(window.location.search).get('scene');
+      if (!target) return;
+      useGameStore.getState().setScene(target as GameScene);
+      useDevStore.getState().setTestScene(null);
+    };
+    apply();
+    window.addEventListener('hashchange', apply);
+    return () => window.removeEventListener('hashchange', apply);
   }, []);
 
   // 初始化音效 / BGM 引擎（含 API 背景預取）
