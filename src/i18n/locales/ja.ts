@@ -2408,7 +2408,6 @@ export const ja: DeepPartial<Translations> = {
       enemyData: '組込敵データとSTATUS_EFFECTS定義。',
       pathData: '難易度経路モジュールを集約する組込マップ経路。',
       waveData: 'ウェーブ設定・難易度スケーリング・エンドレス規則。',
-      gameDataIndex: 'gameDataサブディレクトリの統合エクスポート。',
       easyPaths: '簡単マップ経路（直線と入門ルート）。',
       mediumPaths: '中マップ経路（ジグザグ・ループ等）。',
       hardPaths: '難マップ経路（分岐と隘路）。',

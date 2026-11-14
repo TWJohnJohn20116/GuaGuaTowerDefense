@@ -2066,7 +2066,6 @@ export const fr: DeepPartial<Translations> = {
       enemyData: "Données ennemies intégrées et STATUS_EFFECTS.",
       pathData: "Agrégateur de chemins de carte intégrés.",
       waveData: "Config des vagues, scaling difficulté, mode sans fin.",
-      gameDataIndex: "Point d'export unifié du sous-dossier gameData.",
       easyPaths: "Cartes faciles (lignes droites, routes débutant).",
       mediumPaths: "Cartes moyennes (zigzags, boucles).",
       hardPaths: "Cartes difficiles (fourches, couloirs étroits).",

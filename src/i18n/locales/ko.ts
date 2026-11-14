@@ -2064,7 +2064,6 @@ export const ko: DeepPartial<Translations> = {
       enemyData: "내장 적 데이터 및 STATUS_EFFECTS 정의.",
       pathData: "내장 맵 경로 집합 진입점, 난이도 paths 서브모듈 import.",
       waveData: "웨이브 설정, 난이도 계수, 무한 모드 규칙.",
-      gameDataIndex: "gameData 하위 디렉터리 통합 export 진입점.",
       easyPaths: "쉬움 난이도 맵(직선 등 입문 경로).",
       mediumPaths: "중간 난이도 맵(지그재그, 루프 등).",
       hardPaths: "어려움 난이도 맵(분기, 좁은 통로).",

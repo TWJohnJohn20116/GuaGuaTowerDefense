@@ -2067,7 +2067,6 @@ export const de: DeepPartial<Translations> = {
       enemyData: "Eingebaute Gegnerdaten und STATUS_EFFECTS-Definitionen.",
       pathData: "Eingebaute Kartenpfad-Aggregator, importiert Schwierigkeits-Pfadmodule.",
       waveData: "Wellen-Konfiguration, Schwierigkeitsskalierung, Endlosmodus-Regeln.",
-      gameDataIndex: "Einheitlicher Export-Einstieg für gameData-Unterverzeichnis.",
       easyPaths: "Leichte Kartenpfade (Geraden und Einsteiger-Routen).",
       mediumPaths: "Mittlere Kartenpfade (Zickzack, Schleifen usw.).",
       hardPaths: "Schwere Kartenpfade (Gabelungen, enge Gänge).",

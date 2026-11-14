@@ -2939,7 +2939,6 @@ export const zhTW = {
       enemyData: "內建敵人資料與 STATUS_EFFECTS 狀態效果定義。",
       pathData: "內建地圖路徑聚合入口，匯入各難度 paths 子模組。",
       waveData: "波次配置、難度係數與無盡模式生成規則。",
-      gameDataIndex: "gameData 子目錄統一匯出入口。",
       easyPaths: "極簡難度地圖定義（直線等入門路徑）。",
       mediumPaths: "中等難度地圖定義（之字形、環形等）。",
       hardPaths: "困難難度地圖定義（多叉路、狹窄通道）。",

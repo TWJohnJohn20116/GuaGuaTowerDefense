@@ -2413,7 +2413,6 @@ export const en: DeepPartial<Translations> = {
       enemyData: "Built-in enemy data and STATUS_EFFECTS definitions.",
       pathData: "Built-in map path aggregator importing difficulty path modules.",
       waveData: "Wave config, difficulty scaling, and endless mode rules.",
-      gameDataIndex: "Unified export entry for the gameData subdirectory.",
       easyPaths: "Easy map paths (straight lines and beginner routes).",
       mediumPaths: "Medium map paths (zigzags, loops, etc.).",
       hardPaths: "Hard map paths (forks and narrow corridors).",
