@@ -113,8 +113,8 @@ export function SettingsLocalFilePanel({ onImport, onNotify }: Props) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-0 sm:flex-row">
-      <div className="flex min-h-0 flex-1 flex-col border-b border-[var(--hl-line)] sm:border-b-0 sm:border-r">
-        <div className="flex flex-wrap items-center gap-1.5 border-b border-[var(--hl-line)] px-3 py-2">
+      <div className="flex min-h-0 flex-1 flex-col border-b border-[var(--cn-line-soft)] sm:border-b-0 sm:border-r">
+        <div className="flex flex-wrap items-center gap-1.5 border-b border-[var(--cn-line-soft)] px-3 py-2">
           <Btn
             variant="line"
             size="sm"
@@ -147,7 +147,7 @@ export function SettingsLocalFilePanel({ onImport, onNotify }: Props) {
           </Btn>
         </div>
 
-        <div className="border-b border-[var(--hl-line)] px-4 py-2">
+        <div className="border-b border-[var(--cn-line-soft)] px-4 py-2">
           <SearchInput
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -158,7 +158,7 @@ export function SettingsLocalFilePanel({ onImport, onNotify }: Props) {
         </div>
 
         {!supportsOpenFilePicker() && (
-          <p className="mx-4 mt-2 flex items-center gap-1.5 text-[10px] text-[var(--hl-caution)]">
+          <p className="mx-4 mt-2 flex items-center gap-1.5 text-[10px] text-[var(--arc-caution)]">
             <WarningIcon className="h-3.5 w-3.5 shrink-0" />
             {l.pickerHint}
           </p>
@@ -167,9 +167,9 @@ export function SettingsLocalFilePanel({ onImport, onNotify }: Props) {
         <div className="min-h-0 flex-1 overflow-y-auto">
           {files.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 p-10 text-center">
-              <FolderIcon className="h-10 w-10 text-[var(--hl-ink-4)]" />
-              <p className="text-xs font-bold text-[var(--hl-ink-2)]">{l.emptyTitle}</p>
-              <p className="max-w-xs text-[10px] leading-relaxed text-[var(--hl-ink-4)]">
+              <FolderIcon className="h-10 w-10 text-[var(--arc-ink-4)]" />
+              <p className="text-xs font-bold text-[var(--arc-ink-2)]">{l.emptyTitle}</p>
+              <p className="max-w-xs text-[10px] leading-relaxed text-[var(--arc-ink-4)]">
                 {l.emptyHint}
               </p>
             </div>
@@ -181,16 +181,16 @@ export function SettingsLocalFilePanel({ onImport, onNotify }: Props) {
                   key={file.id}
                   type="button"
                   onClick={() => setSelectedId(file.id)}
-                  className={`flex w-full items-start gap-3 border-b border-[var(--hl-line)] px-4 py-3 text-left transition-colors ${
-                    active ? 'bg-[var(--hl-deck-2)]' : 'hover:bg-[var(--hl-deck-2)]'
+                  className={`flex w-full items-start gap-3 border-b border-[var(--cn-line-soft)] px-4 py-3 text-left transition-colors ${
+                    active ? 'bg-[var(--arc-deck-2)]' : 'hover:bg-[var(--arc-deck-2)]'
                   }`}
                 >
-                  <DocumentIcon className={`mt-0.5 h-4 w-4 shrink-0 ${active ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-ink-4)]'}`} />
+                  <DocumentIcon className={`mt-0.5 h-4 w-4 shrink-0 ${active ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-ink-4)]'}`} />
                   <span className="min-w-0 flex-1">
-                    <span className={`block truncate text-xs font-bold ${active ? 'text-[var(--hl-ink)]' : 'text-[var(--hl-ink-2)]'}`}>
+                    <span className={`block truncate text-xs font-bold ${active ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-2)]'}`}>
                       {file.name}
                     </span>
-                    <span className="mt-0.5 block truncate text-[10px] text-[var(--hl-ink-4)]">
+                    <span className="mt-0.5 block truncate text-[10px] text-[var(--arc-ink-4)]">
                       {file.pathLabel} · {formatBytes(file.size)} · {file.payload.sections.length} {f.sectionsUnit}
                     </span>
                   </span>
@@ -204,11 +204,11 @@ export function SettingsLocalFilePanel({ onImport, onNotify }: Props) {
       <aside className="flex w-full flex-col gap-2.5 p-3 sm:w-[264px]">
         {selected ? (
           <>
-            <h4 className="truncate text-[13px] font-medium text-[var(--hl-ink)]">{selected.name}</h4>
-            <p className="font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">{formatModified(selected.lastModified)}</p>
-            <p className="truncate font-mono text-[9.5px] text-[var(--hl-ink-4)]">{selected.pathLabel}</p>
+            <h4 className="truncate text-[13px] font-medium text-[var(--arc-ink)]">{selected.name}</h4>
+            <p className="font-mono text-[9.5px] tabular-nums text-[var(--arc-ink-4)]">{formatModified(selected.lastModified)}</p>
+            <p className="truncate font-mono text-[9.5px] text-[var(--arc-ink-4)]">{selected.pathLabel}</p>
             {browseLabel && (
-              <span className="w-fit border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase leading-none tracking-[0.08em] text-[var(--hl-ink-2)]">
+              <span className="w-fit border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase leading-none tracking-[0.08em] text-[var(--arc-ink-2)]">
                 {browseLabel}
               </span>
             )}
@@ -216,13 +216,13 @@ export function SettingsLocalFilePanel({ onImport, onNotify }: Props) {
               {selected.payload.sections.map((s) => (
                 <span
                   key={s}
-                  className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase leading-none tracking-[0.08em] text-[var(--hl-ink-3)]"
+                  className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase leading-none tracking-[0.08em] text-[var(--arc-ink-3)]"
                 >
                   {SETTINGS_SECTION_LABELS[s]}
                 </span>
               ))}
             </div>
-            <div className="mt-auto flex flex-col gap-1.5 border-t border-[var(--hl-line)] pt-2.5">
+            <div className="mt-auto flex flex-col gap-1.5 border-t border-[var(--cn-line-soft)] pt-2.5">
               <Btn variant="signal" block onClick={() => onImport(selected.payload)}>
                 {l.importFile}
               </Btn>
@@ -237,7 +237,7 @@ export function SettingsLocalFilePanel({ onImport, onNotify }: Props) {
             </div>
           </>
         ) : (
-          <p className="py-6 text-center font-mono text-[10.5px] text-[var(--hl-ink-4)]">{l.selectFileHint}</p>
+          <p className="py-6 text-center font-mono text-[10.5px] text-[var(--arc-ink-4)]">{l.selectFileHint}</p>
         )}
       </aside>
     </div>

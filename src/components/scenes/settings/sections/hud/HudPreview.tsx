@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/Icons';
 import { getHudStyleClasses } from '@/components/game/sidebar/hudStyle';
 import { useTranslation } from '@/i18n';
+import { Deck } from '@/components/hl';
 
 const HORIZONTAL_TO_JUSTIFY: Record<HudHorizontalPosition, string> = {
   left: 'justify-start',
@@ -42,20 +43,20 @@ export function HudPreviewCard({ layout }: { layout: HudLayoutState }) {
   const scale = SCALE_VALUE[layout.uiScale];
 
   return (
-    <div className="flex w-full flex-col gap-2.5 border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3">
+    <Deck className="flex w-full flex-col gap-2.5 p-3">
       <div className="flex items-center gap-2">
-        <span className="border border-[var(--hl-signal-edge)] px-1.5 py-0.5 font-mono text-[10px] uppercase leading-none tracking-[0.1em] text-[var(--hl-signal)]">
+        <span className="border border-[var(--arc-gold-edge)] px-1.5 py-0.5 font-mono text-[10px] uppercase leading-none tracking-[0.1em] text-[var(--arc-gold)]">
           {h.live}
         </span>
-        <span className="hl-label">{h.livePreview}</span>
-        <span className="h-px flex-1 bg-[var(--hl-line)]" />
-        <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+        <span className="arc-label">{h.livePreview}</span>
+        <span className="h-px flex-1 bg-[var(--arc-line)]" />
+        <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
           {scaleLabel(layout.uiScale)}
         </span>
       </div>
 
       <div
-        className="relative h-72 w-full overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)]"
+        className="relative h-72 w-full overflow-hidden border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]"
         style={{ opacity: Math.max(0.55, layout.opacity) }}
       >
         <PreviewGridBackground />
@@ -116,15 +117,15 @@ export function HudPreviewCard({ layout }: { layout: HudLayoutState }) {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 border-t border-[var(--hl-line)] pt-2">
+      <div className="flex flex-wrap items-center gap-3 border-t border-[var(--cn-line-soft)] pt-2">
         <PreviewLegend tone="vital" label={h.legendStatsBar} hidden={!layout.showStatsBar} />
         <PreviewLegend tone="caution" label={h.legendTowerPanel} hidden={!layout.showTowerPanel} />
         <PreviewLegend tone="reach" label={h.legendBottomControls} hidden={!layout.showBottomControls} />
-        <span className="ml-auto font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+        <span className="ml-auto font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">
           {h.opacityLabel.replace('{percent}', String(Math.round(layout.opacity * 100)))}
         </span>
       </div>
-    </div>
+    </Deck>
   );
 }
 
@@ -149,7 +150,7 @@ function PreviewGridBackground() {
 
 function HiddenPlaceholder({ label }: { label: string }) {
   return (
-    <span className="border border-dashed border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] uppercase leading-none tracking-[0.1em] text-[var(--hl-ink-4)]">
+    <span className="border border-dashed border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] uppercase leading-none tracking-[0.1em] text-[var(--arc-ink-4)]">
       {label}
     </span>
   );
@@ -159,25 +160,25 @@ function MiniTopStatsBar({ layout }: { layout: HudLayoutState }) {
   const cls = getHudStyleClasses(layout, 'pill');
   return (
     <div
-      className={`flex items-center gap-2 border bg-[var(--hl-deck-3)] px-3 py-1 font-mono text-[10px] tabular-nums text-[var(--hl-ink)] ${cls.corner} ${cls.blur} ${cls.border} ${cls.shadow}`}
+      className={`flex items-center gap-2 border bg-[var(--arc-deck-3)] px-3 py-1 font-mono text-[10px] tabular-nums text-[var(--arc-ink)] ${cls.corner} ${cls.blur} ${cls.border} ${cls.shadow}`}
     >
       <span className="flex items-center gap-1">
-        <CoinIcon className="h-3 w-3 text-[var(--hl-caution)]" />
+        <CoinIcon className="h-3 w-3 text-[var(--arc-caution)]" />
         <span>128</span>
       </span>
-      <span className="h-3 w-px bg-[var(--hl-line)]" />
+      <span className="h-3 w-px bg-[var(--arc-line)]" />
       <span className="flex items-center gap-1">
-        <HeartIcon className="h-3 w-3 text-[var(--hl-alarm)]" />
+        <HeartIcon className="h-3 w-3 text-[var(--arc-alert)]" />
         <span>10</span>
       </span>
-      <span className="h-3 w-px bg-[var(--hl-line)]" />
+      <span className="h-3 w-px bg-[var(--arc-line)]" />
       <span className="flex items-center gap-1">
-        <WaveIcon className="h-3 w-3 text-[var(--hl-ink-2)]" />
+        <WaveIcon className="h-3 w-3 text-[var(--arc-ink-2)]" />
         <span>3/10</span>
       </span>
-      <span className="h-3 w-px bg-[var(--hl-line)]" />
+      <span className="h-3 w-px bg-[var(--arc-line)]" />
       <span className="flex items-center gap-1">
-        <StarIcon className="h-3 w-3 text-[var(--hl-caution)]" />
+        <StarIcon className="h-3 w-3 text-[var(--arc-caution)]" />
         <span>42</span>
       </span>
     </div>
@@ -187,12 +188,12 @@ function MiniTopStatsBar({ layout }: { layout: HudLayoutState }) {
 function MiniTowerPanel({ layout, towerLabel }: { layout: HudLayoutState; towerLabel: string }) {
   const cls = getHudStyleClasses(layout, 'panel');
   const towers = [
-    { Icon: CrosshairIcon, tone: 'text-[var(--hl-ink-2)]', bg: 'bg-[var(--hl-deck-3)] border border-[var(--hl-line)]' },
-    { Icon: SnowflakeIcon, tone: 'text-[var(--hl-reach)]', bg: 'bg-[var(--hl-deck-3)] border border-[var(--hl-line)]' },
-    { Icon: FlameIcon, tone: 'text-[var(--hl-caution)]', bg: 'bg-[var(--hl-deck-3)] border border-[var(--hl-line)]' },
-    { Icon: LightningIcon, tone: 'text-[var(--hl-caution)]', bg: 'bg-[var(--hl-deck-3)] border border-[var(--hl-line)]' },
-    { Icon: DangerIcon, tone: 'text-[var(--hl-alarm)]', bg: 'bg-[var(--hl-deck-3)] border border-[var(--hl-line)]' },
-    { Icon: ExplosionIcon, tone: 'text-[var(--hl-alarm)]', bg: 'bg-[var(--hl-deck-3)] border border-[var(--hl-line)]' },
+    { Icon: CrosshairIcon, tone: 'text-[var(--arc-ink-2)]', bg: 'bg-[var(--arc-deck-3)] border-[3px] border-[var(--cn-line-soft)]' },
+    { Icon: SnowflakeIcon, tone: 'text-[var(--arc-reach)]', bg: 'bg-[var(--arc-deck-3)] border-[3px] border-[var(--cn-line-soft)]' },
+    { Icon: FlameIcon, tone: 'text-[var(--arc-caution)]', bg: 'bg-[var(--arc-deck-3)] border-[3px] border-[var(--cn-line-soft)]' },
+    { Icon: LightningIcon, tone: 'text-[var(--arc-caution)]', bg: 'bg-[var(--arc-deck-3)] border-[3px] border-[var(--cn-line-soft)]' },
+    { Icon: DangerIcon, tone: 'text-[var(--arc-alert)]', bg: 'bg-[var(--arc-deck-3)] border-[3px] border-[var(--cn-line-soft)]' },
+    { Icon: ExplosionIcon, tone: 'text-[var(--arc-alert)]', bg: 'bg-[var(--arc-deck-3)] border-[3px] border-[var(--cn-line-soft)]' },
   ] as const;
 
   const cols = layout.towerListColumns;
@@ -205,12 +206,12 @@ function MiniTowerPanel({ layout, towerLabel }: { layout: HudLayoutState; towerL
 
   return (
     <div
-      className={`flex flex-col ${itemGap} border bg-[var(--hl-deck-2)] p-2 ${cls.corner} ${cls.blur} ${cls.border} ${cls.shadow}`}
+      className={`flex flex-col ${itemGap} border bg-[var(--arc-deck-2)] p-2 ${cls.corner} ${cls.blur} ${cls.border} ${cls.shadow}`}
     >
       {layout.showTowerCategories && (
         <div className="flex items-center justify-center gap-1 px-1">
-          <TowerIcon className="h-2.5 w-2.5 text-[var(--hl-ink-3)]" />
-          <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--hl-ink-3)]">{towerLabel}</span>
+          <TowerIcon className="h-2.5 w-2.5 text-[var(--arc-ink-3)]" />
+          <span className="font-mono text-[8px] uppercase tracking-[0.1em] text-[var(--arc-ink-3)]">{towerLabel}</span>
         </div>
       )}
       <div
@@ -225,9 +226,9 @@ function MiniTowerPanel({ layout, towerLabel }: { layout: HudLayoutState; towerL
       </div>
       {layout.showTowerSkillBar && (
         <div className="mt-1 flex justify-center gap-1">
-          <span className="h-2 w-2 bg-[var(--hl-signal)] opacity-80" />
-          <span className="h-2 w-2 bg-[var(--hl-signal)] opacity-55" />
-          <span className="h-2 w-2 bg-[var(--hl-signal)] opacity-30" />
+          <span className="h-2 w-2 bg-[var(--arc-gold)] opacity-80" />
+          <span className="h-2 w-2 bg-[var(--arc-gold)] opacity-55" />
+          <span className="h-2 w-2 bg-[var(--arc-gold)] opacity-30" />
         </div>
       )}
     </div>
@@ -238,19 +239,19 @@ function MiniBottomControls({ layout }: { layout: HudLayoutState }) {
   const cls = getHudStyleClasses(layout, 'card');
   return (
     <div
-      className={`flex items-center gap-1.5 border bg-[var(--hl-deck-3)] px-2 py-1 ${cls.corner} ${cls.blur} ${cls.border} ${cls.shadow}`}
+      className={`flex items-center gap-1.5 border bg-[var(--arc-deck-3)] px-2 py-1 ${cls.corner} ${cls.blur} ${cls.border} ${cls.shadow}`}
     >
-      <span className="flex h-5 w-5 items-center justify-center border border-[var(--hl-signal)] bg-[var(--hl-signal)]">
-        <Play2Icon className="h-3 w-3 text-[var(--hl-signal-ink)]" />
+      <span className="flex h-5 w-5 items-center justify-center border border-[var(--arc-gold)] bg-[var(--arc-gold)]">
+        <Play2Icon className="h-3 w-3 text-[var(--arc-gold-ink)]" />
       </span>
-      <span className="flex h-5 w-5 items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-deck-2)]">
-        <PauseIcon className="h-3 w-3 text-[var(--hl-ink-2)]" />
+      <span className="flex h-5 w-5 items-center justify-center arc-panel">
+        <PauseIcon className="h-3 w-3 text-[var(--arc-ink-2)]" />
       </span>
-      <span className="flex h-5 items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-1.5 font-mono text-[8px] tabular-nums text-[var(--hl-ink-2)]">
+      <span className="flex h-5 items-center justify-center arc-panel px-1.5 font-mono text-[8px] tabular-nums text-[var(--arc-ink-2)]">
         1x
       </span>
-      <span className="flex h-5 w-5 items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-deck-2)]">
-        <FastForwardIcon className="h-3 w-3 text-[var(--hl-ink-2)]" />
+      <span className="flex h-5 w-5 items-center justify-center arc-panel">
+        <FastForwardIcon className="h-3 w-3 text-[var(--arc-ink-2)]" />
       </span>
     </div>
   );
@@ -295,10 +296,10 @@ function MiniWaveBannerOverlay({
       className={`pointer-events-none absolute ${posClass} z-20`}
     >
       <div
-        className={`flex items-center ${spec.gap} ${spec.pad} border border-[var(--hl-signal-edge)] bg-[var(--hl-void)]`}
+        className={`flex items-center ${spec.gap} ${spec.pad} border border-[var(--arc-gold-edge)] bg-[var(--arc-void)]`}
       >
-        <WaveIcon className={`${spec.icon} text-[var(--hl-signal)]`} />
-        <span className={`${spec.num} font-mono font-semibold leading-none tabular-nums text-[var(--hl-ink)]`}>
+        <WaveIcon className={`${spec.icon} text-[var(--arc-gold)]`} />
+        <span className={`${spec.num} font-mono font-semibold leading-none tabular-nums text-[var(--arc-ink)]`}>
           W 7
         </span>
       </div>
@@ -314,17 +315,17 @@ function PreviewLegend({
   hidden: boolean;
 }) {
   const colorClass: Record<typeof tone, string> = {
-    vital: 'bg-[var(--hl-vital)]',
-    caution: 'bg-[var(--hl-caution)]',
-    reach: 'bg-[var(--hl-reach)]',
+    vital: 'bg-[var(--arc-vital)]',
+    caution: 'bg-[var(--arc-caution)]',
+    reach: 'bg-[var(--arc-reach)]',
   } as const;
 
   return (
-    <span className={`flex items-center gap-1.5 ${hidden ? 'text-[var(--hl-ink-4)]' : 'text-[var(--hl-ink-3)]'}`}>
-      <span className={`inline-block h-1.5 w-1.5 ${hidden ? 'bg-[var(--hl-line-hot)]' : colorClass[tone]}`} />
+    <span className={`flex items-center gap-1.5 ${hidden ? 'text-[var(--arc-ink-4)]' : 'text-[var(--arc-ink-3)]'}`}>
+      <span className={`inline-block h-1.5 w-1.5 ${hidden ? 'bg-[var(--arc-line-hot)]' : colorClass[tone]}`} />
       <span className="font-mono text-[9.5px] uppercase leading-none tracking-[0.08em]">{label}</span>
       {hidden && (
-        <span className="inline-flex items-center align-middle text-[var(--hl-ink-4)]">
+        <span className="inline-flex items-center align-middle text-[var(--arc-ink-4)]">
           <CheckSquareIcon className="h-2.5 w-2.5" />
         </span>
       )}

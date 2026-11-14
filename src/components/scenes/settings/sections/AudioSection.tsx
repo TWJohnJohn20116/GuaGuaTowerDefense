@@ -95,7 +95,7 @@ export function AudioSection({ filter = '' }: AudioSectionProps) {
               />
             }
           />
-          <p className="border-t border-[var(--hl-line)] px-4 py-3 text-[10.5px] leading-relaxed text-[var(--hl-ink-3)]">
+          <p className="border-t border-[var(--cn-line-soft)] px-4 py-3 text-[10.5px] leading-relaxed text-[var(--arc-ink-3)]">
             {t.settings.audioApiHint}
           </p>
         </SectionGroup>

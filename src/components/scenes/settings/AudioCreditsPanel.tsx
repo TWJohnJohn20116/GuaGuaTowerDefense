@@ -36,13 +36,13 @@ export function AudioCreditsPanel() {
 
   return (
     <Deck notch className="flex flex-col">
-      <div className="flex items-center gap-2.5 border-b border-[var(--hl-line)] px-3 py-2.5">
-        <span className="flex h-6 w-6 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-2)]">
+      <div className="flex items-center gap-2.5 border-b border-[var(--cn-line-soft)] px-3 py-2.5">
+        <span className="flex h-6 w-6 items-center justify-center border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-2)]">
           <MusicNotesIcon className="h-3.5 w-3.5" />
         </span>
-        <span className="hl-label text-[var(--hl-ink-2)]">{ac.title}</span>
-        <span className="h-px flex-1 bg-[var(--hl-line)]" />
-        <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+        <span className="arc-label text-[var(--arc-ink-2)]">{ac.title}</span>
+        <span className="h-px flex-1 bg-[var(--arc-line)]" />
+        <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">
           {String(items.length).padStart(2, '0')}
         </span>
         <Btn
@@ -56,22 +56,22 @@ export function AudioCreditsPanel() {
         </Btn>
       </div>
 
-      <p className="border-b border-[var(--hl-line)] px-3 py-2 text-[11px] leading-relaxed text-[var(--hl-ink-3)]">
+      <p className="border-b border-[var(--cn-line-soft)] px-3 py-2 text-[11px] leading-relaxed text-[var(--arc-ink-3)]">
         {ac.intro}
       </p>
 
       {loading && (
         <div className="flex items-center gap-2 px-3 py-4">
           <Dot tone="signal" pulse />
-          <span className="font-mono text-[10.5px] text-[var(--hl-ink-3)]">{ac.loading}</span>
+          <span className="font-mono text-[10.5px] text-[var(--arc-ink-3)]">{ac.loading}</span>
         </div>
       )}
 
       {!loading && items.length === 0 && (
-        <div className="m-3 flex flex-col items-center gap-1.5 border border-dashed border-[var(--hl-line)] px-4 py-6 text-center">
-          <span className="hl-label">empty</span>
-          <span className="text-[11.5px] text-[var(--hl-ink-2)]">{ac.emptyTitle}</span>
-          <span className="text-[10.5px] text-[var(--hl-ink-3)]">{ac.emptyHint}</span>
+        <div className="m-3 flex flex-col items-center gap-1.5 border border-dashed border-[var(--cn-line-soft)] px-4 py-6 text-center">
+          <span className="arc-label">empty</span>
+          <span className="text-[11.5px] text-[var(--arc-ink-2)]">{ac.emptyTitle}</span>
+          <span className="text-[10.5px] text-[var(--arc-ink-3)]">{ac.emptyHint}</span>
         </div>
       )}
 
@@ -80,16 +80,16 @@ export function AudioCreditsPanel() {
           {items.map((item) => (
             <li
               key={`${item.source}-${item.url}`}
-              className="flex flex-col gap-1.5 border-b border-[var(--hl-line)] px-3 py-2 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-1.5 border-b border-[var(--cn-line-soft)] px-3 py-2 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0">
-                <p className="truncate text-[12px] text-[var(--hl-ink)]">{item.title}</p>
-                <p className="truncate text-[10.5px] text-[var(--hl-ink-3)]">
+                <p className="truncate text-[12px] text-[var(--arc-ink)]">{item.title}</p>
+                <p className="truncate text-[10.5px] text-[var(--arc-ink-3)]">
                   {item.author}
                   {' · '}
-                  <span className="font-mono text-[var(--hl-ink-2)]">{sourceLabel(item.source)}</span>
+                  <span className="font-mono text-[var(--arc-ink-2)]">{sourceLabel(item.source)}</span>
                 </p>
-                <p className="mt-0.5 line-clamp-2 font-mono text-[9.5px] text-[var(--hl-ink-4)]">{item.license}</p>
+                <p className="mt-0.5 line-clamp-2 font-mono text-[9.5px] text-[var(--arc-ink-4)]">{item.license}</p>
               </div>
               <Btn
                 size="sm"

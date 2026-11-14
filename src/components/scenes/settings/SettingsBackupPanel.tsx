@@ -65,7 +65,7 @@ export function SettingsBackupPanel() {
         columns={1}
       >
         <div className="flex flex-col gap-2.5 p-3">
-          <p className="text-[11px] leading-relaxed text-[var(--hl-ink-3)]">{b.hint}</p>
+          <p className="text-[11px] leading-relaxed text-[var(--arc-ink-3)]">{b.hint}</p>
 
           <div className="flex flex-wrap items-stretch gap-1.5">
             <Btn
@@ -99,19 +99,19 @@ export function SettingsBackupPanel() {
               <div
                 className={`flex items-center gap-2 border px-2.5 py-2 ${
                   status.kind === 'success'
-                    ? 'border-[var(--hl-line)] bg-[var(--hl-void-2)]'
-                    : 'border-[var(--hl-line)] bg-[var(--hl-void-2)]'
+                    ? 'border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]'
+                    : 'border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]'
                 }`}
               >
                 <Dot tone={status.kind === 'success' ? 'vital' : 'alarm'} />
                 {status.kind === 'success' ? (
-                  <CheckIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-vital)]" />
+                  <CheckIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-vital)]" />
                 ) : (
-                  <WarningIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-alarm)]" />
+                  <WarningIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-alert)]" />
                 )}
                 <span
                   className={`min-w-0 flex-1 text-[11px] leading-snug ${
-                    status.kind === 'success' ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-alarm)]'
+                    status.kind === 'success' ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-alert)]'
                   }`}
                 >
                   {status.message}

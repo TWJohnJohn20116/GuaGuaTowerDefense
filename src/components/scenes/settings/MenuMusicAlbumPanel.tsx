@@ -67,7 +67,7 @@ function AlbumCard({
       active={selected}
       className={[
         'group relative flex flex-col transition-colors duration-150',
-        selected ? '' : 'hover:border-[var(--hl-line-hot)]',
+        selected ? '' : 'hover:border-[var(--arc-line-hot)]',
       ].join(' ')}
     >
       <button
@@ -78,35 +78,35 @@ function AlbumCard({
       >
         <span className="flex items-start gap-2.5">
           <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center border border-[var(--hl-line)]"
+            className="flex h-9 w-9 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)]"
             style={{ color: album.accent }}
           >
             {ALBUM_ICONS[album.id] ?? <MusicNotesIcon className="h-5 w-5" />}
           </span>
           <span className="flex min-w-0 flex-1 flex-col gap-1">
-            <span className="truncate text-[13px] font-medium leading-tight text-[var(--hl-ink)]">
+            <span className="truncate text-[13px] font-medium leading-tight text-[var(--arc-ink)]">
               {album.title}
             </span>
-            <span className="line-clamp-2 text-[10.5px] leading-snug text-[var(--hl-ink-3)]">
+            <span className="line-clamp-2 text-[10.5px] leading-snug text-[var(--arc-ink-3)]">
               {album.description}
             </span>
           </span>
         </span>
 
-        <span className="mt-0.5 flex items-center gap-2 border-t border-[var(--hl-line)] pt-2">
-          <span className="hl-label">{remote ? 'remote' : 'local'}</span>
-          <span className="h-px flex-1 bg-[var(--hl-line)]" />
+        <span className="mt-0.5 flex items-center gap-2 border-t border-[var(--cn-line-soft)] pt-2">
+          <span className="arc-label">{remote ? 'remote' : 'local'}</span>
+          <span className="h-px flex-1 bg-[var(--arc-line)]" />
           {remote && (
             <span
               className={`font-mono text-[10px] tabular-nums ${
-                cached ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-ink-3)]'
+                cached ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-ink-3)]'
               }`}
             >
               {cached ? mm.cached : `${cachedCount}/${album.trackCount}`}
             </span>
           )}
           {selected && (
-            <span className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-signal)]">
+            <span className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-gold)]">
               on
             </span>
           )}
@@ -142,26 +142,26 @@ function SelectedAlbumBanner({
 }) {
   const remote = isRemoteMenuAlbum(album);
   return (
-    <div className="col-span-full flex flex-col gap-3 border border-[var(--hl-line)] bg-[var(--hl-deck-2)] p-3 sm:flex-row sm:items-center sm:justify-between">
+    <Deck className="col-span-full flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-center gap-3">
         <span
-          className="flex h-10 w-10 shrink-0 items-center justify-center border border-[var(--hl-line)]"
+          className="flex h-10 w-10 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)]"
           style={{ color: album.accent }}
         >
           {ALBUM_ICONS[album.id] ?? <MusicNotesIcon className="h-5 w-5" />}
         </span>
         <div className="min-w-0">
-          <div className="hl-label">{mm.currentlyUsing}</div>
-          <div className="mt-0.5 truncate text-[13.5px] font-medium text-[var(--hl-ink)]">{album.title}</div>
-          <div className="mt-0.5 truncate text-[10.5px] text-[var(--hl-ink-3)]">{album.description}</div>
+          <div className="arc-label">{mm.currentlyUsing}</div>
+          <div className="mt-0.5 truncate text-[13.5px] font-medium text-[var(--arc-ink)]">{album.title}</div>
+          <div className="mt-0.5 truncate text-[10.5px] text-[var(--arc-ink-3)]">{album.description}</div>
         </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
         {remote && (
-          <div className="flex flex-col items-end border border-[var(--hl-line)] px-2 py-1">
-            <span className="hl-label">{mm.cachedTracks}</span>
-            <span className="font-mono text-[12px] font-semibold tabular-nums text-[var(--hl-ink)]">
+          <div className="flex flex-col items-end border-[3px] border-[var(--cn-line-soft)] px-2 py-1">
+            <span className="arc-label">{mm.cachedTracks}</span>
+            <span className="font-mono text-[12px] font-semibold tabular-nums text-[var(--arc-ink)]">
               {cachedCount} / {album.trackCount}
             </span>
           </div>
@@ -175,7 +175,7 @@ function SelectedAlbumBanner({
           {previewing ? mm.previewStop : mm.previewStart}
         </Btn>
       </div>
-    </div>
+    </Deck>
   );
 }
 
@@ -267,7 +267,7 @@ export function MenuMusicAlbumPanel() {
       columns={3}
     >
       {!jamendoReady && (
-        <p className="col-span-full border-b border-[var(--hl-line)] bg-[var(--hl-void-2)] px-3 py-2 text-[11px] leading-relaxed text-[var(--hl-caution)]">
+        <p className="col-span-full border-b border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-3 py-2 text-[11px] leading-relaxed text-[var(--arc-caution)]">
           {mm.jamendoHint}
         </p>
       )}
@@ -311,7 +311,7 @@ export function MenuMusicAlbumPanel() {
           }
         />
 
-        <div className="flex flex-wrap items-center gap-2 border-t border-[var(--hl-line)] px-3 py-2.5">
+        <div className="flex flex-wrap items-center gap-2 border-t border-[var(--cn-line-soft)] px-3 py-2.5">
           <Btn
             size="sm"
             variant="line"
@@ -330,7 +330,7 @@ export function MenuMusicAlbumPanel() {
             {downloading ? mm.downloading : mm.downloadAlbum}
           </Btn>
           {status && (
-            <span className="ml-auto font-mono text-[10.5px] text-[var(--hl-vital)]">{status}</span>
+            <span className="ml-auto font-mono text-[10.5px] text-[var(--arc-vital)]">{status}</span>
           )}
         </div>
       </div>

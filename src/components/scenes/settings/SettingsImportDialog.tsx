@@ -95,33 +95,33 @@ export function SettingsImportDialog({ open, payload, onClose, onDone }: Props) 
         {open && (
           <SceneModal onClose={onClose} maxWidth="max-w-lg" zIndex="z-[100001]" variant="solid" panelClassName="p-0">
             <Deck notch tone="bare" className="flex max-h-[80vh] flex-col border-0">
-              <div className="flex items-center gap-2.5 border-b border-[var(--hl-line)] px-4 py-3">
-                <span className="flex h-6 w-6 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-2)]">
+              <div className="flex items-center gap-2.5 border-b border-[var(--cn-line-soft)] px-4 py-3">
+                <span className="flex h-6 w-6 items-center justify-center border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-2)]">
                   <UploadIcon className="h-3.5 w-3.5" />
                 </span>
-                <span className="hl-label text-[var(--hl-ink-2)]">{d.title}</span>
-                <span className="h-px flex-1 bg-[var(--hl-line)]" />
-                <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+                <span className="arc-label text-[var(--arc-ink-2)]">{d.title}</span>
+                <span className="h-px flex-1 bg-[var(--arc-line)]" />
+                <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">
                   {String(selectedCount).padStart(2, '0')}
                 </span>
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
-                <div className="mb-2.5 flex flex-col gap-1 border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-2.5 py-2">
-                  <span className="hl-label">{d.backupInfo}</span>
+                <div className="mb-2.5 flex flex-col gap-1 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-2.5 py-2">
+                  <span className="arc-label">{d.backupInfo}</span>
                   <Field label={d.exportedAt}>
-                    <span className="font-mono text-[11px] tabular-nums text-[var(--hl-ink-2)]">
+                    <span className="font-mono text-[11px] tabular-nums text-[var(--arc-ink-2)]">
                       {formatExportDate(payload.exportedAt)}
                     </span>
                   </Field>
-                  <span className="font-mono text-[10px] text-[var(--hl-ink-3)]">
+                  <span className="font-mono text-[10px] text-[var(--arc-ink-3)]">
                     {d.versionSections
                       .replace('{version}', payload.appVersion)
                       .replace('{count}', String(payload.sections.length))}
                   </span>
                 </div>
 
-                <p className="mb-2 font-mono text-[10px] leading-relaxed text-[var(--hl-caution)]">
+                <p className="mb-2 font-mono text-[10px] leading-relaxed text-[var(--arc-caution)]">
                   {d.selectHint}
                 </p>
 
@@ -132,18 +132,18 @@ export function SettingsImportDialog({ open, payload, onClose, onDone }: Props) 
                 />
 
                 {result === 'success' && (
-                  <p className="mt-2.5 flex items-center gap-1.5 font-mono text-[10.5px] text-[var(--hl-vital)]">
+                  <p className="mt-2.5 flex items-center gap-1.5 font-mono text-[10.5px] text-[var(--arc-vital)]">
                     <Dot tone="vital" /> {d.importSuccess}
                   </p>
                 )}
                 {result === 'fail' && (
-                  <p className="mt-2.5 flex items-center gap-1.5 font-mono text-[10.5px] text-[var(--hl-alarm)]">
+                  <p className="mt-2.5 flex items-center gap-1.5 font-mono text-[10.5px] text-[var(--arc-alert)]">
                     <Dot tone="alarm" /> {d.importFailed}
                   </p>
                 )}
               </div>
 
-              <div className="flex flex-col gap-1.5 border-t border-[var(--hl-line)] p-3">
+              <div className="flex flex-col gap-1.5 border-t border-[var(--cn-line-soft)] p-3">
                 <Btn
                   variant="signal"
                   block

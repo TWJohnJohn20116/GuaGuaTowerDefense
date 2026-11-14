@@ -43,7 +43,7 @@ export function SettingsSectionChecklist({
 
   return (
     <>
-      <p className="mb-3 text-[11px] text-[var(--hl-ink-2)]">
+      <p className="mb-3 text-[11px] text-[var(--arc-ink-2)]">
         {ed.checklistSelected
           .replace('{selected}', String(selectedCount))
           .replace('{total}', String(availableSections.length))}
@@ -74,7 +74,7 @@ export function SettingsSectionChecklist({
           if (groupSections.length === 0) return null;
           return (
             <div key={group.title} className={`p-3 ${SCENE_GLASS.listShell}`}>
-              <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+              <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
                 {group.title}
               </div>
               <div className="flex flex-col gap-1.5">

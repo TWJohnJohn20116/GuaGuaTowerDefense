@@ -60,19 +60,19 @@ export default function AboutUpdatePanel({
       )}
 
       {checkStatus === 'available' && updateInfo && (
-        <div className="flex flex-col gap-2.5 border border-[var(--hl-line)] bg-[var(--hl-void-2)] p-2.5">
+        <div className="flex flex-col gap-2.5 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] p-2.5">
           <div className="flex items-center gap-2">
             <Dot tone="signal" pulse />
-            <span className="min-w-0 flex-1 truncate text-[12px] text-[var(--hl-signal)]">
+            <span className="min-w-0 flex-1 truncate text-[12px] text-[var(--arc-gold)]">
               {u.newVersionFound.replace('{version}', updateInfo.latestVersion)}
             </span>
-            <span className="shrink-0 border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-[var(--hl-ink-2)]">
+            <span className="shrink-0 border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-[var(--arc-ink-2)]">
               v{updateInfo.currentVersion} → v{updateInfo.latestVersion}
             </span>
           </div>
 
           {updateInfo.canInstallInApp && (
-            <span className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-vital)]">
+            <span className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-vital)]">
               {u.inAppUpdate}
             </span>
           )}
@@ -96,7 +96,7 @@ export default function AboutUpdatePanel({
           )}
 
           {installProgress.phase === 'error' && (
-            <span className="text-[11px] leading-relaxed text-[var(--hl-alarm)]">
+            <span className="text-[11px] leading-relaxed text-[var(--arc-alert)]">
               {installProgress.errorMessage ?? u.installFailed}
             </span>
           )}
@@ -141,19 +141,19 @@ export default function AboutUpdatePanel({
 function StatusLine({ kind, title, desc }: { kind: 'success' | 'error'; title: string; desc: string }) {
   const tone = kind === 'success' ? 'vital' : 'alarm';
   return (
-    <div className="flex items-start gap-2 border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-2.5 py-2">
+    <div className="flex items-start gap-2 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-2.5 py-2">
       <span className="mt-1">
         <Dot tone={tone} />
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span
           className={`text-[12px] leading-snug ${
-            kind === 'success' ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-alarm)]'
+            kind === 'success' ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-alert)]'
           }`}
         >
           {title}
         </span>
-        <span className="text-[10.5px] leading-snug text-[var(--hl-ink-3)]">{desc}</span>
+        <span className="text-[10.5px] leading-snug text-[var(--arc-ink-3)]">{desc}</span>
       </span>
     </div>
   );
@@ -167,10 +167,10 @@ function InstallProgressBar({ progress, installingLabel, downloadingLabel }: {
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
-        <span className="hl-label">
+        <span className="arc-label">
           {progress.phase === 'installing' ? installingLabel : downloadingLabel}
         </span>
-        <span className="font-mono text-[11px] font-semibold tabular-nums text-[var(--hl-signal)]">
+        <span className="font-mono text-[11px] font-semibold tabular-nums text-[var(--arc-gold)]">
           {progress.percent}%
         </span>
       </div>
@@ -187,11 +187,11 @@ function UpdateNotesPreview({ notes, showFull, onToggle, viewFullLabel, collapse
   collapseLabel: string;
 }) {
   return (
-    <div className="flex flex-col gap-1.5 border border-[var(--hl-line)] bg-[var(--hl-void-2)] p-2.5">
+    <div className="flex flex-col gap-1.5 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] p-2.5">
       <div className="flex items-center gap-2">
-        <span className="hl-label">release-notes</span>
-        <span className="h-px flex-1 bg-[var(--hl-line)]" />
-        <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">{notes.length}</span>
+        <span className="arc-label">release-notes</span>
+        <span className="h-px flex-1 bg-[var(--arc-line)]" />
+        <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">{notes.length}</span>
       </div>
       <div className={showFull ? 'max-h-80 overflow-y-auto' : ''}>
         <MarkdownRenderer

@@ -105,9 +105,9 @@ export function ControlsSection({ filter = '', editingKey, onStartEditKey }: Con
               />
             );
           })}
-          <div className="col-span-full flex items-center gap-2 border-t border-[var(--hl-line)] px-4 py-2.5">
-            <LightbulbIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-ink-3)]" />
-            <span className="font-mono text-[10px] text-[var(--hl-ink-3)]">{t.settings.clickToEdit}</span>
+          <div className="col-span-full flex items-center gap-2 border-t border-[var(--cn-line-soft)] px-4 py-2.5">
+            <LightbulbIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-ink-3)]" />
+            <span className="font-mono text-[10px] text-[var(--arc-ink-3)]">{t.settings.clickToEdit}</span>
             <span className="ml-auto flex items-center gap-1.5">
               <Key>esc</Key>
             </span>
@@ -147,7 +147,7 @@ export function ControlsSection({ filter = '', editingKey, onStartEditKey }: Con
             icon={<MouseIcon className={glyph} />}
             label={t.settings.mouseSensitivity}
             control={
-              <span className="border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums text-[var(--hl-ink-2)]">
+              <span className="border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums text-[var(--arc-ink-2)]">
                 {Math.round(controls.mouseSensitivity * 100)}%
               </span>
             }
@@ -166,7 +166,7 @@ export function ControlsSection({ filter = '', editingKey, onStartEditKey }: Con
             icon={<TargetIcon className={glyph} />}
             label={t.settings.zoomSpeed}
             control={
-              <span className="border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums text-[var(--hl-ink-2)]">
+              <span className="border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums text-[var(--arc-ink-2)]">
                 {Math.round(controls.zoomSpeed * 100)}%
               </span>
             }

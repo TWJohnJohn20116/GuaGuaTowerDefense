@@ -31,7 +31,7 @@ import {
 const swatch = 'flex items-center justify-center border';
 
 function SwatchNote({ children }: { children: React.ReactNode }) {
-  return <span className="font-mono text-[9.5px] leading-none text-[var(--hl-ink-3)]">{children}</span>;
+  return <span className="font-mono text-[9.5px] leading-none text-[var(--arc-ink-3)]">{children}</span>;
 }
 
 // =====================================================
@@ -148,8 +148,8 @@ export function CornerChoice({
             <span
               className={`${swatch} h-5 w-9 ${
                 active
-                  ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]'
-                  : 'border-[var(--hl-line-strong)] bg-[var(--hl-void-2)]'
+                  ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
+                  : 'border-[var(--arc-line-strong)] bg-[var(--arc-void-2)]'
               }`}
               style={{ borderRadius: radius }}
             />
@@ -182,9 +182,9 @@ export function BlurChoice({
         const active = id === value;
         return (
           <SettingsChoiceButton key={id} active={active} layout="stack" onClick={() => onChange(id)}>
-            <span className={`${swatch} h-5 w-9 flex-col gap-[2px] border-[var(--hl-line-strong)] bg-[var(--hl-void-2)]`}>
+            <span className={`${swatch} h-5 w-9 flex-col gap-[2px] border-[var(--arc-line-strong)] bg-[var(--arc-void-2)]`}>
               {Array.from({ length: lines }).map((_, i) => (
-                <span key={i} className="block h-px w-4 bg-[var(--hl-line-hot)] opacity-70" />
+                <span key={i} className="block h-px w-4 bg-[var(--arc-line-hot)] opacity-70" />
               ))}
             </span>
             <SwatchNote>{label}</SwatchNote>
@@ -205,7 +205,7 @@ export function AccentChoice({
   const h = t.settings.hud;
   // 點綴色是遊戲內 HUD 的設定值，所以這裡要顯示實際顏色
   const options: { id: HudAccentColor; label: string; swatch: string }[] = [
-    { id: 'default', label: h.choiceAccentDefault, swatch: 'var(--hl-ink-2)' },
+    { id: 'default', label: h.choiceAccentDefault, swatch: 'var(--arc-ink-2)' },
     { id: 'cyan', label: h.choiceAccentCyan, swatch: '#22d3ee' },
     { id: 'purple', label: h.choiceAccentPurple, swatch: '#c084fc' },
     { id: 'amber', label: h.choiceAccentAmber, swatch: '#fbbf24' },
@@ -261,8 +261,8 @@ export function ColumnsChoice({
                   key={i}
                   className={`h-full w-[7px] border ${
                     active
-                      ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]'
-                      : 'border-[var(--hl-line-strong)] bg-[var(--hl-void-2)]'
+                      ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
+                      : 'border-[var(--arc-line-strong)] bg-[var(--arc-void-2)]'
                   }`}
                 />
               ))}
@@ -297,8 +297,8 @@ export function ButtonSizeChoice({
             <span
               className={`${swatch} ${size} ${
                 active
-                  ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]'
-                  : 'border-[var(--hl-line-strong)] bg-[var(--hl-void-2)]'
+                  ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
+                  : 'border-[var(--arc-line-strong)] bg-[var(--arc-void-2)]'
               }`}
             />
             <SwatchNote>{label}</SwatchNote>
@@ -327,7 +327,7 @@ export function DisplayModeChoice({
       {options.map(({ id, label, sub }) => (
         <SettingsChoiceButton key={id} active={id === value} layout="stack" onClick={() => onChange(id)}>
           <span className="font-mono text-[10.5px] font-semibold leading-none">{label}</span>
-          <span className="font-mono text-[10px] leading-none text-[var(--hl-ink-4)]">{sub}</span>
+          <span className="font-mono text-[10px] leading-none text-[var(--arc-ink-4)]">{sub}</span>
         </SettingsChoiceButton>
       ))}
     </SettingsChoiceRow>
@@ -359,8 +359,8 @@ export function SpacingChoice({
                   key={i}
                   className={`h-3 w-1.5 border ${
                     active
-                      ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]'
-                      : 'border-[var(--hl-line-strong)] bg-[var(--hl-void-2)]'
+                      ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
+                      : 'border-[var(--arc-line-strong)] bg-[var(--arc-void-2)]'
                   }`}
                 />
               ))}
@@ -402,7 +402,7 @@ export function PositionGridChoice({
   const horizontals: HudHorizontalPosition[] = ['left', 'center', 'right'];
 
   return (
-    <div className="flex w-full flex-col gap-2 border border-[var(--hl-line)] bg-[var(--hl-void-2)] p-2.5">
+    <div className="flex w-full flex-col gap-2 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] p-2.5">
       <div className="grid grid-cols-3 gap-1.5">
         {verticals.map((v) =>
           horizontals.map((hor) => {
@@ -417,12 +417,12 @@ export function PositionGridChoice({
                 className={[
                   'flex h-9 items-center justify-center gap-1 border font-mono text-[10px] transition-colors duration-150',
                   active
-                    ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-                    : 'border-[var(--hl-line)] bg-transparent text-[var(--hl-ink-4)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink-2)]',
+                    ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
+                    : 'border-[var(--cn-line-soft)] bg-transparent text-[var(--arc-ink-4)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink-2)]',
                 ].join(' ')}
               >
                 <span
-                  className={`inline-block h-1.5 w-1.5 ${active ? 'bg-[var(--hl-signal)]' : 'bg-[var(--hl-line-hot)]'}`}
+                  className={`inline-block h-1.5 w-1.5 ${active ? 'bg-[var(--arc-gold)]' : 'bg-[var(--arc-line-hot)]'}`}
                 />
                 <span className="truncate">{label}</span>
               </button>
@@ -430,9 +430,9 @@ export function PositionGridChoice({
           })
         )}
       </div>
-      <div className="flex items-center justify-between gap-2 border-t border-[var(--hl-line)] pt-2">
-        <span className="hl-label">{h.choiceCurrentPosition}</span>
-        <span className="font-mono text-[10px] text-[var(--hl-signal)]">
+      <div className="flex items-center justify-between gap-2 border-t border-[var(--cn-line-soft)] pt-2">
+        <span className="arc-label">{h.choiceCurrentPosition}</span>
+        <span className="font-mono text-[10px] text-[var(--arc-gold)]">
           {V_LABEL[vertical]} · {H_LABEL[horizontal]}
         </span>
       </div>
@@ -467,8 +467,8 @@ export function WaveBannerSizeChoice({
             <span
               className={`${swatch} w-10 ${height} ${
                 active
-                  ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]'
-                  : 'border-[var(--hl-line-strong)] bg-[var(--hl-void-2)]'
+                  ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
+                  : 'border-[var(--arc-line-strong)] bg-[var(--arc-void-2)]'
               }`}
             />
             <SwatchNote>{label}</SwatchNote>

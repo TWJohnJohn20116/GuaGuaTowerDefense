@@ -80,7 +80,7 @@ export function HudLayoutSection({ filter = '' }: HudLayoutSectionProps) {
           }
           columns={1}
         >
-          <div className="border-b border-[var(--hl-line)] p-3">
+          <div className="border-b border-[var(--cn-line-soft)] p-3">
             <HudPreviewCard layout={hudLayout} />
           </div>
 
@@ -397,7 +397,7 @@ export function HudLayoutSection({ filter = '' }: HudLayoutSectionProps) {
             label={labels.opacity}
             description={labels.opacityDesc}
             control={
-              <span className="border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums text-[var(--hl-ink-2)]">
+              <span className="border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums text-[var(--arc-ink-2)]">
                 {Math.round(hudLayout.opacity * 100)}%
               </span>
             }

@@ -52,8 +52,8 @@ export function SettingsChoiceButton({
         'border font-mono text-[10.5px] transition-colors duration-150 disabled:pointer-events-none disabled:opacity-35',
         base,
         active
-          ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] font-semibold text-[var(--hl-signal)]'
-          : 'border-[var(--hl-line)] bg-transparent text-[var(--hl-ink-2)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]',
+          ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] font-semibold text-[var(--arc-gold)]'
+          : 'border-[var(--cn-line-soft)] bg-transparent text-[var(--arc-ink-2)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]',
         className,
       ]
         .filter(Boolean)
@@ -70,7 +70,7 @@ export function SettingsChoiceDot({ active }: { active: boolean }) {
     <span
       className={[
         'inline-block h-1.5 w-1.5 shrink-0 transition-colors duration-150',
-        active ? 'bg-[var(--hl-signal)]' : 'bg-[var(--hl-line-hot)]',
+        active ? 'bg-[var(--arc-gold)]' : 'bg-[var(--arc-line-hot)]',
       ].join(' ')}
     />
   );

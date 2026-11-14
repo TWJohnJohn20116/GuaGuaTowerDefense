@@ -28,7 +28,7 @@ import { SettingsLocalFilePanel } from './SettingsLocalFilePanel';
 import { ModalPortal } from '@/components/ui/ModalPortal';
 import { useTranslation } from '@/i18n';
 import { isSettingsPickerDismissed } from '@/i18n/settingsPickerReasons';
-import { Btn, Chip, Deck, Dot } from '@/components/hl';
+import { Btn, Chip, Deck, Dot, Input } from '@/components/hl';
 
 type FileManagerTab = 'vault' | 'local';
 
@@ -178,24 +178,24 @@ export function SettingsFileManagerDialog({ open, onClose, onDone }: Props) {
           >
             <Deck notch tone="bare" className="flex min-h-0 flex-col border-0">
               {/* 標題列 */}
-              <div className="flex items-center gap-2.5 border-b border-[var(--hl-line)] px-4 py-2.5">
-                <span className="flex h-6 w-6 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-2)]">
+              <div className="flex items-center gap-2.5 border-b border-[var(--cn-line-soft)] px-4 py-2.5">
+                <span className="flex h-6 w-6 items-center justify-center border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-2)]">
                   <FolderIcon className="h-3.5 w-3.5" />
                 </span>
                 <div className="min-w-0">
-                  <div className="truncate text-[13.5px] font-medium text-[var(--hl-ink)]">{f.title}</div>
-                  <div className="mt-0.5 truncate font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+                  <div className="truncate text-[13.5px] font-medium text-[var(--arc-ink)]">{f.title}</div>
+                  <div className="mt-0.5 truncate font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
                     {activeTab === 'vault' ? f.vaultDesc : f.localDesc}
                   </div>
                 </div>
-                <span className="h-px flex-1 bg-[var(--hl-line)]" />
+                <span className="h-px flex-1 bg-[var(--arc-line)]" />
                 <Btn variant="ghost" size="sm" onClick={onClose} aria-label={t.common.cancel}>
                   <CrossIcon className="h-3.5 w-3.5" />
                 </Btn>
               </div>
 
               {/* 分頁 */}
-              <div className="flex items-center gap-1.5 border-b border-[var(--hl-line)] px-4 py-2">
+              <div className="flex items-center gap-1.5 border-b border-[var(--cn-line-soft)] px-4 py-2">
                 <Chip active={activeTab === 'vault'} onClick={() => setActiveTab('vault')}>
                   {f.tabVault}
                 </Chip>
@@ -205,7 +205,7 @@ export function SettingsFileManagerDialog({ open, onClose, onDone }: Props) {
               </div>
 
               {activeTab === 'vault' && (
-                <div className="flex items-center gap-1.5 border-b border-[var(--hl-line)] px-4 py-2">
+                <div className="flex items-center gap-1.5 border-b border-[var(--cn-line-soft)] px-4 py-2">
                   <div className="min-w-0 flex-1">
                     <SearchInput
                       value={search}
@@ -237,18 +237,18 @@ export function SettingsFileManagerDialog({ open, onClose, onDone }: Props) {
 
               {activeTab === 'vault' ? (
                 <div className="flex min-h-0 flex-1 flex-col sm:flex-row">
-                  <div className="min-h-0 flex-1 overflow-y-auto border-b border-[var(--hl-line)] sm:border-b-0 sm:border-r">
+                  <div className="min-h-0 flex-1 overflow-y-auto border-b border-[var(--cn-line-soft)] sm:border-b-0 sm:border-r">
                     {loading ? (
                       <div className="flex items-center gap-2 p-4">
                         <Dot tone="signal" pulse />
-                        <span className="font-mono text-[10.5px] text-[var(--hl-ink-3)]">{f.loading}</span>
+                        <span className="font-mono text-[10.5px] text-[var(--arc-ink-3)]">{f.loading}</span>
                       </div>
                     ) : filtered.length === 0 ? (
                       <div className="flex flex-col items-center justify-center gap-2 p-8 text-center">
-                        <FolderIcon className="h-8 w-8 text-[var(--hl-ink-4)]" />
-                        <span className="hl-label">empty</span>
-                        <span className="text-[11.5px] text-[var(--hl-ink-2)]">{f.noBackups}</span>
-                        <span className="text-[10px] text-[var(--hl-ink-3)]">{f.noBackupsHint}</span>
+                        <FolderIcon className="h-8 w-8 text-[var(--arc-ink-4)]" />
+                        <span className="arc-label">empty</span>
+                        <span className="text-[11.5px] text-[var(--arc-ink-2)]">{f.noBackups}</span>
+                        <span className="text-[10px] text-[var(--arc-ink-3)]">{f.noBackupsHint}</span>
                       </div>
                     ) : (
                       filtered.map((file) => {
@@ -259,13 +259,13 @@ export function SettingsFileManagerDialog({ open, onClose, onDone }: Props) {
                             key={file.id}
                             type="button"
                             onClick={() => { setSelectedId(file.id); setRenaming(false); }}
-                            className={`flex w-full items-start gap-2.5 border-b border-[var(--hl-line)] px-3 py-2.5 text-left transition-colors duration-150 last:border-b-0 ${
-                              active ? 'bg-[var(--hl-signal-veil)]' : 'hover:bg-[var(--hl-deck-2)]'
+                            className={`flex w-full items-start gap-2.5 border-b border-[var(--cn-line-soft)] px-3 py-2.5 text-left transition-colors duration-150 last:border-b-0 ${
+                              active ? 'bg-[var(--arc-gold-veil)]' : 'hover:bg-[var(--arc-deck-2)]'
                             }`}
                           >
                             <span
                               className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center ${
-                                active ? 'text-[var(--hl-signal)]' : 'text-[var(--hl-ink-4)]'
+                                active ? 'text-[var(--arc-gold)]' : 'text-[var(--arc-ink-4)]'
                               }`}
                             >
                               <DocumentIcon className="h-3.5 w-3.5" />
@@ -273,12 +273,12 @@ export function SettingsFileManagerDialog({ open, onClose, onDone }: Props) {
                             <span className="min-w-0 flex-1">
                               <span
                                 className={`block truncate text-[12px] ${
-                                  active ? 'font-medium text-[var(--hl-ink)]' : 'text-[var(--hl-ink-2)]'
+                                  active ? 'font-medium text-[var(--arc-ink)]' : 'text-[var(--arc-ink-2)]'
                                 }`}
                               >
                                 {file.name}
                               </span>
-                              <span className="mt-0.5 block truncate font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">
+                              <span className="mt-0.5 block truncate font-mono text-[9.5px] tabular-nums text-[var(--arc-ink-4)]">
                                 {formatDate(file.updatedAt)} · {size} · {file.payload.sections.length} {f.sectionsUnit}
                               </span>
                             </span>
@@ -293,10 +293,10 @@ export function SettingsFileManagerDialog({ open, onClose, onDone }: Props) {
                       <>
                         {renaming ? (
                           <div className="flex flex-col gap-1.5">
-                            <input
+                            <Input
                               value={renameValue}
                               onChange={(e) => setRenameValue(e.target.value)}
-                              className="h-9 border border-[var(--hl-line-strong)] bg-[var(--hl-void-2)] px-2.5 font-mono text-[11.5px] text-[var(--hl-ink)] outline-none focus:border-[var(--hl-signal)]"
+                              className="h-9 font-mono text-[11.5px]"
                             />
                             <div className="flex gap-1.5">
                               <Btn variant="signal" size="sm" block onClick={() => void submitRename()}>
@@ -309,15 +309,15 @@ export function SettingsFileManagerDialog({ open, onClose, onDone }: Props) {
                           </div>
                         ) : (
                           <>
-                            <h4 className="truncate text-[13px] font-medium text-[var(--hl-ink)]">{selected.name}</h4>
-                            <p className="font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">
+                            <h4 className="truncate text-[13px] font-medium text-[var(--arc-ink)]">{selected.name}</h4>
+                            <p className="font-mono text-[9.5px] tabular-nums text-[var(--arc-ink-4)]">
                               {formatDate(selected.updatedAt)}
                             </p>
                             <div className="flex flex-wrap gap-1">
                               {selected.payload.sections.map((s) => (
                                 <span
                                   key={s}
-                                  className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase leading-none tracking-[0.08em] text-[var(--hl-ink-3)]"
+                                  className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase leading-none tracking-[0.08em] text-[var(--arc-ink-3)]"
                                 >
                                   {SETTINGS_SECTION_LABELS[s]}
                                 </span>
@@ -327,7 +327,7 @@ export function SettingsFileManagerDialog({ open, onClose, onDone }: Props) {
                         )}
 
                         {!renaming && (
-                          <div className="mt-auto flex flex-col gap-1.5 border-t border-[var(--hl-line)] pt-2.5">
+                          <div className="mt-auto flex flex-col gap-1.5 border-t border-[var(--cn-line-soft)] pt-2.5">
                             <Btn variant="signal" block onClick={handleImportSelected}>
                               {f.importBackup}
                             </Btn>
@@ -355,7 +355,7 @@ export function SettingsFileManagerDialog({ open, onClose, onDone }: Props) {
                         )}
                       </>
                     ) : (
-                      <p className="py-6 text-center font-mono text-[10.5px] text-[var(--hl-ink-4)]">
+                      <p className="py-6 text-center font-mono text-[10.5px] text-[var(--arc-ink-4)]">
                         {f.selectBackupHint}
                       </p>
                     )}
@@ -369,16 +369,16 @@ export function SettingsFileManagerDialog({ open, onClose, onDone }: Props) {
               )}
 
               {status && (
-                <div className="flex items-center gap-2 border-t border-[var(--hl-line)] px-4 py-2">
+                <div className="flex items-center gap-2 border-t border-[var(--cn-line-soft)] px-4 py-2">
                   <Dot tone={status.kind === 'success' ? 'vital' : 'alarm'} />
                   {status.kind === 'success' ? (
-                    <CheckIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-vital)]" />
+                    <CheckIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-vital)]" />
                   ) : (
-                    <WarningIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-alarm)]" />
+                    <WarningIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-alert)]" />
                   )}
                   <span
                     className={`min-w-0 flex-1 truncate text-[11px] ${
-                      status.kind === 'success' ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-alarm)]'
+                      status.kind === 'success' ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-alert)]'
                     }`}
                   >
                     {status.message}
