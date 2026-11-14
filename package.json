@@ -21,6 +21,9 @@
     "test:coverage": "vitest run --coverage",
     "tauri": "tauri"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-process": "^2.3.1",
@@ -49,6 +52,7 @@
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "vite": "^5.4.21"
   }
 }
