@@ -1,8 +1,8 @@
 /**
- * 設定 · HARDLINE 選項按鈕群
+ * 設定 · 選項按鈕群（CANDY POP）
  *
- * 只有兩種狀態：方框（未選）與訊號膜（選中）。全專案設定場景共用同一組。
- * 不引入分類色，避免一頁出現第二個主色。
+ * 只有兩種狀態：白底細框（未選）與珊瑚膜 + 珊瑚投影（選中）。
+ * 這一組是設定頁唯一的「多選一」外觀，難度卡與波次方塊也用同一個視覺邏輯。
  */
 
 import type React from 'react';
@@ -49,11 +49,12 @@ export function SettingsChoiceButton({
       onClick={onClick}
       onMouseEnter={() => playUiHover()}
       className={[
-        'border font-mono text-[10.5px] transition-colors duration-150 disabled:pointer-events-none disabled:opacity-35',
+        'rounded-[var(--cn-r-sm)] border-[3px] font-mono text-[11px] font-bold transition-[background-color,border-color,color,box-shadow] duration-150',
+        'disabled:pointer-events-none disabled:opacity-35',
         base,
         active
-          ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] font-semibold text-[var(--arc-gold)]'
-          : 'border-[var(--cn-line-soft)] bg-transparent text-[var(--arc-ink-2)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]',
+          ? 'border-[var(--cn-line)] bg-[var(--cn-coral-soft)] text-[var(--cn-coral-deep)] shadow-[0_3px_0_var(--cn-coral-deep)]'
+          : 'border-[var(--cn-line-soft)] bg-[var(--cn-card)] text-[var(--cn-ink-2)] hover:border-[var(--cn-line-mid)] hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)]',
         className,
       ]
         .filter(Boolean)
@@ -64,13 +65,13 @@ export function SettingsChoiceButton({
   );
 }
 
-/** 未選／選中的方塊指示點（方形，不用圓點） */
+/** 未選／選中的指示點 */
 export function SettingsChoiceDot({ active }: { active: boolean }) {
   return (
     <span
       className={[
-        'inline-block h-1.5 w-1.5 shrink-0 transition-colors duration-150',
-        active ? 'bg-[var(--arc-gold)]' : 'bg-[var(--arc-line-hot)]',
+        'inline-block h-1.5 w-1.5 shrink-0 rounded-full transition-colors duration-150',
+        active ? 'bg-[var(--cn-coral)]' : 'bg-[var(--cn-line-mid)]',
       ].join(' ')}
     />
   );
