@@ -728,8 +728,15 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 | 多尺寸 | `node scripts/visual-check.mjs --sizes=1600x900,1280x800` |
 | 重用已開的 dev server | `node scripts/visual-check.mjs --server=http://localhost:10050` |
 | 只要截圖不要 DOM 檢查 | `node scripts/visual-check.mjs --no-dom` |
+| 整頁長圖（看主鍵是否被推到摺疊線下） | `node scripts/visual-check.mjs --full-page` |
+| 局部特寫（Modal／卡片原尺寸） | `node scripts/visual-check.mjs --clip=[role=dialog]` |
+| 2x 裝置像素（Retina 模糊、1px 邊框） | `node scripts/visual-check.mjs --dpr=2` |
+| 跳過頁內稽核，只跑舊的七項 | `node scripts/visual-check.mjs --no-audit` |
+| 警告升級成硬失敗（CI 用） | `node scripts/visual-check.mjs --strict` |
 
-19 個場景約 20 秒（單一瀏覽器實例 + CDP，見工具檔頭說明）。
+19 個場景約 20–22 秒（單一瀏覽器實例 + CDP，見工具檔頭說明）；`--full-page`／`--dpr=2` 會多花時間。
+
+工具由三支選配模組組成：`scripts/visual-audit.mjs`（頁內稽核表達式）、`scripts/visual-pixel.mjs`（像素統計）、`scripts/visual-sheet.mjs`（總表分組排版）。缺檔會自動降級回舊的七項檢查。
 
 #### 必做六步（少一步就算沒驗證）
 
@@ -798,11 +805,24 @@ node scripts/visual-check.mjs --sizes=1600x900,1280x800,390x844
 
 全部在 `.shots/`，**不進版控**（§4.8）。
 
-#### 工具會檢查什麼（抓到這七項）
+#### 工具會檢查什麼
 
-截圖存在、尺寸與要求相符、檔案 > 20KB、可讀文字 > 120 字、無 Vite 錯誤覆蓋層、無 JS 崩潰字樣、`#root` 存在。
+**硬失敗（`pass=false`）**：截圖存在、尺寸與要求相符（含 dpr 換算）、像素判空（唯一色數／邊緣密度，取代舊的 >20KB 門檻）、可讀文字 > 120 字、無 Vite 錯誤覆蓋層、無 JS 崩潰字樣、無本站 console error／資源載入失敗。
 
-**它抓不到**：對比度不足、元素互相遮擋、留白失衡、字級不對、顏色刺眼。**那些只能看圖。**
+**警告（預設不判失敗，`--strict` 才升級）**：
+
+| 類別 | 來源 | 抓什麼 |
+|---|---|---|
+| `contrast` | 頁內稽核 | 直接文字節點的 WCAG 比值低於要求（小字 4.5／大字 3），附 selector、前景／背景、字級 |
+| `truncated` | 頁內稽核 | `overflow:hidden/ellipsis` 造成 scrollWidth > clientWidth |
+| `overflow` | 頁內稽核 | 關鍵元素超出視口（已排除可滾動容器內的正當溢出） |
+| `occlusion` | 頁內稽核 | 關鍵元素被非祖先、非版面容器（面積小於半個視口）的元素蓋住，附覆蓋率 |
+| `console` | CDP 事件 | warning 級 console 與 `[更新檢查]` 這類環境錯誤 |
+| `external` | CDP 事件 | 非本站資源失敗（音樂 API、CDN）——不影響版面，只有本站資源才算失敗 |
+
+每格在總表上標「N 警告」並用黃框；`report.json` 內含 `audit`（明細前 40 條）與 `stats`（像素統計）。
+
+**它抓不到**：留白失衡、字級節奏、顏色刺眼、hover／focus 的視覺差異（第 11 項仍要用 `--js` 觸發後看圖）。**那些只能看圖。**
 
 #### 每個場景必看的 12 項（看圖時的檢查表）
 
@@ -836,7 +856,7 @@ node scripts/visual-check.mjs --sizes=1600x900,1280x800,390x844
 
 #### 已知未修（看圖看到但尚未處理）
 
-- 成就通知固定右下，在戰鬥畫面會蓋住塔塢面板、在選圖會蓋住「自訂」難度卡。
+- 成就通知固定右下，在戰鬥畫面會蓋住塔塢面板、在選圖會蓋住「自訂」難度卡。**`occlusion` 警告現在會自動列出覆蓋率與被蓋的元素**，修 UI 時直接查 `report.json` 的 `warnings` 中 `kind=occlusion` 那筆。
 - `game` 場景頂部 HUD 條在截圖中偏薄，需單獨放大確認是圖層還是高度問題。
 - `talentTree` 未解鎖節點的低對比是設計（0 點時全暗），不是 bug。
 
