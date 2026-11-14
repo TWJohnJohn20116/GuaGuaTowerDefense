@@ -35,8 +35,6 @@ const Encyclopedia = lazy(() => import('@/components/scenes/Encyclopedia'));
 const Changelog = lazy(() => import('@/components/scenes/Changelog'));
 const CreativeWorkshop = lazy(() => import('@/components/scenes/CreativeWorkshop'));
 const Achievements = lazy(() => import('@/components/scenes/Achievements'));
-const DailyChallenge = lazy(() => import('@/components/scenes/DailyChallenge'));
-const MutatorChallenge = lazy(() => import('@/components/scenes/MutatorChallenge'));
 const Skins = lazy(() => import('@/components/scenes/Skins'));
 const Shop = lazy(() => import('@/components/scenes/Shop'));
 const ModEditor = lazy(() => import('@/components/scenes/ModEditor'));
@@ -44,7 +42,6 @@ const ModManager = lazy(() => import('@/components/scenes/ModManager'));
 const MapEditor = lazy(() => import('@/components/scenes/MapEditor'));
 const TalentTree = lazy(() => import('@/components/scenes/TalentTree'));
 const Replay = lazy(() => import('@/components/scenes/Replay'));
-const Memorial = lazy(() => import('@/components/scenes/Memorial'));
 const Statistics = lazy(() => import('@/components/scenes/Statistics'));
 const GameOver = lazy(() => import('@/components/scenes/GameOver'));
 const Victory = lazy(() => import('@/components/scenes/Victory'));
@@ -66,8 +63,6 @@ const SCENE_COMPONENTS: Record<GameScene, ComponentType> = {
   changelog: Changelog,
   workshop: CreativeWorkshop,
   achievements: Achievements,
-  dailyChallenge: DailyChallenge,
-  mutatorChallenge: MutatorChallenge,
   skins: Skins,
   shop: Shop,
   modEditor: ModEditor,
@@ -75,7 +70,6 @@ const SCENE_COMPONENTS: Record<GameScene, ComponentType> = {
   mapEditor: MapEditor,
   talentTree: TalentTree,
   replay: Replay,
-  memorial: Memorial,
   statistics: Statistics,
   gameOver: GameOver,
   victory: Victory,
