@@ -418,7 +418,7 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
           spawnElapsedRef.current >= spawnQueueRef.current[0].delay
         ) {
           const spawn = spawnQueueRef.current.shift()!;
-          spawnEnemy(spawn.type as any);
+          spawnEnemy(spawn.type);
         }
 
         const s = useGameStore.getState();

@@ -13,9 +13,10 @@ import { SectionHeader, BriefingHero, BriefingFooter, EmptyBriefing, Badge } fro
 import { calculatePathStats } from './utils';
 import { DifficultyRow, StatsGrid, CustomSliders, ModePanel, DIFFICULTY_META } from './briefing';
 import { getPathDifficultyLabel, getDifficultyMeta } from './sidebar/difficulty';
+import type { MapItemData } from './sidebar/MapRow';
 
 export interface MapBriefingProps {
-  selectedMap: any;
+  selectedMap: MapItemData | undefined;
   selectedDifficulty: GameDifficulty;
   setSelectedDifficulty: (d: GameDifficulty) => void;
   endlessMode: boolean;

@@ -205,7 +205,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         skillsUsed++;
         
         const skillData = SKILL_DATA[cand.skillId as keyof typeof SKILL_DATA];
-        const towerData = getTowerData(cand.towerType as any);
+        const towerData = getTowerData(cand.towerType);
         const sName = strategy === 'balanced' ? '平衡' : strategy === 'economy' ? '經濟' : strategy === 'aggressive' ? '積極' : '防守';
         
         const thinkingSteps = [

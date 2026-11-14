@@ -172,8 +172,8 @@ export const FloatingTowerPanel = ({
   );
   const isJammed = jamFireRateMult < 1;
 
-  const baseDmg = data.damage || (data as any).damagePerSecond || 0;
-  const isFlame = !!(data as any).flameEffect;
+  const baseDmg = data.damage || data.damagePerSecond || 0;
+  const isFlame = !!data.flameEffect;
 
   const statBonus = getTowerStatBonus(selectedTower);
   const nextBonus = getTowerStatBonus({

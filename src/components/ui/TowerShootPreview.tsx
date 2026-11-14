@@ -10,11 +10,11 @@ type AttackType = 'projectile' | 'laser' | 'lightning' | 'flame' | 'wind' | 'non
 const getAttackType = (id: string): AttackType => {
   const d = TOWER_DATA[id as keyof typeof TOWER_DATA];
   if (!d) return 'projectile';
-  if ((d as any).moneyGeneration) return 'none';
-  if ((d as any).windEffect) return 'wind';
-  if ((d as any).flameEffect) return 'flame';
-  if ((d as any).lightningEffect) return 'lightning';
-  if ((d as any).laserEffect) return 'laser';
+  if (d.moneyGeneration) return 'none';
+  if (d.windEffect) return 'wind';
+  if (d.flameEffect) return 'flame';
+  if (d.lightningEffect) return 'lightning';
+  if (d.laserEffect) return 'laser';
   return 'projectile';
 };
 

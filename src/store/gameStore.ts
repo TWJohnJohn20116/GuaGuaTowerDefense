@@ -264,7 +264,7 @@ export const useGameStore = create<GameStore>()(
         const mods = useModStore.getState().mods;
         for (const mod of mods) {
           if (!mod.enabled) continue;
-          const modMap = mod.content.maps?.find((m: any) => m.id === actualPathName);
+          const modMap = mod.content.maps?.find((m) => m.id === actualPathName);
           if (modMap) {
             (PATHS as Record<string, PathConfig>)[actualPathName] = {
               name: modMap.name,

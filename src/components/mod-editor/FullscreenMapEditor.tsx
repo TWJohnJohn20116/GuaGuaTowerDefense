@@ -488,7 +488,13 @@ export const FullscreenMapEditor = ({
   }, [dimensions, map.waypoints, map.blockedCells, offsetX, offsetY, tileSize, GRID_COLS, GRID_ROWS, showGrid, showPreview, previewTime, mode, hoverPos, selectedPointIndex]);
 
   // 工具列按鈕組件
-  const ToolBtn = ({ icon: Icon, active, onClick, tooltip }: any) => (
+  interface ToolBtnProps {
+    icon: React.ComponentType<{ className?: string }>;
+    active?: boolean;
+    onClick: () => void;
+    tooltip: string;
+  }
+  const ToolBtn = ({ icon: Icon, active, onClick, tooltip }: ToolBtnProps) => (
     <Btn
       size="sm"
       variant="ghost"
