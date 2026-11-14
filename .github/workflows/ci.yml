@@ -29,7 +29,7 @@
 # 結論：job 開得越多，每個 VM 的冷啟動越慢，所以「再拆」是負優化。這一版反過來收斂：
 #
 #   1. 型別與建置合併成一個 static job（固定成本只付一次；型別命中快取時只 2s）
-#   2. 單元測試切 4 片（每片 ~12s 工作量，與 static 的工作量對齊）
+#   2. 單元測試切 5 片（每片 ~12s 工作量，與 static 的工作量對齊）
 #   3. tsc 開 --incremental ＋快取 .tsbuildinfo（key 含 tsconfig 與 lock 的 hash）
 #   4. npm ci 加 --no-audit --no-fund --prefer-offline
 #   5. summary 只在有 job 失敗時才跑（成功時它要排在所有 job 之後，白等 6–9s）
@@ -78,10 +78,10 @@ env:
   # 用 Node 20（npm 10）會對 vitest@4 的嵌套 vite 解析出不同樹，
   # 導致 npm ci 判定 lock 不完整（Missing: esbuild@0.28.2）。
   NODE_VERSION: '24'
-  # 測試分片數。實測每片工作量 ≈ 3s 啟動 + 44s/片數，所以片數越多每片越短，
-  # 但每個 job 的固定成本是 6–20s，片數一多就會有多個 VM 同時冷啟動（見檔頭實驗）。
-  # 4 片 ≈ 每片 12s 工作量，剛好與 static job 對齊。
-  TEST_SHARDS: 4
+  # 測試分片數。實測每片工作量 ≈ 3s 啟動 + 44s/片數；片數少→每片長，片數多→
+  # 更多 VM 一起冷啟動（固定成本 6–20s）。實測：4 片時每片 15–20s（wall 33s）、
+  # 8 片時每片 6–9s 但有個別 job 固定成本衝到 17s（wall 41s）。5 片是折衷。
+  TEST_SHARDS: 5
 
 jobs:
   # ─────────────────────────────────────────────
@@ -145,14 +145,14 @@ jobs:
   # 單元測試：vitest 分片平行跑，任一片紅就算紅
   # ─────────────────────────────────────────────
   test:
-    name: 單元測試（第 ${{ matrix.shard }} 片 / 共 4 片）
+    name: 單元測試（第 ${{ matrix.shard }} 片 / 共 5 片）
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       # 一片紅了其他片也跑完，方便一次看到所有失敗
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5]
 
     steps:
       - name: 取得原始碼
