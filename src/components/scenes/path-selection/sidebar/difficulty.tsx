@@ -1,8 +1,11 @@
 /**
- * 地圖難度 · 資料色對照（HARDLINE）
+ * 地圖難度 · 資料色對照（CANDY POP）
  *
- * 難度是資料狀態，只用 --arc-* 資料色標記；不做漸層 chip、不做發光。
+ * 難度是資料狀態，只用資料色標記；不做漸層 chip、不做發光。
  * 刻度一律 5 格，餵給 <Segments total={5}>。
+ *
+ * text 用的是「深色版」（*-deep）：清單右側的 10px 數字要對白底 ≥ 4.5:1，
+ * 亮的薄荷／葡萄／鵝黃只適合當填色（bar），不能當小字顏色。
  */
 
 import type { Translations } from '@/i18n';
@@ -24,17 +27,17 @@ export interface DifficultyMeta {
 }
 
 const TONE_TEXT: Record<DifficultyTone, string> = {
-  vital: 'text-[var(--arc-vital)]',
-  reach: 'text-[var(--arc-reach)]',
-  caution: 'text-[var(--arc-caution)]',
-  alarm: 'text-[var(--arc-alert)]',
+  vital: 'text-[var(--cn-mint-deep)]',
+  reach: 'text-[var(--cn-grape-deep)]',
+  caution: 'text-[var(--cn-sun-deep)]',
+  alarm: 'text-[var(--cn-alert-deep)]',
 };
 
 const TONE_BAR: Record<DifficultyTone, string> = {
-  vital: 'bg-[var(--arc-vital)]',
-  reach: 'bg-[var(--arc-reach)]',
-  caution: 'bg-[var(--arc-caution)]',
-  alarm: 'bg-[var(--arc-alert)]',
+  vital: 'bg-[var(--cn-mint)]',
+  reach: 'bg-[var(--cn-grape)]',
+  caution: 'bg-[var(--cn-sun)]',
+  alarm: 'bg-[var(--cn-alert)]',
 };
 
 const meta = (tone: DifficultyTone, stars: number): DifficultyMeta => ({

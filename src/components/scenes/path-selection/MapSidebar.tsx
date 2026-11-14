@@ -1,17 +1,18 @@
 /**
- * 地圖選擇 · 左軌內容（HARDLINE Rail 212px）
+ * 地圖選擇 · 左軌內容（CANDY POP Rail）
  *
- * 清單就是帳本：mono 編號 + 名稱 + 資料。搜尋與難度篩選貼在清單頂端，
- * 選中只有左緣 2px 訊號條，沒有縮圖卡、沒有縮放動畫。
+ * 搜尋與難度篩選貼在清單頂端的凹槽裡，清單本體維持「一列一張圖」的節奏，
+ * 底部是筆數與重置。這裡不畫預覽圖：主區的地圖卡才是預覽的唯一位置。
  */
 
 import { useMemo, useState } from 'react';
 import { useTranslation } from '@/i18n';
-import { Btn, Empty, Input, Rule } from '@/components/hl';
+import { Btn, Input, Rule } from '@/components/hl';
 import {
   SidebarHeader,
   DifficultyChips,
   MapRow,
+  EmptyState,
   DIFFICULTY_ORDER,
   type MapCategory,
   type MapItemData,
@@ -84,24 +85,26 @@ export function MapSidebar({
     <div className="flex h-full min-h-0 flex-col">
       <SidebarHeader activeCategory={activeCategory} mapCount={currentMaps.length} />
 
-      <div className="border-b border-[var(--cn-line-soft)] px-2 py-2">
-        <Input
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          placeholder={c.searchMapsPlaceholder}
-          aria-label={c.searchMapsPlaceholder}
-        />
-        <div className="mt-1.5">
-          <DifficultyChips
-            available={availableDifficulties}
-            activeFilters={difficultyFilters}
-            onToggle={toggleDifficulty}
-            onReset={resetFilters}
+      <div className="px-2 py-2">
+        <div className="rounded-[var(--cn-r-md)] border-2 border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] p-1.5">
+          <Input
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder={c.searchMapsPlaceholder}
+            aria-label={c.searchMapsPlaceholder}
           />
+          <div className="mt-1.5">
+            <DifficultyChips
+              available={availableDifficulties}
+              activeFilters={difficultyFilters}
+              onToggle={toggleDifficulty}
+              onReset={resetFilters}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col pb-1">
         {filteredMaps.length > 0 ? (
           filteredMaps.map((map, i) => (
             <MapRow
@@ -113,23 +116,22 @@ export function MapSidebar({
             />
           ))
         ) : hasActiveFilter ? (
-          <Empty title={c.noMapsFound} hint={c.noMapsFoundHint} className="m-2" />
+          <EmptyState title={c.noMapsFound} hint={c.noMapsFoundHint} />
         ) : (
-          <Empty
+          <EmptyState
             title={
               activeCategory === 'mod'
                 ? t.pathSelectionExt?.noModMaps || c.sidebarMod
                 : c.noAdvancedMaps
             }
             hint={activeCategory === 'mod' ? t.pathSelectionExt?.enableModMaps : undefined}
-            className="m-2"
           />
         )}
       </div>
 
       <Rule />
       <div className="flex items-center justify-between gap-2 px-2 py-2">
-        <span className="min-w-0 truncate font-mono text-[9.5px] tabular-nums uppercase tracking-[0.1em] text-[var(--arc-ink-4)]">
+        <span className="min-w-0 truncate font-mono text-[9.5px] font-extrabold uppercase tracking-[0.08em] text-[var(--cn-ink-4)]">
           {c.mapsCount
             .replace('{filtered}', String(filteredMaps.length))
             .replace('{total}', String(currentMaps.length))}

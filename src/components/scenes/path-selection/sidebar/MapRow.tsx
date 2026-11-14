@@ -1,16 +1,15 @@
 /**
- * 地圖側欄 · 列表項目（HARDLINE）
+ * 地圖側欄 · 列表項目（CANDY POP）
  *
- * 一行一列：mono 編號 + 名稱 + 右側資料（路徑長度／轉角／難度刻度）。
- * 用 RailItem，選中只有左緣 2px 訊號條，沒有縮圖、沒有縮放動畫。
+ * 一行一列：編號圓牌 + 名稱 + 右側數據（路徑長度、難度刻度）。
+ * 選中時不再於列內展開預覽——主區已有大張預覽，列內再畫一個 canvas
+ * 會讓清單在點選瞬間被推歪，也讓同一張圖被畫兩次。
  */
 
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import { useTranslation } from '@/i18n';
 import type { PathConfig } from '@/types/game';
 import { RailItem } from '@/components/hl';
-import { PathPreview } from '../PathPreview';
-import { calculatePathStats } from '../utils';
 import { getDifficultyMeta, getPathDifficultyLabel } from './difficulty';
 import { isHiddenCampaignMap, getHiddenMapBrowseHint } from '@/data/gameData/hiddenCampaignMaps';
 
@@ -29,21 +28,15 @@ interface MapRowProps {
   map: MapItemData;
   selected: boolean;
   onClick: () => void;
-  /** 1 起算的 mono 編號 */
+  /** 1 起算的編號 */
   index: number;
-  /** 選中時在主區預覽用（縮圖不再進側欄） */
-  showPreview?: boolean;
 }
 
-function MapRowComponent({ map, selected, onClick, index, showPreview = false }: MapRowProps) {
+function MapRowComponent({ map, selected, onClick, index }: MapRowProps) {
   const { t } = useTranslation();
   const c = t.pathSelection.campaign;
   const meta = getDifficultyMeta(map.difficulty);
   const difficultyLabel = getPathDifficultyLabel(map.difficulty, t);
-  const stats = useMemo(
-    () => calculatePathStats(map.path.waypoints, map.path.segments),
-    [map.path],
-  );
   const isLocked = !!map.isLocked;
   const hiddenHint = map.type === 'advanced' ? getHiddenMapBrowseHint(map.key) : null;
 
@@ -54,22 +47,25 @@ function MapRowComponent({ map, selected, onClick, index, showPreview = false }:
         active={selected}
         onClick={isLocked ? undefined : onClick}
         label={
-          <span className={isLocked ? 'text-[var(--arc-ink-4)]' : undefined}>{map.name}</span>
+          <span className={isLocked ? 'text-[var(--cn-ink-4)]' : undefined}>{map.name}</span>
         }
         right={
           <span className="flex shrink-0 items-center gap-1.5">
             {map.type === 'mod' && map.modName && (
-              <span className="max-w-[52px] truncate border-[3px] border-[var(--cn-line-soft)] px-1 font-mono text-[9px] leading-[14px] text-[var(--arc-ink-4)]">
+              <span
+                className="max-w-[52px] truncate rounded-[var(--cn-r-pill)] border-2 border-[var(--cn-line-soft)] px-1.5 font-mono text-[9px] font-extrabold leading-[14px] text-[var(--cn-ink-4)]"
+                title={map.modName}
+              >
                 mod
               </span>
             )}
             {isHiddenCampaignMap(map.key) && (
-              <span className="border border-[var(--arc-caution)]/40 px-1 font-mono text-[9px] leading-[14px] text-[var(--arc-caution)]">
+              <span className="rounded-[var(--cn-r-pill)] border-2 border-[var(--cn-sun)] bg-[var(--cn-sun-soft)] px-1.5 font-mono text-[9px] font-extrabold leading-[14px] text-[var(--cn-sun-deep)]">
                 9
               </span>
             )}
             <span
-              className={`font-mono text-[10px] tabular-nums ${isLocked ? 'text-[var(--arc-ink-4)]' : meta.text}`}
+              className={`font-mono text-[10px] font-extrabold tabular-nums ${isLocked ? 'text-[var(--cn-ink-4)]' : meta.text}`}
               title={c.difficultyTitle.replace('{difficulty}', difficultyLabel)}
             >
               {meta.stars}/5
@@ -78,22 +74,8 @@ function MapRowComponent({ map, selected, onClick, index, showPreview = false }:
         }
       />
 
-      {(selected || showPreview) && !isLocked && (
-        <div className="border-b border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-2 py-2">
-          <div className="flex items-center justify-between pb-1.5">
-            <span className="arc-label">{c.pathLengthTitle}</span>
-            <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-2)]">
-              {stats.length}
-              <span className="ml-2 text-[var(--arc-ink-4)]">{c.turnCountTitle}</span>
-              <span className="ml-1">{stats.turns}</span>
-            </span>
-          </div>
-          <PathPreview pathConfig={map.path} size="small" className="w-full border-[3px] border-[var(--cn-line-soft)]" />
-        </div>
-      )}
-
       {hiddenHint && (
-        <p className="border-b border-[var(--cn-line-soft)] px-3 pb-2 text-[10px] leading-relaxed text-[var(--arc-caution)]/80">
+        <p className="border-b border-[var(--cn-line-soft)] px-3 pb-2 text-[10px] font-semibold leading-relaxed text-[var(--cn-sun-deep)]">
           {hiddenHint}
         </p>
       )}
