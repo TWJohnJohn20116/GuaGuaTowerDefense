@@ -34,6 +34,7 @@ import {
   resolveWalkZoomDelta,
 } from '@/data/cameraControlSpeeds';
 import { resolveDisplayedTileType, shouldShowEnemyPathFx } from '@/data/enemyPathVisibility';
+import { createRenderSnapshot, writeRenderSnapshot } from '@/data/renderSnapshot';
 import { createWalkers3D, createPlayerWalker, type Walkers3D, type PlayerWalker } from './walker3d';
 import { buildTowerModel, disposeTowerModel } from './towerModels3d';
 import { createAttackLights3D } from './attackLights3d';
@@ -529,13 +530,18 @@ export function GameScene3D() {
     const particleInstances = createParticleInstances(scene);
     const towerHealthBars = createTowerHealthBars3D(scene);
 
+    // 每幀渲染 snapshot：純函式層產出「這一幀」的實體視覺欄位，2D 用同一份契約。
+    // 緩衝只建立一次、逐幀原地寫入（每幀零配置，見 data/renderSnapshot.ts 的說明）。
+    const enemySnapshot = createRenderSnapshot();
+
     // 每幀同步 store → 場景
     const syncEntities = (dtSec: number) => {
       const { enemies, towers, projectiles } = useGameStore.getState();
       const visualSettings = useSettingsStore.getState().visual;
 
       // --- 敵人 + 血條（InstancedMesh 單 draw call；血條受設定開關控制）---
-      enemyInstances.sync(enemies, toWorld, camera.quaternion, visualSettings.showHealthBars);
+      writeRenderSnapshot({ enemies }, enemySnapshot, Date.now());
+      enemyInstances.sync(enemySnapshot, toWorld, camera.quaternion, visualSettings.showHealthBars);
 
       // --- 塔（差異化模型；等級變化時重建以更新等級環）---
       const aliveTower = new Set<string>();

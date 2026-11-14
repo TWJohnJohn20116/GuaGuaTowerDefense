@@ -11,9 +11,8 @@
  */
 
 import * as THREE from 'three';
-import type { Enemy, Projectile, ImpactParticle } from '@/types/game';
-import { ENEMY_DATA } from '@/data/gameData';
-import { getEnemyStealthFade, getEnemyPhaseFade } from '@/store/gameStoreUtils';
+import type { Projectile, ImpactParticle } from '@/types/game';
+import type { RenderSnapshot } from '@/data/renderSnapshot';
 
 const MAX_ENEMIES = 512;
 const MAX_PROJECTILES = 1024;
@@ -44,7 +43,7 @@ const safeColor = (c: string | undefined, fallback = 0xffffff): THREE.Color => {
 
 interface EnemyInstances {
   sync: (
-    enemies: Enemy[],
+    snapshot: RenderSnapshot,
     toWorld: (c: number, r: number) => [number, number],
     cameraQuat: THREE.Quaternion,
     showHealthBars?: boolean,
@@ -53,18 +52,6 @@ interface EnemyInstances {
   bodyMesh: THREE.InstancedMesh;
   dispose: () => void;
 }
-
-// 狀態效果色調（優先級由高到低，取第一個命中者與本體色混合）
-const STATUS_TINTS: { type: string; color: number; mix: number }[] = [
-  { type: 'freeze', color: 0x93c5fd, mix: 0.65 },
-  { type: 'frostbite', color: 0xbae6fd, mix: 0.35 },
-  { type: 'petrify', color: 0x9ca3af, mix: 0.7 },
-  { type: 'stun', color: 0xfef9c3, mix: 0.5 },
-  { type: 'berserk', color: 0xff3232, mix: 0.5 },
-  { type: 'burn', color: 0xfb923c, mix: 0.45 },
-  { type: 'poison', color: 0x4ade80, mix: 0.45 },
-  { type: 'slow', color: 0x7dd3fc, mix: 0.35 },
-];
 
 /** 護盾色（護盾尚存時往藍色調混合） */
 const SHIELD_TINT = 0x3b82f6;
@@ -109,19 +96,19 @@ export function createEnemyInstances(scene: THREE.Scene): EnemyInstances {
   const tmpColor = new THREE.Color();
   const tintColor = new THREE.Color();
 
-  const sync: EnemyInstances['sync'] = (enemies, toWorld, cameraQuat, showHealthBars = true) => {
-    const n = Math.min(enemies.length, MAX_ENEMIES);
+  const sync: EnemyInstances['sync'] = (snapshot, toWorld, cameraQuat, showHealthBars = true) => {
+    // 只讀 snapshot 契約：ghostFade / healthRatio / 狀態色調都已在純函式層算好，
+    // 這裡不回查 Enemy、也不自行取時鐘（時間由 snapshot.timeMs 統一）。
+    const frames = snapshot.enemies;
+    const n = Math.min(snapshot.enemyCount, MAX_ENEMIES);
 
-    const nowMs = Date.now();
     for (let i = 0; i < n; i++) {
-      const e = enemies[i];
+      const e = frames[i];
       const [wx, wz] = toWorld(e.x, e.y);
       // 隱身/相位敵人：本體縮小 + 顏色壓暗（InstancedMesh 無逐實例透明度，以縮放/調色模擬幽影）
-      const stealthFade = getEnemyStealthFade(e, nowMs);
-      const phaseFade = getEnemyPhaseFade(e, nowMs);
-      const ghostFade = Math.max(stealthFade, phaseFade);
+      const ghostFade = e.ghostFade;
       const s = Math.max(0.5, (e.size || 50) / 50) * (1 - ghostFade * 0.5);
-      const hpRatio = Math.max(0, Math.min(1, e.health / e.maxHealth));
+      const hpRatio = e.healthRatio;
 
       // --- 本體 ---
       dummy.position.set(wx, 0.32 * s + 0.06, wz);
@@ -130,23 +117,18 @@ export function createEnemyInstances(scene: THREE.Scene): EnemyInstances {
       dummy.updateMatrix();
       body.setMatrixAt(i, dummy.matrix);
       // 血量越低顏色越暗（同時影響 diffuse 與整體觀感）
-      tmpColor.copy(safeColor(ENEMY_DATA[e.type]?.color)).multiplyScalar((0.55 + hpRatio * 0.45) * (1 - ghostFade * 0.62));
+      tmpColor.copy(safeColor(e.baseColor)).multiplyScalar((0.55 + hpRatio * 0.45) * (1 - ghostFade * 0.62));
       // 相位：往藍白色偏移，與隱身的純壓暗作出區隔
-      if (phaseFade > 0) {
-        tmpColor.lerp(tintColor.setHex(0x93c5fd), phaseFade * 0.5);
+      if (e.phaseFade > 0) {
+        tmpColor.lerp(tintColor.setHex(0x93c5fd), e.phaseFade * 0.5);
       }
       // 護盾尚存：往藍色調混合，提示需先破盾
-      if ((e.shield ?? 0) > 0 && e.maxShield) {
-        tmpColor.lerp(tintColor.setHex(SHIELD_TINT), 0.35 * Math.min(1, (e.shield ?? 0) / e.maxShield));
+      if (e.shield > 0 && e.maxShield > 0) {
+        tmpColor.lerp(tintColor.setHex(SHIELD_TINT), 0.35 * e.shieldRatio);
       }
-      // 狀態效果色調：凍結偏藍、狂暴偏紅、燃燒偏橙、中毒偏綠…（取最高優先級）
-      if (e.effects.length > 0) {
-        for (const tint of STATUS_TINTS) {
-          if (e.effects.some((ef) => ef.type === tint.type)) {
-            tmpColor.lerp(tintColor.setHex(tint.color), tint.mix);
-            break;
-          }
-        }
+      // 狀態效果色調：凍結偏藍、狂暴偏紅、燃燒偏橙、中毒偏綠…（優先序表在純函式層，2D 共用）
+      if (e.statusTint !== 0) {
+        tmpColor.lerp(tintColor.setHex(e.statusTint), e.statusTintMix);
       }
       body.setColorAt(i, tmpColor);
 
