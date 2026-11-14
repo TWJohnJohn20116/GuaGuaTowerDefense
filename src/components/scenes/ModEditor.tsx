@@ -377,7 +377,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
 
 
   const editorContent = (
-    <div className="relative flex h-full w-full flex-col overflow-hidden bg-[var(--hl-void)]">
+    <div className="relative flex h-full w-full flex-col overflow-hidden bg-[var(--arc-void)]">
       {/* 頂列（HARDLINE TopBar；嵌入時由外層 CreativeWorkshop 提供統一 Tab） */}
       {!embedded && (
         <ModEditorHeader

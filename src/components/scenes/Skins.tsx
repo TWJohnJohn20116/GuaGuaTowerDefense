@@ -13,7 +13,7 @@ import type { TowerSkin, SkinRarity } from '@/types/skin';
 import type { TowerType } from '@/types/game';
 import { useTranslation } from '@/i18n';
 import { SceneShell } from '@/components/ui/SceneShell';
-import { TopBar, Rail, RailItem, SegHead } from '@/components/hl';
+import { Deck, Rail, RailItem, SegHead, TopBar } from '@/components/hl';
 import { PaletteIcon } from '@/components/ui/Icons';
 import {
   SkinHeaderStats,
@@ -238,7 +238,7 @@ export default function Skins() {
               label={s.toolbar.tabLibrary}
               active={tab === 'library'}
               onClick={() => handleTabChange('library')}
-              right={<span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+              right={<span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                 {stats.unlockedSkins}/{stats.totalSkins}
               </span>}
             />
@@ -247,7 +247,7 @@ export default function Skins() {
               label={s.toolbar.tabFavorites}
               active={tab === 'favorites'}
               onClick={() => handleTabChange('favorites')}
-              right={<span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+              right={<span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                 {favorites.length}
               </span>}
             />
@@ -256,7 +256,7 @@ export default function Skins() {
               label={s.toolbar.tabSets}
               active={tab === 'sets'}
               onClick={() => handleTabChange('sets')}
-              right={<span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+              right={<span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                 {favoriteSets.length}
               </span>}
             />
@@ -278,7 +278,7 @@ export default function Skins() {
                     label={label}
                     active={towerGroup === id}
                     onClick={() => setTowerGroup(id)}
-                    right={<span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+                    right={<span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                       {groupCount(id)}
                     </span>}
                   />
@@ -287,7 +287,7 @@ export default function Skins() {
             )}
           </Rail>
 
-          <main className="flex min-w-0 flex-1 flex-col bg-[var(--hl-void)]">
+          <main className="flex min-w-0 flex-1 flex-col bg-[var(--arc-void)]">
             <SkinToolbar
               tab={tab}
               filter={filter}
@@ -316,13 +316,13 @@ export default function Skins() {
                       <button
                         type="button"
                         onClick={() => setSelectedSetId(null)}
-                        className="flex items-center gap-1.5 border border-[var(--hl-line-strong)] px-2 py-1 text-[var(--hl-ink-2)] transition-colors duration-150 hover:border-[var(--hl-signal)] hover:text-[var(--hl-signal)]"
+                        className="arc-chip flex items-center gap-1.5"
                       >
                         <span className="font-mono text-[10px] tracking-[0.08em] uppercase">
                           {s.backToSets}
                         </span>
                       </button>
-                      <span className="hl-label">
+                      <span className="arc-label">
                         {modelSetSummaries.find((set) => set.id === selectedSetId)?.name}
                       </span>
                     </div>
@@ -356,7 +356,7 @@ export default function Skins() {
             </div>
           </main>
 
-          <aside className="flex w-[336px] shrink-0 flex-col overflow-y-auto border-l border-[var(--hl-line)] bg-[var(--hl-deck)] p-4 xl:w-[376px]">
+          <Deck as="aside" className="flex w-[336px] shrink-0 flex-col overflow-y-auto arc-panel--flat p-4 xl:w-[376px]">
             <SkinDetailPanel
               skin={selectedSkin}
               isUnlocked={selectedSkin ? isSkinUnlocked(selectedSkin.id) : false}
@@ -374,7 +374,7 @@ export default function Skins() {
               onToggleFavorite={() => selectedSkin && toggleFavorite(selectedSkin.id)}
               onEquip={equipSkin}
             />
-          </aside>
+          </Deck>
         </div>
       </div>
     </SceneShell>

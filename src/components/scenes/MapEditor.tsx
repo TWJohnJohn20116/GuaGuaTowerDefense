@@ -11,7 +11,7 @@
  */
 
 import { SceneShell } from '@/components/ui/SceneShell';
-import { Rail, RailItem } from '@/components/hl';
+import { Num, Rail, RailItem } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 import type { MapCategory } from '@/types/game';
 import {
@@ -33,7 +33,7 @@ export default function MapEditor({ embedded = false }: { embedded?: boolean }) 
 
   return (
     <SceneShell scrollable={false} showGrid={false}>
-      <div className="relative z-10 flex h-full w-full flex-col bg-[var(--hl-void)]">
+      <div className="relative z-10 flex h-full w-full flex-col bg-[var(--arc-void)]">
         <MapEditorToolbar
           embedded={embedded}
           editMode={s.editMode}
@@ -50,10 +50,8 @@ export default function MapEditor({ embedded = false }: { embedded?: boolean }) 
             label={t.mapEditorExt.mapCategory}
             foot={
               <div className="flex items-center justify-between">
-                <span className="hl-label">{t.mapEditor.waypointList}</span>
-                <span className="font-mono text-[11px] tabular-nums text-[var(--hl-reach)]">
-                  {String(s.waypoints.length).padStart(2, '0')}
-                </span>
+                <span className="arc-label">{t.mapEditor.waypointList}</span>
+                <Num value={String(s.waypoints.length).padStart(2, '0')} tone="reach" size="sm" className="font-mono tabular-nums" />
               </div>
             }
           >
@@ -70,7 +68,7 @@ export default function MapEditor({ embedded = false }: { embedded?: boolean }) 
             {s.mapCategory === 'advanced' && (
               <>
                 <div className="px-3 pb-1 pt-3">
-                  <span className="hl-label">{t.mapEditorExt.segmentManagement}</span>
+                  <span className="arc-label">{t.mapEditorExt.segmentManagement}</span>
                 </div>
                 {s.segments.map((seg, i) => (
                   <RailItem
@@ -80,7 +78,7 @@ export default function MapEditor({ embedded = false }: { embedded?: boolean }) 
                     active={s.activeSegmentId === seg.id}
                     onClick={() => s.setActiveSegmentId(seg.id)}
                     right={
-                      <span className="font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">
+                      <span className="font-mono text-[9.5px] tabular-nums text-[var(--arc-ink-4)]">
                         {seg.waypoints.length}
                       </span>
                     }
@@ -91,8 +89,8 @@ export default function MapEditor({ embedded = false }: { embedded?: boolean }) 
           </Rail>
 
           {/* 畫布：1px 外框、內部深底、不加陰影 */}
-          <main className="min-w-0 flex-1 bg-[var(--hl-void-2)] p-3">
-            <div className="h-full w-full overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+          <main className="min-w-0 flex-1 bg-[var(--arc-void-2)] p-3">
+            <div className="h-full w-full overflow-hidden border border-[var(--arc-line-strong)] bg-[var(--arc-void-2)]">
               <MapEditorCanvas
                 waypoints={s.waypoints}
                 setWaypoints={s.setWaypoints}

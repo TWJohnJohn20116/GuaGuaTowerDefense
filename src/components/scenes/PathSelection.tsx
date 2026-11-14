@@ -2,7 +2,7 @@
  * 選擇路徑 · HARDLINE Console
  *
  * ┌ TopBar 52px：返回 + 標題 + 分類 Chip ────────────────┐
- * ├ Rail 212px（章節／地圖列） │ 主區：任務簡報 ───────────┤
+ * ├ Rail 212px（地圖列） │ 主區：任務簡報 ─────────────────┤
  * └──────────────────────────────────────────────────────┘
  * 難度是方塊分段；獎勵是 StatCell；出擊是全畫面唯一的大面積訊號色。
  */
@@ -10,19 +10,14 @@
 import { useGameStore } from '@/store/gameStore';
 import { useModStore } from '@/store/modStore';
 import { PATHS, DIFFICULTY_MODIFIERS } from '@/data/gameData';
-import { getAllCampaignLevels, getRecommendedCampaignLevelId } from '@/data/campaignData';
-import { useCampaignStore } from '@/store/campaignStore';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { GameDifficulty, DifficultyModifiers } from '@/types/game';
 import { SceneShell } from '@/components/ui/SceneShell';
 import { Chip, TopBar, Rail } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 import { findPlayableWaveSet } from '@/utils/waveSets';
-import { useDailyChallengeStore } from '@/store/dailyChallengeStore';
-import { formatDailyHandoffBanner, resolveDailyChallengeHandoff } from '@/data/dailyChallengeHandoff';
 import { isPathSelectionTypingTarget, resolvePathSelectionEscape } from '@/data/pathSelectionBack';
 import {
-  CampaignDetail,
   MapSidebar,
   MapBriefing,
   type MapCategory,
@@ -33,13 +28,9 @@ export default function PathSelection() {
   const { t } = useTranslation();
   const startGame = useGameStore((state) => state.startGame);
   const goBackScene = useGameStore((state) => state.goBackScene);
-  const campaignStore = useCampaignStore();
-  const pathHandoffActive = useDailyChallengeStore((s) => s.pathHandoffActive);
-  const todayChallenge = useDailyChallengeStore((s) => s.todayChallenge);
-  const clearPathHandoff = useDailyChallengeStore((s) => s.clearPathHandoff);
 
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<MapCategory>('campaign');
+  const [activeCategory, setActiveCategory] = useState<MapCategory>('advanced');
   const [selectedDifficulty, setSelectedDifficulty] = useState<GameDifficulty>('normal');
   const [endlessMode, setEndlessMode] = useState(false);
   const [selectedWaves, setSelectedWaves] = useState<number>(15);
@@ -98,18 +89,8 @@ export default function PathSelection() {
     return items;
   }, [mods]);
 
-  const campaignLevelCount = useMemo(
-    () => getAllCampaignLevels().filter((lv) => PATHS[lv.mapId]).length,
-    [],
-  );
-
   const categoryChips = useMemo(
     () => [
-      {
-        id: 'campaign' as MapCategory,
-        label: t.pathSelection.campaign.sidebarCampaign,
-        count: campaignLevelCount,
-      },
       {
         id: 'advanced' as MapCategory,
         label: t.pathSelection.campaign.sidebarAdvanced,
@@ -121,18 +102,10 @@ export default function PathSelection() {
         count: modMapItems.length,
       },
     ],
-    [t, campaignLevelCount, advancedMapItems.length, modMapItems.length],
+    [t, advancedMapItems.length, modMapItems.length],
   );
 
   useEffect(() => {
-    if (activeCategory === 'campaign') {
-      const target = getRecommendedCampaignLevelId(
-        campaignStore.isLevelUnlocked,
-        campaignStore.isLevelCompleted,
-      );
-      setSelectedPath(target ?? null);
-      return;
-    }
     const list = activeCategory === 'advanced' ? advancedMapItems : modMapItems;
     if (list.length > 0) {
       const firstAvailable = list.find((m) => !m.isLocked);
@@ -140,21 +113,11 @@ export default function PathSelection() {
     } else {
       setSelectedPath(null);
     }
-  }, [activeCategory, advancedMapItems, modMapItems, campaignStore]);
-
-  useEffect(() => {
-    if (!pathHandoffActive || !todayChallenge) return;
-    const next = resolveDailyChallengeHandoff(todayChallenge.template);
-    setActiveCategory(next.category);
-    setSelectedDifficulty(next.difficulty);
-    setEndlessMode(next.endless);
-    if (next.customWaveSetId) setCustomWaveSetId(next.customWaveSetId);
-  }, [pathHandoffActive, todayChallenge]);
+  }, [activeCategory, advancedMapItems, modMapItems]);
 
   const leavePathSelection = useCallback(() => {
-    clearPathHandoff();
     goBackScene();
-  }, [clearPathHandoff, goBackScene]);
+  }, [goBackScene]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -174,10 +137,6 @@ export default function PathSelection() {
     const targetId = overrideId || selectedPath;
     if (!targetId) return;
     clearPathHandoff();
-    if (activeCategory === 'campaign' || targetId.startsWith('ch')) {
-      startGame(targetId);
-      return;
-    }
     let effectiveMaxWaves = endlessMode ? 0 : selectedWaves;
     if (!endlessMode && customWaveSetId) {
       const ws = findPlayableWaveSet(customWaveSetId);
@@ -206,14 +165,10 @@ export default function PathSelection() {
 
   return (
     <SceneShell scrollable={false}>
-      <div className="flex h-full w-full flex-col">
+      <div className="flex h-full w-full flex-col gap-3">
         <TopBar
           title={t.pathSelection.title}
-          meta={
-            pathHandoffActive && todayChallenge
-              ? formatDailyHandoffBanner(t.pathSelection.dailyHandoff, todayChallenge.template.name)
-              : t.pathSelection.subtitle
-          }
+          meta={t.pathSelection.subtitle}
           back={{ onClick: leavePathSelection }}
           right={
             <div className="flex items-center gap-1.5">
@@ -231,7 +186,7 @@ export default function PathSelection() {
           }
         />
 
-        <div className="flex min-h-0 flex-1">
+        <div className="flex min-h-0 flex-1 gap-3">
           <Rail>
             <MapSidebar
               activeCategory={activeCategory}
@@ -242,26 +197,22 @@ export default function PathSelection() {
             />
           </Rail>
 
-          <main className="flex min-w-0 flex-1 flex-col bg-[var(--hl-void)]">
-            {activeCategory === 'campaign' ? (
-              <CampaignDetail selectedId={selectedPath} onStart={(levelId) => handleStartGame(levelId)} />
-            ) : (
-              <MapBriefing
-                selectedMap={currentSelectedMapData}
-                selectedDifficulty={selectedDifficulty}
-                setSelectedDifficulty={setSelectedDifficulty}
-                endlessMode={endlessMode}
-                setEndlessMode={setEndlessMode}
-                selectedWaves={selectedWaves}
-                setSelectedWaves={setSelectedWaves}
-                customModifiers={customModifiers}
-                setCustomModifiers={setCustomModifiers}
-                mod={mod}
-                onStart={() => handleStartGame()}
-                customWaveSetId={customWaveSetId}
-                setCustomWaveSetId={setCustomWaveSetId}
-              />
-            )}
+          <main className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)]">
+            <MapBriefing
+              selectedMap={currentSelectedMapData}
+              selectedDifficulty={selectedDifficulty}
+              setSelectedDifficulty={setSelectedDifficulty}
+              endlessMode={endlessMode}
+              setEndlessMode={setEndlessMode}
+              selectedWaves={selectedWaves}
+              setSelectedWaves={setSelectedWaves}
+              customModifiers={customModifiers}
+              setCustomModifiers={setCustomModifiers}
+              mod={mod}
+              onStart={() => handleStartGame()}
+              customWaveSetId={customWaveSetId}
+              setCustomWaveSetId={setCustomWaveSetId}
+            />
           </main>
         </div>
       </div>

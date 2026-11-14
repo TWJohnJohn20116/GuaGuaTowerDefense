@@ -7,7 +7,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useModStore } from '@/store/modStore';
 import { SceneShell } from '@/components/ui/SceneShell';
-import { TopBar, Rail, RailItem, Btn, Chip, Meter } from '@/components/hl';
+import { Btn, Chip, Deck, Meter, Num, Rail, RailItem, TopBar } from '@/components/hl';
 import { PackageIcon, CheckIcon, WarningIcon, PlusIcon } from '@/components/ui/Icons';
 import { ModManagerToolbar, type ModTypeFilter, type ModSortBy, type ModSortDir, type ModEnabledFilter } from './mod-manager/ModManagerToolbar';
 import { ModManagerGrid } from './mod-manager/ModManagerGrid';
@@ -182,13 +182,11 @@ export default function ModManager({ embedded = false, onEdit }: { embedded?: bo
           back={{ to: 'mainMenu' }}
           right={
             <>
-              <span className="flex items-center gap-1.5 border border-[var(--hl-line)] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-3)]">
+              <span className="arc-chip flex items-center gap-1.5">
                 on
-                <span className="hl-num text-[11px] tabular-nums text-[var(--hl-vital)]">
-                  {stats.enabled}
-                </span>
-                <span className="text-[var(--hl-ink-4)]">/</span>
-                <span className="hl-num text-[11px] tabular-nums text-[var(--hl-ink)]">{stats.total}</span>
+                <Num value={stats.enabled} tone="vital" size="sm" className="tabular-nums" />
+                <span className="text-[var(--arc-ink-4)]">/</span>
+                <Num value={stats.total} tone="ink" size="sm" className="tabular-nums" />
               </span>
               <Btn size="sm" variant="signal" icon={<PlusIcon className="h-3.5 w-3.5" />} onClick={() => setShowImport(true)}>
                 {tb.importMod}
@@ -205,10 +203,8 @@ export default function ModManager({ embedded = false, onEdit }: { embedded?: bo
           foot={
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="hl-label">enabled</span>
-                <span className="hl-num text-[11px] tabular-nums">
-                  {enabledInView}/{filteredMods.length}
-                </span>
+                <span className="arc-label">enabled</span>
+                <Num value={<>{enabledInView}/{filteredMods.length}</>} tone="ink" size="sm" className="tabular-nums" />
               </div>
               <Meter value={filteredMods.length ? enabledInView / filteredMods.length : 0} tone="vital" />
               {embedded && (
@@ -226,12 +222,12 @@ export default function ModManager({ embedded = false, onEdit }: { embedded?: bo
               label={typeLabel[id]}
               active={filter === id}
               onClick={() => setFilter(id)}
-              right={<span className="hl-num text-[10.5px] tabular-nums text-[var(--hl-ink-4)]">{stats.byType[id]}</span>}
+              right={<Num value={stats.byType[id]} tone="muted" size="sm" className="tabular-nums" />}
             />
           ))}
 
           <div className="px-3 pb-1 pt-3">
-            <span className="hl-label">state</span>
+            <span className="arc-label">state</span>
           </div>
           {ENABLED_ORDER.map((id, i) => (
             <RailItem
@@ -246,7 +242,7 @@ export default function ModManager({ embedded = false, onEdit }: { embedded?: bo
           {allTags.length > 0 && (
             <>
               <div className="px-3 pb-1 pt-3">
-                <span className="hl-label">{tb.filterTags}</span>
+                <span className="arc-label">{tb.filterTags}</span>
               </div>
               <div className="flex flex-wrap gap-1 px-2.5 pb-3">
                 <Chip active={tagFilter === null} onClick={() => onTagFilterChangeSafe(null)}>
@@ -267,7 +263,7 @@ export default function ModManager({ embedded = false, onEdit }: { embedded?: bo
         </Rail>
 
         {/* 主區 */}
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--hl-void)]">
+        <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--arc-void)]">
           <ModManagerToolbar
             search={search}
             sortBy={sortBy}
@@ -285,8 +281,8 @@ export default function ModManager({ embedded = false, onEdit }: { embedded?: bo
               className={[
                 'flex items-center gap-2 border-b px-4 py-1.5 font-mono text-[10.5px] uppercase tracking-[0.08em]',
                 importResult.success
-                  ? 'border-[rgba(56,224,143,0.38)] bg-[rgba(56,224,143,0.12)] text-[var(--hl-vital)]'
-                  : 'border-[rgba(255,75,62,0.38)] bg-[rgba(255,75,62,0.12)] text-[var(--hl-alarm)]',
+                  ? 'border-[rgba(56,224,143,0.38)] bg-[rgba(56,224,143,0.12)] text-[var(--arc-vital)]'
+                  : 'border-[rgba(255,61,113,0.38)] bg-[rgba(255,61,113,0.12)] text-[var(--arc-alert)]',
               ].join(' ')}
             >
               {importResult.success
@@ -337,18 +333,16 @@ export default function ModManager({ embedded = false, onEdit }: { embedded?: bo
         </main>
 
         {/* 右詳情 */}
-        <aside className="flex min-h-0 w-[376px] shrink-0 flex-col overflow-hidden border-l border-[var(--hl-line)] bg-[var(--hl-deck)]">
-          <div className="flex items-center gap-2 border-b border-[var(--hl-line)] px-3 py-2">
-            <span className="hl-label">detail</span>
-            <span className="h-px flex-1 bg-[var(--hl-line)]" />
-            <span className="hl-num text-[10px] tabular-nums text-[var(--hl-ink-4)]">
-              {selectedMod ? selectedMod.metadata.id.slice(0, 10) : '—'}
-            </span>
+        <Deck as="aside" className="flex min-h-0 w-[376px] shrink-0 flex-col overflow-hidden arc-panel--flat">
+          <div className="flex items-center gap-2 border-b border-[var(--cn-line-soft)] px-3 py-2">
+            <span className="arc-label">detail</span>
+            <span className="h-px flex-1 bg-[var(--arc-line)]" />
+            <Num value={selectedMod ? selectedMod.metadata.id.slice(0, 10) : '—'} tone="muted" size="sm" className="tabular-nums" />
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto p-3">
             <ModManagerDetailPanel mod={selectedMod} onEdit={onEdit} />
           </div>
-        </aside>
+        </Deck>
       </div>
 
       {showImport && <ImportModDialog onClose={() => setShowImport(false)} onImport={handleImport} />}

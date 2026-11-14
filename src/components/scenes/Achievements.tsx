@@ -2,7 +2,7 @@
  * 成就觀測站 · HARDLINE Console
  *
  * 左軌分類（mono 編號 + 筆數）│ 主區密集格子 │ 右側詳情 336px
- * 稀有度只用文字標籤與 --hl-* 資料色，沒有彩虹邊與發光。
+ * 稀有度只用文字標籤與 --arc-* 資料色，沒有彩虹邊與發光。
  */
 import { useState, useMemo, useCallback, useEffect, type KeyboardEvent } from 'react';
 import { useAchievementStore } from '@/store/achievementStore';
@@ -13,7 +13,7 @@ import { compareAchievements } from '@/data/achievementSort';
 import type { Achievement, AchievementCategory, AchievementStatus } from '@/types/achievement';
 import { RARITY_CONFIG } from '@/types/achievement';
 import { SceneShell } from '@/components/ui/SceneShell';
-import { Rail, TopBar } from '@/components/hl';
+import { Deck, Rail, TopBar } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 import {
   isEarned,
@@ -279,7 +279,7 @@ export default function Achievements() {
             />
           </Rail>
 
-          <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--hl-void)]">
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--arc-void)]">
             <AchievementsToolbar
               filter={filter}
               search={search}
@@ -307,7 +307,7 @@ export default function Achievements() {
                 />
               </div>
 
-              <aside className="hidden w-[336px] shrink-0 border-l border-[var(--hl-line)] bg-[var(--hl-deck)] lg:flex lg:flex-col">
+              <Deck as="aside" className="hidden w-[336px] shrink-0 arc-panel--flat lg:flex lg:flex-col">
                 <AchievementDetailPanel
                   achievement={selectedAchievement}
                   status={selectedStatus}
@@ -315,7 +315,7 @@ export default function Achievements() {
                   progress={selectedAchievement ? getAchievementProgress(selectedAchievement.id) : []}
                   onClaim={handleClaim}
                 />
-              </aside>
+              </Deck>
             </div>
           </main>
         </div>

@@ -15,7 +15,7 @@ import { DEFAULT_KEY_BINDINGS } from '@/store/gameStoreUtils';
 import type { KeyAction } from '@/types/game';
 import { useTranslation } from '@/i18n';
 import { SceneShell } from '@/components/ui/SceneShell';
-import { Btn, Deck, Empty, Rail, RailItem, TopBar } from '@/components/hl';
+import { Btn, Deck, Empty, IconBtn, Input, Rail, RailItem, TopBar } from '@/components/hl';
 import {
   GearIcon, SpeakerIcon, GamepadIcon, SparklesIcon, SearchIcon,
   MonitorIcon, PauseIcon, PointerIcon, LightningIcon, WaveIcon, CoinIcon,
@@ -125,7 +125,7 @@ export default function Settings() {
             label={t.settings.title}
             foot={
               <div className="flex flex-col gap-2">
-                <span className="hl-label">reset</span>
+                <span className="arc-label">reset</span>
                 <ResetAllButton />
               </div>
             }
@@ -145,18 +145,18 @@ export default function Settings() {
           </Rail>
 
           {/* ===== 主區 ===== */}
-          <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[var(--hl-void)]">
-            <div className="flex items-center gap-3 border-b border-[var(--hl-line)] px-5 py-2.5">
-              <span className="hl-label whitespace-nowrap text-[var(--hl-ink-2)]">
+          <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[var(--arc-void)]">
+            <div className="flex items-center gap-3 border-b border-[var(--cn-line-soft)] px-5 py-2.5">
+              <span className="arc-label whitespace-nowrap text-[var(--arc-ink-2)]">
                 {searching ? t.settings.searchPlaceholder : activeMeta.label}
               </span>
-              <span className="h-px flex-1 bg-[var(--hl-line)]" />
+              <span className="h-px flex-1 bg-[var(--arc-line)]" />
               {searching ? (
-                <span className="border border-[var(--hl-signal-edge)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.1em] text-[var(--hl-signal)]">
+                <span className="border border-[var(--arc-gold-edge)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.1em] text-[var(--arc-gold)]">
                   {filter}
                 </span>
               ) : (
-                <span className="max-w-[42ch] truncate font-mono text-[10px] text-[var(--hl-ink-4)]">
+                <span className="max-w-[42ch] truncate font-mono text-[10px] text-[var(--arc-ink-4)]">
                   {activeMeta.desc}
                 </span>
               )}
@@ -265,23 +265,22 @@ function ResetAllButton() {
 function SearchBox({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const { t } = useTranslation();
   return (
-    <div className="flex w-48 items-center gap-2 border border-[var(--hl-line-strong)] bg-[var(--hl-void-2)] pl-2.5 sm:w-64">
-      <SearchIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-ink-3)]" />
-      <input
+    <div className="flex w-48 items-center gap-2 border border-[var(--arc-line-strong)] bg-[var(--arc-void-2)] pl-2.5 sm:w-64">
+      <SearchIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-ink-3)]" />
+      <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={t.settings.searchPlaceholder}
-        className="hl-input h-9 min-w-0 flex-1 border-0 bg-transparent px-0 font-mono text-[11.5px] placeholder:text-[var(--hl-ink-4)] focus:border-0"
+        className="h-9 min-w-0 flex-1 border-0 bg-transparent px-0 font-mono text-[11.5px] placeholder:text-[var(--arc-ink-4)] focus:border-0"
       />
       {value.length > 0 && (
-        <button
-          type="button"
-          aria-label={t.settings.clearSearch}
+        <IconBtn
+          label={t.settings.clearSearch}
           onClick={() => onChange('')}
-          className="pr-2 text-[var(--hl-ink-4)] transition-colors hover:text-[var(--hl-ink-2)]"
+          className="pr-2 text-[var(--arc-ink-4)] transition-colors hover:text-[var(--arc-ink-2)]"
         >
           <CrossIcon className="h-3.5 w-3.5" />
-        </button>
+        </IconBtn>
       )}
     </div>
   );
@@ -301,7 +300,7 @@ function EmptySearchHint({ search, onClear }: { search: string; onClear: () => v
         title={
           <span className="font-mono text-[12px]">
             {before}
-            <span className="text-[var(--hl-signal)]">{search}</span>
+            <span className="text-[var(--arc-gold)]">{search}</span>
             {after}
           </span>
         }

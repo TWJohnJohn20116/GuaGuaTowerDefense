@@ -3,7 +3,7 @@ import { useTranslation } from '@/i18n';
 import { useGameStore } from '@/store/gameStore';
 import { useTutorialStore } from '@/store/tutorialStore';
 import { SceneShell } from '@/components/ui/SceneShell';
-import { Btn, Chip, Key, SegHead, TopBar } from '@/components/hl';
+import { Btn, Chip, Deck, Key, Num, SegHead, TopBar } from '@/components/hl';
 import { LightbulbIcon } from '@/components/ui/Icons';
 
 // 導入拆分的數據
@@ -134,7 +134,7 @@ export default function Tutorial() {
             <nav className="space-y-3">
               <SegHead
                 label={t.tutorial.gameTutorial}
-                right={<span className="hl-num text-[10px] leading-none text-[var(--hl-ink-4)]">{String(GAME_TABS.length).padStart(2, '0')}</span>}
+                right={<Num value={String(GAME_TABS.length).padStart(2, '0')} tone="muted" size="sm" className="leading-none" />}
               />
               <div className="space-y-1.5">
                 {GAME_TAB_GROUPS.map((group) => {
@@ -142,7 +142,7 @@ export default function Tutorial() {
                   if (groupTabs.length === 0) return null;
                   return (
                     <div key={group.key} className="flex flex-wrap items-center gap-1.5">
-                      <span className="w-[52px] shrink-0 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+                      <span className="w-[52px] shrink-0 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
                         {t.tutorial.gameTabGroups[group.labelKey]}
                       </span>
                       {groupTabs.map((tab) => (
@@ -164,7 +164,7 @@ export default function Tutorial() {
 
               <SegHead
                 label={t.tutorial.modTutorial}
-                right={<span className="hl-num text-[10px] leading-none text-[var(--hl-ink-4)]">{String(MOD_TABS.length).padStart(2, '0')}</span>}
+                right={<Num value={String(MOD_TABS.length).padStart(2, '0')} tone="muted" size="sm" className="leading-none" />}
               />
               <div className="flex flex-wrap items-center gap-1.5">
                 {MOD_TABS.map((tab) => (
@@ -182,12 +182,12 @@ export default function Tutorial() {
               </div>
             </nav>
 
-            <div className="mt-5 border-t border-[var(--hl-line)] pt-4">
+            <div className="mt-5 border-t border-[var(--cn-line-soft)] pt-4">
               {/* 章節頭 */}
               <div className="mb-4 flex flex-wrap items-baseline gap-3">
-                <span className="hl-label">{category === 'game' ? t.tutorial.gameTutorial : t.tutorial.modTutorial}</span>
-                <span className="h-px flex-1 bg-[var(--hl-line)]" />
-                <h1 className="hl-title">{activeLabel}</h1>
+                <span className="arc-label">{category === 'game' ? t.tutorial.gameTutorial : t.tutorial.modTutorial}</span>
+                <span className="h-px flex-1 bg-[var(--arc-line)]" />
+                <h1 className="arc-title">{activeLabel}</h1>
               </div>
 
               <div className="space-y-5">
@@ -203,8 +203,8 @@ export default function Tutorial() {
                       />
                     )}
                   >
-                    <h2 className="hl-title">{QUICK_START_STEPS[quickStartStep].title}</h2>
-                    <p className="hl-sub mt-1.5">{QUICK_START_STEPS[quickStartStep].description}</p>
+                    <h2 className="arc-title">{QUICK_START_STEPS[quickStartStep].title}</h2>
+                    <p className="arc-micro mt-1.5">{QUICK_START_STEPS[quickStartStep].description}</p>
 
                     <div className="mt-3">
                       <SpecNote label={t.tutorial.hintLabel} tone="caution">
@@ -212,7 +212,7 @@ export default function Tutorial() {
                       </SpecNote>
                     </div>
 
-                    <div className="mt-4 border-t border-[var(--hl-line)]">
+                    <div className="mt-4 border-t border-[var(--cn-line-soft)]">
                       {QUICK_START_STEPS.map((step, i) => (
                         <button
                           key={step.title}
@@ -220,13 +220,13 @@ export default function Tutorial() {
                           onClick={() => setQuickStartStep(i)}
                           className="block w-full text-left"
                         >
-                          <div className={i === quickStartStep ? 'bg-[var(--hl-deck-2)]' : ''}>
+                          <div className={i === quickStartStep ? 'bg-[var(--arc-deck-2)]' : ''}>
                             <SpecRow
                               index={i + 1}
                               title={step.title}
                               right={
                                 i === quickStartStep
-                                  ? <span className="h-1.5 w-1.5 bg-[var(--hl-signal)]" />
+                                  ? <span className="h-1.5 w-1.5 bg-[var(--arc-gold)]" />
                                   : undefined
                               }
                             />
@@ -255,18 +255,18 @@ export default function Tutorial() {
                     </div>
 
                     <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                      <div className="border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3">
-                        <div className="hl-label">{t.tutorial.sectionGoal}</div>
-                        <p className="mt-1.5 text-[11.5px] leading-relaxed text-[var(--hl-ink-2)]">{t.tutorial.sectionGoalDesc}</p>
-                      </div>
-                      <div className="border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3">
-                        <div className="hl-label">{t.tutorial.sectionMeans}</div>
-                        <p className="mt-1.5 text-[11.5px] leading-relaxed text-[var(--hl-ink-2)]">{t.tutorial.sectionMeansDesc}</p>
-                      </div>
-                      <div className="border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3">
-                        <div className="hl-label">{t.tutorial.sectionWin}</div>
-                        <p className="mt-1.5 text-[11.5px] leading-relaxed text-[var(--hl-ink-2)]">{t.tutorial.sectionWinDesc}</p>
-                      </div>
+                      <Deck className="p-3">
+                        <div className="arc-label">{t.tutorial.sectionGoal}</div>
+                        <p className="mt-1.5 text-[11.5px] leading-relaxed text-[var(--arc-ink-2)]">{t.tutorial.sectionGoalDesc}</p>
+                      </Deck>
+                      <Deck className="p-3">
+                        <div className="arc-label">{t.tutorial.sectionMeans}</div>
+                        <p className="mt-1.5 text-[11.5px] leading-relaxed text-[var(--arc-ink-2)]">{t.tutorial.sectionMeansDesc}</p>
+                      </Deck>
+                      <Deck className="p-3">
+                        <div className="arc-label">{t.tutorial.sectionWin}</div>
+                        <p className="mt-1.5 text-[11.5px] leading-relaxed text-[var(--arc-ink-2)]">{t.tutorial.sectionWinDesc}</p>
+                      </Deck>
                     </div>
                   </SpecSection>
                 )}
@@ -291,8 +291,8 @@ export default function Tutorial() {
 
                 {/* 進階技巧 */}
                 {activeTab === 'tips' && (
-                  <SpecSection label={t.tutorial.advancedTips} right={<span className="hl-num text-[10px] leading-none text-[var(--hl-ink-4)]">{String(TIPS.length).padStart(2, '0')}</span>}>
-                    <p className="hl-sub mb-3">{t.tutorial.advancedTipsDesc}</p>
+                  <SpecSection label={t.tutorial.advancedTips} right={<Num value={String(TIPS.length).padStart(2, '0')} tone="muted" size="sm" className="leading-none" />}>
+                    <p className="arc-micro mb-3">{t.tutorial.advancedTipsDesc}</p>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       {TIPS.map((tip) => (
                         <TipCard key={tip.title} {...tip} />
@@ -304,8 +304,8 @@ export default function Tutorial() {
                 {/* 快捷鍵：全部用 <Key> */}
                 {activeTab === 'keys' && (
                   <SpecSection label={t.tutorial.keyboardShortcuts}>
-                    <p className="hl-sub mb-3">{t.tutorial.keyboardShortcutsDesc}</p>
-                    <div className="border-t border-[var(--hl-line)]">
+                    <p className="arc-micro mb-3">{t.tutorial.keyboardShortcutsDesc}</p>
+                    <div className="border-t border-[var(--cn-line-soft)]">
                       {KEYBINDS.map((keybind) => (
                         <KeybindCard
                           key={keybind.action}
@@ -321,9 +321,9 @@ export default function Tutorial() {
                       </SpecNote>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <span className="hl-label">space</span>
+                      <span className="arc-label">space</span>
                       <Key>SPACE</Key>
-                      <span className="hl-label">esc</span>
+                      <span className="arc-label">esc</span>
                       <Key>ESC</Key>
                     </div>
                   </SpecSection>
@@ -333,7 +333,7 @@ export default function Tutorial() {
                 {activeTab === 'strategy' && (
                   <>
                     <SpecSection label={t.tutorial.strategy}>
-                      <p className="hl-sub mb-3">{t.tutorial.strategyDesc}</p>
+                      <p className="arc-micro mb-3">{t.tutorial.strategyDesc}</p>
                       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                         {STRATEGY_GUIDES.map((guide, index) => (
                           <StrategyCard key={guide.title} guide={guide} index={index} />
@@ -342,7 +342,7 @@ export default function Tutorial() {
                     </SpecSection>
 
                     <SpecSection label={t.tutorial.recommendedCombos}>
-                      <div className="border-t border-[var(--hl-line)]">
+                      <div className="border-t border-[var(--cn-line-soft)]">
                         <SpecRow index={1} title={`${t.towers.types.frost} + ${t.towers.types.sniper}`} desc={t.tutorial.comboFrostSniperDesc} />
                         <SpecRow index={2} title={`${t.towers.types.cannon} + ${t.towers.types.lightning}`} desc={t.tutorial.comboCannonLightningDesc} />
                         <SpecRow index={3} title={`${t.towers.types.poison} + ${t.towers.types.machine}`} desc={t.tutorial.comboPoisonMachineDesc} />
@@ -355,7 +355,7 @@ export default function Tutorial() {
                 {activeTab === 'upgrade' && (
                   <>
                     <SpecSection label={t.tutorial.upgradeSystem}>
-                      <p className="hl-sub mb-3">{t.tutorial.upgradeSystemDesc}</p>
+                      <p className="arc-micro mb-3">{t.tutorial.upgradeSystemDesc}</p>
                       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                         {UPGRADE_GUIDES.map((guide, index) => (
                           <UpgradeCard key={guide.title} guide={guide} index={index} />
@@ -364,7 +364,7 @@ export default function Tutorial() {
                     </SpecSection>
 
                     <SpecSection label={t.tutorial.upgradeCost}>
-                      <p className="mb-2.5 border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-3 py-2 font-mono text-[11px] leading-relaxed text-[var(--hl-ink-2)]">
+                      <p className="mb-2.5 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-3 py-2 font-mono text-[11px] leading-relaxed text-[var(--arc-ink-2)]">
                         {t.tutorial.upgradeCostFormula}
                       </p>
                       <SpecGrid cols={4}>
@@ -386,7 +386,7 @@ export default function Tutorial() {
                 {activeTab === 'autobattle' && (
                   <>
                     <SpecSection label={t.tutorial.autoBattleSystem}>
-                      <p className="hl-sub mb-3">{t.tutorial.autoBattleSystemDesc}</p>
+                      <p className="arc-micro mb-3">{t.tutorial.autoBattleSystemDesc}</p>
                       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                         {AUTO_BATTLE_GUIDES.map((guide, index) => (
                           <AutoBattleCard key={guide.title} guide={guide} index={index} />
@@ -395,7 +395,7 @@ export default function Tutorial() {
                     </SpecSection>
 
                     <SpecSection label={t.tutorial.autoBattleStrategyDetail}>
-                      <div className="border-t border-[var(--hl-line)]">
+                      <div className="border-t border-[var(--cn-line-soft)]">
                         <SpecRow index="A" title={t.tutorial.strategyBalanced} desc={t.tutorial.strategyBalancedDesc} />
                         <SpecRow index="B" title={t.tutorial.strategyEconomy} desc={t.tutorial.strategyEconomyDesc} />
                         <SpecRow index="C" title={t.tutorial.strategyAggressive} desc={t.tutorial.strategyAggressiveDesc} />

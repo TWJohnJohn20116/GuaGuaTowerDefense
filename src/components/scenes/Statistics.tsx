@@ -8,7 +8,7 @@ import { useState, useMemo, useEffect } from 'react';
 import type React from 'react';
 import { useStatsStore } from '@/store/statsStore';
 import { SceneShell } from '@/components/ui/SceneShell';
-import { TopBar, Rail, RailItem, Btn, Num } from '@/components/hl';
+import { Btn, Deck, Num, Rail, RailItem, TopBar } from '@/components/hl';
 import { ChartIcon, ClockIcon, StarIcon, TrashIcon, DownloadIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
 import { StatsContent, type StatsTab } from './statistics/StatsContent';
@@ -25,7 +25,7 @@ import {
 } from './statistics/statsHistoryFilters';
 import { StatsExportDialog } from './statistics/StatsExportDialog';
 import { StatsClearConfirmDialog } from './statistics/StatsClearConfirmDialog';
-import { gameDifficultyLabelsFromDetail } from '@/data/gameRecordLabels';
+import { gameDifficultyLabelsFromGameCopy } from '@/data/gameRecordLabels';
 
 export default function Statistics() {
   const { t } = useTranslation();
@@ -52,7 +52,7 @@ export default function Statistics() {
     modeFilter !== 'all' ||
     historySearch.trim().length > 0;
 
-  const difficultyLabels = gameDifficultyLabelsFromDetail(t.mutatorChallenge.detail);
+  const difficultyLabels = gameDifficultyLabelsFromGameCopy(t.game);
 
   const filteredHistory = useMemo(
     () => filterGameHistory(
@@ -117,7 +117,7 @@ export default function Statistics() {
               />
               {gameHistory.length > 0 && (
                 <>
-                  <span className="h-6 w-px bg-[var(--hl-line)]" />
+                  <span className="h-6 w-px bg-[var(--arc-line)]" />
                   <Btn
                     variant="line"
                     size="sm"
@@ -150,33 +150,33 @@ export default function Statistics() {
                 index={i + 1}
                 label={
                   <span className="flex items-center gap-1.5">
-                    <span className="text-[var(--hl-ink-4)]">{tab.icon}</span>
+                    <span className="text-[var(--arc-ink-4)]">{tab.icon}</span>
                     {tab.label}
                   </span>
                 }
                 active={activeTab === tab.id}
                 onClick={() => handleTabChange(tab.id)}
                 right={tab.count !== undefined ? (
-                  <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+                  <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                     {tab.count}
                   </span>
                 ) : undefined}
               />
             ))}
 
-            <div className="mt-auto border-t border-[var(--hl-line)] px-3 py-2.5">
+            <div className="mt-auto border-t border-[var(--cn-line-soft)] px-3 py-2.5">
               <div className="flex items-center justify-between">
-                <span className="hl-label">{st.headerStats.winRate}</span>
+                <span className="arc-label">{st.headerStats.winRate}</span>
                 <Num value={`${globalStats.winRate.toFixed(1)}%`} size="sm" tone="muted" />
               </div>
               <div className="mt-1.5 flex items-center justify-between">
-                <span className="hl-label">{st.headerStats.totalPlaytime}</span>
+                <span className="arc-label">{st.headerStats.totalPlaytime}</span>
                 <Num value={playtimeLabel} size="sm" tone="muted" />
               </div>
             </div>
           </Rail>
 
-          <main className="flex min-w-0 flex-1 flex-col bg-[var(--hl-void)]">
+          <main className="flex min-w-0 flex-1 flex-col bg-[var(--arc-void)]">
             <StatsToolbar
               activeTab={activeTab}
               historyCount={gameHistory.length}
@@ -217,13 +217,13 @@ export default function Statistics() {
           </main>
 
           {activeTab === 'history' && (
-            <aside className="flex w-[336px] shrink-0 flex-col overflow-y-auto border-l border-[var(--hl-line)] bg-[var(--hl-deck)] p-4 xl:w-[376px]">
+            <Deck as="aside" className="flex w-[336px] shrink-0 flex-col overflow-y-auto arc-panel--flat p-4 xl:w-[376px]">
               <StatsGameDetailPanel
                 game={selectedGame}
                 formatDuration={formatDuration}
                 formatDate={formatDate}
               />
-            </aside>
+            </Deck>
           )}
         </div>
       </div>

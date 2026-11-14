@@ -21,7 +21,7 @@ import { isEncyclopediaTypingTarget, resolveEncyclopediaEscape } from '@/data/en
 import {
   BooksIcon, StarIcon, SearchIcon, CrossIcon,
 } from '@/components/ui/Icons';
-import { Btn, Chip, Deck, Empty, Rail, TopBar } from '@/components/hl';
+import { Btn, Chip, Deck, Empty, IconBtn, Input, Rail, TopBar } from '@/components/hl';
 import { playUiHover } from '@/services/audioService';
 
 // 匯入拆分的型別與常數
@@ -69,7 +69,7 @@ const getTowerDps = (t: UnifiedTower) => {
 
 /** 卡片外框：Deck + hover 只換線色 */
 const cardClass =
-  'group relative flex cursor-pointer flex-col text-left transition-colors duration-150 hover:border-[var(--hl-line-hot)]';
+  'group relative flex cursor-pointer flex-col text-left transition-colors duration-150 hover:border-[var(--arc-line-hot)]';
 
 export default function Encyclopedia() {
   const { t } = useTranslation();
@@ -372,10 +372,10 @@ export default function Encyclopedia() {
           </Rail>
 
           {/* 主區 */}
-          <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[var(--hl-void)]">
+          <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[var(--arc-void)]">
             {/* 工具列 */}
             {!isPanelTab && (
-              <div className="flex flex-wrap items-center gap-2 border-b border-[var(--hl-line)] px-4 py-2.5">
+              <div className="flex flex-wrap items-center gap-2 border-b border-[var(--cn-line-soft)] px-4 py-2.5">
                 {categoryChips.map((c) => (
                   <Chip key={c.id} active={c.active} onClick={c.onClick}>
                     {c.label}
@@ -384,8 +384,8 @@ export default function Encyclopedia() {
 
                 {sortOptions && (
                   <>
-                    <span className="ml-1 h-4 w-px bg-[var(--hl-line)]" />
-                    <span className="hl-label">{t.encyclopedia.sortBy}</span>
+                    <span className="ml-1 h-4 w-px bg-[var(--arc-line)]" />
+                    <span className="arc-label">{t.encyclopedia.sortBy}</span>
                     {sortOptions.map(({ key, label }) => (
                       <Chip key={key} active={sortBy === key} onClick={() => setSortBy(key)}>
                         {label}
@@ -394,7 +394,7 @@ export default function Encyclopedia() {
                   </>
                 )}
 
-                <span className="ml-auto font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+                <span className="ml-auto font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">
                   {countLabel}
                 </span>
               </div>
@@ -436,7 +436,8 @@ export default function Encyclopedia() {
                           <Deck
                             key={tower.id}
                             as="article"
-                            className={`${cardClass} ${selectedItem === tower.id ? 'border-[var(--hl-signal)]' : ''}`}
+                            active={selectedItem === tower.id}
+                            className={cardClass}
                           >
                             <button
                               type="button"
@@ -445,7 +446,7 @@ export default function Encyclopedia() {
                               className="flex w-full flex-col gap-2 p-3 text-left"
                             >
                               <span className="flex items-start gap-2.5">
-                                <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
                                   <TowerPreview
                                     towerId={tower.id}
                                     color={tower.isModContent ? tower.color : undefined}
@@ -454,18 +455,18 @@ export default function Encyclopedia() {
                                   />
                                 </span>
                                 <span className="flex min-w-0 flex-1 flex-col gap-1">
-                                  <span className="truncate text-[13px] font-medium leading-tight text-[var(--hl-ink)]">
+                                  <span className="truncate text-[13px] font-medium leading-tight text-[var(--arc-ink)]">
                                     {tower.name}
                                   </span>
-                                  <span className="truncate font-mono text-[9.5px] uppercase leading-none tracking-[0.08em] text-[var(--hl-ink-4)]">
+                                  <span className="truncate font-mono text-[9.5px] uppercase leading-none tracking-[0.08em] text-[var(--arc-ink-4)]">
                                     {tower.category === 'mod' ? t.encyclopedia.filterMod : tower.category === 'special' ? t.encyclopedia.filterSpecial : t.encyclopedia.filterBasic}
                                   </span>
                                 </span>
                               </span>
-                              <span className="line-clamp-2 text-[10.5px] leading-snug text-[var(--hl-ink-3)]">
+                              <span className="line-clamp-2 text-[10.5px] leading-snug text-[var(--arc-ink-3)]">
                                 {tower.description}
                               </span>
-                              <span className="mt-0.5 grid grid-cols-2 gap-0 border-t border-[var(--hl-line)] pt-2">
+                              <span className="mt-0.5 grid grid-cols-2 gap-0 border-t border-[var(--cn-line-soft)] pt-2">
                                 <CardStat
                                   label={t.encyclopedia.sortDamage}
                                   value={tower.damage || tower.damagePerSecond || '—'}
@@ -475,7 +476,7 @@ export default function Encyclopedia() {
                                   label={t.encyclopedia.sortCost}
                                   value={tower.cost}
                                   tone="signal"
-                                  className="border-l border-[var(--hl-line)] pl-2"
+                                  className="border-l border-[var(--cn-line-soft)] pl-2"
                                 />
                               </span>
                             </button>
@@ -486,7 +487,8 @@ export default function Encyclopedia() {
                           <Deck
                             key={enemy.id}
                             as="article"
-                            className={`${cardClass} ${selectedItem === enemy.id ? 'border-[var(--hl-signal)]' : ''}`}
+                            active={selectedItem === enemy.id}
+                            className={cardClass}
                           >
                             <button
                               type="button"
@@ -495,7 +497,7 @@ export default function Encyclopedia() {
                               className="flex w-full flex-col gap-2 p-3 text-left"
                             >
                               <span className="flex items-start gap-2.5">
-                                <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
                                   <EnemyPreview
                                     enemyId={enemy.id}
                                     color={enemy.isModContent ? enemy.color : undefined}
@@ -504,24 +506,24 @@ export default function Encyclopedia() {
                                   />
                                 </span>
                                 <span className="flex min-w-0 flex-1 flex-col gap-1">
-                                  <span className="truncate text-[13px] font-medium leading-tight text-[var(--hl-ink)]">
+                                  <span className="truncate text-[13px] font-medium leading-tight text-[var(--arc-ink)]">
                                     {enemy.name}
                                   </span>
-                                  <span className="truncate font-mono text-[9.5px] uppercase leading-none tracking-[0.08em] text-[var(--hl-ink-4)]">
+                                  <span className="truncate font-mono text-[9.5px] uppercase leading-none tracking-[0.08em] text-[var(--arc-ink-4)]">
                                     {enemy.category === 'mod' ? t.encyclopedia.filterMod : enemy.category === 'special' ? t.encyclopedia.filterSpecial : t.encyclopedia.filterNormal}
                                   </span>
                                 </span>
                               </span>
-                              <span className="line-clamp-2 text-[10.5px] leading-snug text-[var(--hl-ink-3)]">
+                              <span className="line-clamp-2 text-[10.5px] leading-snug text-[var(--arc-ink-3)]">
                                 {enemy.description}
                               </span>
-                              <span className="mt-0.5 grid grid-cols-2 gap-0 border-t border-[var(--hl-line)] pt-2">
+                              <span className="mt-0.5 grid grid-cols-2 gap-0 border-t border-[var(--cn-line-soft)] pt-2">
                                 <CardStat label={t.encyclopedia.sortHealth} value={enemy.health} tone="alarm" />
                                 <CardStat
                                   label={t.encyclopedia.sortSpeed}
                                   value={`${enemy.speed}x`}
                                   tone="reach"
-                                  className="border-l border-[var(--hl-line)] pl-2"
+                                  className="border-l border-[var(--cn-line-soft)] pl-2"
                                 />
                               </span>
                             </button>
@@ -549,7 +551,8 @@ export default function Encyclopedia() {
                           <Deck
                             key={diff}
                             as="article"
-                            className={`${cardClass} ${selectedItem === diff ? 'border-[var(--hl-signal)]' : ''}`}
+                            active={selectedItem === diff}
+                            className={cardClass}
                           >
                             <button
                               type="button"
@@ -558,14 +561,14 @@ export default function Encyclopedia() {
                               className="flex w-full flex-col gap-2 p-3 text-left"
                             >
                               <span className="flex items-center gap-2">
-                                <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-3)]">
+                                <span className="flex h-8 w-8 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-3)]">
                                   <StarIcon className="h-3.5 w-3.5" />
                                 </span>
-                                <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--hl-ink)]">
+                                <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--arc-ink)]">
                                   {t.encyclopedia.difficulties[diff as keyof typeof t.encyclopedia.difficulties].name}
                                 </span>
                               </span>
-                              <span className="line-clamp-2 text-[10.5px] leading-snug text-[var(--hl-ink-3)]">
+                              <span className="line-clamp-2 text-[10.5px] leading-snug text-[var(--arc-ink-3)]">
                                 {t.encyclopedia.difficulties[diff as keyof typeof t.encyclopedia.difficulties].description}
                               </span>
                             </button>
@@ -579,7 +582,8 @@ export default function Encyclopedia() {
                             <Deck
                               key={effectId}
                               as="article"
-                              className={`${cardClass} ${selectedItem === effectId ? 'border-[var(--hl-signal)]' : ''}`}
+                              active={selectedItem === effectId}
+                            className={cardClass}
                             >
                               <button
                                 type="button"
@@ -589,19 +593,19 @@ export default function Encyclopedia() {
                               >
                                 <span className="flex items-center gap-2">
                                   <span
-                                    className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--hl-line)]"
+                                    className="flex h-8 w-8 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)]"
                                     style={{ color: effect.color }}
                                   >
                                     <EffectIcon className="h-4 w-4" style={{ color: effect.color } as CSSProperties} />
                                   </span>
-                                  <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--hl-ink)]">
+                                  <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--arc-ink)]">
                                     {effect.name}
                                   </span>
-                                  <span className="shrink-0 border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9px] uppercase leading-none tracking-[0.08em] text-[var(--hl-ink-3)]">
+                                  <span className="shrink-0 border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9px] uppercase leading-none tracking-[0.08em] text-[var(--arc-ink-3)]">
                                     {effect.isDebuff ? t.game.effectDebuff : t.game.effectBuff}
                                   </span>
                                 </span>
-                                <span className="line-clamp-2 text-[10.5px] leading-snug text-[var(--hl-ink-3)]">
+                                <span className="line-clamp-2 text-[10.5px] leading-snug text-[var(--arc-ink-3)]">
                                   {effect.description}
                                 </span>
                               </button>
@@ -615,7 +619,8 @@ export default function Encyclopedia() {
                             <Deck
                               key={skill.id}
                               as="article"
-                              className={`${cardClass} ${selectedItem === skill.id ? 'border-[var(--hl-signal)]' : ''}`}
+                              active={selectedItem === skill.id}
+                            className={cardClass}
                             >
                               <button
                                 type="button"
@@ -625,25 +630,25 @@ export default function Encyclopedia() {
                               >
                                 <span className="flex items-center gap-2">
                                   <span
-                                    className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--hl-line)]"
+                                    className="flex h-8 w-8 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)]"
                                     style={{ color: skill.iconColor }}
                                   >
                                     <SkillIcon className="h-4 w-4" style={{ color: skill.iconColor } as CSSProperties} />
                                   </span>
-                                  <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--hl-ink)]">
+                                  <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--arc-ink)]">
                                     {getPlayerSkillName(skill, t)}
                                   </span>
                                 </span>
-                                <span className="line-clamp-2 text-[10.5px] leading-snug text-[var(--hl-ink-3)]">
+                                <span className="line-clamp-2 text-[10.5px] leading-snug text-[var(--arc-ink-3)]">
                                   {getPlayerSkillDesc(skill, t)}
                                 </span>
-                                <span className="mt-0.5 grid grid-cols-2 gap-0 border-t border-[var(--hl-line)] pt-2">
+                                <span className="mt-0.5 grid grid-cols-2 gap-0 border-t border-[var(--cn-line-soft)] pt-2">
                                   <CardStat label={t.game.statCooldown} value={`${skill.cooldown / 1000}s`} tone="reach" />
                                   <CardStat
                                     label={t.game.statHotkey}
                                     value={`⇧ ${skill.hotkey}`}
                                     tone="signal"
-                                    className="border-l border-[var(--hl-line)] pl-2"
+                                    className="border-l border-[var(--cn-line-soft)] pl-2"
                                   />
                                 </span>
                               </button>
@@ -658,19 +663,18 @@ export default function Encyclopedia() {
 
               {/* 右側詳情欄 */}
               {hasDetailAside && (
-                <aside className="flex w-[336px] shrink-0 flex-col overflow-hidden border-l border-[var(--hl-line)] bg-[var(--hl-deck)] xl:w-[376px]">
-                  <div className="flex items-center gap-2 border-b border-[var(--hl-line)] px-3 py-2.5">
-                    <span className="hl-label text-[var(--hl-ink-2)]">detail</span>
-                    <span className="h-px flex-1 bg-[var(--hl-line)]" />
+                <Deck as="aside" className="flex w-[336px] shrink-0 flex-col overflow-hidden arc-panel--flat xl:w-[376px]">
+                  <div className="flex items-center gap-2 border-b border-[var(--cn-line-soft)] px-3 py-2.5">
+                    <span className="arc-label text-[var(--arc-ink-2)]">detail</span>
+                    <span className="h-px flex-1 bg-[var(--arc-line)]" />
                     {selectedItem && (
-                      <button
-                        type="button"
+                      <IconBtn
+                        label={t.encyclopedia.closeEsc}
                         onClick={() => setSelectedItem(null)}
-                        className="text-[var(--hl-ink-4)] transition-colors hover:text-[var(--hl-ink-2)]"
-                        aria-label={t.encyclopedia.closeEsc}
+                        className="text-[var(--arc-ink-4)] transition-colors hover:text-[var(--arc-ink-2)]"
                       >
                         <CrossIcon className="h-3.5 w-3.5" />
-                      </button>
+                      </IconBtn>
                     )}
                   </div>
 
@@ -704,7 +708,7 @@ export default function Encyclopedia() {
                       <PlayerSkillDetail selectedItem={selectedItem ?? ''} onOpenFile={openFileInLibrary} />
                     )}
                   </div>
-                </aside>
+                </Deck>
               )}
             </div>
           </main>
@@ -729,16 +733,16 @@ function CardStat({
 }) {
   const color =
     tone === 'signal'
-      ? 'text-[var(--hl-signal)]'
+      ? 'text-[var(--arc-gold)]'
       : tone === 'alarm'
-        ? 'text-[var(--hl-alarm)]'
+        ? 'text-[var(--arc-alert)]'
         : tone === 'reach'
-          ? 'text-[var(--hl-reach)]'
-          : 'text-[var(--hl-ink)]';
+          ? 'text-[var(--arc-reach)]'
+          : 'text-[var(--arc-ink)]';
 
   return (
     <span className={`flex min-w-0 flex-col gap-1 ${className}`}>
-      <span className="hl-label truncate">{label}</span>
+      <span className="arc-label truncate">{label}</span>
       <span className={`truncate font-mono text-[11.5px] font-semibold leading-none tabular-nums ${color}`}>
         {value}
       </span>
@@ -749,23 +753,22 @@ function CardStat({
 function SearchBox({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const { t } = useTranslation();
   return (
-    <div className="flex w-44 items-center gap-2 border border-[var(--hl-line-strong)] bg-[var(--hl-void-2)] pl-2.5 sm:w-60">
-      <SearchIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-ink-3)]" />
-      <input
+    <div className="flex w-44 items-center gap-2 border border-[var(--arc-line-strong)] bg-[var(--arc-void-2)] pl-2.5 sm:w-60">
+      <SearchIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-ink-3)]" />
+      <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={t.encyclopedia.searchPlaceholder}
-        className="hl-input h-9 min-w-0 flex-1 border-0 bg-transparent px-0 font-mono text-[11.5px] placeholder:text-[var(--hl-ink-4)] focus:border-0"
+        className="h-9 min-w-0 flex-1 border-0 bg-transparent px-0 font-mono text-[11.5px] placeholder:text-[var(--arc-ink-4)] focus:border-0"
       />
       {value.length > 0 && (
-        <button
-          type="button"
-          aria-label={t.encyclopedia.clearFilter}
+        <IconBtn
+          label={t.encyclopedia.clearFilter}
           onClick={() => onChange('')}
-          className="pr-2 text-[var(--hl-ink-4)] transition-colors hover:text-[var(--hl-ink-2)]"
+          className="pr-2 text-[var(--arc-ink-4)] transition-colors hover:text-[var(--arc-ink-2)]"
         >
           <CrossIcon className="h-3.5 w-3.5" />
-        </button>
+        </IconBtn>
       )}
     </div>
   );

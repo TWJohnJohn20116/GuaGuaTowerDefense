@@ -7,7 +7,7 @@ import { useModStore } from '@/store/modStore';
 import ModManager from './ModManager';
 import ModEditor from './ModEditor';
 import { SceneShell } from '@/components/ui/SceneShell';
-import { Rail, RailItem, TopBar } from '@/components/hl';
+import { Num, Rail, RailItem, TopBar } from '@/components/hl';
 import { WrenchIcon } from '@/components/ui/Icons';
 import { WorkshopToolbar, type WorkshopTab } from './creative-workshop/WorkshopToolbar';
 import { WorkshopHeaderStats } from './creative-workshop/WorkshopHeaderStats';
@@ -65,10 +65,8 @@ export default function CreativeWorkshop() {
             label={w.title}
             foot={(
               <div className="flex items-center justify-between">
-                <span className="hl-label">{w.headerStats.installed}</span>
-                <span className="hl-num text-[10.5px] leading-none text-[var(--hl-ink-2)]">
-                  {stats.enabled}/{stats.total}
-                </span>
+                <span className="arc-label">{w.headerStats.installed}</span>
+                <Num value={<>{stats.enabled}/{stats.total}</>} tone="ink" size="sm" className="leading-none" />
               </div>
             )}
           >

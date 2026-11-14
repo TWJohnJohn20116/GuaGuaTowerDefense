@@ -3,7 +3,7 @@
  *
  * HARDLINE `Page` 版面：TopBar → 單欄 max-w-[1080px]
  *   1. 結果帶：大字「遊戲結束」+ mono 副資訊（關卡／難度／時間）+ 分數／波次／星等
- *   2. 本局數據：摘要、統計（可摺疊）、戰役失敗面板
+ *   2. 本局數據：摘要、統計（可摺疊）
  *   3. 成就解鎖：本局解鎖與差一點解鎖
  *   4. 挑戰報告：失敗分析 + 每日挑戰／突變試煉
  *   5. 回放：本局回放
@@ -26,17 +26,14 @@ import {
   ChevronUpIcon, ChevronDownIcon,
 } from '@/components/ui/Icons';
 import { formatPlayTime } from '@/types/gameEndReport';
-import { formatGameRecordDifficulty, gameDifficultyLabelsFromDetail } from '@/data/gameRecordLabels';
+import { formatGameRecordDifficulty, gameDifficultyLabelsFromGameCopy } from '@/data/gameRecordLabels';
 import { getPathDisplayName } from '@/data/gameData/pathData';
-import { findCampaignLevelById } from '@/data/campaignData';
 import { Btn, Deck, SegHead, TopBar } from '@/components/hl';
 import { GameEndSessionReport } from '@/components/scenes/game-end/GameEndSessionReport';
 import { GameEndResultBand } from '@/components/scenes/game-end/GameEndResultBand';
 import { GameEndStatGrid, type GameEndStatItem } from '@/components/scenes/game-end/GameEndStatGrid';
 import { GameEndAchievementPanels } from '@/components/scenes/game-end/GameEndAchievementPanels';
-import { GameEndChallengePanel } from '@/components/scenes/game-end/GameEndChallengePanel';
 import { GameEndReplayPanel } from '@/components/scenes/game-end/GameEndReplayPanel';
-import { GameOverCampaignPanel } from '@/components/scenes/campaign-end/GameOverCampaignPanel';
 import { isGameEndTypingTarget, resolveGameEndHotkey } from '@/data/gameEndHotkey';
 import { failureAnalysisSuggestionKey, resolveFailureAnalysisKeys } from '@/data/gameOverAnalysis';
 
@@ -53,8 +50,6 @@ export default function GameOver() {
   const resetGame = useGameStore((s) => s.resetGame);
   const startGame = useGameStore((s) => s.startGame);
   const gameDifficulty = useGameStore((s) => s.gameDifficulty);
-  const isCampaign = useGameStore((s) => s.isCampaign);
-  const campaignLevelId = useGameStore((s) => s.campaignLevelId);
   const report = useAchievementStore((s) => s.lastGameEndReport);
 
   const metaCoinMult = useTalentStore((s) => s.getModifiers().metaCoinMult);
@@ -137,12 +132,10 @@ export default function GameOver() {
 
   const statItems = [...baseStatItems, ...extraStatItems];
 
-  const campaignLevel = campaignLevelId ? findCampaignLevelById(campaignLevelId) : undefined;
-  const stageLabel =
-    isCampaign && campaignLevel ? campaignLevel.title : getPathDisplayName(selectedPath);
+  const stageLabel = getPathDisplayName(selectedPath);
   const difficultyLabel = formatGameRecordDifficulty(
     gameDifficulty,
-    gameDifficultyLabelsFromDetail(t.mutatorChallenge.detail),
+    gameDifficultyLabelsFromGameCopy(t.game),
   );
   const timeLabel = report ? formatPlayTime(report.playTimeSeconds) : '--';
 
@@ -151,7 +144,7 @@ export default function GameOver() {
     const args = useGameStore.getState().lastStartArgs;
     resetGame();
     if (args) {
-      startGame(args.pathName, args.difficulty, args.endless, args.maxWaves, args.customModifiers, args.customWaveSetId, args.mutator);
+      startGame(args.pathName, args.difficulty, args.endless, args.maxWaves, args.customModifiers, args.customWaveSetId);
     } else {
       setScene('pathSelection');
     }
@@ -207,7 +200,7 @@ export default function GameOver() {
           <GameEndResultBand
             tone="alarm"
             headline={t.game.gameOver}
-            tag={isCampaign ? t.campaignEnd.modeCampaign : t.campaignEnd.modeStandard}
+            tag={t.campaignEnd.modeStandard}
             meta={[
               { label: 'stage', value: stageLabel },
               { label: 'difficulty', value: difficultyLabel },
@@ -221,7 +214,7 @@ export default function GameOver() {
           <GameEndSessionReport variant="danger">
             <Deck className="flex flex-col gap-3 p-4 sm:p-5">
               <div className="flex items-center justify-between gap-3">
-                <span className="hl-label">{t.game.stats}</span>
+                <span className="arc-label">{t.game.stats}</span>
                 <Btn
                   variant="ghost"
                   size="sm"
@@ -239,35 +232,27 @@ export default function GameOver() {
               </div>
               <GameEndStatGrid items={statItems} className="lg:grid-cols-3" />
             </Deck>
-
-            {isCampaign && campaignLevelId && (
-              <GameOverCampaignPanel levelId={campaignLevelId} wave={currentWave} />
-            )}
           </GameEndSessionReport>
 
           <GameEndAchievementPanels unlockedIds={report?.unlockedAchievementIds ?? []} />
 
-          <GameEndChallengePanel
-            daily={report?.dailyChallenge}
-            mutator={report?.mutatorChallenge}
-          >
             <Deck tone="sunken" className="flex flex-col gap-3 p-4 sm:p-5">
               <SegHead label={t.game.failureAnalysis} />
               <div className="flex flex-col">
                 {analysis.map((item, i) => (
                   <div
                     key={i}
-                    className="flex flex-col gap-1.5 border-b border-[var(--hl-line)] py-2.5 last:border-b-0"
+                    className="flex flex-col gap-1.5 border-b border-[var(--cn-line-soft)] py-2.5 last:border-b-0"
                   >
                     <div className="flex items-start gap-2">
-                      <CrossIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--hl-alarm)]" />
-                      <span className="text-[13px] leading-snug text-[var(--hl-ink)]">
+                      <CrossIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--arc-alert)]" />
+                      <span className="text-[13px] leading-snug text-[var(--arc-ink)]">
                         {item.issue}
                       </span>
                     </div>
                     <div className="flex items-start gap-2 pl-5">
-                      <LightbulbIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--hl-vital)]" />
-                      <span className="text-[12px] leading-snug text-[var(--hl-ink-2)]">
+                      <LightbulbIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--arc-vital)]" />
+                      <span className="text-[12px] leading-snug text-[var(--arc-ink-2)]">
                         {item.suggestion}
                       </span>
                     </div>
@@ -275,7 +260,6 @@ export default function GameOver() {
                 ))}
               </div>
             </Deck>
-          </GameEndChallengePanel>
 
           <GameEndReplayPanel />
 
@@ -288,7 +272,7 @@ export default function GameOver() {
               kbd={t.game.enterToConfirm}
               onClick={handleQuickRetry}
             >
-              {isCampaign && campaignLevelId ? t.game.retryCampaignLevel : t.game.quickRetry}
+              {t.game.quickRetry}
             </Btn>
             <Btn
               variant="line"

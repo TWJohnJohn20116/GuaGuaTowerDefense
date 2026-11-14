@@ -19,7 +19,7 @@ import {
 } from '@/store/talentStore';
 import { TreeIcon } from '@/components/ui/Icons';
 import { SceneShell } from '@/components/ui/SceneShell';
-import { TopBar, Rail, RailItem, SegHead, Btn } from '@/components/hl';
+import { Btn, Deck, Rail, RailItem, SegHead, TopBar } from '@/components/hl';
 import { TalentConnections } from './talent/TalentConnections';
 import { TalentNode } from './talent/TalentNode';
 import { TalentDetailPanel } from './talent/TalentDetailPanel';
@@ -142,7 +142,7 @@ export default function TalentTree() {
               label={t.talent.currentModifiers}
               active={focusCategory === 'all'}
               onClick={() => setFocusCategory('all')}
-              right={<span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+              right={<span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                 {totalRank}
               </span>}
             />
@@ -162,10 +162,10 @@ export default function TalentTree() {
                   onClick={() => setFocusCategory(category)}
                   right={
                     <span className="flex items-center gap-1.5">
-                      <span className="text-[var(--hl-ink-4)]">
+                      <span className="text-[var(--arc-ink-4)]">
                         {getCategoryIcon(category, 'h-3 w-3')}
                       </span>
-                      <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+                      <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                         {info.invested}/{info.total}
                       </span>
                     </span>
@@ -175,11 +175,11 @@ export default function TalentTree() {
             })}
           </Rail>
 
-          <main className="flex min-w-0 flex-1 flex-col bg-[var(--hl-void)]">
+          <main className="flex min-w-0 flex-1 flex-col bg-[var(--arc-void)]">
             <TalentToolbar totalRank={totalRank} />
 
             <div
-              className="relative min-h-0 flex-1 overflow-hidden bg-[var(--hl-void-2)]"
+              className="relative min-h-0 flex-1 overflow-hidden bg-[var(--arc-void-2)]"
               onWheel={handleWheel}
               onClick={() => { if (selectedNode) setSelectedNode(null); }}
             >
@@ -233,7 +233,7 @@ export default function TalentTree() {
             </div>
           </main>
 
-          <aside className="flex w-[336px] shrink-0 flex-col overflow-y-auto border-l border-[var(--hl-line)] bg-[var(--hl-deck)] p-4 xl:w-[376px]">
+          <Deck as="aside" className="flex w-[336px] shrink-0 flex-col overflow-y-auto arc-panel--flat p-4 xl:w-[376px]">
             {selectedNodeLive ? (
               <TalentDetailPanel
                 node={selectedNodeLive}
@@ -246,7 +246,7 @@ export default function TalentTree() {
             ) : (
               <TalentModifiersPanel modifiers={modifiers} />
             )}
-          </aside>
+          </Deck>
         </div>
       </div>
 

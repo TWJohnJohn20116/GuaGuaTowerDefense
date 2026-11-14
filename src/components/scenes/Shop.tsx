@@ -12,7 +12,7 @@ import { PLAYER_SKILLS, PLAYER_SKILL_BY_ID } from '@/data/playerSkillData';
 import { useTranslation } from '@/i18n';
 import { getPlayerSkillName } from '@/i18n/playerSkillLabels';
 import { SceneShell } from '@/components/ui/SceneShell';
-import { TopBar, Rail, RailItem, SegHead, Key } from '@/components/hl';
+import { Deck, Key, Rail, RailItem, SegHead, TopBar } from '@/components/hl';
 import { ShopIcon } from '@/components/ui/Icons';
 import {
   BASIC_TOWERS, SPECIAL_TOWERS, ALL_TOWER_TYPES, getTowerName,
@@ -167,7 +167,7 @@ export default function Shop() {
               label={s.categoryAll}
               active={activeCategory === 'all'}
               onClick={() => selectCategory('all')}
-              right={<span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+              right={<span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                 {countOf(ALL_TOWER_TYPES)}/{ALL_TOWER_TYPES.length}
               </span>}
             />
@@ -176,7 +176,7 @@ export default function Shop() {
               label={s.categoryBasic}
               active={activeCategory === 'basic'}
               onClick={() => selectCategory('basic')}
-              right={<span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+              right={<span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                 {countOf(BASIC_TOWERS)}/{BASIC_TOWERS.length}
               </span>}
             />
@@ -185,7 +185,7 @@ export default function Shop() {
               label={s.categorySpecial}
               active={activeCategory === 'special'}
               onClick={() => selectCategory('special')}
-              right={<span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+              right={<span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                 {countOf(SPECIAL_TOWERS)}/{SPECIAL_TOWERS.length}
               </span>}
             />
@@ -199,13 +199,13 @@ export default function Shop() {
               label={s.toolbar.tabSkills}
               active={activeCategory === 'skills'}
               onClick={() => selectCategory('skills')}
-              right={<span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+              right={<span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                 {skillProgress.unlocked}/{skillProgress.total}
               </span>}
             />
           </Rail>
 
-          <main className="flex min-w-0 flex-1 flex-col bg-[var(--hl-void)]">
+          <main className="flex min-w-0 flex-1 flex-col bg-[var(--arc-void)]">
             <ShopToolbar
               tab={tab}
               towerProgress={towerProgress}
@@ -226,22 +226,22 @@ export default function Shop() {
                 <ShopSuggestionBanner label={suggestion.label} affordable={suggestion.affordable} />
               )}
 
-              <div className="mt-4 hidden items-center gap-3 border-t border-[var(--hl-line)] pt-3 sm:flex">
+              <div className="mt-4 hidden items-center gap-3 border-t border-[var(--cn-line-soft)] pt-3 sm:flex">
                 <span className="flex items-center gap-1.5">
                   <Key>←</Key>
                   <Key>→</Key>
-                  <span className="hl-label">{s.toolbar.switchProduct}</span>
+                  <span className="arc-label">{s.toolbar.switchProduct}</span>
                 </span>
-                <span className="h-3 w-px bg-[var(--hl-line)]" />
+                <span className="h-3 w-px bg-[var(--arc-line)]" />
                 <span className="flex items-center gap-1.5">
                   <Key>Enter</Key>
-                  <span className="hl-label">{s.toolbar.buyProduct}</span>
+                  <span className="arc-label">{s.toolbar.buyProduct}</span>
                 </span>
               </div>
             </div>
           </main>
 
-          <aside className="flex w-[336px] shrink-0 flex-col overflow-y-auto border-l border-[var(--hl-line)] bg-[var(--hl-deck)] p-4 xl:w-[376px]">
+          <Deck as="aside" className="flex w-[336px] shrink-0 flex-col overflow-y-auto arc-panel--flat p-4 xl:w-[376px]">
             <ShopDetailPanel
               selection={selection}
               coins={coins}
@@ -249,7 +249,7 @@ export default function Shop() {
               unlockedSkills={unlockedPlayerSkills}
               onPurchase={handlePurchase}
             />
-          </aside>
+          </Deck>
         </div>
       </div>
     </SceneShell>

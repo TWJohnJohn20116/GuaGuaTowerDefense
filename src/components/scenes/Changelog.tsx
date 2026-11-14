@@ -6,7 +6,7 @@
 import { useMemo, useState } from 'react';
 import { SceneShell } from '@/components/ui/SceneShell';
 import { ClipboardIcon, CrossIcon, SearchIcon } from '@/components/ui/Icons';
-import { Btn, TopBar } from '@/components/hl';
+import { Btn, Input, TopBar } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 import { parseChangelog, calculateStats } from '@/components/changelog';
 import { ChangelogStats } from '@/components/scenes/changelog-scene/ChangelogStats';
@@ -78,12 +78,12 @@ export default function Changelog() {
             {/* 搜尋：1px 輸入框 + 清除 */}
             <div className="flex items-center gap-1.5">
               <div className="relative min-w-0 flex-1">
-                <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--hl-ink-4)]" />
-                <input
+                <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--arc-ink-4)]" />
+                <Input
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder={t.changelog.searchPlaceholder}
-                  className="hl-input pl-8"
+                  className="pl-8"
                 />
               </div>
               {searchTerm.length > 0 && (
@@ -98,21 +98,21 @@ export default function Changelog() {
 
               {isSearching && (
                 <div className="flex items-center gap-2">
-                  <span className="hl-label">{t.changelog.searchResults}</span>
-                  <span className="h-px flex-1 bg-[var(--hl-line)]" />
-                  <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+                  <span className="arc-label">{t.changelog.searchResults}</span>
+                  <span className="arc-divider flex-1" />
+                  <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                     {filteredSections.length} {t.changelog.versions}
                   </span>
                 </div>
               )}
 
               {filteredSections.length === 0 ? (
-                <div className="flex min-h-[30vh] flex-col items-center justify-center gap-3 border border-dashed border-[var(--hl-line)] px-6 py-12 text-center">
-                  <SearchIcon className="h-5 w-5 text-[var(--hl-ink-4)]" />
-                  <span className="hl-label">{t.changelog.noResults}</span>
+                <div className="flex min-h-[30vh] flex-col items-center justify-center gap-3 border border-dashed border-[var(--cn-line-soft)] px-6 py-12 text-center">
+                  <SearchIcon className="h-5 w-5 text-[var(--arc-ink-4)]" />
+                  <span className="arc-label">{t.changelog.noResults}</span>
                 </div>
               ) : listSections.length === 0 && !isSearching ? (
-                <p className="py-4 text-center hl-label">僅有目前版本</p>
+                <p className="py-4 text-center arc-label">僅有目前版本</p>
               ) : (
                 listSections.map((section, index) => (
                   <ChangelogVersionCard

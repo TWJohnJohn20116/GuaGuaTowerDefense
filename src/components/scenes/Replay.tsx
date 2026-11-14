@@ -16,7 +16,7 @@ import {
   resolveReplayImportFeedback,
   type ReplayFeedback,
 } from '@/data/replayFeedback';
-import { Btn, Empty, Rail, RailItem, TopBar } from '@/components/hl';
+import { Btn, Deck, Empty, Num, Rail, RailItem, TopBar } from '@/components/hl';
 import {
   ChartIcon, TrashIcon, UploadIcon, DownloadIcon,
 } from '@/components/ui/Icons';
@@ -34,7 +34,7 @@ import {
   exportReplayAsJson, triggerImportReplay,
 } from './replay/replayUtils';
 import { replayMatchesSearch } from '@/data/replayBrowseSearch';
-import { gameDifficultyLabelsFromDetail } from '@/data/gameRecordLabels';
+import { gameDifficultyLabelsFromGameCopy } from '@/data/gameRecordLabels';
 
 type ViewMode = 'browse' | 'playback';
 
@@ -72,7 +72,7 @@ export default function Replay() {
 
   const usingFilters = tab === 'favorites' || filter !== 'all' || search.trim().length > 0;
   const favoriteReplays = useMemo(() => replays.filter((r) => r.favorite), [replays]);
-  const difficultyLabels = gameDifficultyLabelsFromDetail(t.mutatorChallenge.detail);
+  const difficultyLabels = gameDifficultyLabelsFromGameCopy(t.game);
 
   const formatTime = (sec: number) => formatReplayTime(sec);
   const formatDate = (ts: number) => formatReplayDate(ts, language);
@@ -150,7 +150,6 @@ export default function Replay() {
       args.maxWaves,
       args.customModifiers,
       args.customWaveSetId,
-      args.mutator,
     );
   };
 
@@ -260,15 +259,13 @@ export default function Replay() {
             label={tab === 'favorites' ? r.toolbar.tabFavorites : r.toolbar.tabLibrary}
             foot={(
               <div className="flex items-center justify-between">
-                <span className="hl-label">{r.progress}</span>
-                <span className="hl-num text-[10.5px] leading-none text-[var(--hl-ink-2)]">
-                  {filteredReplays.length}/{stats.total}
-                </span>
+                <span className="arc-label">{r.progress}</span>
+                <Num value={<>{filteredReplays.length}/{stats.total}</>} tone="ink" size="sm" className="leading-none" />
               </div>
             )}
           >
             {filteredReplays.length === 0 ? (
-              <div className="px-3 py-3 hl-micro">{r.noReplays}</div>
+              <div className="px-3 py-3 arc-micro">{r.noReplays}</div>
             ) : (
               filteredReplays.map((rep, i) => (
                 <RailItem
@@ -278,7 +275,7 @@ export default function Replay() {
                   onClick={() => setSelectedId(rep.id)}
                   label={rep.name || (rep.isVictory ? r.victory : r.defeat)}
                   right={(
-                    <span className="shrink-0 font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">
+                    <span className="shrink-0 font-mono text-[9.5px] tabular-nums text-[var(--arc-ink-4)]">
                       W{rep.finalWave}
                     </span>
                   )}
@@ -317,7 +314,7 @@ export default function Replay() {
                 )}
               </main>
 
-              <aside className="flex w-[336px] shrink-0 flex-col overflow-y-auto border-l border-[var(--hl-line)] bg-[var(--hl-deck)] p-3 xl:w-[376px]">
+              <Deck as="aside" className="flex w-[336px] shrink-0 flex-col overflow-y-auto arc-panel--flat p-3 xl:w-[376px]">
                 <ReplayBrowsePanel
                   replay={selected}
                   formatTime={formatTime}
@@ -352,7 +349,7 @@ export default function Replay() {
                   onRename={() => selected && handleRename(selected.id, selected.name)}
                   onToggleFavorite={() => selected && toggleFavorite(selected.id)}
                 />
-              </aside>
+              </Deck>
             </div>
           </div>
         </div>

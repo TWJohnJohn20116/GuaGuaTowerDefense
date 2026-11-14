@@ -3,7 +3,7 @@
  *
  * HARDLINE `Page` 版面：TopBar → 單欄 max-w-[1080px]
  *   1. 結果帶：大字「勝利」+ mono 副資訊（關卡／難度／時間）+ 分數／波次／星等
- *   2. 本局數據：摘要、統計（可摺疊）、戰役面板、戰績摘要
+ *   2. 本局數據：摘要、統計（可摺疊）
  *   3. 成就解鎖：獎章與新解鎖清單
  *   4. 挑戰報告：每日挑戰／突變試煉
  *   5. 回放：本局回放
@@ -13,7 +13,7 @@
  */
 
 import type React from 'react';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { useShopStore, calculateCoinReward } from '@/store/shopStore';
 import { useTalentStore } from '@/store/talentStore';
@@ -21,29 +21,21 @@ import { useStatsStore } from '@/store/statsStore';
 import { useAchievementStore } from '@/store/achievementStore';
 import { useTranslation } from '@/i18n';
 import { SceneShell } from '@/components/ui/SceneShell';
-import { calculateCampaignStars } from '@/utils/campaignStars';
-import { resolveCampaignVictoryGrant } from '@/utils/campaignRewards';
-import { getNextLevelId, findCampaignLevelById } from '@/data/campaignData';
-import { useCampaignStore } from '@/store/campaignStore';
 import {
   TrophyIcon, SkullIcon, ConstructionIcon, StarIcon, SwordsIcon,
   ShieldIcon, MapIcon, RefreshIcon, HomeIcon, CelebrationIcon,
   ChevronUpIcon, ChevronDownIcon,
 } from '@/components/ui/Icons';
 import { formatPlayTime } from '@/types/gameEndReport';
-import { formatGameRecordDifficulty, gameDifficultyLabelsFromDetail } from '@/data/gameRecordLabels';
+import { formatGameRecordDifficulty, gameDifficultyLabelsFromGameCopy } from '@/data/gameRecordLabels';
 import { getPathDisplayName } from '@/data/gameData/pathData';
 import { Btn, Deck, TopBar } from '@/components/hl';
 import { GameEndSessionReport } from '@/components/scenes/game-end/GameEndSessionReport';
 import { GameEndResultBand } from '@/components/scenes/game-end/GameEndResultBand';
 import { GameEndStatGrid, type GameEndStatItem } from '@/components/scenes/game-end/GameEndStatGrid';
 import { GameEndAchievementPanels } from '@/components/scenes/game-end/GameEndAchievementPanels';
-import { GameEndChallengePanel } from '@/components/scenes/game-end/GameEndChallengePanel';
 import { GameEndReplayPanel } from '@/components/scenes/game-end/GameEndReplayPanel';
-import { VictoryCampaignPanel } from '@/components/scenes/campaign-end/VictoryCampaignPanel';
-import { VictoryShareCard } from '@/components/scenes/campaign-end/VictoryShareCard';
 import { isGameEndTypingTarget, resolveGameEndHotkey } from '@/data/gameEndHotkey';
-import { formatVictoryNextLabel } from '@/data/victoryNextCopy';
 import { resolveVictoryMedalIds, type VictoryMedalId } from '@/data/victoryMedals';
 
 // 面板外觀已全面改由 hl 原語（Deck / StatCell / Segments）提供；舊 SCENE_GLASS 覆蓋層不再使用。
@@ -59,11 +51,23 @@ const MEDAL_ICON: Record<VictoryMedalId, React.ReactNode> = {
 type GradeTone = 'signal' | 'vital' | 'reach' | 'muted';
 
 const GRADE_CLASS: Record<GradeTone, string> = {
-  signal: 'border-[var(--hl-signal)] text-[var(--hl-signal)]',
-  vital: 'border-[var(--hl-line-strong)] text-[var(--hl-vital)]',
-  reach: 'border-[var(--hl-line-strong)] text-[var(--hl-reach)]',
-  muted: 'border-[var(--hl-line-strong)] text-[var(--hl-ink-2)]',
+  signal: 'border-[var(--arc-gold)] text-[var(--arc-gold)]',
+  vital: 'border-[var(--arc-line-strong)] text-[var(--arc-vital)]',
+  reach: 'border-[var(--arc-line-strong)] text-[var(--arc-reach)]',
+  muted: 'border-[var(--arc-line-strong)] text-[var(--arc-ink-2)]',
 };
+
+/**
+ * 勝利星等（戰役星等系統移除後的本地替代）：只依剩餘生命比例換算，
+ * 滿血 3 星、六成以上 2 星、其餘 1 星。結果帶的 3 星刻度與獎章判定都吃這個值。
+ */
+function resolveEndStars(health: number, startingHealth: number): number {
+  if (startingHealth <= 0) return 0;
+  const ratio = health / startingHealth;
+  if (ratio >= 1) return 3;
+  if (ratio >= 0.6) return 2;
+  return 1;
+}
 
 export default function Victory() {
   const { t } = useTranslation();
@@ -78,66 +82,31 @@ export default function Victory() {
   const resetGame = useGameStore((s) => s.resetGame);
   const startGame = useGameStore((s) => s.startGame);
   const gameDifficulty = useGameStore((s) => s.gameDifficulty);
-  const campaignLevelId = useGameStore((s) => s.campaignLevelId);
-  const isCampaign = useGameStore((s) => s.isCampaign);
   const startingHealth = useGameStore((s) => s.difficultyModifiers.startingHealth);
-  const isLevelUnlocked = useCampaignStore((s) => s.isLevelUnlocked);
   const report = useAchievementStore((s) => s.lastGameEndReport);
-
-  const nextLevelId = useMemo(() => {
-    if (!isCampaign || !campaignLevelId) return undefined;
-    return getNextLevelId(campaignLevelId);
-  }, [isCampaign, campaignLevelId]);
-
-  const nextLevelData = useMemo(
-    () => (nextLevelId ? findCampaignLevelById(nextLevelId) : undefined),
-    [nextLevelId],
-  );
-
-  const canContinueCampaign = Boolean(
-    nextLevelId && nextLevelData && isLevelUnlocked(nextLevelId),
-  );
 
   const metaCoinMult = useTalentStore((s) => s.getModifiers().metaCoinMult);
   const addCoins = useShopStore((s) => s.addCoins);
-  const grantTowers = useShopStore((s) => s.grantTowers);
   const incrementGamesPlayed = useShopStore((s) => s.incrementGamesPlayed);
-  const addTalentPoints = useTalentStore((s) => s.addTalentPoints);
   const endGameTracking = useStatsStore((s) => s.endGameTracking);
   const rewardedRef = useRef(false);
 
   const [showStats, setShowStats] = useState(false);
 
-  const stars = calculateCampaignStars(health, startingHealth);
+  const stars = resolveEndStars(health, startingHealth);
 
   const baseCoinReward = calculateCoinReward({ isVictory: true, score, currentWave, health, stars });
   const coinReward = Math.floor(baseCoinReward * metaCoinMult);
-  const campaignLevel = campaignLevelId ? findCampaignLevelById(campaignLevelId) : undefined;
-  const campaignGrant = resolveCampaignVictoryGrant({
-    formulaCoins: coinReward,
-    stars,
-    unlockTower: campaignLevel?.rewards.unlockTower,
-  });
 
   useEffect(() => {
     if (!rewardedRef.current) {
       rewardedRef.current = true;
-      addCoins(campaignGrant.coins);
+      addCoins(coinReward);
       incrementGamesPlayed();
-      addTalentPoints(campaignGrant.talentPoints);
-      if (campaignGrant.unlockedTowers.length > 0) {
-        grantTowers(campaignGrant.unlockedTowers);
-      }
       endGameTracking(selectedPath, gameDifficulty, true, score, currentWave, health);
-
-      if (campaignLevelId) {
-        import('@/store/campaignStore').then(m => {
-          m.useCampaignStore.getState().completeLevel(campaignLevelId, stars);
-        });
-      }
     }
     // 空 deps 是刻意的：獎勵與通關紀錄只寫一次（rewardedRef 守門），而 score／stars／
-    // campaignGrant 在勝利畫面掛載期間不會再變，列進來只是多跑 no-op（TD-17 判定：非債）
+    // coinReward 在勝利畫面掛載期間不會再變，列進來只是多跑 no-op（TD-17 判定：非債）
   }, []);
 
   const totalKills = towers.reduce((sum, tower) => sum + tower.kills, 0);
@@ -190,25 +159,14 @@ export default function Victory() {
 
   const statItems = [...baseStatItems, ...extraStatItems];
 
-  const stageLabel =
-    isCampaign && campaignLevel ? campaignLevel.title : getPathDisplayName(selectedPath);
+  const stageLabel = getPathDisplayName(selectedPath);
   const difficultyLabel = formatGameRecordDifficulty(
     gameDifficulty,
-    gameDifficultyLabelsFromDetail(t.mutatorChallenge.detail),
+    gameDifficultyLabelsFromGameCopy(t.game),
   );
   const timeLabel = report ? formatPlayTime(report.playTimeSeconds) : '--';
 
   const handleNextLevel = () => {
-    if (canContinueCampaign && nextLevelId) {
-      resetGame();
-      startGame(
-        nextLevelId,
-        gameDifficulty,
-        false,
-        nextLevelData?.maxWaves,
-      );
-      return;
-    }
     resetGame();
     setScene('pathSelection');
   };
@@ -218,7 +176,7 @@ export default function Victory() {
     const args = useGameStore.getState().lastStartArgs;
     resetGame();
     if (args) {
-      startGame(args.pathName, args.difficulty, args.endless, args.maxWaves, args.customModifiers, args.customWaveSetId, args.mutator);
+      startGame(args.pathName, args.difficulty, args.endless, args.maxWaves, args.customModifiers, args.customWaveSetId);
     } else {
       setScene('pathSelection');
     }
@@ -241,7 +199,7 @@ export default function Victory() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [canContinueCampaign, nextLevelId, nextLevelData, gameDifficulty, resetGame, startGame, setScene]);
+  }, [resetGame, setScene]);
 
   return (
     <SceneShell accent="success">
@@ -259,9 +217,7 @@ export default function Victory() {
               kbd={t.game.enterToConfirm}
               onClick={handleNextLevel}
             >
-              {canContinueCampaign && nextLevelData
-                ? formatVictoryNextLabel(t.game.nextLevelNamed, t.game.nextLevel, nextLevelData.title)
-                : t.game.nextLevel}
+              {t.game.selectMap}
             </Btn>
           }
         />
@@ -272,7 +228,7 @@ export default function Victory() {
           <GameEndResultBand
             tone="vital"
             headline={t.game.victory}
-            tag={isCampaign ? t.campaignEnd.modeCampaign : t.campaignEnd.modeStandard}
+            tag={t.campaignEnd.modeStandard}
             meta={[
               { label: 'stage', value: stageLabel },
               { label: 'difficulty', value: difficultyLabel },
@@ -283,7 +239,7 @@ export default function Victory() {
             stars={stars}
             badge={
               <span className="flex flex-col gap-1">
-                <span className="hl-label">grade</span>
+                <span className="arc-label">grade</span>
                 <span
                   className={`flex h-9 min-w-[36px] items-center justify-center border px-2 font-mono text-[18px] font-semibold leading-none tabular-nums ${GRADE_CLASS[gradeInfo.tone]}`}
                 >
@@ -296,7 +252,7 @@ export default function Victory() {
           <GameEndSessionReport variant="success">
             <Deck className="flex flex-col gap-3 p-4 sm:p-5">
               <div className="flex items-center justify-between gap-3">
-                <span className="hl-label">{t.game.stats}</span>
+                <span className="arc-label">{t.game.stats}</span>
                 <Btn
                   variant="ghost"
                   size="sm"
@@ -315,30 +271,6 @@ export default function Victory() {
               <GameEndStatGrid items={statItems} className="lg:grid-cols-3" />
             </Deck>
 
-            {isCampaign && campaignLevelId && (
-              <VictoryCampaignPanel
-                levelId={campaignLevelId}
-                health={health}
-                startingHealth={startingHealth}
-                coinsGranted={campaignGrant.coins}
-                talentGranted={campaignGrant.talentPoints}
-                unlockedTowers={campaignGrant.unlockedTowers}
-              />
-            )}
-
-            <VictoryShareCard
-              mapId={selectedPath}
-              score={score}
-              stars={stars}
-              grade={gradeInfo.grade}
-              wave={currentWave}
-              health={health}
-              startingHealth={startingHealth}
-              coinReward={coinReward}
-              expGained={expGained}
-              totalKills={totalKills}
-              isCampaign={!!isCampaign}
-            />
           </GameEndSessionReport>
 
           <GameEndAchievementPanels unlockedIds={report?.unlockedAchievementIds ?? []}>
@@ -347,20 +279,15 @@ export default function Victory() {
                 {medals.map((medal) => (
                   <span
                     key={medal.id}
-                    className="inline-flex items-center gap-1.5 border border-[var(--hl-line)] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-2)]"
+                    className="arc-chip inline-flex items-center gap-1.5"
                   >
-                    <span className="text-[var(--hl-caution)]">{medal.icon}</span>
+                    <span className="text-[var(--arc-caution)]">{medal.icon}</span>
                     {medal.name}
                   </span>
                 ))}
               </Deck>
             )}
           </GameEndAchievementPanels>
-
-          <GameEndChallengePanel
-            daily={report?.dailyChallenge}
-            mutator={report?.mutatorChallenge}
-          />
 
           <GameEndReplayPanel />
 
