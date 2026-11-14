@@ -3,7 +3,7 @@
  */
 import { useTranslation } from '@/i18n';
 import { RARITY_CONFIG } from '@/types/achievement';
-import { Meter, SegHead, StatCell } from '@/components/hl';
+import { Deck, Meter, Num, SegHead, StatCell } from '@/components/hl';
 import { RARITY_ORDER, RARITY_TONE, TONE_TEXT, TONE_FILL, formatNum } from './observatoryShared';
 
 interface Props {
@@ -26,16 +26,16 @@ export function ObservatoryStats({
   const pct = totalCount > 0 ? Math.round((earnedCount / totalCount) * 100) : 0;
 
   return (
-    <div className="flex flex-col gap-3 border border-[var(--hl-line)] p-3">
+    <Deck className="flex flex-col gap-3 p-3">
       <div className="flex items-end justify-between gap-3">
         <StatCell label={o.statUnlocked} value={`${earnedCount}/${totalCount}`} tone="signal" />
         <span className="w-[120px] pb-1">
           <Meter value={pct} max={100} tone="signal" />
         </span>
-        <span className="font-mono text-[11px] tabular-nums text-[var(--hl-ink-2)]">{`${pct}%`}</span>
+        <Num value={`${pct}%`} tone="ink" size="sm" className="font-mono tabular-nums" />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 border-t border-[var(--hl-line)] pt-2">
+      <div className="grid grid-cols-2 gap-3 border-t border-[var(--cn-line-soft)] pt-2">
         <StatCell label={o.statPoints} value={formatNum(points)} tone="reach" />
         <StatCell
           label={o.statClaimable}
@@ -60,9 +60,12 @@ export function ObservatoryStats({
                 <span className="min-w-0 flex-1">
                   <Meter value={barPct} max={100} tone={RARITY_TONE[rarity]} />
                 </span>
-                <span className="w-10 shrink-0 text-right font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-3)]">
-                  {`${earned}/${total}`}
-                </span>
+                <Num
+                  value={`${earned}/${total}`}
+                  tone="muted"
+                  size="sm"
+                  className="w-10 shrink-0 text-right font-mono tabular-nums"
+                />
               </div>
             );
           })}
@@ -80,8 +83,8 @@ export function RarityStrip({
   const { t } = useTranslation();
   const o = t.achievements.observatory;
   return (
-    <div className="flex flex-wrap items-center gap-3 border border-[var(--hl-line)] px-3 py-1.5">
-      <span className="hl-label">{o.detailRarity}</span>
+    <div className="flex flex-wrap items-center gap-3 border-[3px] border-[var(--cn-line-soft)] px-3 py-1.5">
+      <span className="arc-label">{o.detailRarity}</span>
       {distribution.map(({ rarity, earned, total }) => (
         <span key={rarity} className="flex items-center gap-1.5">
           <span className={`h-1.5 w-1.5 ${TONE_FILL[RARITY_TONE[rarity]]}`} />
@@ -90,12 +93,15 @@ export function RarityStrip({
           >
             {RARITY_CONFIG[rarity].label}
           </span>
-          <span className="font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-3)]">
-            {`${earned}/${total}`}
-          </span>
+          <Num
+            value={`${earned}/${total}`}
+            tone="muted"
+            size="sm"
+            className="font-mono tabular-nums"
+          />
         </span>
       ))}
-    </div>
+    </Deck>
   );
 }
 

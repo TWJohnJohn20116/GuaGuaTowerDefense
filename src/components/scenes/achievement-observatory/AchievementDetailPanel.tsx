@@ -6,7 +6,7 @@
  */
 import type { Achievement, AchievementStatus } from '@/types/achievement';
 import { RARITY_CONFIG } from '@/types/achievement';
-import { Btn, Dot, Empty, Meter, SegHead } from '@/components/hl';
+import { Btn, Deck, Dot, Empty, Meter, Num, SegHead } from '@/components/hl';
 import {
   ProgressBlocks,
   RARITY_CODE,
@@ -57,10 +57,10 @@ export function AchievementDetailPanel({
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* 識別牌 */}
-      <div className="flex items-start gap-3 border-b border-[var(--hl-line)] px-4 py-3.5">
+      <div className="flex items-start gap-3 border-b border-[var(--cn-line-soft)] px-4 py-3.5">
         <div
           className={`relative flex h-[76px] w-[76px] shrink-0 flex-col items-center justify-center border ${
-            earned ? TONE_BORDER[tone] : 'border-[var(--hl-line-strong)]'
+            earned ? TONE_BORDER[tone] : 'border-[var(--arc-line-strong)]'
           }`}
           style={{
             backgroundImage:
@@ -70,7 +70,7 @@ export function AchievementDetailPanel({
         >
           <span
             className={`font-mono text-[26px] font-bold leading-none ${
-              earned ? TONE_TEXT[tone] : 'text-[var(--hl-ink-4)]'
+              earned ? TONE_TEXT[tone] : 'text-[var(--arc-ink-4)]'
             }`}
           >
             {secretLocked ? '?' : RARITY_CODE[achievement.rarity]}
@@ -82,16 +82,16 @@ export function AchievementDetailPanel({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className={`font-mono text-[9.5px] uppercase tracking-[0.08em] ${earned ? TONE_TEXT[tone] : 'text-[var(--hl-ink-4)]'}`}>
+            <span className={`font-mono text-[9.5px] uppercase tracking-[0.08em] ${earned ? TONE_TEXT[tone] : 'text-[var(--arc-ink-4)]'}`}>
               {cfg.label}
             </span>
-            <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">+{cfg.points}</span>
+            <Num value={`+${cfg.points}`} tone="muted" size="sm" className="font-mono tabular-nums" />
             {claimable && <Dot tone="caution" pulse />}
           </div>
-          <h2 className="mt-1 text-[16px] font-semibold leading-tight tracking-[-0.01em] text-[var(--hl-ink)]">
+          <h2 className="arc-title mt-1 text-[16px] font-semibold leading-tight tracking-[-0.01em] text-[var(--arc-ink)]">
             {secretLocked ? '?????' : achievement.name}
           </h2>
-          <p className="mt-1.5 line-clamp-4 text-[11.5px] leading-relaxed text-[var(--hl-ink-2)]">
+          <p className="mt-1.5 line-clamp-4 text-[11.5px] leading-relaxed text-[var(--arc-ink-2)]">
             {secretLocked ? o.secretLockedDesc : achievement.description}
           </p>
         </div>
@@ -99,16 +99,16 @@ export function AchievementDetailPanel({
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         {/* 完成度 */}
-        <div className="border-b border-[var(--hl-line)] px-4 py-3">
+        <div className="border-b border-[var(--cn-line-soft)] px-4 py-3">
           <div className="flex items-end justify-between gap-3">
-            <span className="hl-label">{o.detailProgress}</span>
+            <span className="arc-label">{o.detailProgress}</span>
             <span
-              className={`font-mono text-[20px] font-semibold leading-none tabular-nums ${
-                earned ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-ink)]'
+              className={`font-mono text-[20px] font-semibold leading-none tabular-nums arc-num ${
+                earned ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-ink)]'
               }`}
             >
               {shownPct}
-              <span className="ml-0.5 text-[10px] font-normal text-[var(--hl-ink-3)]">%</span>
+              <span className="ml-0.5 text-[10px] font-normal text-[var(--arc-ink-3)]">%</span>
             </span>
           </div>
           <ProgressBlocks
@@ -122,13 +122,16 @@ export function AchievementDetailPanel({
         </div>
 
         {/* 條件 */}
-        <div className="border-b border-[var(--hl-line)] px-4 py-3">
+        <div className="border-b border-[var(--cn-line-soft)] px-4 py-3">
           <SegHead
             label={o.detailCondition}
             right={
-              <span className="font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">
-                {`${doneConditions}/${achievement.conditions.length}`}
-              </span>
+              <Num
+                value={`${doneConditions}/${achievement.conditions.length}`}
+                tone="muted"
+                size="sm"
+                className="font-mono tabular-nums"
+              />
             }
           />
           <div className="mt-2 flex flex-col gap-2.5">
@@ -143,16 +146,19 @@ export function AchievementDetailPanel({
                       <span
                         aria-hidden="true"
                         className={`inline-block h-1.5 w-1.5 shrink-0 ${
-                          done ? 'bg-[var(--hl-vital)]' : 'bg-[var(--hl-line-hot)]'
+                          done ? 'bg-[var(--arc-vital)]' : 'bg-[var(--arc-line-hot)]'
                         }`}
                       />
-                      <span className="min-w-0 truncate text-[11.5px] text-[var(--hl-ink-2)]">
+                      <span className="min-w-0 truncate text-[11.5px] text-[var(--arc-ink-2)]">
                         {secretLocked ? '?????' : getConditionLabel(t.achievements, cond.type)}
                       </span>
                     </span>
-                    <span className="shrink-0 font-mono text-[10px] tabular-nums text-[var(--hl-ink)]">
-                      {`${formatNum(cur)}/${formatNum(cond.target)}`}
-                    </span>
+                    <Num
+                      value={`${formatNum(cur)}/${formatNum(cond.target)}`}
+                      tone="ink"
+                      size="sm"
+                      className="shrink-0 font-mono tabular-nums"
+                    />
                   </div>
                   <Meter value={condPct} max={100} tone={done ? 'vital' : 'ink'} className="mt-1" />
                 </div>
@@ -167,17 +173,21 @@ export function AchievementDetailPanel({
             <SegHead label={o.detailReward} />
             <div className="mt-2 flex flex-col gap-1.5">
               {achievement.rewards.map((r, ri) => (
-                <div
+                <Deck
                   key={ri}
-                  className="flex items-center justify-between border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-2.5 py-1.5"
+                  tone="sunken"
+                  className="flex items-center justify-between px-2.5 py-1.5"
                 >
-                  <span className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+                  <span className="font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
                     {r.type}
                   </span>
-                  <span className="font-mono text-[11.5px] tabular-nums text-[var(--hl-ink)]">
-                    {r.type === 'points' ? `${r.value} ${t.mainMenu.points}` : String(r.value)}
-                  </span>
-                </div>
+                  <Num
+                    value={r.type === 'points' ? `${r.value} ${t.mainMenu.points}` : String(r.value)}
+                    tone="ink"
+                    size="sm"
+                    className="font-mono tabular-nums"
+                  />
+                </Deck>
               ))}
             </div>
           </div>
@@ -185,7 +195,7 @@ export function AchievementDetailPanel({
       </div>
 
       {/* 行動 */}
-      <div className="border-t border-[var(--hl-line)] px-4 py-2.5">
+      <div className="border-t border-[var(--cn-line-soft)] px-4 py-2.5">
         {claimable ? (
           <Btn variant="signal" size="md" block onClick={() => onClaim(achievement.id)}>
             {o.claimBtn}
@@ -193,14 +203,14 @@ export function AchievementDetailPanel({
         ) : earned ? (
           <div className="flex items-center justify-center gap-2 py-1">
             <Dot tone="vital" />
-            <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-vital)]">
+            <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-vital)]">
               {status === 'claimed' ? o.rewardClaimed : o.achievementDone}
             </span>
           </div>
         ) : (
           <div className="flex items-center justify-center gap-2 py-1">
             <Dot tone="ink" />
-            <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+            <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
               {o.lockedBadge}
             </span>
           </div>

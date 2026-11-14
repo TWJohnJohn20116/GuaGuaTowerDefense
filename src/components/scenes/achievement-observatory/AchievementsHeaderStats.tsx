@@ -20,7 +20,7 @@ export function AchievementsHeaderStats({
   const o = t.achievements.observatory;
 
   return (
-    <div className="flex items-stretch divide-x divide-[var(--hl-line)] border border-[var(--hl-line)]">
+    <div className="flex items-stretch divide-x divide-[var(--arc-line)] border-[3px] border-[var(--cn-line-soft)]">
       <div className="px-3 py-1.5">
         <StatCell label={o.statUnlocked} value={`${earnedCount}/${totalCount}`} tone="signal" />
       </div>

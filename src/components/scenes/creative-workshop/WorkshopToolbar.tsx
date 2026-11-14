@@ -16,10 +16,10 @@ export function WorkshopToolbar({ tab }: WorkshopToolbarProps) {
   const tb = w.toolbar;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-[var(--hl-line)] bg-[var(--hl-void)] px-4 py-2.5">
-      <span className="hl-label">{tab === 'modEditor' ? w.modEditor : w.modManager}</span>
-      <span className="h-px flex-1 bg-[var(--hl-line)]" />
-      <span className="hl-micro">
+    <div className="flex flex-wrap items-center gap-2 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-4 py-2.5">
+      <span className="arc-label">{tab === 'modEditor' ? w.modEditor : w.modManager}</span>
+      <span className="h-px flex-1 bg-[var(--arc-line)]" />
+      <span className="arc-micro">
         {tab === 'modEditor' ? tb.editorHint : tb.managerHint}
       </span>
     </div>

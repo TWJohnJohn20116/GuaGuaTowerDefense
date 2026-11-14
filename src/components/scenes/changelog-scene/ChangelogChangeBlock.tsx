@@ -10,9 +10,9 @@ interface ChangeBlockProps {
 }
 
 const TAG_TONE: Record<ChangeTag, string> = {
-  add: 'text-[var(--hl-signal)]',
-  fix: 'text-[var(--hl-vital)]',
-  tune: 'text-[var(--hl-caution)]',
+  add: 'text-[var(--arc-gold)]',
+  fix: 'text-[var(--arc-vital)]',
+  tune: 'text-[var(--arc-caution)]',
 };
 
 function renderChangeItem(item: ChangeItem, itemIndex: number) {
@@ -30,13 +30,13 @@ function renderChangeItem(item: ChangeItem, itemIndex: number) {
 
   return (
     <div key={itemIndex}>
-      <div className="text-[11.5px] leading-relaxed text-[var(--hl-ink-2)]">
+      <div className="text-[11.5px] leading-relaxed text-[var(--arc-ink-2)]">
         <MarkdownText text={mainItem} />
       </div>
       {subItems.length > 0 && (
-        <div className="mt-1 space-y-0.5 border-l border-[var(--hl-line)] pl-3">
+        <div className="mt-1 space-y-0.5 border-l border-[var(--cn-line-soft)] pl-3">
           {subItems.map((subItem, subIndex) => (
-            <div key={subIndex} className="text-[11px] leading-relaxed text-[var(--hl-ink-3)]">
+            <div key={subIndex} className="text-[11px] leading-relaxed text-[var(--arc-ink-3)]">
               <MarkdownText text={subItem} />
             </div>
           ))}
@@ -50,11 +50,11 @@ export function ChangelogChangeBlock({ title, items }: ChangeBlockProps) {
   const tag = resolveChangeTag(title);
 
   return (
-    <div className="border-t border-[var(--hl-line)] first:border-t-0">
+    <div className="border-t border-[var(--cn-line-soft)] first:border-t-0">
       {items.map((item, itemIndex) => (
         <div
           key={itemIndex}
-          className="grid grid-cols-[54px_1fr] items-start gap-3 border-b border-[var(--hl-line)] py-2 last:border-b-0"
+          className="grid grid-cols-[54px_1fr] items-start gap-3 border-b border-[var(--cn-line-soft)] py-2 last:border-b-0"
         >
           <span
             className={`pt-0.5 font-mono text-[10px] uppercase leading-none tracking-[0.08em] ${TAG_TONE[tag]}`}

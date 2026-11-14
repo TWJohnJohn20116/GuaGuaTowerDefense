@@ -6,6 +6,7 @@
  */
 import type { AchievementCategory } from '@/types/achievement';
 import { CATEGORY_CONFIG } from '@/types/achievement';
+import { Num } from '@/components/hl';
 import { ProgressBlocks } from './observatoryShared';
 import type { CategoryProgress, ObservatoryCategory } from './CategorySidebar';
 
@@ -21,20 +22,23 @@ export function ArchiveRibbon({ categories, selected, onSelect, totalEarned, tot
   const totalPct = totalCount > 0 ? (totalEarned / totalCount) * 100 : 0;
 
   return (
-    <div className="flex shrink-0 items-stretch border-b border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+    <div className="flex shrink-0 items-stretch border-b border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
       {/* 起頭：總完成度 */}
-      <div className="flex w-[212px] shrink-0 flex-col justify-center gap-1.5 border-r border-[var(--hl-line)] px-3 py-2">
+      <div className="flex w-[212px] shrink-0 flex-col justify-center gap-1.5 border-r border-[var(--cn-line-soft)] px-3 py-2">
         <div className="flex items-baseline justify-between">
-          <span className="hl-label">archive</span>
-          <span className="font-mono text-[13px] font-semibold leading-none tabular-nums text-[var(--hl-signal)]">
+          <span className="arc-label">archive</span>
+          <span className="font-mono text-[13px] font-semibold leading-none tabular-nums arc-num text-[var(--arc-gold)]">
             {Math.round(totalPct)}
-            <span className="ml-0.5 text-[9px] font-normal text-[var(--hl-ink-3)]">%</span>
+            <span className="ml-0.5 text-[9px] font-normal text-[var(--arc-ink-3)]">%</span>
           </span>
         </div>
         <ProgressBlocks pct={totalPct} total={24} tone="caution" height={5} fill />
-        <span className="font-mono text-[9px] tabular-nums tracking-[0.06em] text-[var(--hl-ink-4)]">
-          {`${totalEarned}/${totalCount}`}
-        </span>
+        <Num
+          value={`${totalEarned}/${totalCount}`}
+          tone="muted"
+          size="sm"
+          className="font-mono tabular-nums tracking-[0.06em]"
+        />
       </div>
 
       {/* 分類格 */}
@@ -48,33 +52,35 @@ export function ArchiveRibbon({ categories, selected, onSelect, totalEarned, tot
               type="button"
               onClick={() => onSelect(category as ObservatoryCategory)}
               className={[
-                'group relative flex min-w-[72px] flex-1 flex-col justify-center gap-1.5 border-r border-[var(--hl-line)] px-2 py-2 text-left',
-                'transition-colors duration-150 hover:bg-[var(--hl-deck-2)]',
-                active ? 'bg-[var(--hl-deck-2)]' : '',
+                'group relative flex min-w-[72px] flex-1 flex-col justify-center gap-1.5 border-r border-[var(--cn-line-soft)] px-2 py-2 text-left',
+                'transition-colors duration-150 hover:bg-[var(--arc-deck-2)]',
+                active ? 'bg-[var(--arc-deck-2)]' : '',
               ].join(' ')}
             >
               <span
                 aria-hidden="true"
-                className={`absolute left-0 top-0 h-full w-[2px] ${active ? 'bg-[var(--hl-signal)]' : 'bg-transparent'}`}
+                className={`absolute left-0 top-0 h-full w-[2px] ${active ? 'bg-[var(--arc-gold)]' : 'bg-transparent'}`}
               />
               <span className="flex items-center gap-1.5">
-                <span
-                  className={`font-mono text-[9px] tabular-nums ${
-                    active ? 'text-[var(--hl-signal)]' : 'text-[var(--hl-ink-4)]'
-                  }`}
-                >
-                  {String(i + 1).padStart(2, '0')}
-                </span>
+                <Num
+                  value={String(i + 1).padStart(2, '0')}
+                  tone={active ? 'signal' : 'muted'}
+                  size="sm"
+                  className="font-mono tabular-nums"
+                />
                 <span
                   className={`min-w-0 flex-1 truncate font-mono text-[9.5px] uppercase tracking-[0.06em] ${
-                    active ? 'text-[var(--hl-ink)]' : 'text-[var(--hl-ink-2)]'
+                    active ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-2)]'
                   } hidden xl:inline`}
                 >
                   {CATEGORY_CONFIG[category as AchievementCategory].label}
                 </span>
-                <span className="shrink-0 font-mono text-[9px] tabular-nums text-[var(--hl-ink-4)]">
-                  {`${earned}/${total}`}
-                </span>
+                <Num
+                  value={`${earned}/${total}`}
+                  tone="muted"
+                  size="sm"
+                  className="shrink-0 font-mono tabular-nums"
+                />
               </span>
               <ProgressBlocks pct={pct} total={18} tone={active ? 'caution' : 'ink'} height={4} fill />
             </button>

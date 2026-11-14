@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Achievement, AchievementCategory, AchievementStatus } from '@/types/achievement';
 import { CATEGORY_CONFIG } from '@/types/achievement';
-import { Btn, Empty } from '@/components/hl';
+import { Btn, Empty, Num } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 import { AchievementGridCard } from './AchievementGridCard';
 
@@ -76,15 +76,15 @@ export function AchievementsGrid({
   return (
     <div className="flex flex-col">
       {/* 表頭 */}
-      <div className="sticky top-0 z-10 grid grid-cols-[18px_18px_minmax(0,1fr)_182px_62px_44px] items-center gap-3 border-b border-[var(--hl-line)] bg-[var(--hl-void)] py-1.5 pl-2 pr-3">
+      <div className="sticky top-0 z-10 grid grid-cols-[18px_18px_minmax(0,1fr)_182px_62px_44px] items-center gap-3 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void)] py-1.5 pl-2 pr-3">
         <span />
-        <span className="text-center font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--hl-ink-4)]">r</span>
-        <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--hl-ink-4)]">entry</span>
-        <span className="hidden font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--hl-ink-4)] sm:block">
+        <span className="text-center font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--arc-ink-4)]">r</span>
+        <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--arc-ink-4)]">entry</span>
+        <span className="hidden font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--arc-ink-4)] sm:block">
           progress
         </span>
-        <span className="text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--hl-ink-4)]">state</span>
-        <span className="text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--hl-ink-4)]">pts</span>
+        <span className="text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--arc-ink-4)]">state</span>
+        <span className="text-right font-mono text-[9px] uppercase tracking-[0.1em] text-[var(--arc-ink-4)]">pts</span>
       </div>
 
       {groups.map(([category, list]) => {
@@ -95,14 +95,17 @@ export function AchievementsGrid({
         return (
           <section key={category}>
             {/* 分類段頭 */}
-            <div className="sticky top-[28px] z-[9] flex items-center gap-2.5 border-b border-[var(--hl-line)] bg-[var(--hl-deck)] px-2 py-1.5">
-              <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink)]">
+            <div className="sticky top-[28px] z-[9] flex items-center gap-2.5 border-b border-[var(--cn-line-soft)] bg-[var(--arc-deck)] px-2 py-1.5">
+              <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-ink)]">
                 {CATEGORY_CONFIG[category].label}
               </span>
-              <span className="h-px flex-1 bg-[var(--hl-line)]" />
-              <span className="font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">
-                {`${earned}/${list.length}`}
-              </span>
+              <span className="h-px flex-1 bg-[var(--arc-line)]" />
+              <Num
+                value={`${earned}/${list.length}`}
+                tone="muted"
+                size="sm"
+                className="font-mono tabular-nums"
+              />
             </div>
 
             {list.map((a) => (
@@ -128,10 +131,13 @@ export function AchievementsGrid({
       })}
 
       {hasMore && (
-        <div className="flex items-center gap-2 border-t border-[var(--hl-line)] p-2">
-          <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
-            {`${visibleCount}/${achievements.length}`}
-          </span>
+        <div className="flex items-center gap-2 border-t border-[var(--cn-line-soft)] p-2">
+          <Num
+            value={`${visibleCount}/${achievements.length}`}
+            tone="muted"
+            size="sm"
+            className="font-mono tabular-nums"
+          />
           <Btn size="sm" variant="line" onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}>
             {`+${PAGE_SIZE}`}
           </Btn>

@@ -20,9 +20,9 @@ export const VERSION_TYPE_STYLE: Record<
   VersionType,
   { label: string; tone: string; border: string }
 > = {
-  major: { label: '重大', tone: 'text-[var(--hl-alarm)]', border: 'border-[rgba(255,75,62,0.35)]' },
-  minor: { label: '功能', tone: 'text-[var(--hl-reach)]', border: 'border-[rgba(111,168,255,0.35)]' },
-  patch: { label: '修復', tone: 'text-[var(--hl-ink-3)]', border: 'border-[var(--hl-line-strong)]' },
+  major: { label: '重大', tone: 'text-[var(--arc-alert)]', border: 'border-[rgba(255,61,113,0.35)]' },
+  minor: { label: '功能', tone: 'text-[var(--arc-reach)]', border: 'border-[rgba(111,140,255,0.35)]' },
+  patch: { label: '修復', tone: 'text-[var(--arc-ink-3)]', border: 'border-[var(--arc-line-strong)]' },
 };
 
 /* ------------------------------------------------------------------ 變更前綴 */

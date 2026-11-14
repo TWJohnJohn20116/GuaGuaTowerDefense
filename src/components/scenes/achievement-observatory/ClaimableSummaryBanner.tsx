@@ -3,7 +3,7 @@
  *
  * 只在有待領取時出現：左緣訊號條 + 一行字 + 兩顆按鈕。不抢版面。
  */
-import { Btn, Dot } from '@/components/hl';
+import { Btn, Dot, Num } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 
 interface ClaimableSummaryBannerProps {
@@ -23,13 +23,16 @@ export function ClaimableSummaryBanner({
   if (claimableCount <= 0) return null;
 
   return (
-    <div className="relative flex shrink-0 flex-wrap items-center gap-3 border-b border-[var(--hl-line)] bg-[var(--hl-deck-2)] py-1.5 pl-4 pr-3">
-      <span aria-hidden="true" className="absolute left-0 top-0 h-full w-[2px] bg-[var(--hl-caution)]" />
+    <div className="relative flex shrink-0 flex-wrap items-center gap-3 border-b border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)] py-1.5 pl-4 pr-3">
+      <span aria-hidden="true" className="absolute left-0 top-0 h-full w-[2px] bg-[var(--arc-caution)]" />
       <Dot tone="caution" pulse />
-      <span className="hl-label">{o.statClaimable}</span>
-      <span className="font-mono text-[15px] font-semibold leading-none tabular-nums text-[var(--hl-caution)]">
-        {claimableCount}
-      </span>
+      <span className="arc-label">{o.statClaimable}</span>
+      <Num
+        value={claimableCount}
+        tone="caution"
+        size="md"
+        className="font-mono font-semibold leading-none tabular-nums"
+      />
       <span className="ml-auto flex items-center gap-2">
         <Btn size="sm" variant="ghost" onClick={onShowClaimable}>
           {o.filterClaimable}

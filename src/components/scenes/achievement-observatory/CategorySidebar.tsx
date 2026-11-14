@@ -6,7 +6,7 @@
 import type { AchievementCategory } from '@/types/achievement';
 import { CATEGORY_CONFIG } from '@/types/achievement';
 import { useTranslation } from '@/i18n';
-import { Chip } from '@/components/hl';
+import { Chip, Num } from '@/components/hl';
 import { ProgressBlocks } from './observatoryShared';
 
 export type ObservatoryCategory = AchievementCategory | 'all' | 'playstyle';
@@ -60,33 +60,35 @@ export function CategorySidebar({
             type="button"
             onClick={() => onSelect(row.id)}
             className={[
-              'group relative flex flex-col gap-1.5 border-b border-[var(--hl-line)] px-3 py-2 text-left',
-              'transition-colors duration-150 hover:bg-[var(--hl-deck-2)]',
-              active ? 'bg-[var(--hl-deck-2)]' : '',
+              'group relative flex flex-col gap-1.5 border-b border-[var(--cn-line-soft)] px-3 py-2 text-left',
+              'transition-colors duration-150 hover:bg-[var(--arc-deck-2)]',
+              active ? 'bg-[var(--arc-deck-2)]' : '',
             ].join(' ')}
           >
             <span
               aria-hidden="true"
-              className={`absolute left-0 top-0 h-full w-[2px] ${active ? 'bg-[var(--hl-signal)]' : 'bg-transparent'}`}
+              className={`absolute left-0 top-0 h-full w-[2px] ${active ? 'bg-[var(--arc-gold)]' : 'bg-transparent'}`}
             />
             <span className="flex items-center gap-2">
-              <span
-                className={`w-[16px] shrink-0 font-mono text-[9px] tabular-nums ${
-                  active ? 'text-[var(--hl-signal)]' : 'text-[var(--hl-ink-4)]'
-                }`}
-              >
-                {String(i + 1).padStart(2, '0')}
-              </span>
+              <Num
+                value={String(i + 1).padStart(2, '0')}
+                tone={active ? 'signal' : 'muted'}
+                size="sm"
+                className="w-[16px] shrink-0 font-mono tabular-nums"
+              />
               <span
                 className={`min-w-0 flex-1 truncate text-[12px] ${
-                  active ? 'font-semibold text-[var(--hl-ink)]' : 'text-[var(--hl-ink-2)]'
+                  active ? 'font-semibold text-[var(--arc-ink)]' : 'text-[var(--arc-ink-2)]'
                 }`}
               >
                 {row.label}
               </span>
-              <span className="shrink-0 font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">
-                {`${row.earned}/${row.total}`}
-              </span>
+              <Num
+                value={`${row.earned}/${row.total}`}
+                tone="muted"
+                size="sm"
+                className="shrink-0 font-mono tabular-nums"
+              />
             </span>
             <span className="block pl-[24px]">
               <ProgressBlocks pct={pct} total={16} tone={active ? 'caution' : 'ink'} height={4} fill />
@@ -105,7 +107,7 @@ export function CategorySidebarMobile(props: Props) {
   const ps = props.playstyle ?? { earned: 0, total: 0 };
 
   return (
-    <div className="overflow-x-auto border-b border-[var(--hl-line)] px-2 py-1.5 lg:hidden">
+    <div className="overflow-x-auto border-b border-[var(--cn-line-soft)] px-2 py-1.5 lg:hidden">
       <div className="flex min-w-max items-center gap-1">
         <Chip active={props.selected === 'all'} onClick={() => props.onSelect('all')}>
           {`${o.categoryAll} ${props.totalEarned}/${props.totalCount}`}

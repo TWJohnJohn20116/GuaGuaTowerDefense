@@ -47,27 +47,27 @@ export const RARITY_RANK: Record<AchievementRarity, number> = {
 };
 
 export const TONE_TEXT: Record<RarityTone, string> = {
-  ink: 'text-[var(--hl-ink-2)]',
-  vital: 'text-[var(--hl-vital)]',
-  reach: 'text-[var(--hl-reach)]',
-  caution: 'text-[var(--hl-caution)]',
-  alarm: 'text-[var(--hl-alarm)]',
+  ink: 'text-[var(--arc-ink-2)]',
+  vital: 'text-[var(--arc-vital)]',
+  reach: 'text-[var(--arc-reach)]',
+  caution: 'text-[var(--arc-caution)]',
+  alarm: 'text-[var(--arc-alert)]',
 };
 
 export const TONE_FILL: Record<RarityTone, string> = {
-  ink: 'bg-[var(--hl-ink-3)]',
-  vital: 'bg-[var(--hl-vital)]',
-  reach: 'bg-[var(--hl-reach)]',
-  caution: 'bg-[var(--hl-caution)]',
-  alarm: 'bg-[var(--hl-alarm)]',
+  ink: 'bg-[var(--arc-ink-3)]',
+  vital: 'bg-[var(--arc-vital)]',
+  reach: 'bg-[var(--arc-reach)]',
+  caution: 'bg-[var(--arc-caution)]',
+  alarm: 'bg-[var(--arc-alert)]',
 };
 
 export const TONE_BORDER: Record<RarityTone, string> = {
-  ink: 'border-[var(--hl-ink-3)]',
-  vital: 'border-[var(--hl-vital)]',
-  reach: 'border-[var(--hl-reach)]',
-  caution: 'border-[var(--hl-caution)]',
-  alarm: 'border-[var(--hl-alarm)]',
+  ink: 'border-[var(--arc-ink-3)]',
+  vital: 'border-[var(--arc-vital)]',
+  reach: 'border-[var(--arc-reach)]',
+  caution: 'border-[var(--arc-caution)]',
+  alarm: 'border-[var(--arc-alert)]',
 };
 
 /** 狀態字形：檔案館的「卷宗狀態」欄。 */
@@ -103,7 +103,7 @@ export function RarityBlocks({
         <span
           key={i}
           className={`block border ${
-            i < rank ? `${TONE_FILL[tone]} ${TONE_BORDER[tone]}` : 'border-[var(--hl-line-strong)] bg-transparent'
+            i < rank ? `${TONE_FILL[tone]} ${TONE_BORDER[tone]}` : 'border-[var(--arc-line-strong)] bg-transparent'
           }`}
           style={{ width: size, height: size }}
         />
@@ -139,7 +139,7 @@ export function ProgressBlocks({
         <span
           key={i}
           className={`block ${fill ? 'flex-1 min-w-[2px]' : 'w-[3px]'} ${
-            i < filled ? TONE_FILL[tone] : 'bg-[var(--hl-line)]'
+            i < filled ? TONE_FILL[tone] : 'bg-[var(--arc-line)]'
           }`}
           style={{ height }}
         />
@@ -165,7 +165,7 @@ export function StarPoint({
       aria-hidden="true"
       className={[
         'inline-block shrink-0 border',
-        lit ? `${TONE_FILL[tone]} border-transparent` : 'border-[var(--hl-line-strong)] bg-transparent',
+        lit ? `${TONE_FILL[tone]} border-transparent` : 'border-[var(--arc-line-strong)] bg-transparent',
         className,
       ].join(' ')}
       style={{ width: size, height: size }}

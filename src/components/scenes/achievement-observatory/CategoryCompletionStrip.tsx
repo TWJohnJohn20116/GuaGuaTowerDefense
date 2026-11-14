@@ -2,7 +2,7 @@
  * 成就觀測站 · 分類完成度（HARDLINE：一條細列，分類在左軌時可省略）
  */
 import { CATEGORY_CONFIG, type AchievementCategory } from '@/types/achievement';
-import { Meter } from '@/components/hl';
+import { Meter, Num } from '@/components/hl';
 import type { CategoryProgress } from './CategorySidebar';
 import { useTranslation } from '@/i18n';
 
@@ -55,16 +55,19 @@ export function CategoryCompletionStrip({
             className={[
               'flex w-[108px] shrink-0 flex-col gap-1 border px-2 py-1.5 text-left transition-colors duration-150',
               active
-                ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]'
-                : 'border-[var(--hl-line)] bg-[var(--hl-deck)] hover:border-[var(--hl-line-hot)]',
+                ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
+                : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck)] hover:border-[var(--arc-line-hot)]',
             ].join(' ')}
           >
-            <span className="truncate font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--hl-ink-4)]">
+            <span className="truncate font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--arc-ink-4)]">
               {item.label}
             </span>
-            <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-2)]">
-              {`${item.earned}/${item.total}`}
-            </span>
+            <Num
+              value={`${item.earned}/${item.total}`}
+              tone="ink"
+              size="sm"
+              className="font-mono tabular-nums"
+            />
             <Meter value={pct} max={100} tone={active ? 'signal' : 'ink'} />
           </button>
         );

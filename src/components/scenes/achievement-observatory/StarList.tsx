@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import type { Achievement, AchievementStatus } from '@/types/achievement';
 import { RARITY_CONFIG } from '@/types/achievement';
-import { Btn, Chip, Dot, Empty, Meter, SegHead } from '@/components/hl';
+import { Btn, Chip, Dot, Empty, Input, Meter, Num, SegHead } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 import {
   RARITY_TONE,
@@ -98,12 +98,12 @@ export function StarList({
   return (
     <div className="flex flex-col gap-2 p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <input
+        <Input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={o.searchPlaceholderShort}
           aria-label={o.searchPlaceholderShort}
-          className="hl-input h-7 w-[220px] shrink-0"
+          className="h-7 w-[220px] shrink-0"
         />
         <div className="flex flex-wrap items-center gap-1">
           {filters.map((f) => (
@@ -114,7 +114,7 @@ export function StarList({
         </div>
       </div>
 
-      <div className="flex flex-col border-t border-[var(--hl-line)]">
+      <div className="flex flex-col border-t border-[var(--cn-line-soft)]">
         {visible.map((item, i) => {
           const status = getStatus(item.id);
           const pct = getPct(item.id);
@@ -134,9 +134,9 @@ export function StarList({
               }}
               className={
                 highlightId === item.id
-                  ? 'bg-[var(--hl-signal-veil)]'
+                  ? 'bg-[var(--arc-gold-veil)]'
                   : expanded
-                    ? 'bg-[var(--hl-deck-2)]'
+                    ? 'bg-[var(--arc-deck-2)]'
                     : ''
               }
             >
@@ -144,30 +144,36 @@ export function StarList({
                 type="button"
                 onClick={() => setExpandedId(expanded ? null : item.id)}
                 aria-expanded={expanded}
-                className="hl-row hl-row-hover w-full text-left"
+                className="flex items-center gap-3 min-h-10 border-b border-[var(--cn-line-soft)] px-3 transition-colors last:border-b-0 hover:bg-[var(--arc-deck-2)] w-full text-left"
               >
-                <span className="w-6 shrink-0 font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
+                <Num
+                  value={String(i + 1).padStart(2, '0')}
+                  tone="muted"
+                  size="sm"
+                  className="w-6 shrink-0 font-mono tabular-nums"
+                />
                 <StarPoint tone={tone} lit={earned} size={8} />
                 <span className="min-w-0 flex-1">
                   <span
                     className={`block truncate text-[12.5px] ${
-                      earned ? 'text-[var(--hl-ink-2)]' : 'text-[var(--hl-ink)]'
+                      earned ? 'text-[var(--arc-ink-2)]' : 'text-[var(--arc-ink)]'
                     }`}
                   >
                     {secretLocked ? '？？？' : item.name}
                   </span>
-                  <span className="mt-0.5 block truncate text-[10.5px] text-[var(--hl-ink-3)]">
+                  <span className="mt-0.5 block truncate text-[10.5px] text-[var(--arc-ink-3)]">
                     {secretLocked ? o.secretLocked : item.description}
                   </span>
                 </span>
                 <span className={`shrink-0 font-mono text-[9px] uppercase tracking-[0.06em] ${TONE_TEXT[tone]}`}>
                   {cfg.label}
                 </span>
-                <span className="w-12 shrink-0 text-right font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
-                  {earned ? '100%' : pct > 0 ? `${Math.round(pct)}%` : '—'}
-                </span>
+                <Num
+                  value={earned ? '100%' : pct > 0 ? `${Math.round(pct)}%` : '—'}
+                  tone="muted"
+                  size="sm"
+                  className="w-12 shrink-0 text-right font-mono tabular-nums"
+                />
                 {claimable ? (
                   <Dot tone="caution" pulse />
                 ) : status === 'claimed' ? (
@@ -178,7 +184,7 @@ export function StarList({
               </button>
 
               {expanded && (
-                <div className="border-b border-[var(--hl-line)] bg-[var(--hl-void-2)] px-3 py-2.5">
+                <div className="border-b border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-3 py-2.5">
                   <SegHead
                     label={o.detailCondition}
                     right={
@@ -196,14 +202,17 @@ export function StarList({
                       return (
                         <div key={ci}>
                           <div className="flex items-baseline justify-between gap-2">
-                            <span className="min-w-0 truncate text-[11.5px] text-[var(--hl-ink-2)]">
+                            <span className="min-w-0 truncate text-[11.5px] text-[var(--arc-ink-2)]">
                               {secretLocked
                                 ? '？？？'
                                 : getConditionLabel(t.achievements, cond.type)}
                             </span>
-                            <span className="shrink-0 font-mono text-[10px] tabular-nums text-[var(--hl-ink)]">
-                              {`${formatNum(cur)}/${formatNum(cond.target)}`}
-                            </span>
+                            <Num
+                              value={`${formatNum(cur)}/${formatNum(cond.target)}`}
+                              tone="ink"
+                              size="sm"
+                              className="shrink-0 font-mono tabular-nums"
+                            />
                           </div>
                           <Meter
                             value={condPct}
@@ -218,16 +227,19 @@ export function StarList({
 
                   {item.rewards.length > 0 && (
                     <div className="mt-2 flex flex-wrap items-center gap-1">
-                      <span className="hl-label">{o.detailReward}</span>
+                      <span className="arc-label">{o.detailReward}</span>
                       {item.rewards.map((r, ri) => (
-                        <span
+                        <Num
                           key={ri}
-                          className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-2)]"
-                        >
-                          {r.type === 'points'
-                            ? o.rewardPointsUnit.replace('{value}', String(r.value))
-                            : String(r.value)}
-                        </span>
+                          value={
+                            r.type === 'points'
+                              ? o.rewardPointsUnit.replace('{value}', String(r.value))
+                              : String(r.value)
+                          }
+                          tone="ink"
+                          size="sm"
+                          className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono tabular-nums"
+                        />
                       ))}
                     </div>
                   )}
@@ -249,10 +261,13 @@ export function StarList({
       {achievements.length === 0 && <Empty title={o.noResults} className="mt-2" />}
 
       {hasMore && (
-        <div className="flex items-center gap-2 border-t border-[var(--hl-line)] pt-2">
-          <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
-            {`${visibleCount}/${achievements.length}`}
-          </span>
+        <div className="flex items-center gap-2 border-t border-[var(--cn-line-soft)] pt-2">
+          <Num
+            value={`${visibleCount}/${achievements.length}`}
+            tone="muted"
+            size="sm"
+            className="font-mono tabular-nums"
+          />
           <Btn size="sm" variant="line" onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}>
             {`+${PAGE_SIZE}`}
           </Btn>

@@ -15,6 +15,7 @@ import {
   TONE_TEXT,
   isEarned,
 } from './observatoryShared';
+import { Num } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 
 interface AchievementGridCardProps {
@@ -58,18 +59,18 @@ export function AchievementGridCard({
       aria-pressed={selected}
       className={[
         'group relative grid w-full grid-cols-[18px_18px_minmax(0,1fr)_182px_62px_44px] items-center gap-3',
-        'border-b border-[var(--hl-line)] py-2 pl-2 pr-3 text-left transition-colors duration-150',
+        'border-b border-[var(--cn-line-soft)] py-2 pl-2 pr-3 text-left transition-colors duration-150',
         selected
-          ? 'bg-[var(--hl-deck-2)]'
+          ? 'bg-[var(--arc-deck-2)]'
           : highlighted
             ? 'bg-[rgba(255,182,39,0.07)]'
-            : 'bg-transparent hover:bg-[var(--hl-deck-2)]',
+            : 'bg-transparent hover:bg-[var(--arc-deck-2)]',
       ].join(' ')}
     >
       {/* 選中記號：左緣 2px 訊號條 */}
       <span
         aria-hidden="true"
-        className={`absolute left-0 top-0 h-full w-[2px] ${selected ? 'bg-[var(--hl-signal)]' : 'bg-transparent'}`}
+        className={`absolute left-0 top-0 h-full w-[2px] ${selected ? 'bg-[var(--arc-gold)]' : 'bg-transparent'}`}
       />
 
       {/* 狀態字形 */}
@@ -85,7 +86,7 @@ export function AchievementGridCard({
       {/* 稀有度代碼 */}
       <span
         className={`text-center font-mono text-[10px] leading-none tracking-[0.06em] ${
-          earned ? TONE_TEXT[tone] : 'text-[var(--hl-ink-4)]'
+          earned ? TONE_TEXT[tone] : 'text-[var(--arc-ink-4)]'
         }`}
       >
         {RARITY_CODE[achievement.rarity]}
@@ -95,7 +96,7 @@ export function AchievementGridCard({
       <span className="min-w-0">
         <span
           className={`block truncate text-[13px] leading-tight ${
-            earned ? 'text-[var(--hl-ink-2)]' : 'text-[var(--hl-ink)]'
+            earned ? 'text-[var(--arc-ink-2)]' : 'text-[var(--arc-ink)]'
           }`}
         >
           {secretLocked ? '?????' : achievement.name}
@@ -117,19 +118,22 @@ export function AchievementGridCard({
       <span
         className={`truncate text-right font-mono text-[9.5px] uppercase tracking-[0.08em] ${
           claimable
-            ? 'text-[var(--hl-caution)]'
+            ? 'text-[var(--arc-caution)]'
             : earned
-              ? 'text-[var(--hl-vital)]'
-              : 'text-[var(--hl-ink-4)]'
+              ? 'text-[var(--arc-vital)]'
+              : 'text-[var(--arc-ink-4)]'
         }`}
       >
         {statusLabel}
       </span>
 
       {/* 點數 */}
-      <span className="text-right font-mono text-[10.5px] tabular-nums text-[var(--hl-ink-3)]">
-        +{cfg.points}
-      </span>
+      <Num
+        value={`+${cfg.points}`}
+        tone="muted"
+        size="sm"
+        className="text-right font-mono tabular-nums"
+      />
     </button>
   );
 }

@@ -4,7 +4,7 @@
 import type { Achievement } from '@/types/achievement';
 import { RARITY_CONFIG } from '@/types/achievement';
 import { useTranslation } from '@/i18n';
-import { Meter } from '@/components/hl';
+import { Meter, Num } from '@/components/hl';
 import { RARITY_TONE, TONE_TEXT } from './observatoryShared';
 
 interface TargetItem {
@@ -44,8 +44,8 @@ export function NextTargetsRail({ targets, focusedIndex, onSelect, onKeyDown }: 
             className={[
               'flex w-[132px] shrink-0 flex-col gap-1 border px-2 py-1.5 text-left transition-colors duration-150',
               focused
-                ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]'
-                : 'border-[var(--hl-line)] bg-[var(--hl-deck)] hover:border-[var(--hl-line-hot)]',
+                ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
+                : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck)] hover:border-[var(--arc-line-hot)]',
             ].join(' ')}
           >
             <span className="flex items-center justify-between gap-1.5">
@@ -54,11 +54,14 @@ export function NextTargetsRail({ targets, focusedIndex, onSelect, onKeyDown }: 
               >
                 {RARITY_CONFIG[achievement.rarity].label}
               </span>
-              <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-2)]">
-                {`${Math.round(pct)}%`}
-              </span>
+              <Num
+                value={`${Math.round(pct)}%`}
+                tone="ink"
+                size="sm"
+                className="font-mono tabular-nums"
+              />
             </span>
-            <span className="truncate text-[11.5px] text-[var(--hl-ink)]">{achievement.name}</span>
+            <span className="truncate text-[11.5px] text-[var(--arc-ink)]">{achievement.name}</span>
             <Meter value={pct} max={100} tone={focused ? 'signal' : 'ink'} />
           </button>
         );

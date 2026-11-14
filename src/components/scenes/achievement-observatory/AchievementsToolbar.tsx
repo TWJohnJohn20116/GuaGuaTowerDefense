@@ -4,7 +4,7 @@
  * 搜尋、狀態篩選、分類進度、下一個目標。分類本身在左軌。
  */
 import { useMemo } from 'react';
-import { Chip, Meter } from '@/components/hl';
+import { Chip, Input, Meter, Num } from '@/components/hl';
 import { NextTargetsRail } from './NextTargetsRail';
 import type { Achievement } from '@/types/achievement';
 import type { ObservatoryFilterMode } from './observatoryShared';
@@ -58,14 +58,14 @@ export function AchievementsToolbar({
   const pct = categoryTotal > 0 ? Math.round((categoryEarned / categoryTotal) * 100) : 0;
 
   return (
-    <div className="flex shrink-0 flex-col gap-2 border-b border-[var(--hl-line)] bg-[var(--hl-void-2)] px-4 py-2">
+    <div className="flex shrink-0 flex-col gap-2 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-4 py-2">
       <div className="flex flex-wrap items-center gap-2">
-        <input
+        <Input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={o.searchPlaceholder}
           aria-label={o.searchPlaceholder}
-          className="hl-input h-7 w-[220px] shrink-0"
+          className="h-7 w-[220px] shrink-0"
         />
 
         <div className="flex flex-wrap items-center gap-1">
@@ -77,21 +77,24 @@ export function AchievementsToolbar({
         </div>
 
         <span className="ml-auto flex shrink-0 items-center gap-2">
-          <span className="hl-label">{o.progressLabel}</span>
+          <span className="arc-label">{o.progressLabel}</span>
           <span className="w-[110px]">
             <Meter value={pct} max={100} tone="signal" />
           </span>
-          <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-2)]">
-            {`${categoryEarned}/${categoryTotal}`}
-          </span>
+          <Num
+            value={`${categoryEarned}/${categoryTotal}`}
+            tone="ink"
+            size="sm"
+            className="font-mono tabular-nums"
+          />
         </span>
       </div>
 
       {nextTargets.length > 0 && (
         <div className="flex items-center gap-3">
-          <span className="hl-label shrink-0">{o.nextTargetsAria}</span>
-          <span className="h-px flex-1 bg-[var(--hl-line)]" />
-          <span className="hidden shrink-0 font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)] sm:inline">
+          <span className="arc-label shrink-0">{o.nextTargetsAria}</span>
+          <span className="h-px flex-1 bg-[var(--arc-line)]" />
+          <span className="hidden shrink-0 font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)] sm:inline">
             {o.keyboardHint}
           </span>
         </div>
