@@ -3,6 +3,8 @@
 > 版本基準：v1.2.0 · 研究日期 2026-11-14 · 對應程式碼 commit `049a456`
 > 方法：靜態閱讀 + 一支臨時探測測試（`canBatchUpgradeTower` 語意，跑完即刪）
 > 範圍：`src/store/gameStoreAutoBattle.ts`(1,016) + `gameStoreAutoBattlePlayerSkills.ts`(480) + 相關 UI
+> **修復狀態（2026-11-14）**：**B1、B2、B3 已修**（`c9ed6cd` 費用算式共用、`075c8f4` B1+B2、`bcdbfaa` B3 開關），
+> 回歸測試 `src/test/autoBattleFixes.test.ts`（11 例）；**B4–B7 仍未處理**。
 
 ---
 
