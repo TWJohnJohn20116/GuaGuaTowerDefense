@@ -96,15 +96,3 @@ export const NODE_POSITIONS: Record<string, { x: number; y: number }> = {
   offense_frenzy: { x: 450, y: 380 },
   offense_keystone_berserker: { x: 700, y: 300 },
 };
-
-/** 為了確保拖曳時看得到全部節點，計算邊界範圍 */
-export const CANVAS_BOUNDS = (() => {
-  const xs = Object.values(NODE_POSITIONS).map((p) => p.x);
-  const ys = Object.values(NODE_POSITIONS).map((p) => p.y);
-  return {
-    minX: Math.min(...xs),
-    maxX: Math.max(...xs),
-    minY: Math.min(...ys),
-    maxY: Math.max(...ys),
-  };
-})();

@@ -27,13 +27,3 @@ export const enemyTemplates = [
   { name: '分裂敵人', health: 200, speed: 1, reward: 20, size: 16, color: '#3498db', ability: '死亡時分裂成小敵人' },
   { name: 'Boss', health: 2000, speed: 0.3, reward: 100, size: 24, color: '#c0392b', ability: '免疫減速效果' },
 ];
-
-// 能力預設
-export const abilityPresets = [
-  { name: '治療光環', description: '每秒治療周圍敵人 5 HP' },
-  { name: '護盾', description: '每 10 秒獲得護盾，吸收 50 傷害' },
-  { name: '分裂', description: '死亡時分裂成 2 個小敵人' },
-  { name: '加速', description: '每 5 秒獲得短暫加速' },
-  { name: '隱身', description: '每 8 秒隱身 2 秒' },
-  { name: '反傷', description: '反彈 10% 受到的傷害' },
-];

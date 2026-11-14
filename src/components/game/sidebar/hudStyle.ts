@@ -47,12 +47,6 @@ export function getHudStyleClasses(_layout: HudLayoutState, shape: HudShape): Hu
     combined: `${blur} ${border}`.trim(),
   };
 }
-
-// 給預覽使用：把整個 HudLayout 序列化成可呈現用的 className
-export function getPreviewHudClasses(layout: HudLayoutState, shape: HudShape): string {
-  return getHudStyleClasses(layout, shape).combined;
-}
-
 /** 對局速度鈕：所有寬度都顯示，不能用 hidden sm:flex 藏掉。 */
 export const GAME_SPEED_BAR_CLASS =
   'flex items-stretch gap-0 border border-[var(--hl-line)] bg-[var(--hl-void-2)]';

@@ -63,19 +63,6 @@ const FILE_CATEGORY_LABELS: Record<SrcFileCategory, string> = {
   root: 'src 根目錄',
   other: '其他',
 };
-
-export const FILE_CATEGORY_ORDER: SrcFileCategory[] = [
-  'components',
-  'data',
-  'store',
-  'hooks',
-  'types',
-  'services',
-  'i18n',
-  'root',
-  'other',
-];
-
 function inferFormat(ext: string): SrcFileFormat {
   switch (ext) {
     case 'ts': return 'typescript';
@@ -162,35 +149,6 @@ export function getFolderLineTotal(folderPath: string): number {
     .filter((f) => f.path.startsWith(prefix))
     .reduce((sum, f) => sum + f.lineCount, 0);
 }
-
-export function filterEncyclopediaFiles(opts: {
-  search?: string;
-  category?: SrcFileCategory | 'all';
-  folder?: string | 'all';
-}): EncyclopediaFileEntry[] {
-  const term = opts.search?.trim().toLowerCase() ?? '';
-  return ALL_ENCYCLOPEDIA_FILES.filter((file) => {
-    if (opts.category && opts.category !== 'all' && file.category !== opts.category) return false;
-    if (opts.folder && opts.folder !== 'all' && file.folder !== opts.folder) return false;
-    if (!term) return true;
-    return (
-      file.name.toLowerCase().includes(term) ||
-      file.path.toLowerCase().includes(term) ||
-      file.folder.toLowerCase().includes(term) ||
-      file.description.toLowerCase().includes(term) ||
-      file.extension.toLowerCase().includes(term)
-    );
-  });
-}
-
 export function getEncyclopediaFileById(id: string): EncyclopediaFileEntry | undefined {
   return ALL_ENCYCLOPEDIA_FILES.find((f) => f.id === id);
-}
-
-/** 取得不重複的資料夾路徑（供篩選） */
-export function getSrcFolders(category?: SrcFileCategory | 'all'): string[] {
-  const files = category && category !== 'all'
-    ? ALL_ENCYCLOPEDIA_FILES.filter((f) => f.category === category)
-    : ALL_ENCYCLOPEDIA_FILES;
-  return [...new Set(files.map((f) => f.folder))].sort((a, b) => a.localeCompare(b, 'en'));
 }
