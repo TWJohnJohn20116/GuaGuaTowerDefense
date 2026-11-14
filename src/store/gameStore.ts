@@ -340,7 +340,7 @@ export const useGameStore = create<GameStore>()(
           if (tutorialStore.isActive) {
             get().setGameSpeed(1);
           }
-        });
+        }).catch(() => { /* 模組載入失敗時忽略（例如測試環境已拆卸） */ });
       }).catch(e => console.error(e));
     } catch (e) { /* ignore */ }
   },
@@ -349,7 +349,7 @@ export const useGameStore = create<GameStore>()(
     set({ isPaused: true });
     void import('./achievementStore').then((m) => {
       m.useAchievementStore.getState().onPauseUsed();
-    });
+    }).catch(() => { /* 載入失敗時忽略，不影響暫停流程 */ });
   },
   resumeGame: () => {
     set({ isPaused: false, pauseEncyclopediaFocus: null });
@@ -360,7 +360,7 @@ export const useGameStore = create<GameStore>()(
         if (tutorialStore.isActive) {
           get().setGameSpeed(1);
         }
-      });
+      }).catch(() => { /* 載入失敗時忽略，不影響恢復流程 */ });
     } catch (e) { /* ignore */ }
   },
   
@@ -539,6 +539,8 @@ export const useGameStore = create<GameStore>()(
         }
         void import('@/services/musicService').then((m) => {
           m.syncMusic(undefined, true);
+        }).catch(() => {
+          // 音樂服務載入失敗（含測試環境已拆卸）時靜默忽略，不讓 rehydrate 失敗
         });
       },
     },
