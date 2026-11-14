@@ -71,7 +71,7 @@ export function ObservatoryStats({
           })}
         </div>
       </div>
-    </div>
+    </Deck>
   );
 }
 
@@ -101,7 +101,7 @@ export function RarityStrip({
           />
         </span>
       ))}
-    </Deck>
+    </div>
   );
 }
 
