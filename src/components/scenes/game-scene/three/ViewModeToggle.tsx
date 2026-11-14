@@ -38,8 +38,8 @@ export function ViewModeToggle({ mode, onToggle }: ViewModeToggleProps) {
       onClick={onToggle}
       className={`pointer-events-auto inline-flex h-8 items-center gap-1.5 border px-2.5 transition-colors duration-[110ms] ${
         is3d
-          ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-          : 'border-[var(--hl-line)] bg-[var(--hl-deck)] text-[var(--hl-ink-2)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]'
+          ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
+          : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck)] text-[var(--arc-ink-2)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
       }`}
       title={is3d ? '切換回 2D 視圖' : '切換到 3D 視圖'}
     >

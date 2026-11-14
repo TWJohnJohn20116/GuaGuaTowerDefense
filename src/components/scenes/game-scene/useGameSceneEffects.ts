@@ -3,7 +3,6 @@ import { useGameStore } from '@/store/gameStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useStatsStore } from '@/store/statsStore';
 import { useAchievementStore } from '@/store/achievementStore';
-import { useCampaignStore } from '@/store/campaignStore';
 import { PATHS, WAVE_CONFIGS, GAME_CONSTANTS, ENEMY_DATA, generateEndlessWaveConfig } from '@/data/gameData';
 import { getSegmentMap } from '@/store/gameLoop/pathHelpers';
 import { generateId, getTowerData } from '@/store/gameStoreUtils';
@@ -20,7 +19,6 @@ import { findPlayableWaveSet } from '@/utils/waveSets';
 import { PLAYER_SKILLS } from '@/data/playerSkillData';
 import type { PlayerSkillId } from '@/data/playerSkillData';
 import { hasActiveSelection, resolveBackKeyAction, resolveMatchKeyAction } from '@/store/gameHotkeys';
-import { calculateCampaignStars } from '@/utils/campaignStars';
 import { getProtocolWaveMods } from '@/data/tacticalProtocolData';
 import { shouldApplyQuickPlaceDefaultSync } from '@/data/quickPlaceSync';
 
@@ -190,7 +188,6 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
       }
       if (match.kind === 'sell') {
         if (selectedTower) {
-          const sellingDisabled = useGameStore.getState().mutatorRules?.sellingDisabled ?? false;
           const data = getTowerData(selectedTower.type);
           const intent = requestSellTower({
             towerId: selectedTower.id,
@@ -198,7 +195,6 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
             cost: data?.cost ?? 0,
             confirmSell,
             locked: selectedTower.locked,
-            sellingDisabled,
           });
           if (intent === 'sell_now') sellTower(selectedTower);
         }
@@ -330,8 +326,6 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
     if (!waveActive || currentWave === 0) return;
     
     const gs = useGameStore.getState();
-    const isCampaign = gs.isCampaign;
-    const campaignLevelId = gs.campaignLevelId;
     const customWaveSetId = gs.customWaveSetId;
 
     // 根據遊戲模式選擇波次配置 (含 enemies + 可選 delay/reward)
@@ -351,27 +345,8 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
     } else if (endlessMode && endlessWaveConfig) {
       waveConfig = endlessWaveConfig;
     } else {
-      if (isCampaign && campaignLevelId === 'ch1_lv3') {
-        if (currentWave === 1) waveConfig = { enemies: [{ type: 'tank', count: 3 }, { type: 'heavy', count: 2 }] };
-        else if (currentWave === 2) waveConfig = { enemies: [{ type: 'tank', count: 5 }, { type: 'healer', count: 2 }, { type: 'heavy', count: 3 }] };
-        else if (currentWave === 3) waveConfig = { enemies: [{ type: 'boss', count: 1 }, { type: 'healer', count: 2 }, { type: 'shield', count: 4 }] };
-      } else if (isCampaign && campaignLevelId === 'ch2_lv4') {
-        if (currentWave === 1) waveConfig = { enemies: [{ type: 'armored', count: 4 }, { type: 'shield', count: 3 }] };
-        else if (currentWave === 2) waveConfig = { enemies: [{ type: 'berserker', count: 5 }, { type: 'healer', count: 2 }] };
-        else if (currentWave === 3) waveConfig = { enemies: [{ type: 'tank', count: 6 }, { type: 'spawner', count: 2 }, { type: 'shield', count: 4 }] };
-        else if (currentWave === 4) waveConfig = { enemies: [{ type: 'boss', count: 1 }, { type: 'miniboss', count: 1 }, { type: 'armored', count: 3 }, { type: 'healer', count: 3 }] };
-      } else if (isCampaign && campaignLevelId === 'ch3_lv5') {
-        if (currentWave === 1) waveConfig = { enemies: [{ type: 'fast', count: 8 }, { type: 'stealth', count: 3 }] };
-        else if (currentWave === 2) waveConfig = { enemies: [{ type: 'armored', count: 6 }, { type: 'mage', count: 3 }, { type: 'healer', count: 2 }] };
-        else if (currentWave === 3) waveConfig = { enemies: [{ type: 'berserker', count: 6 }, { type: 'spawner', count: 3 }, { type: 'shield', count: 5 }] };
-        else if (currentWave === 4) waveConfig = { enemies: [{ type: 'miniboss', count: 1 }, { type: 'tank', count: 4 }, { type: 'healer', count: 3 }, { type: 'mage', count: 3 }] };
-        else if (currentWave === 5) waveConfig = { enemies: [{ type: 'boss', count: 2 }, { type: 'armored', count: 6 }, { type: 'healer', count: 4 }, { type: 'shield', count: 5 }] };
-      }
-
-      if (!waveConfig) {
-        // 超出預定義 15 波（如選擇 20/30/50/100 波）時，改用無盡生成器動態補足
-        waveConfig = WAVE_CONFIGS[currentWave - 1] ?? generateEndlessWaveConfig(currentWave);
-      }
+      // 超出預定義 15 波（如選擇 20/30/50/100 波）時，改用無盡生成器動態補足
+      waveConfig = WAVE_CONFIGS[currentWave - 1] ?? generateEndlessWaveConfig(currentWave);
     }
     
     if (!waveConfig) return;
@@ -636,14 +611,6 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
 
           if (!latest.endlessMode && latest.maxWaves > 0 && currentWave >= latest.maxWaves) {
             latest.setVictory();
-
-            if (latest.isCampaign && latest.campaignLevelId) {
-              const stars = calculateCampaignStars(
-                latest.health,
-                latest.difficultyModifiers.startingHealth,
-              );
-              useCampaignStore.getState().completeLevel(latest.campaignLevelId, stars);
-            }
           } else {
             latest.offerProtocolIfNeeded();
           }

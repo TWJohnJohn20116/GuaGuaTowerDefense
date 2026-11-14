@@ -890,8 +890,8 @@ export function GameScene3D() {
             onClick={() => applyPreset(b.id)}
             className={`inline-flex h-8 items-center gap-1.5 border px-2.5 font-mono text-[10px] uppercase tracking-[0.06em] transition-colors duration-[110ms] ${
               activePreset === b.id
-                ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-                : 'border-[var(--hl-line)] bg-[var(--hl-deck)] text-[var(--hl-ink-3)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]'
+                ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
+                : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck)] text-[var(--arc-ink-3)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
             }`}
             title={`相機：${b.label}`}
           >
@@ -901,7 +901,7 @@ export function GameScene3D() {
         ))}
         <button
           onClick={() => walkersRef.current?.spawn()}
-          className="inline-flex h-8 items-center gap-1.5 border border-[var(--hl-line)] bg-[var(--hl-deck)] px-2.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--hl-ink-2)] transition-colors hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]"
+          className="inline-flex h-8 items-center gap-1.5 arc-panel px-2.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--arc-ink-2)] transition-colors hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]"
           title="生成一個小人沿路徑自動漫步（最多 12 個）"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
@@ -914,8 +914,8 @@ export function GameScene3D() {
           onClick={() => (walkMode ? walkCtlRef.current?.exit() : walkCtlRef.current?.enter())}
           className={`inline-flex h-8 items-center gap-1.5 border px-2.5 font-mono text-[10px] uppercase tracking-[0.06em] transition-colors duration-[110ms] ${
             walkMode
-              ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-              : 'border-[var(--hl-line)] bg-[var(--hl-deck)] text-[var(--hl-ink-2)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]'
+              ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
+              : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck)] text-[var(--arc-ink-2)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
           }`}
           title={walkMode ? '退出操控（Esc）' : '操控小人下場行走（WASD / 方向鍵）'}
         >
@@ -930,8 +930,8 @@ export function GameScene3D() {
 
       {/* 操控模式提示 */}
       {walkMode && (
-        <div className="pointer-events-none absolute bottom-14 left-3 z-20 border border-[var(--hl-line)] bg-[var(--hl-deck)] px-2.5 py-1.5">
-          <span className="font-mono text-[9.5px] uppercase tracking-[0.06em] text-[var(--hl-ink-3)]">
+        <div className="pointer-events-none absolute bottom-14 left-3 z-20 arc-panel px-2.5 py-1.5">
+          <span className="font-mono text-[9.5px] uppercase tracking-[0.06em] text-[var(--arc-ink-3)]">
             WASD 移動 · 滑鼠拖曳視角 · 滾輪縮放 · Space 跳躍 · Esc 退出
           </span>
         </div>
@@ -947,7 +947,7 @@ export function GameScene3D() {
       {/* Ctrl+拖拽框選矩形 */}
       {marquee && (
         <div
-          className="pointer-events-none absolute z-20 border border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]"
+          className="pointer-events-none absolute z-20 border border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]"
           style={{
             left: Math.min(marquee.x1, marquee.x2),
             top: Math.min(marquee.y1, marquee.y2),

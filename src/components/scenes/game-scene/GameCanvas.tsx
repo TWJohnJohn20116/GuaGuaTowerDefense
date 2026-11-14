@@ -546,7 +546,7 @@ const GameCanvasImpl = () => {
       />
       {marquee && (
         <div
-          className="pointer-events-none absolute border border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]"
+          className="pointer-events-none absolute border border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]"
           style={{
             left: Math.min(marquee.x1, marquee.x2),
             top: Math.min(marquee.y1, marquee.y2),

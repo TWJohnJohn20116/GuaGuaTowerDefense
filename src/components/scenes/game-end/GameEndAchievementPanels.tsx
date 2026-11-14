@@ -16,7 +16,7 @@ import {
   TrophyIcon, TargetIcon, GiftIcon,
   CheckIcon, BooksIcon, ChevronRightIcon,
 } from '@/components/ui/Icons';
-import { Btn, Deck, SegHead } from '@/components/hl';
+import { Btn, Deck, Num, SegHead } from '@/components/hl';
 import {
   pickNearMissAchievements,
   formatNearestProgressText,
@@ -101,9 +101,12 @@ export function GameEndAchievementPanels({ unlockedIds, children }: Props) {
       <SegHead
         label="achievements"
         right={
-          <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
-            {String(unlocked.length).padStart(2, '0')}
-          </span>
+          <Num
+            value={String(unlocked.length).padStart(2, '0')}
+            tone="muted"
+            size="sm"
+            className="font-mono tabular-nums"
+          />
         }
       />
 
@@ -113,11 +116,14 @@ export function GameEndAchievementPanels({ unlockedIds, children }: Props) {
         <Deck className="flex flex-col gap-3 p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <TrophyIcon className="h-3.5 w-3.5 text-[var(--hl-caution)]" />
-              <span className="hl-label text-[var(--hl-ink-2)]">本局新解鎖成就</span>
-              <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
-                ({unlocked.length})
-              </span>
+              <TrophyIcon className="h-3.5 w-3.5 text-[var(--arc-caution)]" />
+              <span className="arc-label text-[var(--arc-ink-2)]">本局新解鎖成就</span>
+              <Num
+                value={`(${unlocked.length})`}
+                tone="muted"
+                size="sm"
+                className="font-mono tabular-nums"
+              />
             </div>
             {claimableIds.length > 1 && (
               <Btn variant="quiet" size="sm" icon={<GiftIcon className="h-3.5 w-3.5" />} onClick={handleClaimAll}>
@@ -136,14 +142,14 @@ export function GameEndAchievementPanels({ unlockedIds, children }: Props) {
               return (
                 <div
                   key={achievement.id}
-                  className="relative grid grid-cols-[32px_1fr_auto] items-center gap-3 border-b border-[var(--hl-line)] py-2.5 pl-2.5 last:border-b-0"
+                  className="relative grid grid-cols-[32px_1fr_auto] items-center gap-3 border-b border-[var(--cn-line-soft)] py-2.5 pl-2.5 last:border-b-0"
                 >
                   <span
                     aria-hidden="true"
                     className="absolute left-0 top-2.5 h-[calc(100%-1.25rem)] w-[2px]"
                     style={{ background: rarity.color }}
                   />
-                  <span className="flex h-8 w-8 items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-deck-2)] text-[var(--hl-ink-2)]">
+                  <span className="flex h-8 w-8 items-center justify-center arc-chip text-[var(--arc-ink-2)]">
                     {achievement.icon}
                   </span>
                   <span className="min-w-0">
@@ -153,13 +159,13 @@ export function GameEndAchievementPanels({ unlockedIds, children }: Props) {
                     >
                       {achievement.name}
                     </span>
-                    <span className="mt-0.5 block truncate text-[11px] text-[var(--hl-ink-3)]">
+                    <span className="mt-0.5 block truncate text-[11px] text-[var(--arc-ink-3)]">
                       {achievement.description}
                     </span>
                   </span>
                   <span className="flex items-center gap-2">
                     {claimed ? (
-                      <CheckIcon className="h-4 w-4 text-[var(--hl-vital)]" />
+                      <CheckIcon className="h-4 w-4 text-[var(--arc-vital)]" />
                     ) : claimable ? (
                       <Btn
                         variant="quiet"
@@ -167,10 +173,10 @@ export function GameEndAchievementPanels({ unlockedIds, children }: Props) {
                         icon={<GiftIcon className="h-3.5 w-3.5" />}
                         onClick={() => handleClaim(achievement.id)}
                       >
-                        {t.dailyChallenge.claimReward}
+                        {t.mainMenu.alertChips.claimableReward}
                       </Btn>
                     ) : (
-                      <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
                         {rarity.label}
                       </span>
                     )}
@@ -185,8 +191,8 @@ export function GameEndAchievementPanels({ unlockedIds, children }: Props) {
       {showNearMiss && (
         <Deck tone="sunken" className="flex flex-col gap-3 p-4 sm:p-5">
           <div className="flex items-center gap-2">
-            <TargetIcon className="h-3.5 w-3.5 text-[var(--hl-ink-3)]" />
-            <span className="hl-label text-[var(--hl-ink-2)]">差一點就解鎖</span>
+            <TargetIcon className="h-3.5 w-3.5 text-[var(--arc-ink-3)]" />
+            <span className="arc-label text-[var(--arc-ink-2)]">差一點就解鎖</span>
           </div>
 
           <div className="flex flex-col">
@@ -197,29 +203,32 @@ export function GameEndAchievementPanels({ unlockedIds, children }: Props) {
               return (
                 <div
                   key={achievement.id}
-                  className="flex flex-col gap-1.5 border-b border-[var(--hl-line)] py-2.5 last:border-b-0"
+                  className="flex flex-col gap-1.5 border-b border-[var(--cn-line-soft)] py-2.5 last:border-b-0"
                 >
                   <div className="flex items-baseline justify-between gap-3">
-                    <span className="min-w-0 truncate text-[12.5px] text-[var(--hl-ink)]">
+                    <span className="min-w-0 truncate text-[12.5px] text-[var(--arc-ink)]">
                       {achievement.name}
                     </span>
                     <span
-                      className="shrink-0 font-mono text-[11px] font-semibold tabular-nums"
+                      className="shrink-0 font-mono text-[11px] font-semibold tabular-nums arc-num"
                       style={{ color: rarity.color }}
                     >
                       {Math.round(pct)}%
                     </span>
                   </div>
-                  <span className="relative block h-1 w-full bg-[var(--hl-void-2)]">
+                  <span className="relative block h-1 w-full bg-[var(--arc-void-2)]">
                     <span
                       className="absolute inset-y-0 left-0"
                       style={{ width: `${pct}%`, background: rarity.color }}
                     />
                   </span>
                   {progressText && (
-                    <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
-                      進度 {progressText}
-                    </span>
+                    <Num
+                      value={`進度 ${progressText}`}
+                      tone="muted"
+                      size="sm"
+                      className="font-mono tabular-nums"
+                    />
                   )}
                 </div>
               );

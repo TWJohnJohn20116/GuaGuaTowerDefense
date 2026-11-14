@@ -25,20 +25,20 @@ export function GameEndReplayPanel() {
 
       {replay ? (
         <Deck className="flex flex-wrap items-center gap-3 p-4">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-2)]">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-2)]">
             <PlayIcon className="h-4 w-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="hl-label">{g.replaySaved}</div>
-            <div className="mt-1.5 truncate text-[13px] text-[var(--hl-ink)]">{replay.name}</div>
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+            <div className="arc-label">{g.replaySaved}</div>
+            <div className="mt-1.5 truncate text-[13px] text-[var(--arc-ink)]">{replay.name}</div>
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] tabular-nums arc-num text-[var(--arc-ink-4)]">
               <span>
                 {g.waveLabel} {replay.finalWave}
               </span>
               <span>
                 {Math.floor(replay.duration)} {g.secondsUnit}
               </span>
-              <span className={replay.isVictory ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-alarm)]'}>
+              <span className={replay.isVictory ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-alert)]'}>
                 {replay.isVictory ? g.cleared : g.failed}
               </span>
             </div>
