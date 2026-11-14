@@ -618,6 +618,9 @@ export interface CustomWaveData {
   waves: WaveConfig[];
 }
 
+/** Mod 編輯器四種內容的聯集（編輯器只有一個「目前分頁」的選取狀態，陣列本身仍各自具名） */
+export type ModItem = CustomTowerData | CustomEnemyData | CustomMapData | CustomWaveData;
+
 // Mod 內容
 export interface ModContent {
   towers?: CustomTowerData[];

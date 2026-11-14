@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useModStore } from '@/store/modStore';
 import { useTranslation } from '@/i18n';
-import type { Mod, ModType, CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData } from '@/types/game';
+import type { Mod, ModType, ModItem, CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData } from '@/types/game';
 import { SceneShell } from '@/components/ui/SceneShell';
 import { 
   defaultColors, 
@@ -31,9 +31,6 @@ import {
 
 // 內容類型
 type ContentTab = 'settings' | 'towers' | 'enemies' | 'maps' | 'waves';
-
-/** 四種自訂內容的聯集；各 setter 仍是強型別，只在分支處收斂一次 */
-type ModItem = CustomTowerData | CustomEnemyData | CustomMapData | CustomWaveData;
 
 // 主 Mod 編輯器組件
 export default function ModEditor({ embedded = false }: { embedded?: boolean } = {}) {
