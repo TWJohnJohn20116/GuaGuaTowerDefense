@@ -661,8 +661,8 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
     animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animationFrameId);
   // deps 是完整的：列出的都是 store 動作或局內狀態（識別穩定、一變就該重建迴圈）；
-  // 每幀會變的數值一律走 getState() 當下取，不進 deps（TD-17 判定：非債，別改成空陣列）
-  }, [isPaused, isGameOver, waveActive, gameSpeed, selectedPath, currentWave, spawnEnemy, updateEnemies, updateTowers, updateProjectiles, updateSkills, updatePlayerSkills, takeDamage, runAutoBattleLogic]);
+  // 每幀會變的數值一律走 getState() 當下取，不進 deps（TD-17）
+  }, [isPaused, isGameOver, waveActive, gameSpeed, selectedPath, currentWave, spawnEnemy, updateEnemies, updateTowers, updateProjectiles, updateSkills, updatePlayerSkills, takeDamage, runAutoBattleLogic, updateVisualEffects, addImpactParticles, addDeathAnimation, addMoneyText]);
 
   // ===== 計算倒數顯示條件 =====
   const showCountdown = autoStartWave && !waveActive && !isPaused && !isGameOver && !pendingProtocolChoices && (endlessMode || maxWaves === 0 || currentWave < maxWaves);
