@@ -446,7 +446,7 @@ export const createUpdateTowers =
           case 'lightning':
             return { homingStrength: 1, curveOffset: 0, hitEffect: 'electric' as const, speed: 0.007 };
           case 'wind':
-            return { homingStrength: 0.6, curveOffset: 0.5, hitEffect: 'wind' as any, speed: 0.005 };
+            return { homingStrength: 0.6, curveOffset: 0.5, hitEffect: 'wind' as const, speed: 0.005 };
           default:
             return { homingStrength: 0.8, curveOffset: 0, hitEffect: 'normal' as const, speed: 0.003 };
         }

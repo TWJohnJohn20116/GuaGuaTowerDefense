@@ -444,7 +444,7 @@ export interface Projectile {
   maxLifetime?: number;        // 最大生存時間
   piercing?: boolean;          // 是否具有穿透能力（碰到敵人不消失）
   hitEnemyIds?: string[];      // 已擊中的敵人 ID（穿透用，避免重複判定）
-  hitEffect?: 'normal' | 'explosive' | 'electric' | 'ice' | 'poison' | 'fire';
+  hitEffect?: 'normal' | 'explosive' | 'electric' | 'ice' | 'poison' | 'fire' | 'wind';
   effects?: {
     slow?: { amount: number; duration: number };
     poison?: { damage: number; duration: number };
@@ -595,6 +595,9 @@ export interface CustomEnemyData extends EnemyData {
   slowResistance?: number;    // 減速抗性百分比 (0-100)
   poisonResistance?: number;  // 毒素抗性百分比 (0-100)
   damageToBase?: number;      // 到達終點造成的傷害
+  // 難度加成（編輯器可寫；目前引擎尚未套用，屬待償債）
+  healthMultiplier?: number;
+  speedMultiplier?: number;
 }
 
 // 自訂地圖 Mod

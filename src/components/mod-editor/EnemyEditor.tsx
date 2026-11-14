@@ -256,7 +256,7 @@ export const EnemyEditor = ({
                         <label className="hl-label">{m.eaHpMult}</label>
                         <input
                           type="number"
-                          value={(enemy as any).healthMultiplier || 1}
+                          value={enemy.healthMultiplier || 1}
                           onChange={(e) => onChange({ ...enemy, healthMultiplier: Number(e.target.value) } as CustomEnemyData)}
                           step={0.1}
                           className="hl-input font-mono text-[11.5px]"
@@ -266,7 +266,7 @@ export const EnemyEditor = ({
                         <label className="hl-label">{m.eaSpdMult}</label>
                         <input
                           type="number"
-                          value={(enemy as any).speedMultiplier || 1}
+                          value={enemy.speedMultiplier || 1}
                           onChange={(e) => onChange({ ...enemy, speedMultiplier: Number(e.target.value) } as CustomEnemyData)}
                           step={0.1}
                           className="hl-input font-mono text-[11.5px]"
