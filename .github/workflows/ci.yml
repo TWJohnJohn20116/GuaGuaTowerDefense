@@ -5,12 +5,27 @@
 # 於是 tsc 累積到 89 個錯誤、10 個測試長期紅著，`generateId 未定義` 這種會打死幀迴圈
 # 的 bug 也能一路進到發佈版。
 #
-# 速度設計（2026-11-14 改版，實測 wall clock 1m31s → 1m02s → 見下方分片說明）：
-#   - 拆成平行 job：靜態檢查與建置（static）／單元測試分片（test ×3）／結果總結（summary）。
-#     單一 job 序列跑時，44s 的測試完全擋住 14s 的型別檢查與 8s 的建置。
-#   - 單元測試用 vitest --shard 切成 3 片，三個 runner 平行跑（每片固定開銷約 13s）。
-#   - setup-node 開 cache: npm，install 只要 5s（未快取時約 25s）。
-#   - concurrency cancel-in-progress：連續 push 只留最新一次，舊的立刻取消。
+# ── 速度設計（2026-11-14 第二版，目標 wall clock < 30s）─────────────────────
+# 每個 job 的固定成本才是地板：job 啟動 1s + checkout 1.5s + setup-node 3s + npm ci 4s
+# ≈ 10s。所以「再拆 job」只有在每個 job 的工作量都壓到 ≤15s 時才划算，拆過頭反而變慢。
+#
+# 時間預算（2026-11-14 實測，run 43555514703，wall clock 51s）：
+#   型別檢查 20s  ← skipLibCheck 已開，這是真實在檢查 952 檔／164,918 行
+#   產線建置 11s
+#   單元測試 單進程 44s，切 3 片後為 18/24/26s（切片不平均）
+#   結果總結 4s（runner 佇列 2s + 腳本 2s）
+#
+# 對策：
+#   1. 型別與建置拆成兩個 job —— 原本序列相加 31s，拆開後兩邊各自與固定成本重疊
+#   2. tsc 開 --incremental，.tsbuildinfo 快取（key 含 tsconfig 與 lock 的 hash）；
+#      冷啟動仍要 20s，第二趟起只重驗改動檔
+#   3. 單元測試切 6 片（每片 ~12s 工作量），讓測試不再是關鍵路徑
+#   4. npm ci 加 --no-audit --no-fund --prefer-offline（省掉 registry metadata 重驗）
+#
+# 刻意不做（量測過或算過不划算）：
+#   - 快取 node_modules：還原 tar 比 npm ci 的 4s 更慢
+#   - 切 8 片以上：固定成本 10s 不變，收益被稀釋，還會讓必要檢查數變多
+#   - 移除 summary job：它需要等所有 job 結束，但那 3–4s 換來單一紅綠燈與中文摘要
 #
 # 觸發規則（見 AGENTS.md §13.1）：
 #   - push 可加 paths-ignore（純文件／截圖不燒 CI 分鐘）
@@ -51,16 +66,17 @@ env:
   # 用 Node 20（npm 10）會對 vitest@4 的嵌套 vite 解析出不同樹，
   # 導致 npm ci 判定 lock 不完整（Missing: esbuild@0.28.2）。
   NODE_VERSION: '24'
-  # 測試分片數：實測 2 片時每片仍要 ~48s（固定開銷約 13s + 測試 ~35s），
-  # 3 片把測試壓到 ~25s，讓「靜態檢查與建置」（39s）成為關鍵路徑。
-  TEST_SHARDS: 3
+  # 測試分片數。3 片時最重的一片 26s，會跟建置一起卡住關鍵路徑；
+  # 6 片把每片壓到 ~12s，讓「建置與體積」（~21s）成為關鍵路徑。
+  TEST_SHARDS: 6
 
 jobs:
   # ─────────────────────────────────────────────
-  # 靜態檢查與建置：型別、語言鍵、技術債棘輪、產線建置、打包體積預算
+  # 型別與靜態檢查：型別、語言鍵、技術債棘輪
+  # （刻意不含建置：建置與它工作量相當，綁在一起就是兩份時間相加）
   # ─────────────────────────────────────────────
-  static:
-    name: 靜態檢查與建置
+  types:
+    name: 型別與靜態檢查
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 
@@ -75,16 +91,51 @@ jobs:
           cache: npm
 
       - name: 安裝依賴
-        run: npm ci
+        run: npm ci --no-audit --no-fund --prefer-offline
 
-      - name: 型別檢查（tsc --noEmit）
-        run: npm run typecheck
+      # tsc 的 --incremental 只重驗有改動的檔案；沒有這份快取就要每次冷跑 20s。
+      # key 含 tsconfig 與 lock 的 hash：編譯選項或型別套件版本一變就自動失效。
+      # restore-keys 用前綴，允許跨分支取最近一份（tsc 以檔案內容 hash 驗證，
+      # 不相符就重新檢查，不會把別人的結論當自己的）。
+      - name: 還原型別檢查快取
+        uses: actions/cache@v4
+        with:
+          path: .cache/tsc
+          key: tsc-${{ hashFiles('tsconfig.json', 'tsconfig.node.json', 'package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            tsc-${{ hashFiles('tsconfig.json', 'tsconfig.node.json', 'package-lock.json') }}-
+
+      - name: 型別檢查（tsc --noEmit，增量快取）
+        run: |
+          mkdir -p .cache/tsc
+          ./node_modules/.bin/tsc --noEmit --incremental --tsBuildInfoFile .cache/tsc/main.tsbuildinfo
 
       - name: 語言鍵對齊（10 個語言檔，嚴格模式）
         run: npm run i18n:check
 
       - name: "技術債棘輪（as any／: any／eslint-disable 只准降）"
         run: node scripts/ci/guards.mjs --debt
+
+  # ─────────────────────────────────────────────
+  # 建置與體積：產線建置 + 打包體積預算
+  # ─────────────────────────────────────────────
+  build:
+    name: 建置與體積
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: 取得原始碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: 安裝依賴
+        run: npm ci --no-audit --no-fund --prefer-offline
 
       - name: 產線建置
         run: npm run build
@@ -93,17 +144,19 @@ jobs:
         run: node scripts/ci/guards.mjs --bundle
 
   # ─────────────────────────────────────────────
-  # 單元測試：vitest 分片平行跑，兩片都成功才算過
+  # 單元測試：vitest 分片平行跑，任一片紅就算紅
   # ─────────────────────────────────────────────
   test:
-    name: 單元測試（第 ${{ matrix.shard }} 片 / 共 3 片）
+    # 片數寫死在名稱裡：job 的 name 取不到 env 與 strategy 這兩個 context
+    # （只能用 github / vars / inputs），所以片數要跟上面 TEST_SHARDS 手動同步。
+    name: 單元測試（第 ${{ matrix.shard }} 片 / 共 6 片）
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       # 一片紅了其他片也跑完，方便一次看到所有失敗
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4, 5, 6]
 
     steps:
       - name: 取得原始碼
@@ -116,7 +169,7 @@ jobs:
           cache: npm
 
       - name: 安裝依賴
-        run: npm ci
+        run: npm ci --no-audit --no-fund --prefer-offline
 
       - name: 單元測試（vitest --shard=${{ matrix.shard }}/${{ env.TEST_SHARDS }}）
         run: npm run test -- --shard=${{ matrix.shard }}/${{ env.TEST_SHARDS }}
@@ -128,7 +181,7 @@ jobs:
   summary:
     name: 結果總結
     runs-on: ubuntu-24.04
-    needs: [static, test]
+    needs: [types, build, test]
     # 一定要 always()：needs 失敗時若 job 被略過，依賴它的檢查會永遠停在 waiting
     if: always()
     timeout-minutes: 5
@@ -136,7 +189,8 @@ jobs:
     steps:
       - name: 彙總各關卡結果
         env:
-          STATIC_RESULT: ${{ needs.static.result }}
+          TYPES_RESULT: ${{ needs.types.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
           TEST_RESULT: ${{ needs.test.result }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
@@ -155,21 +209,22 @@ jobs:
             echo ""
             echo "| 關卡 | 內容 | 結果 |"
             echo "|---|---|---|"
-            echo "| 靜態檢查與建置 | 型別、語言鍵、技術債棘輪、產線建置、體積預算 | $(chinese_result "$STATIC_RESULT") |"
-            echo "| 單元測試 | 159 個測試檔分 ${TEST_SHARDS:-2} 片平行跑 | $(chinese_result "$TEST_RESULT") |"
+            echo "| 型別與靜態檢查 | 型別、語言鍵、技術債棘輪 | $(chinese_result "$TYPES_RESULT") |"
+            echo "| 建置與體積 | 產線建置、打包體積預算 | $(chinese_result "$BUILD_RESULT") |"
+            echo "| 單元測試 | 159 個測試檔分 ${TEST_SHARDS} 片平行跑 | $(chinese_result "$TEST_RESULT") |"
             echo ""
-            echo "- 分支：\`${GITHUB_REF_NAME}\`"
-            echo "- commit：\`${GITHUB_SHA:0:7}\`"
+            echo "- 分支：\\`${GITHUB_REF_NAME}\\`"
+            echo "- commit：\\`${GITHUB_SHA:0:7}\\`"
             # 注意：不要寫成 [ -n "$X" ] && echo ...，GitHub 的 bash 有 -e，
             # 條件不成立時整步會直接失敗。
             if [ -n "$COMMIT_MSG" ]; then
-              echo "- 訊息：${COMMIT_MSG%%$'\n'*}"
+              echo "- 訊息：${COMMIT_MSG%%$'\\n'*}"
             fi
-            echo "- 觸發：\`${GITHUB_EVENT_NAME}\`"
+            echo "- 觸發：\\`${GITHUB_EVENT_NAME}\\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
-          if [ "$STATIC_RESULT" != "success" ] || [ "$TEST_RESULT" != "success" ]; then
-            echo "::error::有閘門未通過（靜態檢查=$STATIC_RESULT，單元測試=$TEST_RESULT）"
+          if [ "$TYPES_RESULT" != "success" ] || [ "$BUILD_RESULT" != "success" ] || [ "$TEST_RESULT" != "success" ]; then
+            echo "::error::有閘門未通過（型別與靜態=$TYPES_RESULT，建置=$BUILD_RESULT，單元測試=$TEST_RESULT）"
             exit 1
           fi
           echo "全部閘門通過 ✅"
