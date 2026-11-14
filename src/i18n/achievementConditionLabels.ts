@@ -37,7 +37,6 @@ const SNAKE_TO_CAMEL: Record<string, keyof Cond> = {
   mods_used: 'modsUsed',
   complete_map: 'completeMap',
   complete_wave_set: 'completeWaveSet',
-  complete_chapter: 'completeChapter',
   perfect_map: 'perfectMap',
   build_tower: 'buildTower',
   upgrade_tower: 'upgradeTower',
