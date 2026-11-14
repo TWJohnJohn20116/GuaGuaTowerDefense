@@ -1,9 +1,8 @@
 /**
- * 設定 - 通用列元件（HARDLINE）
+ * 設定 · 通用列（CANDY POP）
  *
- * 一列一句話：左圖示框、中間標籤／說明、右邊控件。
- * 方角、1px 線、統一行高；hover 只換底色，不加光暈、不加位移。
- * 控件由呼叫端決定（開關 / 滑桿 / 下拉 / 輸入），外觀一律方角。
+ * 一列一句話：左邊圖示章、中間標籤／說明、右邊控件。
+ * 行高固定、說明單行截斷；hover 只換底色，不加位移與陰影，避免整頁列在閃。
  */
 
 import type { ReactNode } from 'react';
@@ -15,7 +14,7 @@ export interface SettingRowProps {
   label: string;
   description?: string;
   control: ReactNode;
-  /** 相容參數；HARDLINE 只有一種強調色，不再依 accent 換色 */
+  /** 相容參數：全站只有一種強調色，不依 accent 換色 */
   accent?: AccentColor;
   /** 帶 footer（滑桿）的列：上方列高放寬，footer 對齊標籤左緣 */
   expanded?: boolean;
@@ -32,23 +31,21 @@ export function SettingRow({
   expanded = false,
   footer,
 }: SettingRowProps) {
-  // accent 只為相容保留，不參與渲染
   void accent;
 
   return (
-    <div className="group border-b border-[var(--cn-line-soft)] transition-colors duration-150 last:border-b-0 hover:bg-[var(--arc-deck-2)]">
-      <div className={`flex items-center gap-3 px-4 ${expanded ? 'py-3' : 'h-[52px]'}`}>
-        {/* 圖示框：28px 方框，hover 才亮 */}
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-3)] transition-colors duration-150 group-hover:border-[var(--arc-line-hot)] group-hover:text-[var(--arc-ink-2)]">
+    <div className="group border-b border-[var(--cn-line-soft)] transition-colors duration-150 last:border-b-0 hover:bg-[var(--cn-card-2)]">
+      <div className={`flex items-center gap-3 px-3.5 ${expanded ? 'py-3' : 'min-h-[54px] py-2.5'}`}>
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border-2 border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] text-[var(--cn-ink-3)] transition-colors duration-150 group-hover:border-[var(--cn-line-mid)] group-hover:text-[var(--cn-ink-2)]">
           {icon}
         </span>
 
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[13px] font-medium leading-tight text-[var(--arc-ink)]">
+          <span className="block truncate text-[13px] font-extrabold leading-tight text-[var(--cn-ink)]">
             {label}
           </span>
           {description && (
-            <span className="mt-0.5 block truncate text-[10.5px] leading-tight text-[var(--arc-ink-3)]">
+            <span className="mt-0.5 block truncate text-[11px] font-semibold leading-tight text-[var(--cn-ink-3)]">
               {description}
             </span>
           )}
@@ -57,7 +54,7 @@ export function SettingRow({
         <span className="flex shrink-0 items-center justify-end gap-2">{control}</span>
       </div>
 
-      {footer && <div className="px-[calc(1rem+1.75rem+0.75rem)] pb-3">{footer}</div>}
+      {footer && <div className="pb-3 pl-[calc(0.875rem+2rem+0.75rem)] pr-3.5">{footer}</div>}
     </div>
   );
 }

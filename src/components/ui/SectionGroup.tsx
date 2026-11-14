@@ -1,19 +1,19 @@
 /**
- * 設定 - 區段群組元件（HARDLINE）
+ * 設定 · 區段卡（CANDY POP）
  *
- * 區段＝一個 Deck：上面一行 mono 標籤 + 結構線，下面是設定列串。
- * 不再有彩色光條、不再有彩虹徽章；強調色只有訊號色一種。
+ * 一個區段＝一張白卡：頂部是圖示章＋標題＋說明（含筆數），下面是設定列。
+ * 區段之間靠卡片邊界分開，不再用細線串成一大張表——否則整頁讀起來像試算表。
  */
 
 import type { ReactNode } from 'react';
-import { Deck } from '@/components/hl';
 
 export interface SectionGroupProps {
   title: string;
   description?: string;
   icon: ReactNode;
-  /** 相容參數：HARDLINE 不再依 accent 上色 */
+  /** 相容參數：分類已顯示在左側導覽，區段頭不再重複貼標籤 */
   accent?: import('./SettingRow').AccentColor;
+  /** 相容參數：同上，區段頭不重複顯示分類 */
   badge?: string;
   count?: number;
   children: ReactNode;
@@ -32,47 +32,44 @@ export function SectionGroup({
   action,
   columns,
 }: SectionGroupProps) {
+  void badge;
+
   const colClass =
     columns === 1
       ? 'grid-cols-1'
       : columns === 2
         ? 'grid-cols-1 lg:grid-cols-2'
         : columns === 3
-          ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
-          : 'grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3';
+          ? 'grid-cols-1 md:grid-cols-2 2xl:grid-cols-3'
+          : 'grid-cols-1 lg:grid-cols-2';
 
   return (
-    <section className="flex flex-col">
-      {/* 區段頭：mono 標籤 + 延伸線 */}
-      <header className="flex items-center gap-2.5 pb-2">
-        <span className="flex h-5 w-5 shrink-0 items-center justify-center text-[var(--arc-ink-3)]">
+    <section className="arc-panel overflow-hidden">
+      <header className="flex items-center gap-3 border-b-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] px-3.5 py-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] border-2 border-[var(--cn-line)] bg-[var(--cn-card)] text-[var(--cn-ink)]">
           {icon}
         </span>
-        <span className="arc-label whitespace-nowrap text-[var(--arc-ink-2)]">{title}</span>
 
-        {badge && (
-          <span className="rounded-sm border border-[var(--arc-gold-edge)] px-1.5 py-0.5 font-mono text-[10px] uppercase leading-none tracking-[0.1em] text-[var(--arc-gold)]">
-            {badge}
-          </span>
-        )}
-        {typeof count === 'number' && (
-          <span className="font-mono text-[10px] tabular-nums leading-none text-[var(--arc-ink-4)]">
-            {String(count).padStart(2, '0')}
-          </span>
-        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className="arc-title truncate text-[15px]">{title}</h3>
+            {typeof count === 'number' && (
+              <span className="shrink-0 rounded-full border-2 border-[var(--cn-line-soft)] bg-[var(--cn-card)] px-1.5 font-mono text-[10px] font-extrabold tabular-nums text-[var(--cn-ink-3)]">
+                {count}
+              </span>
+            )}
+          </div>
+          {description && (
+            <p className="mt-0.5 truncate text-[11.5px] font-semibold leading-snug text-[var(--cn-ink-3)]">
+              {description}
+            </p>
+          )}
+        </div>
 
-        <span className="arc-divider flex-1" />
-
-        {action && <span className="flex shrink-0 items-center gap-2">{action}</span>}
+        {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}
       </header>
 
-      {description && (
-        <p className="pb-2 text-[11px] leading-relaxed text-[var(--arc-ink-3)]">{description}</p>
-      )}
-
-      <Deck notch className="overflow-hidden">
-        <div className={`grid ${colClass} gap-0`}>{children}</div>
-      </Deck>
+      <div className={`grid ${colClass}`}>{children}</div>
     </section>
   );
 }
