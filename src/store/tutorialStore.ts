@@ -1,9 +1,7 @@
 import { create } from 'zustand';
 import {
-  campaignTutorialPartForLevel,
   markTutorialPartCompleted,
   markTutorialSkipped,
-  shouldStartCampaignTutorial,
   tutorialPartFromFinishStepId,
 } from './tutorialDismiss';
 import type { TutorialPart } from './tutorialDismiss';
@@ -302,7 +300,6 @@ interface TutorialStore {
   isActive: boolean;
   currentStepIndex: number;
   startTutorial: (part?: TutorialPart) => void;
-  startCampaignTutorialIfNeeded: (levelId: string | null | undefined) => void;
   nextStep: () => void;
   endTutorial: (options?: { awardGold?: boolean }) => void;
   skipTutorial: () => void;
@@ -325,14 +322,6 @@ export const useTutorialStore = create<TutorialStore>((set, get) => ({
     } else {
       set({ isActive: true, currentStepIndex: 0 });
     }
-  },
-
-  startCampaignTutorialIfNeeded: (levelId) => {
-    if (!shouldStartCampaignTutorial(levelId)) return;
-    if (get().isActive) return;
-    const part = campaignTutorialPartForLevel(levelId);
-    if (!part) return;
-    get().startTutorial(part);
   },
 
   nextStep: () => {

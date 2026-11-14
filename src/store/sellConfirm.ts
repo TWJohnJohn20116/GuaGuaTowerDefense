@@ -5,7 +5,6 @@ type SellIntent = 'blocked' | 'sell_now' | 'prompt';
 interface ResolveSellIntentInput {
   confirmSell: boolean;
   locked?: boolean;
-  sellingDisabled?: boolean;
 }
 
 interface RequestSellTowerInput extends ResolveSellIntentInput {
@@ -30,7 +29,6 @@ interface BatchSellSummary {
 interface RequestBatchSellInput {
   towers: BatchSellTowerInput[];
   confirmSell: boolean;
-  sellingDisabled?: boolean;
   unitLabel: string;
 }
 
@@ -39,7 +37,7 @@ export function getTowerSellRefund(cost: number): number {
 }
 
 export function resolveSellIntent(input: ResolveSellIntentInput): SellIntent {
-  if (input.locked || input.sellingDisabled) return 'blocked';
+  if (input.locked) return 'blocked';
   return input.confirmSell ? 'prompt' : 'sell_now';
 }
 

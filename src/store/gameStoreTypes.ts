@@ -5,7 +5,6 @@ import type {
   DamageText, ImpactParticle, DeathAnimation
 } from '@/types/game';
 import type { PlayerSkillId } from '@/data/playerSkillData';
-import type { MutatorRules } from '@/types/mutatorChallenge';
 import type { TacticalProtocol } from '@/data/tacticalProtocolData';
 import type { StressSpawnResult } from './stressTestActions';
 
@@ -42,7 +41,6 @@ interface LastStartArgs {
   maxWaves: number;
   customModifiers?: DifficultyModifiers;
   customWaveSetId?: string;
-  mutator?: { id: string; rules: MutatorRules };
 }
 
 export interface GameStore {
@@ -89,15 +87,11 @@ export interface GameStore {
   endlessWaveConfig: { enemies: { type: string; count: number }[] } | null;
   allEnemiesSpawned: boolean;
   autoSkipWave: boolean;
-  isCampaign?: boolean;
-  campaignLevelId?: string;
   // 自訂波次組 ID (來自 mod.content.waves)
   customWaveSetId?: string;
   // 本局啟動參數（再玩一次時複用，避免丟失 maxWaves 等設定）
   lastStartArgs: LastStartArgs | null;
   // 突變挑戰：本局生效的規則與挑戰 id（非突變局為 null）
-  mutatorRules: MutatorRules | null;
-  mutatorChallengeId: string | null;
   
   // 地图
   selectedPath: string;
@@ -173,7 +167,7 @@ export interface GameStore {
   keyBindings: KeyBindings;
 
   // 操作方法
-  startGame: (pathName: string, difficulty?: GameDifficulty, endless?: boolean, maxWaves?: number, customModifiers?: DifficultyModifiers, customWaveSetId?: string, mutator?: { id: string; rules: MutatorRules }) => Promise<void> | void;
+  startGame: (pathName: string, difficulty?: GameDifficulty, endless?: boolean, maxWaves?: number, customModifiers?: DifficultyModifiers, customWaveSetId?: string) => Promise<void> | void;
   maxWaves: number; // 0 = 無限
   generateEndlessWave: (waveNumber: number) => { enemies: { type: string; count: number }[] };
   setVictory: () => void;

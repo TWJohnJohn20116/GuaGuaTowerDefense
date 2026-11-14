@@ -84,9 +84,8 @@ export const createPlayerSkillActions = (get: GetState, set: SetState) => ({
   // 釋放技能
   activatePlayerSkill: (skillId: PlayerSkillId): boolean => {
     const state = get();
-    const { playerSkillStates, isPlaying, isPaused, isGameOver, isVictory, mutatorRules } = state;
+    const { playerSkillStates, isPlaying, isPaused, isGameOver, isVictory } = state;
     if (!isPlaying || isPaused || isGameOver || isVictory) return false;
-    if (mutatorRules?.skillsDisabled) return false;
 
     // 檢查商店中是否已購買解鎖
     if (!useShopStore.getState().isPlayerSkillUnlocked(skillId)) return false;

@@ -188,7 +188,7 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
   },
 
   spawnEnemy: (type: string) => {
-    const { enemies, selectedPath, difficultyModifiers, mutatorRules, activeProtocol } = get();
+    const { enemies, selectedPath, difficultyModifiers, activeProtocol } = get();
     const path = PATHS[selectedPath];
     const enemyType = type as EnemyType;
     const enemyData = ENEMY_DATA[enemyType];
@@ -248,26 +248,6 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
       segmentWaypointIndex: segWpIndex,
       ...(shieldAmount ? { shield: shieldAmount, maxShield: shieldAmount } : {}),
     };
-
-    // 突變挑戰：套用全場敵人詞綴
-    const affix = mutatorRules?.enemyAffix;
-    if (affix) {
-      if (affix.healthMult && affix.healthMult !== 1) {
-        const hp = Math.round(newEnemy.health * affix.healthMult);
-        newEnemy.health = hp;
-        newEnemy.maxHealth = hp;
-      }
-      if (affix.speedMult && affix.speedMult !== 1) {
-        newEnemy.speed = newEnemy.speed * affix.speedMult;
-      }
-      if (affix.shieldAdd) {
-        newEnemy.shield = (newEnemy.shield ?? 0) + affix.shieldAdd;
-        newEnemy.maxShield = (newEnemy.maxShield ?? 0) + affix.shieldAdd;
-      }
-      if (affix.armorBonus) {
-        newEnemy.armorBonus = affix.armorBonus;
-      }
-    }
 
     set({ enemies: [...enemies, newEnemy] });
   },

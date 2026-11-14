@@ -101,20 +101,17 @@ export const createUpdateTowers =
     let moneyGained = 0;
     const moneyTowerUpdates: Record<string, number> = {};
 
-    // 突變挑戰：停用被動收入時，money 塔不再產金
-    if (!get().mutatorRules?.interestDisabled) {
-      towers.forEach(tower => {
-        const towerData = getTowerData(tower.type);
-        if (towerData?.moneyGeneration && towerData.moneyPerSecond) {
-          // deltaTime 單位為毫秒；每級增加 20%
-          const synergyMods = getSynergyModsForTower(toTowerRef(tower), synergyRefs);
-          const baseIncome = towerData.moneyPerSecond * (1 + (tower.level - 1) * 0.2) * synergyMods.incomeMult * protocolMods.incomeMult;
-          const income = baseIncome * (deltaTime / 1000);
-          moneyGained += income;
-          moneyTowerUpdates[tower.id] = income;
-        }
-      });
-    }
+    towers.forEach(tower => {
+      const towerData = getTowerData(tower.type);
+      if (towerData?.moneyGeneration && towerData.moneyPerSecond) {
+        // deltaTime 單位為毫秒；每級增加 20%
+        const synergyMods = getSynergyModsForTower(toTowerRef(tower), synergyRefs);
+        const baseIncome = towerData.moneyPerSecond * (1 + (tower.level - 1) * 0.2) * synergyMods.incomeMult * protocolMods.incomeMult;
+        const income = baseIncome * (deltaTime / 1000);
+        moneyGained += income;
+        moneyTowerUpdates[tower.id] = income;
+      }
+    });
 
     if (moneyGained > 0) {
       const currentMoney = get().money;

@@ -38,17 +38,6 @@ import {
   mergePlaystyleOnSkill,
 } from './achievementStorePlaystyle';
 import type { LastGameEndReport } from '@/types/gameEndReport';
-import { resolveChaptersCompleted } from '@/data/campaignData/utils';
-import { useCampaignStore } from './campaignStore';
-import type { MutatorChallengeRecord } from '@/types/mutatorChallenge';
-import { useDailyChallengeStore } from '@/store/dailyChallengeStore';
-import { useMutatorChallengeStore } from '@/store/mutatorChallengeStore';
-import {
-  buildGameOutcomeForDaily,
-  getActiveMutatorChallengeId,
-  submitDailyAndBuildSection,
-  submitMutatorAndBuildSection,
-} from '@/store/gameEndChallengeReport';
 
 // Store 介面
 interface AchievementStore {
@@ -69,13 +58,6 @@ interface AchievementStore {
 
   // 本局開始時已完成的成就（用於結算頁比對新解鎖）
   sessionBaselineAchievementIds: string[];
-
-  // 本局開始時每日挑戰進度快照
-  sessionDailyProgressBaseline: number[];
-
-  // 本局突變試煉（開局快照）
-  sessionMutatorChallengeId: string | null;
-  sessionMutatorRecordBefore: MutatorChallengeRecord | null;
 
   // 最近一局結算報告（勝利／失敗畫面展示，不持久化）
   lastGameEndReport: LastGameEndReport | null;
@@ -120,7 +102,6 @@ interface AchievementStore {
     towersUpgraded: number,
     endless: boolean,
     playstyleContext?: PlaystyleGameEndContext,
-    campaignLevelId?: string | null,
     customWaveSetId?: string | null,
   ) => void;
   onWaveComplete: (waveNumber: number, damageTaken: number) => void;
@@ -169,9 +150,6 @@ export const useAchievementStore = create<AchievementStore>()(
       currentGameStats: {},
       gameStartTime: null,
       sessionBaselineAchievementIds: [],
-      sessionDailyProgressBaseline: [],
-      sessionMutatorChallengeId: null,
-      sessionMutatorRecordBefore: null,
       lastGameEndReport: null,
       navigateHighlightAchievementId: null,
 
@@ -498,21 +476,9 @@ export const useAchievementStore = create<AchievementStore>()(
           .filter(([, pa]) => pa.status === 'completed' || pa.status === 'claimed')
           .map(([id]) => id);
 
-        useDailyChallengeStore.getState().refreshIfNeeded();
-        const dailyBaseline =
-          useDailyChallengeStore.getState().todayChallenge?.progress?.slice() ?? [];
-
-        const mutatorId = getActiveMutatorChallengeId();
-        const mutatorBefore = mutatorId
-          ? { ...useMutatorChallengeStore.getState().getRecord(mutatorId) }
-          : null;
-
         set({
           gameStartTime: Date.now(),
           sessionBaselineAchievementIds: baseline,
-          sessionDailyProgressBaseline: dailyBaseline,
-          sessionMutatorChallengeId: mutatorId,
-          sessionMutatorRecordBefore: mutatorBefore,
           lastGameEndReport: null,
           currentGameStats: {
             totalDamageTaken: 0,
@@ -522,7 +488,7 @@ export const useAchievementStore = create<AchievementStore>()(
         get().checkTimeBasedAchievements();
       },
 
-      onGameEnd: (won, score, wave, health, mapId, difficulty, towersPlaced, towersUpgraded, endless, playstyleContext, campaignLevelId, customWaveSetId) => {
+      onGameEnd: (won, score, wave, health, mapId, difficulty, towersPlaced, towersUpgraded, endless, playstyleContext, customWaveSetId) => {
         const { gameStartTime, statistics, currentGameStats } = get();
         const statsSnapshot = { ...currentGameStats };
         const playTime = gameStartTime ? Math.floor((Date.now() - gameStartTime) / 1000) : 0;
@@ -539,31 +505,6 @@ export const useAchievementStore = create<AchievementStore>()(
           maxLevelTowerCount: 0,
           soloMaxLevelRestLv1: false,
         };
-
-        // 每日 / 突變挑戰同步結算（須在組裝 report 前完成）
-        const dailyOutcome = buildGameOutcomeForDaily(
-          won,
-          playTime,
-          noDamage,
-          fullHpFinish,
-          statsSnapshot as Record<string, unknown>,
-          towersPlaced,
-          endless,
-          wave,
-          difficulty,
-          customWaveSetId,
-        );
-        const dailySection = submitDailyAndBuildSection(
-          dailyOutcome,
-          get().sessionDailyProgressBaseline,
-        );
-        const mutatorId = get().sessionMutatorChallengeId ?? getActiveMutatorChallengeId();
-        const mutatorSection = submitMutatorAndBuildSection(
-          won,
-          score,
-          get().sessionMutatorRecordBefore,
-          mutatorId,
-        );
 
         set(state => ({
           statistics: {
@@ -596,10 +537,7 @@ export const useAchievementStore = create<AchievementStore>()(
             winStreak: newWinStreak,
             bestWinStreak: Math.max(state.statistics.bestWinStreak || 0, newWinStreak),
             fullHpWins: (state.statistics.fullHpWins || 0) + (fullHpFinish ? 1 : 0),
-            chaptersCompleted: resolveChaptersCompleted(
-              useCampaignStore.getState().completedLevels,
-              won ? campaignLevelId : undefined,
-            ),
+            chaptersCompleted: state.statistics.chaptersCompleted,
           },
           gameStartTime: null,
           currentGameStats: {},
@@ -661,17 +599,12 @@ export const useAchievementStore = create<AchievementStore>()(
           towersPlaced,
           towersSold: statsSnapshot.totalTowersSold || 0,
           unlockedAchievementIds: unlockedThisSession,
-          dailyChallenge: dailySection,
-          mutatorChallenge: mutatorSection,
         };
 
         set({
           lastGameEndReport: report,
           sessionBaselineAchievementIds: [],
-          sessionDailyProgressBaseline: [],
-          sessionMutatorChallengeId: null,
-          sessionMutatorRecordBefore: null,
-        });
+            });
       },
 
       onWaveComplete: (_waveNumber, damageTaken) => {
@@ -1017,10 +950,7 @@ export const useAchievementStore = create<AchievementStore>()(
           currentGameStats: {},
           gameStartTime: null,
           sessionBaselineAchievementIds: [],
-          sessionDailyProgressBaseline: [],
-          sessionMutatorChallengeId: null,
-          sessionMutatorRecordBefore: null,
-          lastGameEndReport: null,
+              lastGameEndReport: null,
         });
       },
 
@@ -1070,10 +1000,7 @@ export const useAchievementStore = create<AchievementStore>()(
           currentGameStats: {},
           gameStartTime: null,
           sessionBaselineAchievementIds: [],
-          sessionDailyProgressBaseline: [],
-          sessionMutatorChallengeId: null,
-          sessionMutatorRecordBefore: null,
-          lastGameEndReport: null,
+              lastGameEndReport: null,
         });
       },
     }),

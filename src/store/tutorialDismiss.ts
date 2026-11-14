@@ -89,23 +89,6 @@ export function markTutorialPartCompleted(part: TutorialPart): TutorialDismissSt
   return next;
 }
 
-export function campaignTutorialPartForLevel(
-  levelId: string | null | undefined,
-): TutorialPart | null {
-  if (levelId === 'ch1_tutorial') return 'part1';
-  if (levelId === 'ch1_lv1') return 'part2';
-  if (levelId === 'ch1_lv2') return 'part3';
-  return null;
-}
-
-export function shouldStartCampaignTutorial(levelId: string | null | undefined): boolean {
-  const part = campaignTutorialPartForLevel(levelId);
-  if (!part) return false;
-  const state = loadTutorialDismissState();
-  if (state.skipped) return false;
-  return !state.completedParts.includes(part);
-}
-
 export function tutorialPartFromFinishStepId(stepId: string | undefined): TutorialPart | null {
   if (stepId === 'finish_part1') return 'part1';
   if (stepId === 'finish_part2') return 'part2';

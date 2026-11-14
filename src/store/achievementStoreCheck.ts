@@ -144,9 +144,6 @@ export const checkCondition = (
       case 'complete_unique_maps':
         current = Object.keys(statistics.mapsCompleted).length;
         break;
-      case 'complete_chapter':
-        current = statistics.chaptersCompleted || 0;
-        break;
       case 'map_completed':
       case 'complete_map':
         current = condition.mapId

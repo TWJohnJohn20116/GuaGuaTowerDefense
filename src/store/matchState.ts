@@ -41,8 +41,6 @@ type MatchOwnedKey =
   | 'damageTexts'
   | 'impactParticles'
   | 'deathAnimations'
-  | 'mutatorRules'
-  | 'mutatorChallengeId'
   | 'pendingProtocolChoices'
   | 'activeProtocol'
   | 'protocolHistory'
@@ -87,8 +85,6 @@ export const createEmptyMatchState = (): Pick<GameStore, MatchOwnedKey> => ({
   impactParticles: [],
   deathAnimations: [],
 
-  mutatorRules: null,
-  mutatorChallengeId: null,
   pendingProtocolChoices: null,
   activeProtocol: null,
   protocolHistory: [],

@@ -30,13 +30,8 @@ type SetState = (partial: Partial<GameStore> | ((state: GameStore) => Partial<Ga
 
 export const createTowerActions = (get: GetState, set: SetState) => ({
   placeTower: (pos: GridPosition) => {
-    const { grid, money, selectedTowerType, towers, placementHistory, placementHistoryIndex, quickPlaceMode, placementStats, difficultyModifiers, mutatorRules, currentWave, protocolNextTowerDiscount } = get();
+    const { grid, money, selectedTowerType, towers, placementHistory, placementHistoryIndex, quickPlaceMode, placementStats, difficultyModifiers, currentWave, protocolNextTowerDiscount } = get();
     if (!selectedTowerType) return false;
-
-    // 突變挑戰：禁用的塔類型無法建造
-    if (mutatorRules?.bannedTowerTypes?.includes(selectedTowerType)) return false;
-    // 突變挑戰：波次鎖定（前 N 波禁建）
-    if (mutatorRules?.buildLockUntilWave && currentWave < mutatorRules.buildLockUntilWave) return false;
 
     const tile = grid[pos.row]?.[pos.col];
     if (!tile || tile.type !== 'empty' || tile.towerId) return false;
@@ -205,8 +200,6 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
   sellTower: (tower: Tower) => {
     // 鎖定保護:鎖定的塔無法被出售
     if (tower.locked) return;
-    // 突變挑戰：禁止賣塔
-    if (get().mutatorRules?.sellingDisabled) return;
     const { towers, grid, money, placementStats, sellAnimations } = get();
     const towerData = getTowerData(tower.type);
     if (!towerData) return;
@@ -433,10 +426,9 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
 
   // 啟動技能
   activateSkill: (towerId: string) => {
-    const { towers, enemies, mutatorRules } = get();
+    const { towers, enemies } = get();
     const tower = towers.find(t => t.id === towerId);
     if (!tower || !tower.skill) return false;
-    if (mutatorRules?.skillsDisabled) return false;
     
     const skillData = SKILL_DATA[tower.skill.skillId];
     if (!skillData) return false;

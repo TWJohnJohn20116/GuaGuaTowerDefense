@@ -27,7 +27,6 @@ import { createEmptyMatchState } from './matchState';
 import { useTalentStore } from './talentStore';
 import { useStatsStore } from './statsStore';
 import { resolveStatsGameMode } from './statsGameMode';
-import { findCampaignLevelById } from '@/data/campaignData';
 import { playVictory } from '@/services/audioService';
 import { useSettingsStore } from './settingsStore';
 
@@ -83,8 +82,6 @@ export const useGameStore = create<GameStore>()(
   maxWaves: 15,
   autoSkipWave: false,
   lastStartArgs: null,
-  mutatorRules: null,
-  mutatorChallengeId: null,
   pendingProtocolChoices: null,
   activeProtocol: null,
   protocolHistory: [],
@@ -234,28 +231,8 @@ export const useGameStore = create<GameStore>()(
   },
 
   // 開始遊戲
-  startGame: async (pathName, difficulty = 'normal', endless = false, maxWaves = 0, customModifiers, customWaveSetId, mutator) => {
-    let actualPathName = pathName;
-    let isCampaign = false;
-    let campaignLevelId = '';
-    let campaignModifiers: Partial<DifficultyModifiers> | undefined;
-    let campaignMaxWaves: number | undefined;
-    let startingMoneyOffset = 0;
-    
-    if (pathName.startsWith('ch')) {
-      const level = findCampaignLevelById(pathName);
-      if (level) {
-        actualPathName = level.mapId;
-        isCampaign = true;
-        campaignLevelId = level.id;
-        campaignModifiers = level.modifiers;
-        campaignMaxWaves = level.maxWaves;
-
-        if (campaignLevelId === 'ch1_lv1' && level.modifiers?.startingMoney) {
-          startingMoneyOffset = 0;
-        }
-      }
-    }
+  startGame: async (pathName, difficulty = 'normal', endless = false, maxWaves = 0, customModifiers, customWaveSetId) => {
+    const actualPathName = pathName;
     
     // 如果是 Mod 地圖，從 modStore 載入並加入 PATHS
     if (!PATHS[actualPathName]) {
@@ -289,18 +266,12 @@ export const useGameStore = create<GameStore>()(
       ? customModifiers 
       : DIFFICULTY_MODIFIERS[difficulty] || DIFFICULTY_MODIFIERS['normal'];
 
-    if (campaignModifiers) {
-      baseModifiers = { ...baseModifiers, ...campaignModifiers };
-    }
-
     const modifiers = applyTalentToDifficultyModifiers(baseModifiers);
     
     const grid = initializeGrid(actualPathName);
 
     const statsGameMode = resolveStatsGameMode({
-      isCampaign,
       endless,
-      mutatorId: mutator?.id,
       customWaveSetId,
     });
     useStatsStore.getState().startGameTracking(statsGameMode);
@@ -315,32 +286,23 @@ export const useGameStore = create<GameStore>()(
       grid,
       gameDifficulty: difficulty,
       difficultyModifiers: modifiers,
-      money: (modifiers.startingMoney ?? GAME_CONSTANTS.INITIAL_MONEY) + startingMoneyOffset,
+      money: modifiers.startingMoney ?? GAME_CONSTANTS.INITIAL_MONEY,
       health: modifiers.startingHealth ?? GAME_CONSTANTS.INITIAL_HEALTH,
       endlessMode: endless,
-      maxWaves: endless ? 0 : (campaignMaxWaves ?? maxWaves),
-      isCampaign,
-      campaignLevelId,
+      maxWaves: endless ? 0 : maxWaves,
       customWaveSetId,
-      // 突變挑戰規則（非突變局為 null）
-      mutatorRules: mutator?.rules ?? null,
-      mutatorChallengeId: mutator?.id ?? null,
       quickPlaceMode: useSettingsStore.getState().gameplay.quickPlaceDefault,
       // 保存原始啟動參數（再玩一次 / 快速重試時完整復原本局設定）
-      lastStartArgs: { pathName, difficulty, endless, maxWaves, customModifiers, customWaveSetId, mutator },
+      lastStartArgs: { pathName, difficulty, endless, maxWaves, customModifiers, customWaveSetId },
     });
     
     // 如果是教學模式，重置為 1 倍速
     try {
       import('./tutorialStore').then(m => {
         const tutorialStore = m.useTutorialStore.getState();
-        import('./campaignStore').then(() => {
-          // 注意：教學的啟動移到了 GameScene 中，等待劇情對話結束後才啟動
-          // 這裡我們只負責重置速度
-          if (tutorialStore.isActive) {
-            get().setGameSpeed(1);
-          }
-        }).catch(() => { /* 模組載入失敗時忽略（例如測試環境已拆卸） */ });
+        if (tutorialStore.isActive) {
+          get().setGameSpeed(1);
+        }
       }).catch(e => console.error(e));
     } catch (e) { /* ignore */ }
   },
@@ -502,8 +464,6 @@ export const useGameStore = create<GameStore>()(
     quickPlaceMode: false,
     showTacticalView: false,
     autoBattleEnabled: false,
-    isCampaign: false,
-    campaignLevelId: undefined,
   }),
 }),
     {

@@ -3,7 +3,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { GameDifficulty, DifficultyModifiers } from '@/types/game';
-import type { MutatorRules } from '@/types/mutatorChallenge';
 
 // 輕量版實體(僅含畫面所需資訊)
 export interface ReplayTowerEntity {
@@ -89,7 +88,6 @@ export interface Replay {
   startPathName?: string;
   customWaveSetId?: string;
   customModifiers?: DifficultyModifiers;
-  mutator?: { id: string; rules: MutatorRules };
   // 元資料 (使用者可編輯)
   favorite?: boolean;          // 最愛收藏
   tags?: string[];             // 標籤
@@ -104,7 +102,6 @@ interface ReplayRecordingMeta {
   startPathName?: string;
   customWaveSetId?: string;
   customModifiers?: DifficultyModifiers;
-  mutator?: { id: string; rules: MutatorRules };
 }
 
 const MAX_REPLAYS = 15;        // 最大儲存數量（快照密度提高後同步調降，控制 localStorage 總量）
@@ -251,7 +248,6 @@ export const useReplayStore = create<ReplayStore>()(
           startPathName: state.recordingMeta.startPathName,
           customWaveSetId: state.recordingMeta.customWaveSetId,
           customModifiers: state.recordingMeta.customModifiers,
-          mutator: state.recordingMeta.mutator,
           duration,
           finalWave,
           isVictory,
