@@ -7,38 +7,61 @@ export default {
   theme: {
     extend: {
       colors: {
-        hl: {
-          void: 'var(--hl-void)',
-          'void-2': 'var(--hl-void-2)',
-          deck: 'var(--hl-deck)',
-          'deck-2': 'var(--hl-deck-2)',
-          'deck-3': 'var(--hl-deck-3)',
-          'deck-4': 'var(--hl-deck-4)',
-          line: 'var(--hl-line)',
-          'line-strong': 'var(--hl-line-strong)',
-          'line-hot': 'var(--hl-line-hot)',
-          ink: 'var(--hl-ink)',
-          'ink-2': 'var(--hl-ink-2)',
-          'ink-3': 'var(--hl-ink-3)',
-          'ink-4': 'var(--hl-ink-4)',
-          signal: 'var(--hl-signal)',
-          'signal-ink': 'var(--hl-signal-ink)',
-          vital: 'var(--hl-vital)',
-          alarm: 'var(--hl-alarm)',
-          caution: 'var(--hl-caution)',
-          reach: 'var(--hl-reach)',
+        arc: {
+          void: 'var(--arc-void)',
+          'void-2': 'var(--arc-void-2)',
+          deck: 'var(--arc-deck)',
+          'deck-2': 'var(--arc-deck-2)',
+          'deck-3': 'var(--arc-deck-3)',
+          line: 'var(--arc-line)',
+          'line-strong': 'var(--arc-line-strong)',
+          'line-hot': 'var(--arc-line-hot)',
+          ink: 'var(--arc-ink)',
+          'ink-2': 'var(--arc-ink-2)',
+          'ink-3': 'var(--arc-ink-3)',
+          'ink-4': 'var(--arc-ink-4)',
+          gold: 'var(--arc-gold)',
+          'gold-2': 'var(--arc-gold-2)',
+          'gold-ink': 'var(--arc-gold-ink)',
+          cyan: 'var(--arc-cyan)',
+          'cyan-dim': 'var(--arc-cyan-dim)',
+          alert: 'var(--arc-alert)',
+          vital: 'var(--arc-vital)',
+          caution: 'var(--arc-caution)',
+          reach: 'var(--arc-reach)',
         },
-        // 相容：舊程式用 nordic-* 的地方接同一組
+        // 舊名保留，值全部指向 ARCADE（逐檔改完後刪）
+        hl: {
+          void: 'var(--arc-void)',
+          'void-2': 'var(--arc-void-2)',
+          deck: 'var(--arc-deck)',
+          'deck-2': 'var(--arc-deck-2)',
+          'deck-3': 'var(--arc-deck-3)',
+          'deck-4': 'var(--arc-deck-3)',
+          line: 'var(--arc-line)',
+          'line-strong': 'var(--arc-line-strong)',
+          'line-hot': 'var(--arc-line-hot)',
+          ink: 'var(--arc-ink)',
+          'ink-2': 'var(--arc-ink-2)',
+          'ink-3': 'var(--arc-ink-3)',
+          'ink-4': 'var(--arc-ink-4)',
+          signal: 'var(--arc-gold)',
+          'signal-ink': 'var(--arc-gold-ink)',
+          vital: 'var(--arc-vital)',
+          alarm: 'var(--arc-alert)',
+          caution: 'var(--arc-caution)',
+          reach: 'var(--arc-reach)',
+        },
         nordic: {
-          bg: 'var(--hl-void)',
-          surface: 'var(--hl-deck)',
-          border: 'var(--hl-line)',
-          primary: 'var(--hl-signal)',
-          secondary: 'var(--hl-vital)',
-          accent: 'var(--hl-signal)',
-          danger: 'var(--hl-alarm)',
-          text: 'var(--hl-ink)',
-          muted: 'var(--hl-ink-2)',
+          bg: 'var(--arc-void)',
+          surface: 'var(--arc-deck)',
+          border: 'var(--arc-line)',
+          primary: 'var(--arc-gold)',
+          secondary: 'var(--arc-cyan)',
+          accent: 'var(--arc-gold)',
+          danger: 'var(--arc-alert)',
+          text: 'var(--arc-ink)',
+          muted: 'var(--arc-ink-2)',
         },
       },
       fontFamily: {
@@ -52,33 +75,39 @@ export default {
           'monospace',
         ],
       },
+      // ARCADE：只有小圓角，沒有膠囊以外的大圓角
+      // CANDY：整體圓潤，最小也是 12px
       borderRadius: {
-        // HARDLINE：圓角只有 0 這一種
         none: '0',
-        sm: '0',
-        DEFAULT: '0',
-        md: '0',
-        lg: '0',
-        xl: '0',
-        '2xl': '0',
-        '3xl': '0',
-        full: '0',
+        sm: '12px',
+        DEFAULT: '14px',
+        md: '16px',
+        lg: '18px',
+        xl: '20px',
+        '2xl': '22px',
+        '3xl': '26px',
+        full: '9999px',
       },
+      // ARCADE：硬陰影，不是柔和雲霧
       boxShadow: {
-        // 沒有陰影，只有線
         none: 'none',
-        sm: 'none',
-        DEFAULT: 'none',
-        md: 'none',
-        lg: 'none',
-        xl: 'none',
-        '2xl': 'none',
+        sm: '0 1px 0 rgba(0,0,0,0.55)',
+        DEFAULT: '0 2px 0 rgba(0,0,0,0.55)',
+        md: '0 6px 16px -6px rgba(0,0,0,0.9)',
+        lg: '0 10px 24px -8px rgba(0,0,0,0.9)',
+        xl: '0 28px 60px -20px rgba(0,0,0,0.95)',
+        bevel: '0 4px 0 #0a1020',
+        'bevel-gold': '0 4px 0 #a87400',
+        gold: '0 0 0 1px rgba(255,212,71,0.55), 0 0 24px -6px rgba(255,212,71,0.8)',
+        cyan: '0 0 0 1px rgba(56,245,255,0.5), 0 0 24px -6px rgba(56,245,255,0.8)',
       },
       transitionTimingFunction: {
         hl: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+        arc: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'arc-out': 'cubic-bezier(0.2, 0.9, 0.25, 1)',
       },
       animation: {
-        'pulse-slow': 'pulse 3s cubic-bezier(0.2, 0.8, 0.2, 1) infinite',
+        'pulse-slow': 'arc-pulse 2.4s cubic-bezier(0.2, 0.9, 0.25, 1) infinite',
         'theme-fade': 'themeFade 0.5s ease-out',
       },
       keyframes: {
@@ -99,14 +128,24 @@ export default {
             'linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent)',
         },
         '.hl-cut-tl': {
-          'clip-path':
-            'polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px)',
+          'clip-path': 'polygon(14px 0, 100% 0, 100% 100%, 0 100%, 0 14px)',
         },
         '.hl-cut-br': {
           'clip-path':
-            'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)',
+            'polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%)',
+        },
+        '.arc-cut-tl': {
+          'clip-path': 'polygon(14px 0, 100% 0, 100% 100%, 0 100%, 0 14px)',
+        },
+        '.arc-cut-br': {
+          'clip-path':
+            'polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%)',
+        },
+        '.arc-cut-sm': {
+          'clip-path':
+            'polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px)',
         },
       });
     },
   ],
-}
+};
