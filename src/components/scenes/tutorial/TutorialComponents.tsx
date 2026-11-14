@@ -4,7 +4,7 @@ import { Btn, Meter, Segments } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 import { SpecNote } from './TutorialPageComponents';
 import type { TutorialStep, TutorialCategory } from './TutorialData';
-unction getActionLabel(
+function getActionLabel(
   action: string,
   actions: Record<string, string>,
 ): string {
