@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 import { useTranslation } from '@/i18n';
 import { useModStore } from '@/store/modStore';
 import { getPlayableWaveSets, getWaveSetSourceLabel } from '@/utils/waveSets';
-import { Btn, Deck, SegHead, Toggle } from '@/components/hl';
+import { Btn, SegHead, Toggle } from '@/components/hl';
 
 interface ModePanelProps {
   endlessMode: boolean;
@@ -48,7 +48,7 @@ export function ModePanel({
   return (
     <div className="flex flex-col gap-1.5">
       {/* 無盡模式 */}
-      <Deck className="flex items-center justify-between px-3 py-2.5">
+      <div className="flex items-center justify-between rounded-[14px] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] px-3 py-2.5">
         <div className="min-w-0">
           <div className="text-[12.5px] font-medium text-[var(--arc-ink)]">
             {t.pathSelection.endlessMode}
@@ -62,10 +62,10 @@ export function ModePanel({
           onChange={(v) => setEndlessMode(v)}
           label={t.pathSelection.endlessMode}
         />
-      </Deck>
+      </div>
 
       {!endlessMode && (
-        <Deck className="px-3 py-2.5">
+        <div className="rounded-[14px] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] px-3 py-2.5">
           <div className="mb-2 flex items-center justify-between gap-3">
             <span className="arc-label">{t.pathSelection.targetWaves}</span>
             <span className="font-mono text-[11px] tabular-nums text-[var(--arc-ink)]">
@@ -98,7 +98,7 @@ export function ModePanel({
               );
             })}
           </div>
-        </Deck>
+        </div>
       )}
 
       {!endlessMode && hasWaveSets && (

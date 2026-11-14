@@ -12,7 +12,7 @@
 import type { ReactNode } from 'react';
 import type { PathConfig } from '@/types/game';
 import { useTranslation } from '@/i18n';
-import { Btn, Empty, SegHead, StatCell } from '@/components/hl';
+import { Btn, Empty, StatCell } from '@/components/hl';
 import { PathPreview } from './PathPreview';
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -26,7 +26,12 @@ export function SectionHeader({
   title: string;
   right?: ReactNode;
 }) {
-  return <SegHead label={title} right={right} className="mb-2.5" />;
+  return (
+    <div className="mb-3 flex items-center justify-between gap-3">
+      <span className="arc-title text-[15px]">{title}</span>
+      {right}
+    </div>
+  );
 }
 
 // ──────────────────────────────────────────────────────────────────────────
