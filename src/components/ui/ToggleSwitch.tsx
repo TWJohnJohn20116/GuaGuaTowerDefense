@@ -3,8 +3,12 @@ import { motion } from 'framer-motion';
 /**
  * 統一切換開關（CANDY POP）
  *
- * 圓潤軌道 + 圓形滑塊，開啟時是薄荷綠（＝允許）。與 hl 的 `Toggle` 同一組語意，
- * 只是這個版本吃 framer-motion 做滑塊位移，供設定頁與暫停面板沿用。
+ * 造型：墨線膠囊軌道 + 純白圓球，球不做墨線圓環。
+ * 先前版本球帶 2px 墨線環，跟軌道的 3px 墨線邊框黏在一起，
+ * 放大看會變成「甜甜圈貼在膠囊邊上」，讀不出是開關。
+ *
+ * 位移用 flex 對齊（justify-start / justify-end）＋ framer 的 layout 動畫，
+ * 不用 absolute + translateX(固定像素)：軌道有 3px 邊框，手算 offset 少扣一次就會溢出。
  */
 export const ToggleSwitch = ({
   enabled,
@@ -17,12 +21,11 @@ export const ToggleSwitch = ({
   size?: 'sm' | 'md' | 'lg';
   activeColor?: 'primary' | 'orange' | 'purple' | 'green' | 'cyan' | 'blue' | 'yellow';
 }) => {
-  // onX 必須扣掉 3px 邊框：軌道 w-11（44px）扣左右各 3px 只剩 38px 內容寬，
-  // 滑塊連邊框是 20px，所以位移上限是 18；寫 22 會讓滑塊凸出軌道右緣。
+  // 軌道高度 −（2 × 3px 邊框）要留給球的直徑 + 上下各 2px 呼吸
   const dims = {
-    sm: { track: 'w-8 h-[18px]', ball: 'w-3 h-3', onX: 8, offX: 3 },
-    md: { track: 'w-11 h-[24px]', ball: 'w-4 h-4', onX: 16, offX: 3 },
-    lg: { track: 'w-12 h-[28px]', ball: 'w-5 h-5', onX: 16, offX: 3 },
+    sm: { track: 'w-9 h-[24px]', ball: 'w-3 h-3' },
+    md: { track: 'w-[46px] h-[28px]', ball: 'w-4 h-4' },
+    lg: { track: 'w-[52px] h-[32px]', ball: 'w-5 h-5' },
   }[size];
 
   return (
@@ -31,17 +34,19 @@ export const ToggleSwitch = ({
       role="switch"
       aria-checked={enabled}
       onClick={onToggle}
-      className={`${dims.track} relative flex-shrink-0 rounded-full border-[3px] transition-colors duration-150 ${
+      className={[
+        dims.track,
+        'relative flex shrink-0 items-center rounded-full border-[3px] border-[var(--cn-line)] px-[3px]',
+        'transition-colors duration-150',
         enabled
-          ? 'border-[var(--cn-line)] bg-[var(--cn-mint)]'
-          : 'border-[var(--cn-line-mid)] bg-[var(--cn-card-2)]'
-      }`}
+          ? 'justify-end bg-[var(--cn-mint)]'
+          : 'justify-start bg-[var(--cn-line-mid)]',
+      ].join(' ')}
     >
       <motion.span
-        className={`${dims.ball} absolute top-1/2 rounded-full border-2 border-[var(--cn-line)] bg-[var(--cn-card)]`}
-        style={{ y: '-50%' }}
-        animate={{ x: enabled ? dims.onX : dims.offX }}
-        transition={{ duration: 0.14, ease: [0.34, 1.56, 0.64, 1] }}
+        layout
+        transition={{ type: 'spring', stiffness: 520, damping: 34 }}
+        className={`${dims.ball} shrink-0 rounded-full border border-[var(--cn-line)] bg-[var(--cn-card)] shadow-[0_2px_0_rgba(46,36,64,0.18)]`}
       />
     </button>
   );
