@@ -7,8 +7,9 @@
 
 import { drawEnemyModel } from '@/utils/enemyRenderer';
 import { getEnemySprite } from '@/utils/enemySpriteCache';
-import { getEnemyVisuals, getTowerVisuals, getTowerData, getEnemyStealthFade, getEnemyPhaseFade } from '@/store/gameStoreUtils';
+import { getEnemyVisuals, getTowerVisuals, getTowerData } from '@/store/gameStoreUtils';
 import { ENEMY_DATA } from '@/data/gameData';
+import type { RenderSnapshot } from '@/data/renderSnapshot';
 import { drawTowerModel } from '@/components/game/TowerModels';
 import type { TowerType, Tower, Enemy, Projectile, GridPosition, DamageText, ImpactParticle, DeathAnimation } from '@/types/game';
 import type { PlayerSkillAnimation } from '@/store/gameStoreTypes';
@@ -21,7 +22,7 @@ import { drawProjectilesNordic } from './projectileRenderNordic';
 import { drawFlameEffectsNordic } from './flameEffectNordic';
 import { createStatusRingBatch } from './GameCanvasStatusRings';
 import { getSynergyModsForTower, listActiveSynergyLinks, toTowerRef } from '@/data/towerSynergyData';
-import { collectJammerAurasCached, isJammerSuppressed, isTowerJammed, type JammerAura } from '@/data/jammerAura';
+import { collectJammerAurasCached, isTowerJammed, type JammerAura } from '@/data/jammerAura';
 import { getMoneyAuraRange } from '@/data/moneyAura';
 import { shouldShowTowerHealthBar } from '@/data/towerHealthBarVisibility';
 
@@ -105,6 +106,8 @@ type GetSkinVisuals = (type: TowerType) => any;
 type GetSkinModelSet = (type: TowerType) => string | undefined;
 
 interface DynamicLayerParams {
+  /** 這一幀的渲染快照（2D 與 3D 共用的純函式契約），敵人本體只從這裡取資料 */
+  snapshot: RenderSnapshot;
   upgradeAnimations: { id: string; towerId: string; gridPos: GridPosition; newLevel: number; towerColor: string; startTime: number; isMaxLevel?: boolean }[];
   sellAnimations: { id: string; gridPos: GridPosition; towerColor: string; startTime: number }[];
   fusionAnimations: Array<{ id: string; gridPos: GridPosition; resultType: string; startTime: number; colorA: string; colorB: string }>;
@@ -137,6 +140,7 @@ export function renderDynamicLayer(
   params: DynamicLayerParams
 ): void {
   const {
+    snapshot,
     upgradeAnimations, sellAnimations, fusionAnimations, playerSkillAnimations,
     towers, enemies, projectiles,
     damageTexts, impactParticles, deathAnimations,
@@ -144,7 +148,8 @@ export function renderDynamicLayer(
     showDebugInfo, showHitboxes, showHealthBars = true, showFPS, fps, fusionBurstLabel, maxLevelLabel
   } = params;
 
-  const now = Date.now();
+  // 時間只認 snapshot：先前這裡用 Date.now()、GameCanvas 用 performance.now()，同一幀兩個基準
+  const now = snapshot.timeMs;
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
   // 除錯資訊 (左上角覆蓋層)
@@ -180,8 +185,8 @@ export function renderDynamicLayer(
   drawSynergyLinks(ctx, now, tileSize, offsetX, offsetY, towers);
   drawTowers(ctx, now, tileSize, offsetX, offsetY, towers, getSkinVisuals, getSkinModelSet, collectJammerAurasCached(enemies, ENEMY_DATA, now));
 
-  // 第五層: 敵人 (使用統一敵人模型)
-  drawEnemies(ctx, now, tileSize, offsetX, offsetY, enemies, showHealthBars);
+  // 第五層: 敵人 (使用統一敵人模型；資料來自渲染 snapshot)
+  drawEnemies(ctx, now, tileSize, offsetX, offsetY, snapshot, showHealthBars);
 
   // 第六層: 敵人死亡動畫 (放在敵人之上、其它特效之下)
   drawDeathAnimations(ctx, now, tileSize, offsetX, offsetY, deathAnimations);
@@ -579,13 +584,18 @@ function drawEnemies(
   tileSize: number,
   offsetX: number,
   offsetY: number,
-  enemies: Enemy[],
+  snapshot: RenderSnapshot,
   showHealthBars = true,
 ): void {
   const enemyTime = now;
   // 狀態環先收集、迴圈跑完再一次性描繪（見 GameCanvasStatusRings：每幀數萬次 stroke → 個位數）
   const ringBatch = createStatusRingBatch();
-  enemies.forEach((enemy) => {
+  const frames = snapshot.enemies;
+  const enemyCount = snapshot.enemyCount;
+  // 迴圈變數 enemy 是 snapshot frame，不是 store 的 Enemy 物件：
+  // x/y/size/healthRatio/ghostFade/abilitySuppressed 都由純函式層算好，這裡不再回查 store。
+  for (let frameIndex = 0; frameIndex < enemyCount; frameIndex++) {
+    const enemy = frames[frameIndex];
     const enemyData = ENEMY_DATA[enemy.type];
     const x = offsetX + enemy.x * tileSize + tileSize / 2;
     const y = offsetY + enemy.y * tileSize + tileSize / 2;
@@ -594,8 +604,8 @@ function drawEnemies(
     const enemyVisuals = getEnemyVisuals(enemy.type);
     const enemyRadius = radius * enemyVisuals.modelScale;
 
-    // 出生動畫：縮放彈入 + 淡入 + 擴散光環
-    const spawnAge = enemy.spawnTime !== undefined ? now - enemy.spawnTime : ENEMY_SPAWN_DURATION;
+    // 出生動畫：縮放彈入 + 淡入 + 擴散光環（spawnAgeMs < 0 = 沒有出生時間，視為動畫已結束）
+    const spawnAge = enemy.spawnAgeMs >= 0 ? enemy.spawnAgeMs : ENEMY_SPAWN_DURATION;
     const spawning = spawnAge >= 0 && spawnAge < ENEMY_SPAWN_DURATION;
     const spawnT = spawning ? spawnAge / ENEMY_SPAWN_DURATION : 1;
     const spawnScale = spawning ? Math.max(0, easeOutBack(spawnT)) : 1;
@@ -615,7 +625,7 @@ function drawEnemies(
     }
 
     // 治療敵人：脈動治療光環（繪於模型底下，半徑 = healRadius；50px = 1 格）
-    if (enemyData?.ability === 'healing' && enemyData.healRadius && !isJammerSuppressed(enemy, now)) {
+    if (enemyData?.ability === 'healing' && enemyData.healRadius && !enemy.abilitySuppressed) {
       const auraRadius = (enemyData.healRadius / 50) * tileSize;
       const pulse = 0.5 + 0.5 * Math.sin(now * 0.004);
       ctx.save();
@@ -632,7 +642,7 @@ function drawEnemies(
     }
 
     // 干擾敵人：紫色干擾光環（半徑 = jamRadius；50px = 1 格；被控場時關閉）
-    if (enemyData?.ability === 'jam' && enemyData.jamRadius && !isJammerSuppressed(enemy, now)) {
+    if (enemyData?.ability === 'jam' && enemyData.jamRadius && !enemy.abilitySuppressed) {
       const auraRadius = (enemyData.jamRadius / 50) * tileSize;
       const pulse = 0.5 + 0.5 * Math.sin(now * 0.005 + x);
       ctx.save();
@@ -653,7 +663,7 @@ function drawEnemies(
     }
 
     // 護航敵人：鋼青裝甲光環（半徑 = escortRadius；50px = 1 格；被控場時關閉）
-    if (enemyData?.ability === 'escort' && enemyData.escortRadius && !isJammerSuppressed(enemy, now)) {
+    if (enemyData?.ability === 'escort' && enemyData.escortRadius && !enemy.abilitySuppressed) {
       const auraRadius = (enemyData.escortRadius / 50) * tileSize;
       const pulse = 0.5 + 0.5 * Math.sin(now * 0.004 + y);
       ctx.save();
@@ -674,9 +684,9 @@ function drawEnemies(
     }
 
     // 隱身敵人：隱身期間僅剩幽影（玩家可微弱辨識，塔無法鎖定）
-    const stealthFade = getEnemyStealthFade(enemy, now);
+    const stealthFade = enemy.stealthFade;
     // 幽靈敵人：相位期間半透明虛體（無法鎖定且免疫傷害）
-    const phaseFade = getEnemyPhaseFade(enemy, now);
+    const phaseFade = enemy.phaseFade;
 
     // 模型（含發光），出生期間套用縮放與透明度（以中心為基準）
     ctx.save();
@@ -715,7 +725,7 @@ function drawEnemies(
     ctx.restore();
 
     // 被護航：鋼青實線圈，標示這隻敵人目前有額外裝甲
-    if ((enemy.escortArmor ?? 0) > 0) {
+    if (enemy.escortArmor > 0) {
       const pulse = 0.5 + 0.5 * Math.sin(now * 0.007 + x);
       ctx.save();
       ctx.globalAlpha = 0.4 + pulse * 0.25;
@@ -761,8 +771,8 @@ function drawEnemies(
     }
 
     // 護盾圈：護盾值尚存時顯示藍色防護罩
-    if ((enemy.shield ?? 0) > 0 && enemy.maxShield) {
-      const shieldRatio = Math.min(1, (enemy.shield ?? 0) / enemy.maxShield);
+    if (enemy.shield > 0 && enemy.maxShield > 0) {
+      const shieldRatio = enemy.shieldRatio;
       ctx.save();
       ctx.globalAlpha = 0.25 + shieldRatio * 0.35;
       ctx.strokeStyle = '#3b82f6';
@@ -778,7 +788,7 @@ function drawEnemies(
 
     ringBatch.add(enemy, x, y, radius, now);
 
-    if (!showHealthBars) return;
+    if (!showHealthBars) continue;
 
     // 血條（出生期間隨敵人淡入）
     ctx.save();
@@ -789,13 +799,13 @@ function drawEnemies(
     ctx.fillStyle = '#1a1d24';
     ctx.fillRect(x - barWidth / 2 - 1, barY - 1, barWidth + 2, barHeight + 2);
 
-    const healthPercent = enemy.health / enemy.maxHealth;
+    const healthPercent = enemy.healthRatio;
     ctx.fillStyle = healthPercent > 0.5 ? '#4ade80' : healthPercent > 0.25 ? '#facc15' : '#ef4444';
     ctx.fillRect(x - barWidth / 2, barY, barWidth * healthPercent, barHeight);
 
     // 護盾條（血條上方的藍色細條）
-    if (enemy.maxShield && (enemy.shield ?? 0) > 0) {
-      const shieldPercent = Math.min(1, (enemy.shield ?? 0) / enemy.maxShield);
+    if (enemy.maxShield > 0 && enemy.shield > 0) {
+      const shieldPercent = enemy.shieldRatio;
       const sBarY = barY - 4;
       ctx.fillStyle = '#1a1d24';
       ctx.fillRect(x - barWidth / 2 - 1, sBarY - 1, barWidth + 2, 3 + 2);
@@ -803,7 +813,7 @@ function drawEnemies(
       ctx.fillRect(x - barWidth / 2, sBarY, barWidth * shieldPercent, 3);
     }
     ctx.restore();
-  });
+  }
 
   ringBatch.flush(ctx);
 }

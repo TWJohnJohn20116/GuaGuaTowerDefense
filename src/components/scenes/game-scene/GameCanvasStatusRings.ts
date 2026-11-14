@@ -1,4 +1,4 @@
-import type { Enemy } from '@/types/game';
+import type { StatusEffect } from '@/types/game';
 
 /**
  * 敵人狀態效果環
@@ -26,9 +26,18 @@ interface RingGroup {
   circles: number[];
 }
 
+/**
+ * 狀態環只需要「有哪些狀態」與「是否被吹離路徑」。
+ * 用結構型別接收，2D 可以直接吃渲染 snapshot 的 EnemyRenderFrame（不必回頭拿 Enemy 物件）。
+ */
+interface RingSource {
+  effects: readonly StatusEffect[];
+  isDisplaced?: boolean;
+}
+
 interface StatusRingBatch {
   /** 把這隻敵人的狀態環加入批次（不立即繪製） */
-  add: (enemy: Enemy, x: number, y: number, radius: number, now: number) => void;
+  add: (enemy: RingSource, x: number, y: number, radius: number, now: number) => void;
   /** 一次畫完所有分組（會清空批次） */
   flush: (ctx: CanvasRenderingContext2D) => void;
   /** 目前累積的環數量（測試 / 除錯用） */

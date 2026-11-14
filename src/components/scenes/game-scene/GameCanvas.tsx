@@ -20,6 +20,7 @@ import { EnemyTooltip } from '@/components/game/EnemyTooltip';
 import { resolveFusionCanvasClick } from '@/data/fusionCanvasClick';
 import { resolveGridTowerClick } from '@/data/gridTowerClick';
 import { resolveCanvasShakeIntensity, visibleDamageTexts } from '@/data/hudVisualVisibility';
+import { createRenderSnapshot, writeRenderSnapshot } from '@/data/renderSnapshot';
 import { renderStaticLayer } from './GameCanvasStatic';
 import { renderDynamicLayer } from './GameCanvasDynamic';
 
@@ -190,6 +191,9 @@ const GameCanvasImpl = () => {
     const UPGRADE_DURATION = 1500;
     const SELL_DURATION = 600;
     const FUSION_DURATION = 1400;
+
+    // 渲染 snapshot 緩衝：與 3D 視圖共用同一份純函式契約，只建立一次、逐幀原地寫入
+    const snapshot = createRenderSnapshot();
     
     let frameCount = 0;
     let lastTime = performance.now();
@@ -206,6 +210,8 @@ const GameCanvasImpl = () => {
       }
       
       const state = useGameStore.getState();
+      // 這一幀的實體視覺資料：寫一次，2D 圖層與（切到 3D 時）3D 實例池吃同一份契約
+      writeRenderSnapshot(state, snapshot, Date.now());
       
       // 更新動畫狀態
       const activeUpgrade = state.upgradeAnimations.filter(a => Date.now() - a.startTime < UPGRADE_DURATION);
@@ -218,6 +224,7 @@ const GameCanvasImpl = () => {
 
       // 渲染動態層
       renderDynamicLayer(ctx, canvas.width, canvas.height, {
+        snapshot,
         upgradeAnimations: activeUpgrade,
         sellAnimations: activeSell,
         playerSkillAnimations: state.playerSkillAnimations,

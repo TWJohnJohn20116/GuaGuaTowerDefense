@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { renderDynamicLayer } from '@/components/scenes/game-scene/GameCanvasDynamic';
+import { createRenderSnapshot } from '@/data/renderSnapshot';
 import { NORDIC_DARK } from '@/components/game/towerModels/nordicShared';
 import type { Tower } from '@/types/game';
 
@@ -68,6 +69,7 @@ function basicTower(): Tower {
 }
 
 const emptyLayer = {
+  snapshot: createRenderSnapshot(),
   upgradeAnimations: [],
   sellAnimations: [],
   fusionAnimations: [],
