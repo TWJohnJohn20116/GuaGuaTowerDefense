@@ -2,6 +2,7 @@
 import { useRef } from 'react';
 import type { ReplayEvent, ReplayNote } from '@/store/replayStore';
 import type { AutoBookmark } from './replayUtils';
+import { Num } from '@/components/hl';
 
 interface ReplayTimelineProps {
   playhead: number;
@@ -14,21 +15,21 @@ interface ReplayTimelineProps {
 }
 
 const EVENT_TONE: Record<ReplayEvent['type'], string> = {
-  towerPlaced: 'var(--hl-vital)',
-  towerUpgraded: 'var(--hl-caution)',
-  towerSold: 'var(--hl-alarm)',
-  skillActivated: 'var(--hl-reach)',
-  waveStarted: 'var(--hl-reach)',
-  waveCompleted: 'var(--hl-vital)',
-  gameOver: 'var(--hl-alarm)',
-  victory: 'var(--hl-vital)',
+  towerPlaced: 'var(--arc-vital)',
+  towerUpgraded: 'var(--arc-caution)',
+  towerSold: 'var(--arc-alert)',
+  skillActivated: 'var(--arc-reach)',
+  waveStarted: 'var(--arc-reach)',
+  waveCompleted: 'var(--arc-vital)',
+  gameOver: 'var(--arc-alert)',
+  victory: 'var(--arc-vital)',
 };
 
 const BOOKMARK_TONE: Record<AutoBookmark['type'], string> = {
-  lowHP: 'var(--hl-alarm)',
-  bigDamage: 'var(--hl-caution)',
-  victory: 'var(--hl-vital)',
-  defeat: 'var(--hl-alarm)',
+  lowHP: 'var(--arc-alert)',
+  bigDamage: 'var(--arc-caution)',
+  victory: 'var(--arc-vital)',
+  defeat: 'var(--arc-alert)',
 };
 
 export function ReplayTimeline({
@@ -65,11 +66,11 @@ export function ReplayTimeline({
         ref={trackRef}
         onClick={handleClick}
         onMouseMove={handleDrag}
-        className="group relative h-10 cursor-pointer overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)]"
+        className="group relative h-10 cursor-pointer overflow-hidden border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]"
       >
         {/* 已播放區塊：半透明訊號色 */}
         <div
-          className="absolute inset-y-0 left-0 bg-[var(--hl-signal)] opacity-[0.09]"
+          className="absolute inset-y-0 left-0 bg-[var(--arc-gold)] opacity-[0.09]"
           style={{ width: `${playheadPercent}%` }}
         />
 
@@ -82,7 +83,7 @@ export function ReplayTimeline({
             <div
               key={`evt-${idx}`}
               className="absolute top-0 bottom-0 w-px"
-              style={{ left: `${left}%`, backgroundColor: EVENT_TONE[evt.type] ?? 'var(--hl-ink-3)', opacity: tall ? 0.9 : 0.5 }}
+              style={{ left: `${left}%`, backgroundColor: EVENT_TONE[evt.type] ?? 'var(--arc-ink-3)', opacity: tall ? 0.9 : 0.5 }}
               title={`${evt.type} @ ${formatTime(evt.time)}`}
             />
           );
@@ -103,22 +104,25 @@ export function ReplayTimeline({
           <div
             key={n.id}
             className="absolute bottom-0 h-1.5 w-1.5"
-            style={{ left: `calc(${(n.time / safeDuration) * 100}% - 3px)`, backgroundColor: 'var(--hl-caution)' }}
+            style={{ left: `calc(${(n.time / safeDuration) * 100}% - 3px)`, backgroundColor: 'var(--arc-caution)' }}
             title={n.text}
           />
         ))}
 
         {/* 播放頭：1px 訊號線 */}
         <div
-          className="absolute top-0 bottom-0 w-px bg-[var(--hl-signal)]"
+          className="absolute top-0 bottom-0 w-px bg-[var(--arc-gold)]"
           style={{ left: `${playheadPercent}%` }}
         />
 
         {/* 時間讀數 */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span className="hl-num text-[10px] leading-none text-[var(--hl-ink-3)] group-hover:text-[var(--hl-ink-2)]">
-            {formatTime(playhead)} / {formatTime(duration)}
-          </span>
+          <Num
+            value={`${formatTime(playhead)} / ${formatTime(duration)}`}
+            tone="muted"
+            size="sm"
+            className="group-hover:text-[var(--arc-ink-2)]"
+          />
         </div>
       </div>
     </div>

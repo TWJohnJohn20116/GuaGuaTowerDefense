@@ -5,7 +5,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from '@/i18n';
 import type { Replay } from '@/store/replayStore';
-import { Btn, Chip, Field, SegHead } from '@/components/hl';
+import { Btn, Chip, Field, Num, SegHead } from '@/components/hl';
 import {
   buildReplayBatchSummary,
   downloadReplayBatch,
@@ -67,21 +67,21 @@ export function ReplayBatchExportDialog({
 
         <div>
           <Field label={d.exportCount}>
-            <span className="hl-num text-[12px] leading-none">{d.countUnit.replace('{count}', String(summary.count))}</span>
+            <Num value={d.countUnit.replace('{count}', String(summary.count))} size="sm" />
           </Field>
           <Field label={d.winLoss}>
-            <span className="hl-num text-[12px] leading-none">
+            <span className="arc-num text-[12px] leading-none">
               {summary.victories} / {summary.defeats}
             </span>
           </Field>
           <Field label={d.totalDuration}>
-            <span className="hl-num text-[12px] leading-none">{formatDuration(summary.totalDuration)}</span>
+            <Num value={formatDuration(summary.totalDuration)} size="sm" />
           </Field>
         </div>
 
         <div className="flex flex-wrap gap-1.5">
           {Object.entries(summary.maps).map(([map, n]) => (
-            <span key={map} className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--hl-ink-3)]">
+            <span key={map} className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--arc-ink-3)]">
               {map} ×{n}
             </span>
           ))}
@@ -104,22 +104,22 @@ export function ReplayBatchExportDialog({
             type="checkbox"
             checked={confirmed}
             onChange={(e) => setConfirmed(e.target.checked)}
-            className="mt-0.5 shrink-0 accent-[var(--hl-caution)]"
+            className="mt-0.5 shrink-0 accent-[var(--arc-caution)]"
           />
-          <span className="text-[11px] leading-relaxed text-[var(--hl-ink-2)]">
+          <span className="text-[11px] leading-relaxed text-[var(--arc-ink-2)]">
             {d.confirmText.replace('{count}', String(summary.count))}
           </span>
         </label>
 
         {result === 'success' && (
-          <p className="hl-label text-[var(--hl-vital)]">{d.success}</p>
+          <p className="arc-label text-[var(--arc-vital)]">{d.success}</p>
         )}
         {result === 'fail' && (
-          <p className="hl-label text-[var(--hl-alarm)]">{d.fail}</p>
+          <p className="arc-label text-[var(--arc-alert)]">{d.fail}</p>
         )}
       </div>
 
-      <div className="flex flex-col gap-1.5 border-t border-[var(--hl-line)] p-3">
+      <div className="flex flex-col gap-1.5 border-t border-[var(--cn-line-soft)] p-3">
         <Btn
           variant="signal"
           size="md"

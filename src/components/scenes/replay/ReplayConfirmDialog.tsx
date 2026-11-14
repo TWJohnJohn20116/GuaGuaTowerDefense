@@ -42,9 +42,9 @@ export function ReplayConfirmDialog({ open, kind, onClose, onConfirm }: Props) {
   return (
     <ReplayModal open={open} title={copy.title} onClose={onClose}>
       <div className="px-4 py-4">
-        <p className="text-[12.5px] leading-relaxed text-[var(--hl-ink-2)]">{copy.description}</p>
+        <p className="text-[12.5px] leading-relaxed text-[var(--arc-ink-2)]">{copy.description}</p>
       </div>
-      <div className="flex flex-col gap-1.5 border-t border-[var(--hl-line)] p-3">
+      <div className="flex flex-col gap-1.5 border-t border-[var(--cn-line-soft)] p-3">
         <Btn variant={danger ? 'danger' : 'signal'} size="md" block onClick={onConfirm}
           icon={danger ? <TrashIcon className="h-3.5 w-3.5" /> : <RefreshIcon className="h-3.5 w-3.5" />}>
           {copy.confirm}

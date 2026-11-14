@@ -3,7 +3,7 @@
  * 版面：Console 主區上緣的一條結構線，不用卡片。
  */
 import { useTranslation } from '@/i18n';
-import { Chip, Meter } from '@/components/hl';
+import { Chip, Input, Meter, Num } from '@/components/hl';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 
 export type ReplayTab = 'library' | 'favorites';
@@ -55,18 +55,18 @@ export function ReplayToolbar({
   ];
 
   return (
-    <div className="flex shrink-0 flex-col gap-2.5 border-b border-[var(--hl-line)] bg-[var(--hl-void)] px-4 py-2.5">
+    <div className="flex shrink-0 flex-col gap-2.5 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-4 py-2.5">
       <div className="flex flex-wrap items-center gap-2">
         <Chip active={tab === 'library'} onClick={() => onTabChange('library')}>
           {s.tabLibrary}
-          <span className="text-[var(--hl-ink-4)]">{String(total).padStart(2, '0')}</span>
+          <span className="text-[var(--arc-ink-4)]">{String(total).padStart(2, '0')}</span>
         </Chip>
         <Chip active={tab === 'favorites'} onClick={() => onTabChange('favorites')}>
           {s.tabFavorites}
-          <span className="text-[var(--hl-ink-4)]">{String(favoriteCount).padStart(2, '0')}</span>
+          <span className="text-[var(--arc-ink-4)]">{String(favoriteCount).padStart(2, '0')}</span>
         </Chip>
 
-        <span className="mx-1 h-4 w-px bg-[var(--hl-line)]" />
+        <span className="mx-1 h-4 w-px bg-[var(--arc-line)]" />
 
         {tab === 'library' ? (
           filterOptions.map(({ id, label }) => (
@@ -75,17 +75,17 @@ export function ReplayToolbar({
             </Chip>
           ))
         ) : (
-          <span className="hl-micro">{s.favoritesHint.replace('{count}', String(favoriteCount))}</span>
+          <span className="arc-micro">{s.favoritesHint.replace('{count}', String(favoriteCount))}</span>
         )}
       </div>
 
       {tab === 'library' && (
         <div className="flex flex-wrap items-center gap-2">
-          <input
+          <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={s.searchPlaceholder}
-            className="hl-input h-7 min-w-0 flex-1 text-[11.5px] sm:max-w-xs"
+            className="h-7 min-w-0 flex-1 text-[11.5px] sm:max-w-xs"
           />
           <CustomSelect<ReplaySortMode>
             value={sort}
@@ -97,9 +97,12 @@ export function ReplayToolbar({
           />
           <div className="ml-auto flex min-w-[132px] items-center gap-2">
             <Meter value={visible} max={Math.max(1, total)} tone="signal" className="h-1" />
-            <span className="hl-num shrink-0 text-[10px] leading-none text-[var(--hl-ink-3)]">
-              {visible}/{total}
-            </span>
+            <Num
+              value={`${visible}/${total}`}
+              tone="muted"
+              size="sm"
+              className="shrink-0"
+            />
           </div>
         </div>
       )}

@@ -31,19 +31,19 @@ export function ReplayModal({
           onClick={onClose}
         >
           <motion.div
-            className={`hl-cut-tl w-full ${width} border border-[var(--hl-line-strong)] bg-[var(--hl-deck)]`}
+            className={`arc-cut-tl w-full ${width} arc-panel`}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.16 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between gap-3 border-b border-[var(--hl-line)] px-4 py-2.5">
-              <span className="hl-label truncate text-[var(--hl-ink-2)]">{title}</span>
+            <div className="flex items-center justify-between gap-3 border-b border-[var(--cn-line-soft)] px-4 py-2.5">
+              <span className="arc-label truncate text-[var(--arc-ink-2)]">{title}</span>
               <button
                 type="button"
                 onClick={onClose}
-                className="shrink-0 text-[var(--hl-ink-4)] transition-colors hover:text-[var(--hl-ink)]"
+                className="shrink-0 text-[var(--arc-ink-4)] transition-colors hover:text-[var(--arc-ink)]"
               >
                 <CrossIcon className="h-3.5 w-3.5" />
               </button>

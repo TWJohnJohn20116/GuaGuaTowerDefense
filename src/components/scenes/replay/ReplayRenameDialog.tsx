@@ -1,10 +1,10 @@
 /**
  * 回放 · 重新命名（取代 prompt）
- * HARDLINE：Modal + hl-input + 直向全寬按鈕。
+ * ARCADE：Modal + arc-field + 直向全寬立體鍵。
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from '@/i18n';
-import { Btn } from '@/components/hl';
+import { Btn, Input } from '@/components/hl';
 import { resolveReplayDialogHotkey, resolveReplayRenameDraft } from '@/data/replayDialogs';
 import { ReplayModal } from './ReplayModal';
 
@@ -47,8 +47,8 @@ export function ReplayRenameDialog({ open, originalName, onClose, onConfirm }: P
   return (
     <ReplayModal open={open} title={r.rename} onClose={onClose}>
       <div className="px-4 py-4">
-        <label className="hl-label mb-1.5 block">{r.enterNewName}</label>
-        <input
+        <label className="arc-label mb-1.5 block">{r.enterNewName}</label>
+        <Input
           autoFocus
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -58,10 +58,9 @@ export function ReplayRenameDialog({ open, originalName, onClose, onConfirm }: P
             submit();
           }}
           placeholder={r.enterNewName}
-          className="hl-input"
         />
       </div>
-      <div className="flex flex-col gap-1.5 border-t border-[var(--hl-line)] p-3">
+      <div className="flex flex-col gap-1.5 border-t border-[var(--cn-line-soft)] p-3">
         <Btn variant="signal" size="md" block onClick={submit}>
           {r.save}
         </Btn>

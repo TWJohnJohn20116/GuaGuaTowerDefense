@@ -208,7 +208,7 @@ export function ReplayCanvas({
       ref={canvasRef}
       width={width}
       height={height}
-      className="block border border-[var(--hl-line)] bg-[#0a0c10]"
+      className="block border-[3px] border-[var(--cn-line-soft)] bg-[#0a0c10]"
     />
   );
 }

@@ -5,11 +5,11 @@
  */
 import type { Replay as ReplayData } from '@/store/replayStore';
 import { useTranslation } from '@/i18n';
-import { Btn, Deck, Field, SegHead } from '@/components/hl';
+import { Btn, Deck, Field, Num, SegHead } from '@/components/hl';
 import { PlayIcon } from '@/components/ui/Icons';
 import {
   formatGameRecordDifficulty,
-  gameDifficultyLabelsFromDetail,
+  gameDifficultyLabelsFromGameCopy,
 } from '@/data/gameRecordLabels';
 import { getPathDisplayName } from './replayUtils';
 import { EventLog, TimeChart } from './ReplayCharts';
@@ -24,7 +24,7 @@ interface ReplayStageProps {
 export function ReplayStage({ replay, formatTime, formatDate, onPlay }: ReplayStageProps) {
   const { t } = useTranslation();
   const r = t.replay;
-  const diffLabels = gameDifficultyLabelsFromDetail(t.mutatorChallenge.detail);
+  const diffLabels = gameDifficultyLabelsFromGameCopy(t.game);
   const mapName = getPathDisplayName(replay.mapId);
 
   return (
@@ -37,8 +37,8 @@ export function ReplayStage({ replay, formatTime, formatDate, onPlay }: ReplaySt
               className={[
                 'border px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em]',
                 replay.isVictory
-                  ? 'border-[rgba(56,224,143,0.35)] text-[var(--hl-vital)]'
-                  : 'border-[rgba(255,75,62,0.35)] text-[var(--hl-alarm)]',
+                  ? 'border-[rgba(53,224,138,0.35)] text-[var(--arc-vital)]'
+                  : 'border-[rgba(255,61,113,0.35)] text-[var(--arc-alert)]',
               ].join(' ')}
             >
               {replay.isVictory ? r.victory : r.defeat}
@@ -46,42 +46,40 @@ export function ReplayStage({ replay, formatTime, formatDate, onPlay }: ReplaySt
           }
         />
 
-        <div className="mt-2 font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+        <div className="mt-2 font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">
           {formatDate(replay.timestamp)}
         </div>
 
         {/* 玩家待機：先給資料，再給唯一的行動 */}
         <div className="mt-3 grid gap-x-6 gap-y-0 sm:grid-cols-2">
           <Field label={r.browse.map}>
-            <span className="text-[12.5px] text-[var(--hl-ink)]">{mapName}</span>
+            <span className="text-[12.5px] text-[var(--arc-ink)]">{mapName}</span>
           </Field>
           <Field label={r.difficulty}>
-            <span className="text-[12.5px] text-[var(--hl-ink-2)]">
+            <span className="text-[12.5px] text-[var(--arc-ink-2)]">
               {formatGameRecordDifficulty(replay.difficulty, diffLabels)}
             </span>
           </Field>
           <Field label={r.wave}>
-            <span className="hl-num text-[13px] leading-none">W{replay.finalWave}</span>
+            <Num value={`W${replay.finalWave}`} size="md" />
           </Field>
           <Field label={r.score}>
-            <span className="hl-num text-[13px] leading-none text-[var(--hl-reach)]">
-              {replay.finalScore.toLocaleString()}
-            </span>
+            <Num value={replay.finalScore.toLocaleString()} tone="reach" size="md" />
           </Field>
           <Field label={r.duration}>
-            <span className="hl-num text-[13px] leading-none">{formatTime(replay.duration)}</span>
+            <Num value={formatTime(replay.duration)} size="md" />
           </Field>
           <Field label={r.browse.replayInfo}>
-            <span className="hl-num text-[13px] leading-none">{replay.snapshots.length}</span>
+            <Num value={replay.snapshots.length} size="md" />
           </Field>
         </div>
 
         {/* 事件密度：靜態 1px 刻度，不是可拖動控制項 */}
-        <div className="relative mt-3 h-9 overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+        <div className="relative mt-3 h-9 overflow-hidden border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
           {replay.events.map((evt, i) => (
             <span
               key={`${evt.time}-${i}`}
-              className="absolute top-0 bottom-0 w-px bg-[var(--hl-ink-4)]"
+              className="absolute top-0 bottom-0 w-px bg-[var(--arc-ink-4)]"
               style={{ left: `${Math.min(100, (evt.time / Math.max(1, replay.duration)) * 100)}%` }}
               title={`${evt.type} @ ${formatTime(evt.time)}`}
             />
@@ -89,15 +87,13 @@ export function ReplayStage({ replay, formatTime, formatDate, onPlay }: ReplaySt
           {replay.notes?.map((n) => (
             <span
               key={n.id}
-              className="absolute bottom-0 h-1.5 w-1.5 bg-[var(--hl-caution)]"
+              className="absolute bottom-0 h-1.5 w-1.5 bg-[var(--arc-caution)]"
               style={{ left: `calc(${Math.min(100, (n.time / Math.max(1, replay.duration)) * 100)}% - 3px)` }}
               title={n.text}
             />
           ))}
           <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="hl-num text-[10px] leading-none text-[var(--hl-ink-4)]">
-              {replay.events.length} events
-            </span>
+            <Num value={`${replay.events.length} events`} tone="muted" size="sm" />
           </span>
         </div>
 

@@ -1,5 +1,6 @@
 // 回放 · 頂列統計（HARDLINE：mono 標籤 + 等寬數值）
 import { useTranslation } from '@/i18n';
+import { Num } from '@/components/hl';
 
 interface ReplayHeaderStatsProps {
   total: number;
@@ -7,7 +8,7 @@ interface ReplayHeaderStatsProps {
   favorites: number;
 }
 
-const CELL = 'flex flex-col items-end gap-1 px-3 border-l border-[var(--hl-line)] first:border-l-0 first:pl-0';
+const CELL = 'flex flex-col items-end gap-1 px-3 border-l border-[var(--cn-line-soft)] first:border-l-0 first:pl-0';
 
 export function ReplayHeaderStats({ total, victories, favorites }: ReplayHeaderStatsProps) {
   const { t } = useTranslation();
@@ -17,16 +18,16 @@ export function ReplayHeaderStats({ total, victories, favorites }: ReplayHeaderS
   return (
     <div className="hidden items-center md:flex">
       <div className={CELL}>
-        <span className="hl-label">{h.total}</span>
-        <span className="hl-num text-[13px] leading-none">{String(total).padStart(2, '0')}</span>
+        <span className="arc-label">{h.total}</span>
+        <Num value={String(total).padStart(2, '0')} size="md" />
       </div>
       <div className={CELL}>
-        <span className="hl-label">{h.winRate}</span>
-        <span className="hl-num text-[13px] leading-none text-[var(--hl-vital)]">{winRate}%</span>
+        <span className="arc-label">{h.winRate}</span>
+        <Num value={winRate} unit="%" tone="vital" size="md" />
       </div>
       <div className={CELL}>
-        <span className="hl-label">{h.favorites}</span>
-        <span className="hl-num text-[13px] leading-none text-[var(--hl-caution)]">{favorites}</span>
+        <span className="arc-label">{h.favorites}</span>
+        <Num value={favorites} tone="caution" size="md" />
       </div>
     </div>
   );

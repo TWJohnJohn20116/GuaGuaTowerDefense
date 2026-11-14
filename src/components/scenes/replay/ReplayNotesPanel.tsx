@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import type { ReplayNote } from '@/store/replayStore';
 import { useTranslation } from '@/i18n';
-import { Btn, SegHead } from '@/components/hl';
+import { IconBtn, Input, Num, SegHead } from '@/components/hl';
 import { TrashIcon, EditIcon, PlusIcon } from '@/components/ui/Icons';
 import { ReplayConfirmDialog } from './ReplayConfirmDialog';
 
@@ -55,47 +55,45 @@ export function ReplayNotesPanel({
     <div className="flex flex-col gap-2.5">
       <SegHead
         label={r.notes}
-        right={<span className="hl-num text-[10px] leading-none text-[var(--hl-ink-4)]">{formatTime(playhead)}</span>}
+        right={<Num value={formatTime(playhead)} tone="muted" size="sm" />}
       />
 
       <div className="flex items-center gap-1.5">
-        <input
+        <Input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}
           placeholder={r.enterNote}
-          className="hl-input h-8 flex-1 text-[11.5px]"
+          className="h-8 flex-1 text-[11.5px]"
         />
-        <Btn
-          variant="line"
-          size="sm"
+        <IconBtn
+          label={r.addNote}
           onClick={handleAdd}
           disabled={!draft.trim()}
-          title={r.addNote}
-          className="w-8 px-0"
+          className="w-8"
         >
           <PlusIcon className="h-3.5 w-3.5" />
-        </Btn>
+        </IconBtn>
       </div>
 
-      <div className="max-h-52 overflow-y-auto border border-[var(--hl-line)]">
+      <div className="max-h-52 overflow-y-auto border-[3px] border-[var(--cn-line-soft)]">
         {notes.length === 0 && (
-          <div className="px-3 py-3 text-center hl-label">{r.noNotes}</div>
+          <div className="px-3 py-3 text-center arc-label">{r.noNotes}</div>
         )}
         {notes.map((n) => (
           <div
             key={n.id}
-            className="group flex items-start gap-2 border-b border-[var(--hl-line)] px-2 py-1.5 last:border-b-0 hover:bg-[var(--hl-deck-2)]"
+            className="group flex items-start gap-2 border-b border-[var(--cn-line-soft)] px-2 py-1.5 last:border-b-0 hover:bg-[var(--arc-deck-2)]"
           >
             <button
               type="button"
               onClick={() => onJump(n.time)}
-              className="hl-num min-w-[46px] shrink-0 border border-[var(--hl-line)] px-1.5 py-1 text-center text-[10px] leading-none text-[var(--hl-caution)] transition-colors hover:border-[var(--hl-caution)]"
+              className="arc-num min-w-[46px] shrink-0 border-[3px] border-[var(--cn-line-soft)] px-1.5 py-1 text-center text-[10px] leading-none text-[var(--arc-caution)] transition-colors hover:border-[var(--arc-caution)]"
             >
               {formatTime(n.time)}
             </button>
             {editingId === n.id ? (
-              <input
+              <Input
                 autoFocus
                 value={editingText}
                 onChange={(e) => setEditingText(e.target.value)}
@@ -104,28 +102,26 @@ export function ReplayNotesPanel({
                   if (e.key === 'Enter') handleSaveEdit();
                   else if (e.key === 'Escape') setEditingId(null);
                 }}
-                className="hl-input h-6 min-w-0 flex-1 text-[11px]"
+                className="h-6 min-w-0 flex-1 text-[11px]"
               />
             ) : (
-              <p className="min-w-0 flex-1 break-words pt-1 text-[11px] leading-snug text-[var(--hl-ink-2)]">{n.text}</p>
+              <p className="min-w-0 flex-1 break-words pt-1 text-[11px] leading-snug text-[var(--arc-ink-2)]">{n.text}</p>
             )}
             <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-              <button
-                type="button"
+              <IconBtn
+                label={r.rename}
                 onClick={() => handleStartEdit(n)}
-                className="p-1 text-[var(--hl-ink-4)] transition-colors hover:text-[var(--hl-ink)]"
-                title={r.rename}
+                className="p-1 text-[var(--arc-ink-4)] hover:text-[var(--arc-ink)]"
               >
                 <EditIcon className="h-3 w-3" />
-              </button>
-              <button
-                type="button"
+              </IconBtn>
+              <IconBtn
+                label={r.deleteNote}
                 onClick={() => setPendingDeleteId(n.id)}
-                className="p-1 text-[var(--hl-ink-4)] transition-colors hover:text-[var(--hl-alarm)]"
-                title={r.deleteNote}
+                className="p-1 text-[var(--arc-ink-4)] hover:text-[var(--arc-alert)]"
               >
                 <TrashIcon className="h-3 w-3" />
-              </button>
+              </IconBtn>
             </div>
           </div>
         ))}

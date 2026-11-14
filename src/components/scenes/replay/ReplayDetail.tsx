@@ -12,7 +12,7 @@ import { exportReplayAsJson, computeAutoBookmarks, getPathDisplayName } from './
 import { buildRenderFrame } from './replayPlayback';
 import {
   formatGameRecordDifficulty,
-  gameDifficultyLabelsFromDetail,
+  gameDifficultyLabelsFromGameCopy,
 } from '@/data/gameRecordLabels';
 import {
   MapIcon, StarIcon, DownloadIcon,
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/Icons';
 import { SceneShell } from '@/components/ui/SceneShell';
 import { SceneNoticeToast } from '@/components/ui/SceneNoticeToast';
-import { Btn, Rail, RailItem, SegHead, StatCell, TopBar } from '@/components/hl';
+import { Btn, Deck, Num, Rail, RailItem, SegHead, StatCell, TopBar } from '@/components/hl';
 import {
   resolveReplayExportFeedback,
   type ReplayFeedback,
@@ -49,7 +49,7 @@ export function ReplayDetail({
 }: ReplayDetailProps) {
   const { t } = useTranslation();
   const r = t.replay;
-  const diffLabels = gameDifficultyLabelsFromDetail(t.mutatorChallenge.detail);
+  const diffLabels = gameDifficultyLabelsFromGameCopy(t.game);
   const toggleFavorite = useReplayStore((s) => s.toggleFavorite);
   const setTags = useReplayStore((s) => s.setTags);
   const addNote = useReplayStore((s) => s.addNote);
@@ -199,7 +199,7 @@ export function ReplayDetail({
                 size="sm"
                 onClick={() => toggleFavorite(replay.id)}
                 title={replay.favorite ? r.unfavorite : r.favorite}
-                icon={<StarIcon className={`h-3 w-3 ${replay.favorite ? 'text-[var(--hl-caution)]' : ''}`} />}
+                icon={<StarIcon className={`h-3 w-3 ${replay.favorite ? 'text-[var(--arc-caution)]' : ''}`} />}
               >
                 {replay.favorite ? r.unfavorite : r.favorite}
               </Btn>
@@ -240,8 +240,8 @@ export function ReplayDetail({
             label={r.replayList}
             foot={(
               <div className="flex items-center justify-between">
-                <span className="hl-label">{r.progress}</span>
-                <span className="hl-num text-[11px] leading-none text-[var(--hl-signal)]">{progressPercent}%</span>
+                <span className="arc-label">{r.progress}</span>
+                <Num value={progressPercent} unit="%" tone="signal" size="sm" />
               </div>
             )}
           >
@@ -256,7 +256,7 @@ export function ReplayDetail({
                   <span
                     className={[
                       'shrink-0 font-mono text-[9.5px] tabular-nums',
-                      rep.id === replay.id ? 'text-[var(--hl-signal)]' : 'text-[var(--hl-ink-4)]',
+                      rep.id === replay.id ? 'text-[var(--arc-gold)]' : 'text-[var(--arc-ink-4)]',
                     ].join(' ')}
                   >
                     W{rep.finalWave}
@@ -268,29 +268,29 @@ export function ReplayDetail({
 
           {/* 主區：播放器 */}
           <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-4 py-3">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-[var(--hl-line)] pb-2.5">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-[var(--cn-line-soft)] pb-2.5">
               <span className="flex items-center gap-1.5">
-                <MapIcon className="h-3 w-3 text-[var(--hl-ink-3)]" />
-                <span className="text-[12.5px] text-[var(--hl-ink)]">{getPathDisplayName(replay.mapId)}</span>
+                <MapIcon className="h-3 w-3 text-[var(--arc-ink-3)]" />
+                <span className="text-[12.5px] text-[var(--arc-ink)]">{getPathDisplayName(replay.mapId)}</span>
                 {getPathDisplayName(replay.mapId) !== replay.mapId && (
-                  <span className="font-mono text-[10px] text-[var(--hl-ink-4)]">({replay.mapId})</span>
+                  <span className="font-mono text-[10px] text-[var(--arc-ink-4)]">({replay.mapId})</span>
                 )}
               </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-3)]">
+              <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-ink-3)]">
                 {formatGameRecordDifficulty(replay.difficulty, diffLabels)}
               </span>
               {replay.endlessMode && (
-                <span className="border border-[rgba(111,168,255,0.35)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-reach)]">
+                <span className="border border-[rgba(111,140,255,0.35)] px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-reach)]">
                   {r.endlessMode}
                 </span>
               )}
-              <span className="hl-num text-[10.5px] leading-none text-[var(--hl-ink-3)]">
+              <span className="arc-num text-[10.5px] leading-none text-[var(--arc-ink-3)]">
                 W{replay.finalWave} · {Math.floor(replay.finalScore).toLocaleString()} · {formatTime(replay.duration)}
               </span>
             </div>
 
             {/* 畫布（60fps 插值繪製） */}
-            <div className="mt-3 flex justify-center border border-[var(--hl-line)] bg-[var(--hl-void-2)] p-2">
+            <div className="mt-3 flex justify-center border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] p-2">
               <ReplayCanvas
                 snapshots={replay.snapshots}
                 playheadRef={playheadRef}
@@ -302,7 +302,7 @@ export function ReplayDetail({
             </div>
 
             {/* 時間軸 + 控制 */}
-            <div className="mt-3 space-y-2.5 border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3">
+            <Deck className="mt-3 space-y-2.5 p-3">
               <ReplayTimeline
                 playhead={playhead}
                 duration={replay.duration}
@@ -329,10 +329,10 @@ export function ReplayDetail({
                 }}
                 formatTime={formatTime}
               />
-              <div className="hl-label border-t border-[var(--hl-line)] pt-2 text-[9.5px] leading-relaxed">
+              <div className="arc-label border-t border-[var(--cn-line-soft)] pt-2 text-[9.5px] leading-relaxed">
                 {r.keyboardHints}
               </div>
-            </div>
+            </Deck>
 
             {/* 圖表 + 事件 */}
             <div className="mt-3 grid grid-cols-1 gap-2.5 lg:grid-cols-2">
@@ -344,7 +344,7 @@ export function ReplayDetail({
           </main>
 
           {/* 右側：詳情 */}
-          <aside className="flex w-[336px] shrink-0 flex-col overflow-y-auto border-l border-[var(--hl-line)] bg-[var(--hl-deck)] p-3 xl:w-[376px]">
+          <aside className="flex w-[336px] shrink-0 flex-col overflow-y-auto border-l border-[var(--cn-line-soft)] bg-[var(--arc-deck)] p-3 xl:w-[376px]">
             <SegHead label={r.statsPanel} />
 
             <div className="mt-3 grid grid-cols-2 gap-2">
@@ -370,12 +370,12 @@ export function ReplayDetail({
               />
             </div>
 
-            <div className="mt-2 flex flex-wrap border border-[var(--hl-line)] bg-[var(--hl-deck)]">
+            <Deck className="mt-2 flex flex-wrap">
               <MiniStatBox label={r.enemiesAlive} value={currentFrame?.enemyCount ?? '-'} tone="alarm" />
               <MiniStatBox label={r.towersBuilt} value={currentFrame?.towerCount ?? '-'} tone="reach" />
               <MiniStatBox label={r.bulletsActive} value={currentFrame?.projectileCount ?? '-'} tone="caution" />
-            </div>
-            <div className="mt-1.5 flex flex-wrap border border-[var(--hl-line)] bg-[var(--hl-deck)]">
+            </Deck>
+            <Deck className="mt-1.5 flex flex-wrap">
               <MiniStatBox
                 label={r.totalDamage}
                 value={currentFrame ? Math.floor(currentFrame.totalDamage).toLocaleString() : '-'}
@@ -383,7 +383,7 @@ export function ReplayDetail({
               />
               <MiniStatBox label={r.totalKills} value={currentFrame?.totalKills ?? '-'} tone="vital" />
               <MiniStatBox label={r.progress} value={`${progressPercent}%`} tone="signal" />
-            </div>
+            </Deck>
 
             <div className="mt-4">
               <ReplayTagsPanel tags={replay.tags || []} onChange={(tags) => setTags(replay.id, tags)} />
@@ -401,7 +401,7 @@ export function ReplayDetail({
               />
             </div>
 
-            <div className="mt-3 grid grid-cols-2 gap-x-4 border-t border-[var(--hl-line)] pt-3">
+            <div className="mt-3 grid grid-cols-2 gap-x-4 border-t border-[var(--cn-line-soft)] pt-3">
               <StatCell label={r.duration} value={formatTime(replay.duration)} tone="muted" />
               <StatCell label={r.finalScore} value={Math.floor(replay.finalScore).toLocaleString()} tone="reach" />
             </div>

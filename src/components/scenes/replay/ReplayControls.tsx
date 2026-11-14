@@ -77,9 +77,9 @@ export function ReplayControls({
         <FastForwardIcon className="h-3.5 w-3.5" />
       </Btn>
 
-      <span className="mx-1 h-4 w-px bg-[var(--hl-line)]" />
+      <span className="mx-1 h-4 w-px bg-[var(--arc-line)]" />
 
-      <span className="hl-label">{r.speed}</span>
+      <span className="arc-label">{r.speed}</span>
       <div className="flex items-center gap-1">
         {SPEEDS.map((s) => (
           <Chip key={s} active={speed === s} onClick={() => onSpeedChange(s)}>
@@ -88,7 +88,7 @@ export function ReplayControls({
         ))}
       </div>
 
-      <span className="mx-1 h-4 w-px bg-[var(--hl-line)]" />
+      <span className="mx-1 h-4 w-px bg-[var(--arc-line)]" />
 
       <Chip active={loop} onClick={onToggleLoop}>
         {loop ? r.loopOn : r.loopOff}

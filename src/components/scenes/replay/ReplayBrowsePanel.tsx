@@ -54,10 +54,10 @@ export function ReplayBrowsePanel({
 }: ReplayBrowsePanelProps) {
   if (!replay) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 border border-dashed border-[var(--hl-line)] px-5 py-8 text-center">
-        <ChartIcon className="h-5 w-5 text-[var(--hl-ink-4)]" />
-        <div className="hl-label">empty</div>
-        <div className="hl-micro max-w-[220px] leading-relaxed">{labels.empty}</div>
+      <div className="flex h-full flex-col items-center justify-center gap-3 border border-dashed border-[var(--cn-line-soft)] px-5 py-8 text-center">
+        <ChartIcon className="h-5 w-5 text-[var(--arc-ink-4)]" />
+        <div className="arc-label">empty</div>
+        <div className="arc-micro max-w-[220px] leading-relaxed">{labels.empty}</div>
       </div>
     );
   }
@@ -68,23 +68,23 @@ export function ReplayBrowsePanel({
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* 識別 */}
-      <div className="shrink-0 border-b border-[var(--hl-line)] px-4 py-3">
+      <div className="shrink-0 border-b border-[var(--cn-line-soft)] px-4 py-3">
         <div className="flex items-start justify-between gap-2">
-          <h2 className="min-w-0 flex-1 truncate text-[15px] font-semibold leading-tight tracking-[-0.01em] text-[var(--hl-ink)]">
+          <h2 className="min-w-0 flex-1 truncate text-[15px] font-semibold leading-tight tracking-[-0.01em] text-[var(--arc-ink)]">
             {title}
           </h2>
           <span
             className={[
               'shrink-0 border px-1.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.08em]',
               replay.isVictory
-                ? 'border-[rgba(56,224,143,0.35)] text-[var(--hl-vital)]'
-                : 'border-[rgba(255,75,62,0.35)] text-[var(--hl-alarm)]',
+                ? 'border-[rgba(53,224,138,0.35)] text-[var(--arc-vital)]'
+                : 'border-[rgba(255,61,113,0.35)] text-[var(--arc-alert)]',
             ].join(' ')}
           >
             {outcome}
           </span>
         </div>
-        <div className="mt-1 font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+        <div className="mt-1 font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">
           {formatDate(replay.timestamp)}
         </div>
       </div>
@@ -92,11 +92,11 @@ export function ReplayBrowsePanel({
       {/* 詳情欄位 */}
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
         <Field label={labels.map}>
-          <span className="text-[12px] text-[var(--hl-ink)]">{getPathDisplayName(replay.mapId)}</span>
+          <span className="text-[12px] text-[var(--arc-ink)]">{getPathDisplayName(replay.mapId)}</span>
         </Field>
         {getPathDisplayName(replay.mapId) !== replay.mapId && (
           <Field label="id">
-            <span className="font-mono text-[10.5px] text-[var(--hl-ink-4)]">{replay.mapId}</span>
+            <span className="font-mono text-[10.5px] text-[var(--arc-ink-4)]">{replay.mapId}</span>
           </Field>
         )}
 
@@ -115,7 +115,7 @@ export function ReplayBrowsePanel({
             {replay.tags.map((tag) => (
               <span
                 key={tag}
-                className="border border-[var(--hl-line-strong)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--hl-ink-2)]"
+                className="border border-[var(--arc-line-strong)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--arc-ink-2)]"
               >
                 {tag}
               </span>
@@ -125,7 +125,7 @@ export function ReplayBrowsePanel({
       </div>
 
       {/* 操作 */}
-      <div className="shrink-0 space-y-1.5 border-t border-[var(--hl-line)] p-3">
+      <div className="shrink-0 space-y-1.5 border-t border-[var(--cn-line-soft)] p-3">
         <Btn
           variant="line"
           size="lg"
@@ -144,7 +144,7 @@ export function ReplayBrowsePanel({
             variant={replay.favorite ? 'quiet' : 'line'}
             size="sm"
             block
-            icon={<StarIcon className={`h-3 w-3 ${replay.favorite ? 'text-[var(--hl-caution)]' : ''}`} />}
+            icon={<StarIcon className={`h-3 w-3 ${replay.favorite ? 'text-[var(--arc-caution)]' : ''}`} />}
             onClick={onToggleFavorite}
           >
             {replay.favorite ? labels.unfavorite : labels.favorite}

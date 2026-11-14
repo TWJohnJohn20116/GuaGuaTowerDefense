@@ -1,7 +1,7 @@
 // 標籤面板 — HARDLINE：mono 標籤方塊 + 1px 輸入框
 import { useState } from 'react';
 import { useTranslation } from '@/i18n';
-import { Btn } from '@/components/hl';
+import { IconBtn, Input } from '@/components/hl';
 import { CrossIcon, PlusIcon } from '@/components/ui/Icons';
 
 interface ReplayTagsPanelProps {
@@ -30,40 +30,37 @@ export function ReplayTagsPanel({ tags, onChange }: ReplayTagsPanelProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <span className="hl-label">{r.tags}</span>
+      <span className="arc-label">{r.tags}</span>
       {tags.map((tag) => (
         <span
           key={tag}
-          className="inline-flex h-6 items-center gap-1 border border-[var(--hl-line-strong)] px-2 font-mono text-[10.5px] text-[var(--hl-ink-2)]"
+          className="inline-flex h-6 items-center gap-1 border border-[var(--arc-line-strong)] px-2 font-mono text-[10.5px] text-[var(--arc-ink-2)]"
         >
           {tag}
-          <button
-            type="button"
+          <IconBtn
+            label={tag}
             onClick={() => handleRemove(tag)}
-            className="text-[var(--hl-ink-4)] transition-colors hover:text-[var(--hl-alarm)]"
-            aria-label={tag}
+            className="text-[var(--arc-ink-4)] hover:text-[var(--arc-alert)]"
           >
             <CrossIcon className="h-2.5 w-2.5" />
-          </button>
+          </IconBtn>
         </span>
       ))}
-      <input
+      <Input
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}
         placeholder={r.enterTag}
-        className="hl-input h-6 w-32 text-[11px]"
+        className="h-6 w-32 text-[11px]"
       />
-      <Btn
-        variant="line"
-        size="sm"
+      <IconBtn
+        label={r.addTag}
         onClick={handleAdd}
         disabled={!draft.trim()}
-        title={r.addTag}
-        className="w-7 px-0"
+        className="w-7"
       >
         <PlusIcon className="h-3 w-3" />
-      </Btn>
+      </IconBtn>
     </div>
   );
 }
