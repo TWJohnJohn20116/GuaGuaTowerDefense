@@ -6,7 +6,7 @@
 #
 # 2026-11-14 加強：
 #   - workflow_dispatch：可手動重跑
-#   - paths-ignore：純文件／截圖變更不浪費 CI 分鐘
+#   - paths-ignore（僅 push）：純文件／截圖變更不浪費 CI 分鐘；PR 刻意不加，理由見 on: 的註解
 #   - 技術債棘輪（scripts/ci/guards.mjs）：as any / : any / eslint-disable 等只准降不准升
 #   - bundle 預算：主 chunk 超過 1.4 MB 直接紅燈（目前 1.33 MB，見 架構圖.html §21）
 #   - 失敗時上傳測試相關日誌，方便排查（不上傳 node_modules）
@@ -20,11 +20,10 @@ on:
       - '**/*.md'
       - 'docs/**'
       - '.shots/**'
+  # 注意：pull_request 刻意不加 paths / paths-ignore。
+  # 一旦某個 PR 因為路徑過濾而沒觸發，未來設定的必要檢查就會永遠停在 waiting，
+  # 那個 PR 根本無法合併——寧可多跑一次，也不要讓閘門消失。
   pull_request:
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
-      - '.shots/**'
   workflow_dispatch:
 
 concurrency:
@@ -36,7 +35,9 @@ permissions:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    # 固定版本，不用 ubuntu-latest：latest 會在某天默默換成新 Ubuntu，
+    # 讓 Node／原生依賴的行為在同一個 commit 上改變。要升級就改這裡並用 CI 驗一次。
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
 
     steps:
