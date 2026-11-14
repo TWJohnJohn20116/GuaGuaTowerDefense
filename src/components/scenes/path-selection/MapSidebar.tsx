@@ -104,7 +104,7 @@ export function MapSidebar({
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col pb-1">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pb-1">
         {filteredMaps.length > 0 ? (
           filteredMaps.map((map, i) => (
             <MapRow
