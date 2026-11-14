@@ -23,12 +23,10 @@ const loadModules = () =>
 export function createShots({ FORMAT, DPR, sleep }) {
   const quality = (q) => (FORMAT === 'jpeg' ? { quality: q } : {});
 
+  // 刻意不做虛擬時間凍結：實測 Emulation.setVirtualTimePolicy 在 headless 下不回響，
+  // 會讓 captureScreenshot 永遠拿不到畫框。動態區域改用 --mask 塗掉再比。
   async function captureViewport(cdp, sessionId) {
-    const shot = await cdp.send(
-      'Page.captureScreenshot',
-      { format: FORMAT, ...quality(88) },
-      sessionId,
-    );
+    const shot = await cdp.send('Page.captureScreenshot', { format: FORMAT, ...quality(88) }, sessionId);
     return shot.data;
   }
 
@@ -85,6 +83,22 @@ export function createShots({ FORMAT, DPR, sleep }) {
     return { height, width };
   }
 
+  /** mask 選擇器的視口座標：diff 要用它把 canvas／計時器這類每幀變動的區域塗掉 */
+  async function collectMaskRects(cdp, sessionId, selectors) {
+    if (!selectors?.length) return [];
+    const list = JSON.stringify(selectors);
+    const expr = `JSON.stringify(${list}.map((s) => { const el = document.querySelector(s); if (!el) return null; const r = el.getBoundingClientRect(); return r.width < 2 || r.height < 2 ? null : { x: r.left, y: r.top, w: r.width, h: r.height }; }).filter(Boolean))`;
+    const { result } = await cdp
+      .send('Runtime.evaluate', { expression: expr, returnByValue: true }, sessionId)
+      .catch(() => ({ result: null }));
+    if (!result?.value) return [];
+    try {
+      return JSON.parse(result.value);
+    } catch {
+      return [];
+    }
+  }
+
   /** 局部特寫：總表縮圖看不出圓角與邊界，Modal 要拍原尺寸 */
   async function captureClip(cdp, sessionId, selector, outFile) {
     const sel = JSON.stringify(selector);
@@ -103,5 +117,54 @@ export function createShots({ FORMAT, DPR, sleep }) {
     return { rect };
   }
 
-  return { captureViewport, runAudit, samplePixels, captureFullPage, captureClip };
+  /**
+   * 與基準線比對：算出差異統計，必要時再產一張差異圖。
+   * visual-diff.mjs 是選配（缺檔就回傳 error，一般驗證照跑）。
+   */
+  async function compareWithBaseline(cdp, sessionId, opts) {
+    const { baselineDataUrl, currentBase64, tolerance, maskRects, diffOutFile } = opts;
+    let mod = null;
+    try {
+      mod = await import('./visual-diff.mjs');
+    } catch {
+      return { error: 'visual-diff.mjs 不存在，略過 diff' };
+    }
+    const currentDataUrl = `data:image/${FORMAT === 'png' ? 'png' : 'jpeg'};base64,${currentBase64}`;
+    const masks = maskRects ?? [];
+    try {
+      const statsRes = await cdp.send(
+        'Runtime.evaluate',
+        {
+          expression: mod.diffStatsExpr(baselineDataUrl, currentDataUrl, tolerance, masks),
+          returnByValue: true,
+          awaitPromise: true,
+        },
+        sessionId,
+      );
+      const stats = statsRes.result?.value ? JSON.parse(statsRes.result.value) : null;
+      let diffFile = null;
+      if (diffOutFile) {
+        const imgRes = await cdp.send(
+          'Runtime.evaluate',
+          {
+            expression: mod.diffImageExpr(baselineDataUrl, currentDataUrl, tolerance, masks),
+            returnByValue: true,
+            awaitPromise: true,
+          },
+          sessionId,
+        );
+        const payload = imgRes.result?.value ? JSON.parse(imgRes.result.value) : null;
+        const comma = payload?.dataUrl ? payload.dataUrl.indexOf(',') : -1;
+        if (comma > 0) {
+          writeFileSync(diffOutFile, Buffer.from(payload.dataUrl.slice(comma + 1), 'base64'));
+          diffFile = diffOutFile;
+        }
+      }
+      return { stats, diffFile };
+    } catch (error) {
+      return { error: String(error?.message ?? error) };
+    }
+  }
+
+  return { captureViewport, runAudit, samplePixels, captureFullPage, captureClip, collectMaskRects, compareWithBaseline };
 }

@@ -24,6 +24,14 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createShots } from './visual-shots.mjs';
+import { planSheet } from './visual-sheet.mjs';
+import {
+  baselinePath,
+  cleanupRuns,
+  compareReports,
+  loadPreviousReport,
+  saveBaselineDataUrl,
+} from './visual-baseline.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -72,6 +80,20 @@ const CLIP_SELECTOR = argv.clip ?? null;
 // 警告升級：CI 用。預設 warnings 只記錄不判 FAIL，避免第一次跑就一片紅
 const STRICT = argv.strict === 'true';
 const WITH_AUDIT = argv['no-audit'] !== 'true';
+// P1 視覺回歸：--baseline 建立基準線、--diff 與基準線逐幀比對
+const WRITE_BASELINE = argv.baseline === 'true';
+const DIFF_BASELINE = argv.diff === 'true';
+// 每通道容差（0-255）：JPEG 有損壓縮，容差太低會把壓縮噪聲當成版面變化
+const TOLERANCE = Math.max(0, Math.min(255, Number(argv.tolerance ?? 16)));
+// 變化比例超過這個才算回歸（百分比）
+const DIFF_LIMIT_PERCENT = Number(argv['diff-limit'] ?? 0.5);
+// 遮罩：canvas 戰鬥區、計時器這類每幀都不同的區域，用選擇器塗掉再比
+const MASK_SELECTORS = String(argv.mask ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+const RETRY = Math.max(0, Number(argv.retry ?? 0));
+// 0 = 不清理；>0 只留最近 N 輪
+const KEEP = Number(argv.keep ?? 0);
+const COMPARE_LAST = argv['compare-last'] === 'true';
+// 戰鬥場景的 canvas 每幀都不同：用 --mask=canvas 把動態區塗掉再比（headless 的虛擬時間凍結實測會卡住截圖）
 
 const log = (...a) => console.log('[visual-check]', ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -345,6 +367,9 @@ async function captureScene(cdp, baseUrl, worker, scene, size, file) {
       }
     }
 
+    // mask 選擇器的視口座標，diff 會用它把每幀都變動的區域（canvas、計時器）塗掉
+    const maskRects = MASK_SELECTORS.length ? await shots.collectMaskRects(cdp, sessionId, MASK_SELECTORS) : [];
+
     // 稽核放在 PRE_SCRIPT 之後：要檢查的是使用者真正看到的狀態（modal／展開後）
     const audit = WITH_AUDIT ? await shots.runAudit(cdp, sessionId) : null;
 
@@ -412,7 +437,8 @@ async function captureScene(cdp, baseUrl, worker, scene, size, file) {
       );
       domStats = JSON.parse(result.value);
     }
-    return { domStats, audit, stats, extras, events: [...worker.events] };
+    // shotData 只給 baseline 與 diff 用，不進 report（否則 19 幀會讓 JSON 多出好幾 MB）
+    return { domStats, audit, stats, extras, shotData, maskRects, events: [...worker.events] };
   } catch (error) {
     // 單一場景失敗不拖垮整條 lane；原因一定要留下，否則 report 只有 FAIL，查不出為什麼
     return { error: String(error?.message ?? error), events: [...worker.events] };
@@ -434,30 +460,8 @@ async function captureScene(cdp, baseUrl, worker, scene, size, file) {
 async function renderSheet(cdp, outDir, items, cols = 3) {
   // 總表按尺寸分組：390x844 與 1600x900 混排時，窄版會被 object-fit 縮成一小塊，
   // 檢查表第 12 項（窄版擠壓）在總表上根本看不出來。
-  // 排版模組用動態 import：缺檔時退回單組固定行高，不影響截圖流程。
-  let planSheetFn = null;
-  try {
-    ({ planSheet: planSheetFn } = await import('./visual-sheet.mjs'));
-  } catch {
-    planSheetFn = null;
-  }
-  const plan = planSheetFn
-    ? planSheetFn(items)
-    : {
-        width: 1860,
-        height: Math.ceil(items.length / cols) * 372 + 72,
-        groups: [
-          {
-            size: items[0]?.size ?? '',
-            items,
-            cols,
-            imgH: 330,
-            rowHeight: 372,
-            rows: Math.ceil(items.length / cols),
-            height: Math.ceil(items.length / cols) * 372 + 56,
-          },
-        ],
-      };
+  // 排版模組是同 repo 維護的必然存在，不再保留缺檔降級分支
+  const plan = planSheet(items);
 
   const width = plan.width;
   const height = plan.height;
@@ -624,8 +628,14 @@ try {
       try {
         for (const { scene, size } of lane) {
           const file = path.join(OUT_DIR, `${scene}-${size.key}.${EXT}`);
-          const frame = (await captureScene(cdp, baseUrl, worker, scene, size, file)) ?? {};
-          const { domStats: dom = null, audit = null, stats = null, extras = [], events = [], error = '' } = frame;
+          let frame = (await captureScene(cdp, baseUrl, worker, scene, size, file)) ?? {};
+          // React.lazy 的 chunk 偶爾會慢過 settle 上限，重試一次比直接判 FAIL 合理
+          for (let attempt = 0; attempt < RETRY && frame.error; attempt++) {
+            log(`重試 ${scene} ${size.key}（第 ${attempt + 1} 次）：${frame.error}`);
+            await sleep(600);
+            frame = (await captureScene(cdp, baseUrl, worker, scene, size, file)) ?? {};
+          }
+          const { domStats: dom = null, audit = null, stats = null, extras = [], shotData = '', maskRects = [], events = [], error = '' } = frame;
 
           // 外部服務（音樂 API、CDN）掛掉不影響本頁版面，算警告不算失敗；
           // 只有本站資源與 console error 才是硬失敗
@@ -645,6 +655,25 @@ try {
             (e) => (e.kind === 'log' || e.kind === 'network') && !isLocal(e.url),
           );
 
+          // 基準線：--baseline 存檔、--diff 讀檔；兩者互斥，同時給也只會存不會比
+          let baselineDataUrl = null;
+          if (shotData && (WRITE_BASELINE || DIFF_BASELINE)) {
+            const baseFile = baselinePath(ROOT, scene, size.key, EXT);
+            const mime = FORMAT === 'png' ? 'png' : 'jpeg';
+            if (WRITE_BASELINE) {
+              const saved = saveBaselineDataUrl(path.dirname(baseFile), baseFile, `data:image/${mime};base64,${shotData}`);
+              if (saved.error) log(`基準線寫入失敗 ${scene} ${size.key}：${saved.error}`);
+            } else if (existsSync(baseFile)) {
+              baselineDataUrl = `data:image/${EXT === 'png' ? 'png' : 'jpeg'};base64,${readFileSync(baseFile).toString('base64')}`;
+            }
+          }
+
+          // 只有存在基準線才比對：首次跑沒有基準就跳過，不當成回歸
+          const diff = DIFF_BASELINE && baselineDataUrl
+            ? await shots.compareWithBaseline(cdp, worker.sessionId, { baselineDataUrl, currentBase64: shotData, tolerance: TOLERANCE, maskRects, diffOutFile: `${file.replace(/\.[a-z]+$/i, '')}.diff.png` })
+            : null;
+          const diffOk = !DIFF_BASELINE || !baselineDataUrl || !diff?.stats || diff.stats.diffPercent <= DIFF_LIMIT_PERCENT;
+
           const img = existsSync(file) ? imageSize(file) : null;
           const bytes = img ? readFileSync(file).length : 0;
           // dpr=2 時圖是 CSS 尺寸的兩倍，尺寸比對要按比例放大，否則整排誤判 FAIL
@@ -661,6 +690,7 @@ try {
                 }
               : {}),
             noRuntimeErrors: hardErrors.length === 0,
+            diffOk,
           };
 
           // 稽核結果是「警告級」：專案本來就有刻意的 truncate 與低對比設計，
@@ -675,6 +705,8 @@ try {
           if (externalErrors.length) warnings.push({ kind: 'external', count: externalErrors.length, items: externalErrors.slice(0, 12) });
           if (consoleWarn.length) warnings.push({ kind: 'console', count: consoleWarn.length, items: consoleWarn.slice(0, 12) });
 
+          if (diff?.stats && diff.stats.diffPercent > DIFF_LIMIT_PERCENT)
+            warnings.push({ kind: 'diff', count: 1, items: [{ text: `與基準線差異 ${diff.stats.diffPercent}%` }] });
           const pass = Object.values(checks).every(Boolean) && (!STRICT || warnings.length === 0);
           const badge = pass ? (warnings.length ? 'PASS!' : 'PASS') : 'FAIL';
           log(
@@ -694,6 +726,7 @@ try {
             audit,
             extras,
             events,
+            diff,
             error,
             pass,
           });
@@ -756,6 +789,19 @@ try {
     ),
   );
 
+  // 清舊輪次：一輪 19 幀，.shots/verify 會無限長大
+  if (KEEP > 0 && cleanupRuns(OUT_ROOT, KEEP).removed) log(`已清理舊輪次（保留最近 ${KEEP} 輪）`);
+
+  // 與上一輪比較：要看的是「這次比上次多了什麼」，不是絕對數字
+  if (COMPARE_LAST) {
+    const prev = loadPreviousReport(OUT_ROOT, stamp);
+    if (!prev) log('--compare-last：找不到上一輪報告，略過');
+    else {
+      const d = compareReports(prev.report, { results, timing: { totalSeconds: Number(elapsed) } });
+      writeFileSync(path.join(OUT_DIR, 'compare.json'), JSON.stringify({ against: prev.dir, ...d }, null, 2));
+      log(`對比 ${path.basename(prev.dir)}：新失敗 ${d.newFails.length}｜修好 ${d.fixedFails.length}｜新警告 ${d.newWarnings.length}｜漂移 ${d.byteDrift.length} 幀｜耗時 ${d.timingDrift.percent}%`);
+    }
+  }
   const rows = results
     .map(
       (r) => `    <figure class="${r.pass ? 'ok' : 'bad'}">
