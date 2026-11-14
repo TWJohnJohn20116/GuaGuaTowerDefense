@@ -5,23 +5,24 @@ import { CheckIcon, TrashIcon, ChevronUpIcon, ChevronDownIcon, PaletteIcon, EyeI
 import { getEmojiCategories, getIconBackgroundColors } from './modEditorIconI18n';
 import { ModIconClearConfirmDialog } from './ModIconClearConfirmDialog';
 import { Btn, Rule, SegHead } from '@/components/hl';
-
-// 圖層型別擴充:含可見性、鎖定、色相
-interface IconLayer {
-  id: string;
-  emoji: string;
-  x: number;
-  y: number;
-  scale: number;
-  rotation: number;
-  zIndex: number;
-  opacity?: number;
-  flipX?: boolean;
-  flipY?: boolean;
-  hidden?: boolean;
-  locked?: boolean;
-  hue?: number;
-}
+import {
+  type IconLayer,
+  MAX_ICON_LAYERS,
+  clampIconScale,
+  createIconId,
+  snapIconCoordinate,
+  addIconLayer,
+  duplicateIconLayer,
+  removeIconLayer,
+  updateIconLayer,
+  nudgeIconLayer,
+  moveLayerUp as moveLayerUpOp,
+  moveLayerDown as moveLayerDownOp,
+  bringToFront as bringToFrontOp,
+  sendToBack as sendToBackOp,
+  toggleLayerVisibility,
+  toggleLayerLock,
+} from './modIconLayerOps';
 
 export function ModIconEditor({
   initialData,
@@ -119,23 +120,10 @@ export function ModIconEditor({
   // useCallback + [icons]：keydown 監聽器靠這份識別才不會抓到舊的圖層清單（TD-17）。
   // 必須宣告在監聽器之前——deps 陣列在 render 期間就會求值，晚宣告會踩 TDZ。
   const duplicateLayer = useCallback((id: string) => {
-    if (icons.length >= 15) return; // increase max limit to 15
-    const iconToCopy = icons.find(i => i.id === id);
-    if (!iconToCopy) return;
-    
-    const newId = `icon-${Date.now()}-${Math.random()}`;
-    const maxZ = icons.length > 0 ? Math.max(...icons.map(i => i.zIndex)) : -1;
-    
-    setIcons(prev => [
-      ...prev,
-      {
-        ...iconToCopy,
-        id: newId,
-        x: iconToCopy.x + 10,
-        y: iconToCopy.y + 10,
-        zIndex: maxZ + 1
-      }
-    ]);
+    if (icons.length >= MAX_ICON_LAYERS) return;
+    if (!icons.some((i) => i.id === id)) return;
+    const newId = createIconId();
+    setIcons((prev) => duplicateIconLayer(prev, id, newId) ?? prev);
     setSelectedIconId(newId);
   }, [icons]);
 
@@ -151,7 +139,7 @@ export function ModIconEditor({
       if (!selectedIconId) return;
       if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault();
-        setIcons((prev) => prev.filter((i) => i.id !== selectedIconId));
+        setIcons((prev) => removeIconLayer(prev, selectedIconId));
         setSelectedIconId(null);
         return;
       }
@@ -163,7 +151,7 @@ export function ModIconEditor({
       if (moves[e.key]) {
         e.preventDefault();
         const [dx, dy] = moves[e.key];
-        setIcons((prev) => prev.map((i) => i.id === selectedIconId ? { ...i, x: i.x + dx, y: i.y + dy } : i));
+        setIcons((prev) => nudgeIconLayer(prev, selectedIconId, dx, dy));
       }
     };
     window.addEventListener('keydown', onKey);
@@ -182,42 +170,24 @@ export function ModIconEditor({
   }, [searchQuery, emojiCategories]);
 
   const handleEmojiClick = (emoji: string) => {
-    if (icons.length >= 15) return;
-    
-    const newId = `icon-${Date.now()}-${Math.random()}`;
-    const maxZ = icons.length > 0 ? Math.max(...icons.map(i => i.zIndex)) : -1;
-    
-    setIcons(prev => [
-      ...prev,
-      {
-        id: newId,
-        emoji,
-        x: Math.floor(Math.random() * 40) - 20,
-        y: Math.floor(Math.random() * 40) - 20,
-        scale: 1,
-        rotation: 0,
-        zIndex: maxZ + 1
-      }
-    ]);
+    if (icons.length >= MAX_ICON_LAYERS) return;
+    const newId = createIconId();
+    setIcons((prev) => addIconLayer(prev, emoji, newId));
     setSelectedIconId(newId);
   };
 
   const handleRemoveIcon = (id: string) => {
-    setIcons(prev => prev.filter(i => i.id !== id));
+    setIcons((prev) => removeIconLayer(prev, id));
     if (selectedIconId === id) setSelectedIconId(null);
   };
 
   const updateSelectedIcon = (updates: Partial<IconLayer>) => {
     if (!selectedIconId) return;
-    setIcons(prev => prev.map(icon => 
-      icon.id === selectedIconId ? { ...icon, ...updates } : icon
-    ));
+    setIcons((prev) => updateIconLayer(prev, selectedIconId, updates));
   };
 
   const updateIcon = (id: string, updates: Partial<IconLayer>) => {
-    setIcons(prev => prev.map(icon => 
-      icon.id === id ? { ...icon, ...updates } : icon
-    ));
+    setIcons((prev) => updateIconLayer(prev, id, updates));
   };
 
   const clearCanvas = () => {
@@ -248,7 +218,7 @@ export function ModIconEditor({
       const localDeltaY = deltaX * Math.sin(-rad) + deltaY * Math.cos(-rad);
 
       const moveDist = (localDeltaX * dirX + localDeltaY * dirY);
-      const newScale = Math.max(0.5, Math.min(15, startScale + moveDist / 64));
+      const newScale = clampIconScale(startScale + moveDist / 64);
       
       setIcons(prev => prev.map(icon => 
         icon.id === iconId ? { ...icon, scale: newScale } : icon
@@ -267,59 +237,27 @@ export function ModIconEditor({
   };
 
   const moveLayerUp = (id: string) => {
-    setIcons(prev => {
-      const sorted = [...prev].sort((a,b) => a.zIndex - b.zIndex);
-      const idx = sorted.findIndex(i => i.id === id);
-      if (idx === sorted.length - 1) return prev;
-      
-      const currentZ = sorted[idx].zIndex;
-      const nextZ = sorted[idx+1].zIndex;
-      
-      return prev.map(i => {
-        if (i.id === sorted[idx].id) return { ...i, zIndex: nextZ };
-        if (i.id === sorted[idx+1].id) return { ...i, zIndex: currentZ };
-        return i;
-      });
-    });
+    setIcons((prev) => moveLayerUpOp(prev, id));
   };
 
   const moveLayerDown = (id: string) => {
-    setIcons(prev => {
-      const sorted = [...prev].sort((a,b) => a.zIndex - b.zIndex);
-      const idx = sorted.findIndex(i => i.id === id);
-      if (idx === 0) return prev;
-      
-      const currentZ = sorted[idx].zIndex;
-      const prevZ = sorted[idx-1].zIndex;
-      
-      return prev.map(i => {
-        if (i.id === sorted[idx].id) return { ...i, zIndex: prevZ };
-        if (i.id === sorted[idx-1].id) return { ...i, zIndex: currentZ };
-        return i;
-      });
-    });
+    setIcons((prev) => moveLayerDownOp(prev, id));
   };
 
   const bringToFront = (id: string) => {
-    setIcons((prev) => {
-      const maxZ = Math.max(...prev.map((i) => i.zIndex));
-      return prev.map((i) => (i.id === id ? { ...i, zIndex: maxZ + 1 } : i));
-    });
+    setIcons((prev) => bringToFrontOp(prev, id));
   };
 
   const sendToBack = (id: string) => {
-    setIcons((prev) => {
-      const minZ = Math.min(...prev.map((i) => i.zIndex));
-      return prev.map((i) => (i.id === id ? { ...i, zIndex: minZ - 1 } : i));
-    });
+    setIcons((prev) => sendToBackOp(prev, id));
   };
 
   const toggleVisibility = (id: string) => {
-    setIcons((prev) => prev.map((i) => (i.id === id ? { ...i, hidden: !i.hidden } : i)));
+    setIcons((prev) => toggleLayerVisibility(prev, id));
   };
 
   const toggleLock = (id: string) => {
-    setIcons((prev) => prev.map((i) => (i.id === id ? { ...i, locked: !i.locked } : i)));
+    setIcons((prev) => toggleLayerLock(prev, id));
   };
 
   const handleSave = () => {
@@ -339,7 +277,7 @@ export function ModIconEditor({
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (selectedIconId) {
           e.preventDefault();
-          setIcons((prev) => prev.filter((i) => i.id !== selectedIconId));
+          setIcons((prev) => removeIconLayer(prev, selectedIconId));
           setSelectedIconId(null);
         }
       }
@@ -514,7 +452,7 @@ export function ModIconEditor({
                 e.stopPropagation();
                 if (selectedIconId) {
                   const icon = icons.find(i => i.id === selectedIconId);
-                  if (icon) updateIcon(icon.id, { scale: Math.min(15, icon.scale + 0.5) });
+                  if (icon) updateIcon(icon.id, { scale: clampIconScale(icon.scale + 0.5) });
                 }
               }}
             >
@@ -527,7 +465,7 @@ export function ModIconEditor({
                 e.stopPropagation();
                 if (selectedIconId) {
                   const icon = icons.find(i => i.id === selectedIconId);
-                  if (icon) updateIcon(icon.id, { scale: Math.max(0.5, icon.scale - 0.5) });
+                  if (icon) updateIcon(icon.id, { scale: clampIconScale(icon.scale - 0.5) });
                 }
               }}
             >
@@ -580,10 +518,8 @@ export function ModIconEditor({
                         if (i.id !== icon.id) return i;
                         let nx = i.x + info.offset.x;
                         let ny = i.y + info.offset.y;
-                        if (snapToGrid) {
-                          nx = Math.round(nx / 8) * 8;
-                          ny = Math.round(ny / 8) * 8;
-                        }
+                        nx = snapIconCoordinate(nx, snapToGrid);
+                        ny = snapIconCoordinate(ny, snapToGrid);
                         return { ...i, x: nx, y: ny };
                       }));
                     }}
@@ -591,7 +527,7 @@ export function ModIconEditor({
                       if (icon.locked) return;
                       e.stopPropagation();
                       const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                      const newScale = Math.max(0.5, Math.min(15, icon.scale + delta));
+                      const newScale = clampIconScale(icon.scale + delta);
                       updateIcon(icon.id, { scale: newScale });
                     }}
                     onPointerDown={(e) => {
@@ -715,11 +651,11 @@ export function ModIconEditor({
                       <div className="flex justify-between mb-3">
                         <span className="hl-label">{m.iconScaleLabel}</span>
                         <div className="flex gap-1">
-                          <button onClick={() => updateSelectedIcon({scale: Math.max(0.5, (icons.find(i=>i.id===selectedIconId)?.scale || 1) - 0.5)})} className="w-7 border border-[var(--hl-line)] bg-[var(--hl-deck-2)] text-[10px] leading-none text-[var(--hl-ink-2)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]">-</button>
+                          <button onClick={() => updateSelectedIcon({scale: clampIconScale((icons.find(i=>i.id===selectedIconId)?.scale || 1) - 0.5)})} className="w-7 border border-[var(--hl-line)] bg-[var(--hl-deck-2)] text-[10px] leading-none text-[var(--hl-ink-2)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]">-</button>
                           <span className="hl-num min-w-[36px] border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-2 py-0.5 text-center text-[10px] text-[var(--hl-signal)]">
                             {icons.find(i=>i.id===selectedIconId)?.scale.toFixed(1)}x
                           </span>
-                          <button onClick={() => updateSelectedIcon({scale: Math.min(15, (icons.find(i=>i.id===selectedIconId)?.scale || 1) + 0.5)})} className="w-7 border border-[var(--hl-line)] bg-[var(--hl-deck-2)] text-[10px] leading-none text-[var(--hl-ink-2)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]">+</button>
+                          <button onClick={() => updateSelectedIcon({scale: clampIconScale((icons.find(i=>i.id===selectedIconId)?.scale || 1) + 0.5)})} className="w-7 border border-[var(--hl-line)] bg-[var(--hl-deck-2)] text-[10px] leading-none text-[var(--hl-ink-2)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]">+</button>
                         </div>
                       </div>
                       <input 
@@ -854,7 +790,7 @@ export function ModIconEditor({
                   <div className="grid grid-cols-5 gap-2">
                     {category.emojis.map((emoji, idx) => {
                       const isIncluded = icons.some(i => i.emoji === emoji);
-                      const isLimit = icons.length >= 15 && !isIncluded;
+                      const isLimit = icons.length >= MAX_ICON_LAYERS && !isIncluded;
                       return (
                         <button
                           key={`${emoji}-${idx}`}
