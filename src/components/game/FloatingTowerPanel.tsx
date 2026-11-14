@@ -24,7 +24,7 @@ import { getTowerLockTitle } from '@/data/towerLockTitle';
 import { formatCurrentPathCaption, formatUpgradePathTag } from '@/data/upgradePathLabel';
 import { formatTowerLevelBadge } from '@/data/towerLevelLabel';
 import TowerPreview from '@/components/ui/TowerPreview';
-import { Deck, SegHead } from '@/components/hl';
+import { Btn, Deck, IconBtn, Input, SegHead } from '@/components/hl';
 
 /** 上方儀表帶高度：面板定位要扣掉，否則會跑到帶子上 */
 const TOP_BAND = 44;
@@ -32,13 +32,13 @@ const TOP_BAND = 44;
 type Tone = 'ink' | 'signal' | 'vital' | 'alarm' | 'caution' | 'reach' | 'muted';
 
 const TONE_TEXT: Record<Tone, string> = {
-  ink: 'text-[var(--hl-ink)]',
-  signal: 'text-[var(--hl-signal)]',
-  vital: 'text-[var(--hl-vital)]',
-  alarm: 'text-[var(--hl-alarm)]',
-  caution: 'text-[var(--hl-caution)]',
-  reach: 'text-[var(--hl-reach)]',
-  muted: 'text-[var(--hl-ink-2)]',
+  ink: 'text-[var(--arc-ink)]',
+  signal: 'text-[var(--arc-gold)]',
+  vital: 'text-[var(--arc-vital)]',
+  alarm: 'text-[var(--arc-alert)]',
+  caution: 'text-[var(--arc-caution)]',
+  reach: 'text-[var(--arc-reach)]',
+  muted: 'text-[var(--arc-ink-2)]',
 };
 
 export const FloatingTowerPanel = ({
@@ -59,7 +59,6 @@ export const FloatingTowerPanel = ({
   const selectedTower = useGameStore((s) => s.selectedTower);
   const upgradeTower = useGameStore((s) => s.upgradeTower);
   const sellTower = useGameStore((s) => s.sellTower);
-  const sellingDisabled = useGameStore((s) => s.mutatorRules?.sellingDisabled ?? false);
   const selectTower = useGameStore((s) => s.selectTower);
   const setTowerPriority = useGameStore((s) => s.setTowerPriority);
   const activateSkill = useGameStore((s) => s.activateSkill);
@@ -250,27 +249,27 @@ export const FloatingTowerPanel = ({
     showUpgrade: boolean;
     tone: Tone;
   }) => (
-    <div className="flex flex-col gap-1 border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-1.5 py-1.5">
-      <span className="hl-label truncate">{label}</span>
-      <span className={`font-mono text-[13px] font-semibold tabular-nums leading-none ${TONE_TEXT[tone]}`}>
+    <Deck tone="sunken" className="flex flex-col gap-1 px-1.5 py-1.5">
+      <span className="arc-label truncate">{label}</span>
+      <span className={`arc-num font-mono text-[13px] font-semibold tabular-nums leading-none ${TONE_TEXT[tone]}`}>
         {current}
       </span>
       {showUpgrade && next !== undefined && (
-        <span className="font-mono text-[9.5px] tabular-nums text-[var(--hl-vital)]">→ {next}</span>
+        <span className="font-mono text-[9.5px] tabular-nums text-[var(--arc-vital)]">→ {next}</span>
       )}
-    </div>
+    </Deck>
   );
 
   // ===== 標題 =====
   const renderHeader = () => (
     <div className="flex items-start gap-2.5">
-      <span className="relative flex h-11 w-11 shrink-0 items-center justify-center border border-[var(--hl-line)]">
+      <span className="relative flex h-11 w-11 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)]">
         <TowerPreview towerId={selectedTower.type} size={34} />
       </span>
       <div className="min-w-0 flex-1">
         {isRenaming ? (
           <div className="flex items-center gap-1">
-            <input
+            <Input
               ref={renameInputRef}
               type="text"
               value={renameValue}
@@ -283,24 +282,22 @@ export const FloatingTowerPanel = ({
               onKeyUp={(e) => e.stopPropagation()}
               maxLength={20}
               placeholder={data.name}
-              className="h-7 w-full border border-[var(--hl-line-strong)] bg-[var(--hl-void-2)] px-1.5 text-[12px] text-[var(--hl-ink)] outline-none focus:border-[var(--hl-signal)]"
+              className="h-7 px-1.5 text-[12px] text-[var(--arc-ink)]"
             />
-            <button
-              type="button"
-              className="flex h-7 w-7 shrink-0 items-center justify-center border border-[var(--hl-line-strong)] text-[var(--hl-vital)] hover:border-[var(--hl-vital)]"
+            <IconBtn
+              label={t.game.confirm}
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm px-0 text-[var(--arc-vital)]"
               onClick={handleConfirmRename}
-              title={t.game.confirm}
             >
               <CheckIcon className="h-3.5 w-3.5" />
-            </button>
-            <button
-              type="button"
-              className="flex h-7 w-7 shrink-0 items-center justify-center border border-[var(--hl-line-strong)] text-[var(--hl-alarm)] hover:border-[var(--hl-alarm)]"
+            </IconBtn>
+            <IconBtn
+              label={t.game.cancel}
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm px-0 text-[var(--arc-alert)]"
               onClick={handleCancelRename}
-              title={t.game.cancel}
             >
               <CrossIcon className="h-3.5 w-3.5" />
-            </button>
+            </IconBtn>
           </div>
         ) : (
           <div
@@ -309,23 +306,23 @@ export const FloatingTowerPanel = ({
             title={tutorialActive ? undefined : t.game.clickToRename}
           >
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[15px] font-semibold leading-tight text-[var(--hl-ink)]">
+              <span className="block truncate text-[15px] font-semibold leading-tight text-[var(--arc-ink)]">
                 {selectedTower.customName || data.name}
               </span>
               {selectedTower.customName && (
-                <span className="mt-0.5 block truncate font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+                <span className="mt-0.5 block truncate font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
                   {data.name}
                 </span>
               )}
             </span>
             {!tutorialActive && (
-              <EditIcon className="h-3 w-3 shrink-0 text-[var(--hl-ink-4)] opacity-0 transition-opacity group-hover/name:opacity-100" />
+              <EditIcon className="h-3 w-3 shrink-0 text-[var(--arc-ink-4)] opacity-0 transition-opacity group-hover/name:opacity-100" />
             )}
           </div>
         )}
 
         <div className="mt-1.5 flex items-baseline gap-2">
-          <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-2)]">
+          <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-2)]">
             {formatTowerLevelBadge({
               currentLevel,
               maxLevel,
@@ -333,12 +330,12 @@ export const FloatingTowerPanel = ({
             })}
           </span>
           {currentLevel < maxLevel && (
-            <span className={`font-mono text-[10px] tabular-nums ${canUpgrade ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-ink-4)]'}`}>
+            <span className={`font-mono text-[10px] tabular-nums ${canUpgrade ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-ink-4)]'}`}>
               → {nextLevel}
             </span>
           )}
           {currentPathCaption && (
-            <span className="truncate font-mono text-[9.5px] uppercase tracking-[0.06em] text-[var(--hl-reach)]">
+            <span className="truncate font-mono text-[9.5px] uppercase tracking-[0.06em] text-[var(--arc-reach)]">
               {currentPathCaption}
             </span>
           )}
@@ -414,26 +411,26 @@ export const FloatingTowerPanel = ({
   const renderSynergy = () => {
     if (synergyMods.linkNames.length === 0) return null;
     return (
-      <div className="flex items-start gap-2 border border-[var(--hl-line)] border-l-2 border-l-[var(--hl-reach)] bg-[var(--hl-void-2)] px-2 py-1.5">
-        <LinkIcon2 className="mt-0.5 h-3 w-3 shrink-0 text-[var(--hl-reach)]" />
+      <Deck className="arc-panel--flat flex items-start gap-2 border-l-2 border-l-[var(--arc-reach)] px-2 py-1.5">
+        <LinkIcon2 className="mt-0.5 h-3 w-3 shrink-0 text-[var(--arc-reach)]" />
         <div className="min-w-0">
-          <div className="hl-label">{t.game.towerSynergy.title}</div>
-          <div className="mt-0.5 truncate text-[10.5px] text-[var(--hl-ink-2)]">{synergyMods.linkNames.join(' · ')}</div>
+          <div className="arc-label">{t.game.towerSynergy.title}</div>
+          <div className="mt-0.5 truncate text-[10.5px] text-[var(--arc-ink-2)]">{synergyMods.linkNames.join(' · ')}</div>
         </div>
-      </div>
+      </Deck>
     );
   };
 
   const renderJammed = () => {
     if (!isJammed) return null;
     return (
-      <div className="flex items-center gap-2 border border-[var(--hl-line)] border-l-2 border-l-[var(--hl-alarm)] bg-[var(--hl-void-2)] px-2 py-1.5">
-        <EmpIcon className="h-3 w-3 shrink-0 text-[var(--hl-alarm)]" />
-        <span className="hl-label flex-1">{t.game.jammedHud}</span>
-        <span className="font-mono text-[11px] tabular-nums text-[var(--hl-alarm)]">
+      <Deck className="arc-panel--flat flex items-center gap-2 border-l-2 border-l-[var(--arc-alert)] px-2 py-1.5">
+        <EmpIcon className="h-3 w-3 shrink-0 text-[var(--arc-alert)]" />
+        <span className="arc-label flex-1">{t.game.jammedHud}</span>
+        <span className="font-mono text-[11px] tabular-nums text-[var(--arc-alert)]">
           ×{jamFireRateMult.toFixed(2)}
         </span>
-      </div>
+      </Deck>
     );
   };
 
@@ -443,22 +440,22 @@ export const FloatingTowerPanel = ({
       ? `${(selectedTower.totalDamage / 1000).toFixed(1)}K`
       : Math.floor(selectedTower.totalDamage);
     return (
-      <div className="flex items-stretch border border-[var(--hl-line)]">
-        <div className="flex flex-1 items-center gap-1.5 border-r border-[var(--hl-line)] px-2 py-1.5">
-          <SkullIcon className="h-3 w-3 text-[var(--hl-ink-3)]" />
-          <span className="hl-label flex-1 truncate">{t.game.killCount}</span>
-          <span className="font-mono text-[12px] font-semibold tabular-nums text-[var(--hl-ink)]">
+      <Deck className="arc-panel--flat flex items-stretch">
+        <div className="flex flex-1 items-center gap-1.5 border-r border-[var(--cn-line-soft)] px-2 py-1.5">
+          <SkullIcon className="h-3 w-3 text-[var(--arc-ink-3)]" />
+          <span className="arc-label flex-1 truncate">{t.game.killCount}</span>
+          <span className="font-mono text-[12px] font-semibold tabular-nums text-[var(--arc-ink)]">
             {selectedTower.kills}
           </span>
         </div>
         <div className="flex flex-1 items-center gap-1.5 px-2 py-1.5">
-          <SwordsIcon className="h-3 w-3 text-[var(--hl-ink-3)]" />
-          <span className="hl-label flex-1 truncate">{t.game.totalDamageLabel}</span>
-          <span className="font-mono text-[12px] font-semibold tabular-nums text-[var(--hl-ink)]">
+          <SwordsIcon className="h-3 w-3 text-[var(--arc-ink-3)]" />
+          <span className="arc-label flex-1 truncate">{t.game.totalDamageLabel}</span>
+          <span className="font-mono text-[12px] font-semibold tabular-nums text-[var(--arc-ink)]">
             {totalDmgDisplay}
           </span>
         </div>
-      </div>
+      </Deck>
     );
   };
 
@@ -467,7 +464,7 @@ export const FloatingTowerPanel = ({
     return (
       <div>
         <SegHead label={t.towers.targetPriority} />
-        <div className="mt-1.5 grid grid-cols-3 gap-px bg-[var(--hl-line)]">
+        <div className="mt-1.5 grid grid-cols-3 gap-px bg-[var(--arc-line)]">
           {priorityOptions.map(option => {
             const isActive = selectedTower.targetPriority === option.value;
             const disabled = tutorialActive && currentStep?.action !== 'change_priority';
@@ -478,10 +475,10 @@ export const FloatingTowerPanel = ({
                 type="button"
                 className={`h-7 truncate px-1 font-mono text-[9.5px] transition-colors duration-[110ms] ${
                   isActive
-                    ? 'bg-[var(--hl-signal-veil)] font-semibold text-[var(--hl-signal)]'
+                    ? 'bg-[var(--arc-gold-veil)] font-semibold text-[var(--arc-gold)]'
                     : disabled
-                      ? 'cursor-not-allowed bg-[var(--hl-void-2)] text-[var(--hl-ink-4)] opacity-60'
-                      : 'bg-[var(--hl-deck-2)] text-[var(--hl-ink-3)] hover:bg-[var(--hl-deck-3)] hover:text-[var(--hl-ink)]'
+                      ? 'cursor-not-allowed bg-[var(--arc-void-2)] text-[var(--arc-ink-4)] opacity-60'
+                      : 'bg-[var(--arc-deck-2)] text-[var(--arc-ink-3)] hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink)]'
                 }`}
                 onClick={() => {
                   if (!tutorialActive || currentStep?.action === 'change_priority') {
@@ -522,12 +519,12 @@ export const FloatingTowerPanel = ({
       <button
         id="tutorial-target-use-skill"
         type="button"
-        className={`relative flex w-full items-center gap-2 overflow-hidden border px-2 py-2 text-left transition-colors duration-[110ms] ${
+        className={`arc-btn relative flex h-auto w-full items-center gap-2 overflow-hidden px-2 py-2 text-left ${
           isActive
-            ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]'
+            ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
             : clickable
-              ? 'border-[var(--hl-line-strong)] bg-[var(--hl-deck-2)] hover:border-[var(--hl-line-hot)]'
-              : 'cursor-not-allowed border-[var(--hl-line)] bg-[var(--hl-void-2)] opacity-70'
+              ? 'border-[var(--arc-line-strong)] bg-[var(--arc-deck-2)] hover:border-[var(--arc-line-hot)]'
+              : 'cursor-not-allowed border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] opacity-70'
         }`}
         onClick={() => {
           if (clickable) {
@@ -539,18 +536,18 @@ export const FloatingTowerPanel = ({
       >
         {!isReady && (
           <span
-            className="pointer-events-none absolute inset-y-0 left-0 bg-[var(--hl-deck-3)]"
+            className="pointer-events-none absolute inset-y-0 left-0 bg-[var(--arc-deck-3)]"
             style={{ width: `${cooldownPercent * 100}%` }}
           />
         )}
         <ThemeIcon icon={skillData.icon} className="relative h-4 w-4 shrink-0" />
         <span className="relative min-w-0 flex-1">
-          <span className="block truncate text-[11.5px] font-medium text-[var(--hl-ink)]">{skillData.name}</span>
-          <span className="mt-0.5 block truncate text-[9.5px] text-[var(--hl-ink-3)]">{skillData.description}</span>
+          <span className="block truncate text-[11.5px] font-medium text-[var(--arc-ink)]">{skillData.name}</span>
+          <span className="mt-0.5 block truncate text-[9.5px] text-[var(--arc-ink-3)]">{skillData.description}</span>
         </span>
         <span
           className={`relative shrink-0 font-mono text-[10px] tabular-nums ${
-            isReady ? 'text-[var(--hl-vital)]' : 'text-[var(--hl-ink-3)]'
+            isReady ? 'text-[var(--arc-vital)]' : 'text-[var(--arc-ink-3)]'
           }`}
         >
           {isReady ? t.game.skillReady : `${remainingCooldown}s`}
@@ -564,10 +561,10 @@ export const FloatingTowerPanel = ({
     return (
       <motion.div className="space-y-1.5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
         <div className="flex items-center justify-between">
-          <span className="hl-label">{t.towers.selectUpgradePath}</span>
+          <span className="arc-label">{t.towers.selectUpgradePath}</span>
           <button
             type="button"
-            className="font-mono text-[10px] text-[var(--hl-ink-4)] hover:text-[var(--hl-ink)]"
+            className="font-mono text-[10px] text-[var(--arc-ink-4)] hover:text-[var(--arc-ink)]"
             onClick={() => setShowPathSelection(false)}
           >
             {t.common.cancel}
@@ -582,25 +579,25 @@ export const FloatingTowerPanel = ({
                 key={pathKey}
                 id={pathKey === 'A' ? 'tutorial-target-path-a' : undefined}
                 type="button"
-                className="group relative flex items-center gap-2 border border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-2 py-1.5 text-left transition-colors hover:border-[var(--hl-signal)] hover:bg-[var(--hl-signal-veil)]"
+                className="group relative flex items-center gap-2 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)] px-2 py-1.5 text-left transition-colors hover:border-[var(--arc-gold)] hover:bg-[var(--arc-gold-veil)]"
                 onClick={() => handleUpgrade(pathKey)}
               >
-                <span className="absolute right-1 top-1 font-mono text-[8.5px] uppercase text-[var(--hl-ink-4)]">
+                <span className="absolute right-1 top-1 font-mono text-[8.5px] uppercase text-[var(--arc-ink-4)]">
                   {formatUpgradePathTag(pathKey, t.towers.pathTag)}
                 </span>
                 <ThemeIcon icon={branch.icon} className="h-5 w-5 shrink-0" />
                 <span className="flex min-w-0 flex-1 flex-col pr-5">
-                  <span className="truncate text-[11.5px] font-medium text-[var(--hl-ink)]">{branch.name}</span>
+                  <span className="truncate text-[11.5px] font-medium text-[var(--arc-ink)]">{branch.name}</span>
                   <span className="mt-0.5 flex items-center gap-1">
                     <ThemeIcon icon={levelBonus.icon} className="h-3 w-3 shrink-0 opacity-70" />
-                    <span className="truncate text-[9.5px] text-[var(--hl-ink-3)]">{levelBonus.description}</span>
+                    <span className="truncate text-[9.5px] text-[var(--arc-ink-3)]">{levelBonus.description}</span>
                   </span>
                 </span>
               </button>
             );
           })}
         </div>
-        <div className="border-l-2 border-[var(--hl-caution)] px-2 py-1 font-mono text-[9.5px] text-[var(--hl-caution)]">
+        <div className="border-l-2 border-[var(--arc-caution)] px-2 py-1 font-mono text-[9.5px] text-[var(--arc-caution)]">
           {t.game.needFunds.replace('{cost}', String(upgradeCost))}
         </div>
       </motion.div>
@@ -610,24 +607,26 @@ export const FloatingTowerPanel = ({
   const renderUpgradeButton = () => {
     if (currentLevel >= maxLevel) {
       return (
-        <div className="flex items-center justify-center gap-2 border border-[var(--hl-line)] bg-[var(--hl-void-2)] py-2">
-          <StarIcon className="h-3.5 w-3.5 text-[var(--hl-signal)]" />
-          <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-[var(--hl-signal)]">
+        <Deck tone="sunken" className="flex items-center justify-center gap-2 py-2">
+          <StarIcon className="h-3.5 w-3.5 text-[var(--arc-gold)]" />
+          <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-[var(--arc-gold)]">
             {t.towers.maxLevel}
           </span>
-        </div>
+        </Deck>
       );
     }
     if (showPathSelection && needsPathSelection) return null;
     const tutorialDisabled = tutorialActive && currentStep?.action !== 'upgrade_tower';
     return (
-      <button
+      <Btn
         id="tutorial-target-upgrade-tower"
-        type="button"
-        className={`flex h-9 w-full items-center justify-center gap-2 border font-semibold transition-colors duration-[110ms] ${
+        variant="signal"
+        size="sm"
+        block
+        className={`flex items-center justify-center gap-2 font-semibold ${
           tutorialDisabled || !canUpgrade
-            ? 'cursor-not-allowed border-[var(--hl-line)] bg-[var(--hl-void-2)] text-[var(--hl-ink-4)]'
-            : 'border-[var(--hl-signal)] bg-[var(--hl-signal)] text-[var(--hl-signal-ink)] hover:bg-[#e6ff74]'
+            ? 'cursor-not-allowed border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] text-[var(--arc-ink-4)]'
+            : 'border-[var(--arc-gold)] bg-[var(--arc-gold)] text-[var(--arc-gold-ink)] hover:brightness-110'
         }`}
         onClick={() => !tutorialDisabled && handleUpgrade()}
         disabled={!canUpgrade || tutorialDisabled}
@@ -635,22 +634,23 @@ export const FloatingTowerPanel = ({
         <UpArrowIcon className="h-3.5 w-3.5" />
         <span className="text-[11.5px] uppercase tracking-[0.06em]">{t.towers.upgrade}</span>
         <span className="font-mono text-[11px] tabular-nums">${upgradeCost}</span>
-      </button>
+      </Btn>
     );
   };
 
   const renderSecondaryActions = () => {
     const sellTutorialDisabled = tutorialActive && currentStep?.action !== 'sell_tower';
-    const sellBlocked = selectedTower.locked || sellTutorialDisabled || sellingDisabled;
+    const sellBlocked = selectedTower.locked || sellTutorialDisabled;
     return (
       <div className="grid gap-1">
         {!isFusionTower(selectedTower.type) && hasFusionPartner && !isFusionSource && (
-          <button
-            type="button"
-            className={`flex h-8 items-center justify-center gap-1.5 border font-mono text-[10px] uppercase tracking-[0.06em] transition-colors ${
+          <Btn
+            variant="line"
+            size="sm"
+            className={`flex items-center justify-center gap-1.5 font-mono uppercase tracking-[0.06em] ${
               canAffordFusion
-                ? 'border-[var(--hl-line-strong)] text-[var(--hl-ink-2)] hover:border-[var(--hl-caution)] hover:text-[var(--hl-caution)]'
-                : 'cursor-not-allowed border-[var(--hl-line)] text-[var(--hl-ink-4)]'
+                ? 'border-[var(--arc-line-strong)] text-[var(--arc-ink-2)] hover:brightness-110 hover:border-[var(--arc-caution)] hover:text-[var(--arc-caution)]'
+                : 'cursor-not-allowed border-[var(--cn-line-soft)] text-[var(--arc-ink-4)]'
             }`}
             onClick={() => canAffordFusion && enterFusionMode(selectedTower.id)}
             disabled={!canAffordFusion}
@@ -658,27 +658,29 @@ export const FloatingTowerPanel = ({
             <LinkIcon2 className="h-3 w-3" />
             <span>{t.towers.fusion.button}</span>
             <span className="tabular-nums">-${fusionCost}</span>
-          </button>
+          </Btn>
         )}
         {isFusionSource && (
-          <button
-            type="button"
-            className="flex h-8 items-center justify-center gap-1.5 border border-[var(--hl-caution)] bg-[rgba(255,182,39,0.1)] font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--hl-caution)]"
+          <Btn
+            variant="line"
+            size="sm"
+            className="flex items-center justify-center gap-1.5 border-[var(--arc-caution)] bg-[rgba(255,166,43,0.14)] font-mono uppercase tracking-[0.06em] text-[var(--arc-caution)] hover:brightness-110"
             onClick={() => cancelFusion()}
           >
             <LinkIcon2 className="h-3 w-3" />
             <span>{t.towers.fusion.cancel}</span>
-          </button>
+          </Btn>
         )}
 
         <div className="grid gap-1" style={{ gridTemplateColumns: canUndo ? '1fr 1fr auto' : '1fr auto' }}>
-          <button
+          <Btn
             id="tutorial-target-sell-tower"
-            type="button"
-            className={`flex h-8 items-center justify-center gap-1 border font-mono text-[10px] uppercase tracking-[0.06em] transition-colors ${
+            variant="danger"
+            size="sm"
+            className={`flex items-center justify-center gap-1 font-mono uppercase tracking-[0.06em] ${
               sellBlocked
-                ? 'cursor-not-allowed border-[var(--hl-line)] text-[var(--hl-ink-4)]'
-                : 'border-[rgba(255,75,62,0.4)] text-[var(--hl-alarm)] hover:bg-[rgba(255,75,62,0.1)] hover:border-[var(--hl-alarm)]'
+                ? 'cursor-not-allowed border-[var(--cn-line-soft)] bg-transparent text-[var(--arc-ink-4)] shadow-none'
+                : ''
             }`}
             onClick={() => {
               if (sellBlocked) return;
@@ -688,7 +690,6 @@ export const FloatingTowerPanel = ({
                 cost: data.cost,
                 confirmSell,
                 locked: selectedTower.locked,
-                sellingDisabled,
               });
               if (intent !== 'sell_now') return;
               sellTower(selectedTower);
@@ -697,36 +698,36 @@ export const FloatingTowerPanel = ({
             disabled={sellBlocked}
           >
             {selectedTower.locked ? <ShieldLockIcon className="h-3 w-3" /> : null}
-            <span>{sellingDisabled ? t.towers.sellDisabled : t.towers.sell}</span>
-            {!sellingDisabled && <span className="tabular-nums">+${sellPrice}</span>}
-          </button>
+            <span>{t.towers.sell}</span>
+            <span className="tabular-nums">+${sellPrice}</span>
+          </Btn>
           {canUndo && (
-            <button
-              type="button"
-              className={`flex h-8 items-center justify-center gap-1 border font-mono text-[10px] uppercase tracking-[0.06em] transition-colors ${
+            <Btn
+              variant="line"
+              size="sm"
+              className={`flex items-center justify-center gap-1 font-mono uppercase tracking-[0.06em] ${
                 tutorialActive
-                  ? 'cursor-not-allowed border-[var(--hl-line)] text-[var(--hl-ink-4)] opacity-60'
-                  : 'border-[var(--hl-line-strong)] text-[var(--hl-ink-2)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]'
+                  ? 'cursor-not-allowed border-[var(--cn-line-soft)] text-[var(--arc-ink-4)] opacity-60'
+                  : 'border-[var(--arc-line-strong)] text-[var(--arc-ink-2)] hover:brightness-110 hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
               }`}
               onClick={() => !tutorialActive && undoUpgrade()}
               disabled={tutorialActive}
             >
               <UpArrowIcon className="h-3 w-3 rotate-180" />
               <span>{t.towers.undoUpgrade}</span>
-            </button>
+            </Btn>
           )}
-          <button
-            type="button"
-            className={`flex h-8 w-8 items-center justify-center border transition-colors ${
+          <IconBtn
+            label={getTowerLockTitle(Boolean(selectedTower.locked), t.towers.lock, t.towers.unlock)}
+            className={`flex h-8 w-8 items-center justify-center rounded-sm px-0 ${
               selectedTower.locked
-                ? 'border-[var(--hl-caution)] bg-[rgba(255,182,39,0.1)] text-[var(--hl-caution)]'
-                : 'border-[var(--hl-line)] text-[var(--hl-ink-3)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]'
+                ? 'border-[var(--arc-caution)] bg-[rgba(255,166,43,0.14)] text-[var(--arc-caution)]'
+                : 'border-[var(--cn-line-soft)] text-[var(--arc-ink-3)] hover:brightness-110 hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
             }`}
             onClick={() => toggleTowerLock(selectedTower.id)}
-            title={getTowerLockTitle(Boolean(selectedTower.locked), t.towers.lock, t.towers.unlock)}
           >
             <LockIcon className="h-3.5 w-3.5" />
-          </button>
+          </IconBtn>
         </div>
       </div>
     );
@@ -742,19 +743,18 @@ export const FloatingTowerPanel = ({
       onClick={(e) => e.stopPropagation()}
     >
       <Deck notch className="flex max-h-[calc(100vh-96px)] flex-col overflow-hidden">
-        <header className="flex items-start gap-2 border-b border-[var(--hl-line)] px-2.5 py-2">
+        <header className="flex items-start gap-2 border-b border-[var(--cn-line-soft)] px-2.5 py-2">
           <div className="min-w-0 flex-1">
-            <div className="hl-label">tower / inspect</div>
+            <div className="arc-label">tower / inspect</div>
             <div className="mt-1.5">{renderHeader()}</div>
           </div>
-          <button
-            type="button"
-            className="flex h-6 w-6 shrink-0 items-center justify-center border border-[var(--hl-line-strong)] text-[var(--hl-ink-3)] transition-colors hover:border-[var(--hl-alarm)] hover:text-[var(--hl-alarm)]"
+          <IconBtn
+            label={t.common.close}
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm px-0 text-[var(--arc-ink-3)] hover:text-[var(--arc-alert)]"
             onClick={() => selectTower(null)}
-            aria-label={t.common.close}
           >
             <CrossIcon className="h-3 w-3" />
-          </button>
+          </IconBtn>
         </header>
 
         <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-2.5 py-2">
@@ -770,7 +770,7 @@ export const FloatingTowerPanel = ({
           </AnimatePresence>
         </div>
 
-        <footer className="space-y-1 border-t border-[var(--hl-line)] p-2">
+        <footer className="space-y-1 border-t border-[var(--cn-line-soft)] p-2">
           {renderUpgradeButton()}
           {renderSecondaryActions()}
         </footer>

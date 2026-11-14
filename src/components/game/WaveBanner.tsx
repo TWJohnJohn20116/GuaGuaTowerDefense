@@ -20,6 +20,7 @@ import type {
 } from '@/store/settingsStore';
 import { useTranslation } from '@/i18n';
 import { WaveIcon } from '@/components/ui/Icons';
+import { Deck } from '@/components/hl';
 
 const BANNER_DURATION = 2000;
 
@@ -99,25 +100,25 @@ export function WaveBanner() {
           transition={{ duration: 0.22, ease: 'easeOut' }}
           className={`fixed ${positionClass} pointer-events-none z-[9000]`}
         >
-          <div
-            className={`flex items-center gap-4 border border-[var(--hl-line-strong)] border-l-2 border-l-[var(--hl-signal)] bg-[var(--hl-void-2)] ${spec.padding}`}
+          <Deck
+            className={`arc-panel--flat flex items-center gap-4 border-l-2 border-l-[var(--arc-gold)] ${spec.padding}`}
           >
-            <WaveIcon className={`${spec.iconSize} shrink-0 text-[var(--hl-signal)]`} />
+            <WaveIcon className={`${spec.iconSize} shrink-0 text-[var(--arc-gold)]`} />
 
             <div className="flex flex-col items-start">
-              <span className={`hl-label ${spec.labelSize}`}>{t.game.wave}</span>
+              <span className={`arc-label ${spec.labelSize}`}>{t.game.wave}</span>
               <span
-                className={`mt-1 flex items-baseline gap-1.5 font-mono font-semibold tabular-nums leading-none text-[var(--hl-ink)] ${spec.numberSize}`}
+                className={`arc-num mt-1 flex items-baseline gap-1.5 font-mono font-semibold tabular-nums leading-none text-[var(--arc-gold)] ${spec.numberSize}`}
               >
                 {banner.wave}
                 {!endlessMode && maxWaves > 0 && (
-                  <span className="font-mono text-[13px] font-normal text-[var(--hl-ink-4)]">
+                  <span className="font-mono text-[13px] font-normal text-[var(--arc-ink-4)]">
                     / {maxWaves}
                   </span>
                 )}
               </span>
             </div>
-          </div>
+          </Deck>
         </motion.div>
       )}
     </AnimatePresence>,

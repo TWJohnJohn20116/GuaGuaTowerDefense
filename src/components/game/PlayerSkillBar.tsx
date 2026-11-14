@@ -15,7 +15,7 @@ import type { PlayerSkill } from '@/data/playerSkillData';
 import { LightningIcon, SnowflakeIcon, CoinIcon, SwordsIcon, MeteorIcon, ChainLightningIcon, HealIcon, AegisIcon, WarpIcon, EmpIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
 import { getPlayerSkillName, getPlayerSkillDesc } from '@/i18n/playerSkillLabels';
-import { SegHead } from '@/components/hl';
+import { IconBtn, Num, SegHead } from '@/components/hl';
 
 type SkillIconComp = (p: SVGProps<SVGSVGElement> & { className?: string }) => JSX.Element;
 
@@ -52,10 +52,10 @@ export function PlayerSkillBar() {
   const hotkeyHint = hotkeys.length === 1 ? `⇧ ${hotkeys[0]}` : `⇧ ${hotkeys[0]}-${hotkeys[hotkeys.length - 1]}`;
 
   return (
-    <div className="border-t border-[var(--hl-line)] px-2.5 py-2">
+    <div className="border-t border-[var(--cn-line-soft)] px-2.5 py-2">
       <SegHead
         label={t.game.skills}
-        right={<span className="font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">{hotkeyHint}</span>}
+        right={<Num value={hotkeyHint} tone="muted" size="sm" className="font-mono tabular-nums" />}
         className="mb-2"
       />
       <div className="flex flex-wrap items-stretch gap-1">
@@ -105,43 +105,40 @@ function SkillButton({ skill }: SkillButtonProps) {
 
   return (
     <div className="relative">
-      <button
-        type="button"
+      <IconBtn
+        label={`${getPlayerSkillName(skill, t)} · ${t.game.skills}`}
         onClick={handleClick}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         disabled={!ready}
-        className={`relative flex h-10 w-10 flex-col items-center justify-center gap-0.5 border transition-colors duration-[110ms] ${
+        className={`relative flex h-10 w-10 flex-col items-center justify-center gap-0.5 px-0 transition-colors duration-[110ms] ${
           ready
-            ? 'border-[var(--hl-line-strong)] bg-[var(--hl-deck-2)] text-[var(--hl-ink)] hover:border-[var(--hl-signal)] hover:bg-[var(--hl-signal-veil)]'
-            : 'cursor-not-allowed border-[var(--hl-line)] bg-[var(--hl-void-2)] text-[var(--hl-ink-4)]'
+            ? 'border-[var(--arc-cyan-edge)] bg-[var(--arc-deck-2)] text-[var(--arc-ink)] hover:border-[var(--arc-gold-edge)] hover:bg-[var(--arc-gold-veil)]'
+            : 'cursor-not-allowed border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] text-[var(--arc-ink-4)]'
         }`}
-        title={`${getPlayerSkillName(skill, t)} · ${t.game.skills}`}
       >
-        <IconComp className={`h-4 w-4 ${ready ? 'text-[var(--hl-ink)]' : 'text-[var(--hl-ink-4)]'}`} />
+        <IconComp className={`h-4 w-4 ${ready ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-4)]'}`} />
 
         {/* 冷卻殘量：mono 秒數 */}
         {!ready && (
-          <span className="font-mono text-[9px] font-semibold tabular-nums text-[var(--hl-ink-2)]">
-            {Math.ceil(cooldownRemaining / 1000)}
-          </span>
+          <Num value={Math.ceil(cooldownRemaining / 1000)} tone="ink" size="sm" className="font-mono font-semibold tabular-nums" />
         )}
 
         {/* 冷卻進度：底部一條 */}
         {!ready && (
           <span
-            className="pointer-events-none absolute inset-x-0 bottom-0 bg-[var(--hl-ink-4)]"
+            className="pointer-events-none absolute inset-x-0 bottom-0 bg-[var(--arc-ink-4)]"
             style={{ height: 2, width: `${(1 - cooldownRatio) * 100}%` }}
           />
         )}
 
         {isActive && (
-          <span className="pointer-events-none absolute inset-0 border border-[var(--hl-signal)]" />
+          <span className="pointer-events-none absolute inset-0 border border-[var(--arc-gold)]" />
         )}
-      </button>
+      </IconBtn>
 
       {/* 鍵位 */}
-      <span className="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 border border-[var(--hl-line-strong)] bg-[var(--hl-void-2)] px-1 font-mono text-[8px] leading-[12px] text-[var(--hl-ink-3)]">
+      <span className="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 border border-[var(--arc-line-strong)] bg-[var(--arc-void-2)] px-1 font-mono text-[8px] leading-[12px] text-[var(--arc-ink-3)]">
         ⇧{skill.hotkey}
       </span>
 
@@ -153,15 +150,15 @@ function SkillButton({ skill }: SkillButtonProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
             transition={{ duration: 0.12 }}
-            className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-52 -translate-x-1/2 border border-[var(--hl-line)] bg-[var(--hl-deck)] p-2.5"
+            className="arc-panel pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-52 -translate-x-1/2 p-2.5"
           >
-            <div className="text-[12.5px] font-semibold text-[var(--hl-ink)]">
+            <div className="arc-title text-[12.5px] font-semibold text-[var(--arc-ink)]">
               {getPlayerSkillName(skill, t)}
             </div>
-            <div className="mt-1 whitespace-normal text-[10.5px] leading-snug text-[var(--hl-ink-2)]">
+            <div className="mt-1 whitespace-normal text-[10.5px] leading-snug text-[var(--arc-ink-2)]">
               {getPlayerSkillDesc(skill, t)}
             </div>
-            <div className="mt-1.5 flex items-center justify-between border-t border-[var(--hl-line)] pt-1.5 font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-3)]">
+            <div className="mt-1.5 flex items-center justify-between border-t border-[var(--cn-line-soft)] pt-1.5 font-mono text-[9.5px] tabular-nums text-[var(--arc-ink-3)]">
               <span>CD {skill.cooldown / 1000}s</span>
               {skill.duration ? <span>{t.game.skillActive} {skill.duration / 1000}s</span> : null}
             </div>

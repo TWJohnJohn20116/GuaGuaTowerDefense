@@ -82,19 +82,19 @@ export function NextWavePreview({ show }: NextWavePreviewProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 6 }}
         transition={{ duration: 0.14 }}
-        className="absolute bottom-full left-0 z-50 mb-2 w-[300px] border border-[var(--hl-line)] bg-[var(--hl-deck)]"
+        className="absolute bottom-full left-0 z-50 arc-panel mb-2 w-[300px]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between gap-2 border-b border-[var(--hl-line)] px-3 py-2">
+        <div className="flex items-center justify-between gap-2 border-b border-[var(--cn-line-soft)] px-3 py-2">
           <SegHead label={`${t.game.nextWave} · W${nextWaveData.waveNum}`} />
           <div className="flex shrink-0 items-center gap-1">
             {nextWaveData.hasBoss && (
-              <span className="border border-[rgba(255,75,62,0.5)] px-1 py-0.5 font-mono text-[8.5px] uppercase tracking-[0.08em] text-[var(--hl-alarm)]">
+              <span className="border border-[rgba(255,61,113,0.5)] px-1 py-0.5 font-mono text-[8.5px] uppercase tracking-[0.08em] text-[var(--arc-alert)]">
                 {t.game.waveTagBoss}
               </span>
             )}
             {nextWaveData.hasElite && (
-              <span className="border border-[rgba(255,182,39,0.5)] px-1 py-0.5 font-mono text-[8.5px] uppercase tracking-[0.08em] text-[var(--hl-caution)]">
+              <span className="border border-[rgba(255,166,43,0.5)] px-1 py-0.5 font-mono text-[8.5px] uppercase tracking-[0.08em] text-[var(--arc-caution)]">
                 {t.game.waveTagElite}
               </span>
             )}
@@ -102,37 +102,37 @@ export function NextWavePreview({ show }: NextWavePreviewProps) {
         </div>
 
         {/* Stats Row */}
-        <div className="flex items-stretch border-b border-[var(--hl-line)]">
+        <div className="flex items-stretch border-b border-[var(--cn-line-soft)]">
           {[
             { label: t.game.unitEnemy, value: nextWaveData.totalCount, tone: 'ink' as const },
             { label: 'hp', value: nextWaveData.totalHP.toLocaleString(), tone: 'alarm' as const },
             { label: 'time', value: `${(nextWaveData.duration / 1000).toFixed(0)}s`, tone: 'muted' as const },
           ].map((cell) => (
-            <div key={cell.label} className="flex flex-1 flex-col gap-1 border-r border-[var(--hl-line)] px-2.5 py-1.5 last:border-r-0">
-              <span className="hl-label">{cell.label}</span>
+            <div key={cell.label} className="flex flex-1 flex-col gap-1 border-r border-[var(--cn-line-soft)] px-2.5 py-1.5 last:border-r-0">
+              <span className="arc-label">{cell.label}</span>
               <Num value={cell.value} tone={cell.tone} size="sm" />
             </div>
           ))}
         </div>
 
         {/* Enemy List */}
-        <div className="max-h-48 space-y-px overflow-y-auto bg-[var(--hl-line)]">
+        <div className="max-h-48 space-y-px overflow-y-auto bg-[var(--arc-line)]">
           {nextWaveData.enemies.map((eg, idx) => {
             const eData = ENEMY_DATA[eg.type as keyof typeof ENEMY_DATA];
             const groupHP = (eData?.health || 50) * eg.count;
             return (
               <div
                 key={idx}
-                className="flex items-center gap-2 bg-[var(--hl-deck)] px-2.5 py-1.5"
+                className="flex items-center gap-2 bg-[var(--arc-deck)] px-2.5 py-1.5"
               >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center border border-[var(--hl-line)]">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)]">
                   <EnemyPreview enemyId={eg.type} size={22} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[10.5px] font-medium text-[var(--hl-ink)]">
+                  <span className="block truncate text-[10.5px] font-medium text-[var(--arc-ink)]">
                     {eData?.name || eg.type}
                   </span>
-                  <span className="block font-mono text-[9px] tabular-nums text-[var(--hl-ink-4)]">
+                  <span className="block font-mono text-[9px] tabular-nums text-[var(--arc-ink-4)]">
                     HP {eData?.health ?? '?'} · ×{eg.count}
                   </span>
                 </span>

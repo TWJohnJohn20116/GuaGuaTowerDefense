@@ -7,7 +7,7 @@ import { getPendingSellIds } from '@/store/sellConfirm';
 import { useSellConfirmStore } from '@/store/sellConfirmStore';
 import { SceneModal } from '@/components/ui/SceneModal';
 import { CoinIcon, WarningIcon } from '@/components/ui/Icons';
-import { Btn } from '@/components/hl';
+import { Btn, Deck } from '@/components/hl';
 
 function confirmPendingSell() {
   const pending = useSellConfirmStore.getState().pending;
@@ -55,39 +55,39 @@ export function SellConfirmModal() {
           padding="p-4"
           variant="solid"
         >
-          <header className="flex items-center gap-2.5 border-b border-[var(--hl-line)] px-4 py-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[rgba(255,182,39,0.5)] text-[var(--hl-caution)]">
+          <header className="flex items-center gap-2.5 border-b border-[var(--cn-line-soft)] px-4 py-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[rgba(255,166,43,0.5)] text-[var(--arc-caution)]">
               <WarningIcon className="h-3.5 w-3.5" />
             </span>
             <div className="min-w-0">
-              <div className="hl-label text-[var(--hl-caution)]">tower / sell</div>
-              <h3 className="mt-1 truncate text-[17px] font-semibold leading-tight text-[var(--hl-ink)]">
+              <div className="arc-label text-[var(--arc-caution)]">tower / sell</div>
+              <h3 className="arc-title mt-1 truncate text-[17px] font-semibold leading-tight text-[var(--arc-ink)]">
                 {t.towers.sellConfirmTitle}
               </h3>
             </div>
           </header>
 
           <div className="px-4 py-3">
-            <p className="text-[12.5px] text-[var(--hl-ink-2)]">
+            <p className="text-[12.5px] text-[var(--arc-ink-2)]">
               {t.towers.sell}「{pending.name}」
             </p>
 
-            <div className="mt-3 flex items-baseline justify-between border border-[var(--hl-line)] bg-[var(--hl-void-2)] px-3 py-2">
-              <span className="hl-label">{t.towers.sellPrice}</span>
-              <span className="flex items-baseline gap-1.5 font-mono text-[17px] font-semibold tabular-nums text-[var(--hl-vital)]">
+            <Deck tone="sunken" className="mt-3 flex items-baseline justify-between px-3 py-2">
+              <span className="arc-label">{t.towers.sellPrice}</span>
+              <span className="arc-num flex items-baseline gap-1.5 font-mono text-[17px] font-semibold tabular-nums text-[var(--arc-vital)]">
                 <CoinIcon className="h-3.5 w-3.5 self-center" />
                 +{pending.refund}
               </span>
-            </div>
+            </Deck>
 
-            <p className="mt-2.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--hl-ink-4)]">
+            <p className="mt-2.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--arc-ink-4)]">
               {getPendingSellIds(pending).length > 1
                 ? t.towers.sellConfirmHintBatch
                 : t.towers.sellConfirmHint}
             </p>
           </div>
 
-          <footer className="flex flex-col gap-1.5 border-t border-[var(--hl-line)] p-3">
+          <footer className="flex flex-col gap-1.5 border-t border-[var(--cn-line-soft)] p-3">
             <Btn variant="danger" block onClick={confirmPendingSell}>
               {t.towers.sell}
             </Btn>

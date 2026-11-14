@@ -15,7 +15,7 @@ import { resolveLeaveMatchFromHud } from '@/data/leaveMatch';
 
 /** 儀表帶上的動作格：方角、1px 線、mono */
 const CELL =
-  'flex h-full items-center justify-center gap-1.5 border-r border-[var(--hl-line)] px-3 font-mono text-[11px] transition-colors duration-[110ms]';
+  'flex h-full items-center justify-center gap-1.5 border-r border-[var(--arc-line)] px-3 font-mono text-[11px] transition-colors duration-[110ms]';
 
 export const BottomControls = () => {
   const { t } = useTranslation();
@@ -60,18 +60,18 @@ export const BottomControls = () => {
     (tutorialActive && tutorialStep?.action !== 'start_wave');
 
   const startTone = waveActive
-    ? 'text-[var(--hl-ink-4)]'
+    ? 'text-[var(--arc-ink-4)]'
     : pendingProtocol
-      ? 'text-[var(--hl-caution)]'
+      ? 'text-[var(--arc-caution)]'
       : !endlessMode && maxWaves > 0 && currentWave >= maxWaves
-        ? 'text-[var(--hl-vital)]'
-        : 'text-[var(--hl-signal-ink)]';
+        ? 'text-[var(--arc-vital)]'
+        : 'text-[var(--arc-gold-ink)]';
 
   return (
     <div className="flex h-full min-w-0 items-stretch">
       {/* 開始下一波：本帶唯一實心訊號格 */}
       <div
-        className="relative flex h-full items-stretch border-r border-[var(--hl-line)]"
+        className="relative flex h-full items-stretch border-r border-[var(--arc-line)]"
         onMouseEnter={() => setShowNextWavePreview(true)}
         onMouseLeave={() => setShowNextWavePreview(false)}
       >
@@ -80,10 +80,10 @@ export const BottomControls = () => {
           id="tutorial-target-start-wave"
           type="button"
           className={[
-            'flex h-full items-center justify-center gap-2 px-4 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors duration-[110ms]',
+            'arc-btn arc-btn--gold flex h-full items-center justify-center gap-2 rounded-sm px-4 font-mono text-[11px] font-semibold uppercase tracking-[0.08em]',
             waveActive || pendingProtocol || (!endlessMode && maxWaves > 0 && currentWave >= maxWaves) || tutorialActive
-              ? `cursor-not-allowed bg-transparent ${startTone}`
-              : 'bg-[var(--hl-signal)] text-[var(--hl-signal-ink)] hover:bg-[#e6ff74]',
+              ? `cursor-not-allowed bg-transparent shadow-none ${startTone}`
+              : 'bg-[var(--arc-gold)] text-[var(--arc-gold-ink)] hover:brightness-110',
             !waveActive && !pendingProtocol && tutorialActive && tutorialStep?.action !== 'start_wave'
               ? 'opacity-40'
               : '',
@@ -128,8 +128,8 @@ export const BottomControls = () => {
         type="button"
         className={`${CELL} ${
           skipAllowed
-            ? 'text-[var(--hl-caution)] hover:bg-[var(--hl-deck-2)]'
-            : 'cursor-not-allowed text-[var(--hl-ink-4)]'
+            ? 'text-[var(--arc-caution)] hover:bg-[var(--arc-deck-2)]'
+            : 'cursor-not-allowed text-[var(--arc-ink-4)]'
         }`}
         onClick={skipWave}
         disabled={!skipAllowed}
@@ -146,10 +146,10 @@ export const BottomControls = () => {
             type="button"
             className={`h-full min-w-9 px-2 font-mono text-[11px] tabular-nums transition-colors duration-[110ms] ${
               gameSpeed === speed
-                ? 'border-l border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] font-semibold text-[var(--hl-signal)] first:border-l-0'
+                ? 'border-l border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] font-semibold text-[var(--arc-gold)] first:border-l-0'
                 : speedTutorialLocked
-                  ? 'cursor-not-allowed text-[var(--hl-ink-4)] opacity-40'
-                  : 'text-[var(--hl-ink-3)] hover:bg-[var(--hl-deck-2)] hover:text-[var(--hl-ink)]'
+                  ? 'cursor-not-allowed text-[var(--arc-ink-4)] opacity-40'
+                  : 'text-[var(--arc-ink-3)] hover:bg-[var(--arc-deck-2)] hover:text-[var(--arc-ink)]'
             }`}
             disabled={speedTutorialLocked}
             onClick={() => {
@@ -170,10 +170,10 @@ export const BottomControls = () => {
         type="button"
         className={`${CELL} ${
           pauseTutorialLocked
-            ? 'cursor-not-allowed text-[var(--hl-ink-4)] opacity-40'
+            ? 'cursor-not-allowed text-[var(--arc-ink-4)] opacity-40'
             : isPaused
-              ? 'bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-              : 'text-[var(--hl-ink-2)] hover:bg-[var(--hl-deck-2)] hover:text-[var(--hl-ink)]'
+              ? 'bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
+              : 'text-[var(--arc-ink-2)] hover:bg-[var(--arc-deck-2)] hover:text-[var(--arc-ink)]'
         }`}
         onClick={() => {
           if (!tutorialActive || tutorialStep?.action === 'pause_game') {
@@ -192,8 +192,8 @@ export const BottomControls = () => {
         type="button"
         className={`${CELL} ${
           tutorialActive
-            ? 'cursor-not-allowed text-[var(--hl-ink-4)] opacity-40'
-            : 'text-[var(--hl-alarm)] hover:bg-[rgba(255,75,62,0.1)]'
+            ? 'cursor-not-allowed text-[var(--arc-ink-4)] opacity-40'
+            : 'text-[var(--arc-alert)] hover:bg-[rgba(255,61,113,0.12)] hover:brightness-110'
         }`}
         onClick={() => {
           if (resolveLeaveMatchFromHud({ tutorialActive }) !== 'reset_match') return;

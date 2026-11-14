@@ -16,7 +16,7 @@ import { AIStatusHeader } from './AIStatusHeader';
 import { AdvancedOptionsPanel } from './AdvancedOptionsPanel';
 import { PlayerSkillBar } from '../PlayerSkillBar';
 import { canRedoPlacement, canUndoPlacement } from '@/store/placementHistory';
-import { Chip, SegHead } from '@/components/hl';
+import { Chip, IconBtn, SegHead } from '@/components/hl';
 
 const BASIC_TOWER_TYPES: TowerType[] = ['basic', 'sniper', 'cannon', 'machine', 'shotgun', 'ballista'];
 const SPECIAL_TOWER_TYPES: TowerType[] = ['frost', 'poison', 'laser', 'lightning', 'flame', 'money', 'wind', 'pulse'];
@@ -27,7 +27,7 @@ const ALL_BASE_TOWER_TYPES: TowerType[] = [
 
 /** 塔塢工具列按鈕：方角、1px 線 */
 const TOOL_BTN =
-  'flex h-8 w-8 items-center justify-center border transition-colors duration-[110ms]';
+  'arc-btn flex h-8 w-8 items-center justify-center rounded-sm px-0';
 
 export const TowerPanel = () => {
   const { t } = useTranslation();
@@ -131,7 +131,7 @@ export const TowerPanel = () => {
       <AIStatusHeader />
 
       {showCategories && (
-        <div className="border-b border-[var(--hl-line)] px-2.5 py-2">
+        <div className="border-b border-[var(--arc-line)] px-2.5 py-2">
           <div className="flex items-stretch gap-1">
             {([
               { id: 'basic' as const, label: t.game.basicTowers },
@@ -169,7 +169,7 @@ export const TowerPanel = () => {
             className="flex flex-col items-center gap-2 py-8 text-center"
             style={{ gridColumn: `span ${towerListColumns}` }}
           >
-            <span className="hl-label">{t.game.noTowersInCategory}</span>
+            <span className="arc-label">{t.game.noTowersInCategory}</span>
           </div>
         )}
       </div>
@@ -177,52 +177,50 @@ export const TowerPanel = () => {
       {showSkillBar && <PlayerSkillBar />}
 
       {showToolbar && (
-        <div className="border-t border-[var(--hl-line)] px-2.5 py-2">
+        <div className="border-t border-[var(--arc-line)] px-2.5 py-2">
           <SegHead label={t.game.moreOptions} className="mb-2" />
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1">
-              <button
-                type="button"
+              <IconBtn
+                label={t.game.quickPlace}
                 className={`${TOOL_BTN} ${
                   tutorialActive
-                    ? 'cursor-not-allowed border-transparent text-[var(--hl-ink-4)] opacity-40'
+                    ? 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)] opacity-40'
                     : quickPlaceMode
-                      ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-                      : 'border-[var(--hl-line)] text-[var(--hl-ink-3)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]'
+                      ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
+                      : 'border-[var(--arc-line)] text-[var(--arc-ink-3)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
                 }`}
                 onClick={() => !tutorialActive && toggleQuickPlaceMode()}
                 disabled={tutorialActive}
-                title={t.game.quickPlace}
               >
                 <PinIcon className="h-3.5 w-3.5" />
-              </button>
-              <button
-                type="button"
+              </IconBtn>
+              <IconBtn
+                label={t.game.tacticalView}
                 className={`${TOOL_BTN} ${
                   tutorialActive
-                    ? 'cursor-not-allowed border-transparent text-[var(--hl-ink-4)] opacity-40'
+                    ? 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)] opacity-40'
                     : showTacticalView
-                      ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-                      : 'border-[var(--hl-line)] text-[var(--hl-ink-3)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]'
+                      ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
+                      : 'border-[var(--arc-line)] text-[var(--arc-ink-3)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
                 }`}
                 onClick={() => !tutorialActive && toggleTacticalView()}
                 disabled={tutorialActive}
-                title={t.game.tacticalView}
               >
                 <TargetIcon className="h-3.5 w-3.5" />
-              </button>
+              </IconBtn>
 
-              <span className="mx-0.5 h-6 w-px bg-[var(--hl-line)]" />
+              <span className="mx-0.5 h-6 w-px bg-[var(--arc-line)]" />
 
-              <button
+              <IconBtn
                 id="tutorial-target-undo"
-                type="button"
+                label={t.game.undoAction}
                 className={`${TOOL_BTN} ${
                   tutorialActive && tutorialStep?.action !== 'undo_action'
-                    ? 'cursor-not-allowed border-transparent text-[var(--hl-ink-4)] opacity-40'
+                    ? 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)] opacity-40'
                     : canUndoPlacement(placementHistoryIndex) || (tutorialActive && tutorialStep?.action === 'undo_action')
-                      ? 'border-[var(--hl-line)] text-[var(--hl-ink-2)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]'
-                      : 'cursor-not-allowed border-transparent text-[var(--hl-ink-4)]'
+                      ? 'border-[var(--arc-line)] text-[var(--arc-ink-2)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
+                      : 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)]'
                 }`}
                 onClick={() => {
                   if (!tutorialActive || tutorialStep?.action === 'undo_action') {
@@ -231,19 +229,18 @@ export const TowerPanel = () => {
                   }
                 }}
                 disabled={(tutorialActive && tutorialStep?.action !== 'undo_action') || (!tutorialActive && !canUndoPlacement(placementHistoryIndex))}
-                title={t.game.undoAction}
               >
                 <UndoIcon className="h-3.5 w-3.5" />
-              </button>
-              <button
+              </IconBtn>
+              <IconBtn
                 id="tutorial-target-redo"
-                type="button"
+                label={t.game.redoAction}
                 className={`${TOOL_BTN} ${
                   tutorialActive && tutorialStep?.action !== 'redo_action'
-                    ? 'cursor-not-allowed border-transparent text-[var(--hl-ink-4)] opacity-40'
+                    ? 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)] opacity-40'
                     : canRedoPlacement(placementHistoryIndex, placementHistoryLength) || (tutorialActive && tutorialStep?.action === 'redo_action')
-                      ? 'border-[var(--hl-line)] text-[var(--hl-ink-2)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]'
-                      : 'cursor-not-allowed border-transparent text-[var(--hl-ink-4)]'
+                      ? 'border-[var(--arc-line)] text-[var(--arc-ink-2)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
+                      : 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)]'
                 }`}
                 onClick={() => {
                   if (!tutorialActive || tutorialStep?.action === 'redo_action') {
@@ -252,10 +249,9 @@ export const TowerPanel = () => {
                   }
                 }}
                 disabled={(tutorialActive && tutorialStep?.action !== 'redo_action') || (!tutorialActive && !canRedoPlacement(placementHistoryIndex, placementHistoryLength))}
-                title={t.game.redoAction}
               >
                 <RedoIcon className="h-3.5 w-3.5" />
-              </button>
+              </IconBtn>
             </div>
 
             <div className="flex items-center gap-1">
@@ -264,12 +260,12 @@ export const TowerPanel = () => {
                 type="button"
                 role="switch"
                 aria-checked={autoBattleEnabled}
-                className={`flex h-8 w-12 items-center border px-0.5 transition-colors duration-[110ms] ${
+                className={`flex h-8 w-12 items-center rounded-sm border px-0.5 transition-colors duration-[110ms] ${
                   tutorialActive
                     ? 'cursor-not-allowed border-transparent opacity-40'
                     : autoBattleEnabled
-                      ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]'
-                      : 'border-[var(--hl-line)] hover:border-[var(--hl-line-hot)]'
+                      ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
+                      : 'border-[var(--arc-line)] hover:border-[var(--arc-line-hot)]'
                 }`}
                 onClick={() => !tutorialActive && toggleAutoBattle()}
                 disabled={tutorialActive}
@@ -278,28 +274,27 @@ export const TowerPanel = () => {
                 <span
                   className={`flex h-6 w-6 items-center justify-center transition-transform duration-[170ms] ${
                     autoBattleEnabled
-                      ? 'translate-x-[22px] bg-[var(--hl-signal)] text-[var(--hl-signal-ink)]'
-                      : 'translate-x-0 bg-[var(--hl-deck-3)] text-[var(--hl-ink-3)]'
+                      ? 'translate-x-[22px] bg-[var(--arc-gold)] text-[var(--arc-gold-ink)]'
+                      : 'translate-x-0 bg-[var(--arc-deck-3)] text-[var(--arc-ink-3)]'
                   }`}
                 >
                   <RobotIcon className="h-3 w-3" />
                 </span>
               </button>
-              <button
-                type="button"
+              <IconBtn
+                label={t.game.moreOptions}
                 className={`${TOOL_BTN} ${
                   tutorialActive
-                    ? 'cursor-not-allowed border-transparent text-[var(--hl-ink-4)] opacity-40'
+                    ? 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)] opacity-40'
                     : showAdvanced
-                      ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-                      : 'border-[var(--hl-line)] text-[var(--hl-ink-3)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]'
+                      ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
+                      : 'border-[var(--arc-line)] text-[var(--arc-ink-3)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
                 }`}
                 onClick={() => !tutorialActive && setShowAdvanced(!showAdvanced)}
                 disabled={tutorialActive}
-                title={t.game.moreOptions}
               >
                 <GearIcon className="h-3.5 w-3.5" />
-              </button>
+              </IconBtn>
             </div>
           </div>
         </div>

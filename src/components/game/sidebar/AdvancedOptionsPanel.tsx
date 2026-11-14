@@ -16,7 +16,7 @@ interface AdvancedOptionsPanelProps {
 }
 
 const ROW =
-  'flex items-center justify-between gap-2 border-b border-[var(--hl-line)] py-1.5 last:border-b-0';
+  'flex items-center justify-between gap-2 border-b border-[var(--arc-line)] py-1.5 last:border-b-0';
 
 export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
   const { t } = useTranslation();
@@ -39,7 +39,7 @@ export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
-          className="overflow-hidden border-t border-[var(--hl-line)] bg-[var(--hl-void-2)]"
+          className="overflow-hidden border-t border-[var(--arc-line)] bg-[var(--arc-void-2)]"
         >
           <div className="max-h-64 space-y-3 overflow-y-auto p-2.5">
 
@@ -52,8 +52,8 @@ export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
                     exit={{ opacity: 0 }}
                     className={`border-l-2 px-2 py-1.5 font-mono text-[9.5px] uppercase tracking-[0.06em] ${
                       batchUpgradeResult.upgraded > 0
-                        ? 'border-[var(--hl-vital)] text-[var(--hl-vital)]'
-                        : 'border-[var(--hl-line-strong)] text-[var(--hl-ink-3)]'
+                        ? 'border-[var(--arc-vital)] text-[var(--arc-vital)]'
+                        : 'border-[var(--arc-line-strong)] text-[var(--arc-ink-3)]'
                     }`}
                   >
                     {batchUpgradeResult.upgraded > 0 ? t.game.batchUpgradeSimple.replace('{count}', String(batchUpgradeResult.upgraded)) : t.game.noUpgradeable}
@@ -74,8 +74,8 @@ export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
             </div>
 
             <div>
-              <SegHead label={t.game.aiStrategy} right={<RobotIcon className="h-3.5 w-3.5 text-[var(--hl-ink-3)]" />} />
-              <div className="mt-1.5 grid grid-cols-4 gap-px bg-[var(--hl-line)]">
+              <SegHead label={t.game.aiStrategy} right={<RobotIcon className="h-3.5 w-3.5 text-[var(--arc-ink-3)]" />} />
+              <div className="mt-1.5 grid grid-cols-4 gap-px overflow-hidden rounded-sm bg-[var(--arc-line)]">
                 {([
                   { id: 'balanced', icon: <ScalesIcon className="h-3.5 w-3.5" />, tip: t.game.balanced },
                   { id: 'economy', icon: <CoinIcon className="h-3.5 w-3.5" />, tip: t.game.economy },
@@ -87,8 +87,8 @@ export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
                     type="button"
                     className={`flex h-8 items-center justify-center transition-colors duration-[110ms] ${
                       autoBattleStrategy === s.id
-                        ? 'bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-                        : 'bg-[var(--hl-deck-2)] text-[var(--hl-ink-3)] hover:bg-[var(--hl-deck-3)] hover:text-[var(--hl-ink)]'
+                        ? 'bg-[var(--arc-gold-veil)] font-semibold text-[var(--arc-gold)]'
+                        : 'bg-[var(--arc-deck-2)] text-[var(--arc-ink-3)] hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink)]'
                     }`}
                     onClick={() => setAutoBattleStrategy(s.id)}
                     title={s.tip}
@@ -99,29 +99,29 @@ export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
               </div>
 
               <div className="mt-1.5">
-                <label className={`${ROW} cursor-pointer text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)]`}>
-                  <span className="hl-label flex items-center gap-1.5"><ConstructionIcon className="h-3 w-3" />{t.game.aiAutoPlace}</span>
+                <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
+                  <span className="arc-label flex items-center gap-1.5"><ConstructionIcon className="h-3 w-3" />{t.game.aiAutoPlace}</span>
                   <ToggleSwitch enabled={autoBattleConfig.autoPlace} onToggle={() => setAutoBattleConfig({ autoPlace: !autoBattleConfig.autoPlace })} size="sm" activeColor="green" />
                 </label>
-                <label className={`${ROW} cursor-pointer text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)]`}>
-                  <span className="hl-label flex items-center gap-1.5"><UpArrowIcon className="h-3 w-3" />{t.game.aiAutoUpgrade}</span>
+                <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
+                  <span className="arc-label flex items-center gap-1.5"><UpArrowIcon className="h-3 w-3" />{t.game.aiAutoUpgrade}</span>
                   <ToggleSwitch enabled={autoBattleConfig.autoUpgrade} onToggle={() => setAutoBattleConfig({ autoUpgrade: !autoBattleConfig.autoUpgrade })} size="sm" activeColor="blue" />
                 </label>
-                <label className={`${ROW} cursor-pointer text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)]`}>
-                  <span className="hl-label flex items-center gap-1.5"><LightningIcon className="h-3 w-3" />{t.game.aiAutoSkill}</span>
+                <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
+                  <span className="arc-label flex items-center gap-1.5"><LightningIcon className="h-3 w-3" />{t.game.aiAutoSkill}</span>
                   <ToggleSwitch enabled={autoBattleConfig.useSkills} onToggle={() => setAutoBattleConfig({ useSkills: !autoBattleConfig.useSkills })} size="sm" activeColor="yellow" />
                 </label>
-                <label className={`${ROW} cursor-pointer text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)]`}>
-                  <span className="hl-label flex items-center gap-1.5"><SkipForwardIcon className="h-3 w-3" />{t.game.aiAutoSkip}</span>
+                <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
+                  <span className="arc-label flex items-center gap-1.5"><SkipForwardIcon className="h-3 w-3" />{t.game.aiAutoSkip}</span>
                   <ToggleSwitch enabled={autoBattleConfig.autoSkip} onToggle={() => setAutoBattleConfig({ autoSkip: !autoBattleConfig.autoSkip })} size="sm" activeColor="purple" />
                 </label>
-                <label className={`${ROW} cursor-pointer text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)]`}>
-                  <span className="hl-label flex items-center gap-1.5"><TrashIcon className="h-3 w-3" />{t.game.aiAutoSell}</span>
+                <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
+                  <span className="arc-label flex items-center gap-1.5"><TrashIcon className="h-3 w-3" />{t.game.aiAutoSell}</span>
                   <ToggleSwitch enabled={autoBattleConfig.autoSell} onToggle={() => setAutoBattleConfig({ autoSell: !autoBattleConfig.autoSell })} size="sm" activeColor="orange" />
                 </label>
                 {/* 融合：預設關閉（會吃掉兩座塔），但必須有入口，否則 AI 的融合評分永遠不會執行 */}
-                <label className={`${ROW} cursor-pointer text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)]`}>
-                  <span className="hl-label flex items-center gap-1.5"><SparklesIcon className="h-3 w-3" />{t.game.aiAutoFusion}</span>
+                <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
+                  <span className="arc-label flex items-center gap-1.5"><SparklesIcon className="h-3 w-3" />{t.game.aiAutoFusion}</span>
                   <ToggleSwitch enabled={autoBattleConfig.autoFusion} onToggle={() => setAutoBattleConfig({ autoFusion: !autoBattleConfig.autoFusion })} size="sm" activeColor="cyan" />
                 </label>
               </div>
@@ -131,19 +131,19 @@ export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
               <div>
                 <SegHead
                   label={t.game.aiLog}
-                  right={<span className="flex items-center gap-1.5"><BrainIcon className="h-3.5 w-3.5 text-[var(--hl-ink-3)]" /><span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">{autoBattleLogs.length}</span></span>}
+                  right={<span className="flex items-center gap-1.5"><BrainIcon className="h-3.5 w-3.5 text-[var(--arc-ink-3)]" /><span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">{autoBattleLogs.length}</span></span>}
                 />
-                <div className="mt-1.5 max-h-32 space-y-px overflow-y-auto bg-[var(--hl-line)]">
+                <div className="mt-1.5 max-h-32 space-y-px overflow-y-auto rounded-sm bg-[var(--arc-line)]">
                   {autoBattleLogs.slice(0, 8).map((log) => (
                     <div
                       key={log.id}
-                      className={`border-l-2 bg-[var(--hl-deck)] px-2 py-1 font-mono text-[9.5px] ${
-                        log.type === 'place' ? 'border-[var(--hl-vital)] text-[var(--hl-vital)]'
-                        : log.type === 'upgrade' ? 'border-[var(--hl-reach)] text-[var(--hl-reach)]'
-                        : log.type === 'skill' ? 'border-[var(--hl-caution)] text-[var(--hl-caution)]'
-                        : log.type === 'skip' ? 'border-[var(--hl-ink-3)] text-[var(--hl-ink-2)]'
-                        : log.type === 'sell' ? 'border-[var(--hl-alarm)] text-[var(--hl-alarm)]'
-                        : 'border-[var(--hl-line)] text-[var(--hl-ink-2)]'
+                      className={`border-l-2 bg-[var(--arc-deck)] px-2 py-1 font-mono text-[9.5px] ${
+                        log.type === 'place' ? 'border-[var(--arc-vital)] text-[var(--arc-vital)]'
+                        : log.type === 'upgrade' ? 'border-[var(--arc-reach)] text-[var(--arc-reach)]'
+                        : log.type === 'skill' ? 'border-[var(--arc-caution)] text-[var(--arc-caution)]'
+                        : log.type === 'skip' ? 'border-[var(--arc-ink-3)] text-[var(--arc-ink-2)]'
+                        : log.type === 'sell' ? 'border-[var(--arc-alert)] text-[var(--arc-alert)]'
+                        : 'border-[var(--arc-line)] text-[var(--arc-ink-2)]'
                       }`}
                     >
                       <span className="block truncate">{log.message}</span>
@@ -154,8 +154,8 @@ export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
             )}
 
             <div>
-              <label className={`${ROW} cursor-pointer text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)]`}>
-                <span className="hl-label flex items-center gap-1.5"><SkipForwardIcon className="h-3 w-3" />{t.game.autoStartNextWave}</span>
+              <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
+                <span className="arc-label flex items-center gap-1.5"><SkipForwardIcon className="h-3 w-3" />{t.game.autoStartNextWave}</span>
                 <ToggleSwitch enabled={autoSkipWave} onToggle={toggleAutoSkipWave} size="sm" activeColor="orange" />
               </label>
             </div>

@@ -60,10 +60,10 @@ function CostBadge({
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 border px-1 py-0.5 font-mono tabular-nums leading-none ${
+      className={`arc-num inline-flex items-center gap-1 border px-1 py-0.5 font-mono tabular-nums leading-none ${
         cannotAfford
-          ? 'border-[rgba(255,75,62,0.45)] text-[var(--hl-alarm)]'
-          : 'border-[var(--hl-line-strong)] text-[var(--hl-caution)]'
+          ? 'border-[rgba(255,61,113,0.5)] text-[var(--arc-alert)]'
+          : 'border-[var(--arc-line-strong)] text-[var(--arc-caution)]'
       } ${sizeClass} ${className}`}
     >
       <CoinIcon className="h-2.5 w-2.5 shrink-0" />
@@ -88,7 +88,6 @@ export const TowerButton = ({
   const money = useGameStore((s) => s.money);
   const selectedTowerType = useGameStore((s) => s.selectedTowerType);
   const selectTowerType = useGameStore((s) => s.selectTowerType);
-  const mutatorRules = useGameStore((s) => s.mutatorRules);
   const towerCostMult = useGameStore((s) => s.difficultyModifiers.towerCostMult);
   const protocolDiscount = useGameStore((s) => s.protocolNextTowerDiscount);
   const displayCost = getDiscountedTowerCost(
@@ -106,11 +105,10 @@ export const TowerButton = ({
 
   const isTemporarilyUnlocked = isActive && (towerId === 'sniper' || towerId === 'frost');
   const isLocked = !isModContent && !unlockedTowers.includes(towerId as TowerType) && !isTemporarilyUnlocked;
-  const isBanned = mutatorRules?.bannedTowerTypes?.includes(towerId as TowerType) ?? false;
-  const cannotAfford = !isLocked && !isBanned && money < displayCost;
+  const cannotAfford = !isLocked && money < displayCost;
 
   const selected = selectedTowerType === towerId;
-  const disabled = isLocked || isBanned || cannotAfford;
+  const disabled = isLocked || cannotAfford;
 
   let isTutorialLocked = false;
   if (isActive) {
@@ -153,21 +151,18 @@ export const TowerButton = ({
     ? (towerData.damage * towerData.fireRate).toFixed(1)
     : towerData.damagePerSecond?.toFixed(1) ?? '—';
 
-  const lockReason = isBanned
-    ? t.game.towerTooltipBanned
-    : isLocked
-      ? t.game.towerTooltipLocked
-      : cannotAfford
-        ? t.game.towerTooltipNoMoney
-        : null;
+  const lockReason = isLocked
+    ? t.game.towerTooltipLocked
+    : cannotAfford
+      ? t.game.towerTooltipNoMoney
+      : null;
 
   const buttonClass = [
     'tower-btn relative w-full',
     sizeCfg.container,
     selected ? 'selected' : '',
-    isBanned ? '!border-[var(--hl-alarm)]' : '',
     isLocked ? 'disabled' : '',
-    cannotAfford && !isLocked && !isBanned ? 'disabled' : '',
+    cannotAfford && !isLocked ? 'disabled' : '',
     isTutorialLocked ? 'cursor-not-allowed opacity-30' : '',
   ].filter(Boolean).join(' ');
 
@@ -198,7 +193,7 @@ export const TowerButton = ({
 
           {displayMode !== 'compact' && (
             <>
-              <div className={`${sizeCfg.nameSize} w-full truncate text-center font-medium leading-tight text-[var(--hl-ink)]`}>
+              <div className={`${sizeCfg.nameSize} w-full truncate text-center font-medium leading-tight text-[var(--arc-ink)]`}>
                 {towerData.name}
               </div>
               <CostBadge
@@ -210,17 +205,17 @@ export const TowerButton = ({
           )}
 
           {displayMode === 'detailed' && (
-            <div className="grid w-full grid-cols-3 gap-px bg-[var(--hl-line)]">
+            <div className="grid w-full grid-cols-3 gap-px bg-[var(--arc-line)]">
               {[
                 { label: t.game.towerTooltipDamage, value: String(towerData.damage) },
                 { label: t.game.towerTooltipRange, value: String(towerData.range) },
                 { label: t.game.towerTooltipDps, value: dps },
               ].map((cell) => (
-                <span key={cell.label} className="flex flex-col items-center bg-[var(--hl-void-2)] px-0.5 py-0.5">
-                  <span className="font-mono text-[7.5px] uppercase tracking-[0.06em] text-[var(--hl-ink-4)]">
+                <span key={cell.label} className="flex flex-col items-center bg-[var(--arc-void-2)] px-0.5 py-0.5">
+                  <span className="font-mono text-[7.5px] uppercase tracking-[0.06em] text-[var(--arc-ink-4)]">
                     {cell.label}
                   </span>
-                  <span className="font-mono text-[9px] font-semibold tabular-nums text-[var(--hl-ink-2)]">
+                  <span className="font-mono text-[9px] font-semibold tabular-nums text-[var(--arc-ink-2)]">
                     {cell.value}
                   </span>
                 </span>
@@ -231,7 +226,7 @@ export const TowerButton = ({
 
         {isModContent && (
           <span
-            className="absolute -right-px -top-px flex h-4 items-center border border-[var(--hl-line-strong)] bg-[var(--hl-void-2)] px-1 font-mono text-[8px] uppercase tracking-[0.06em] text-[var(--hl-ink-3)]"
+            className="absolute -right-px -top-px flex h-4 items-center border border-[var(--arc-line-strong)] bg-[var(--arc-void-2)] px-1 font-mono text-[8px] uppercase tracking-[0.06em] text-[var(--arc-ink-3)]"
             title={towerData.modName ?? 'MOD'}
           >
             <PuzzleIcon className="h-2 w-2" />
@@ -239,22 +234,14 @@ export const TowerButton = ({
         )}
 
         {isLocked && (
-          <span className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 bg-[rgba(6,7,10,0.72)]">
-            <LockIcon className="h-4 w-4 text-[var(--hl-ink-3)]" />
-            <span className="hl-label">{t.game.towerTooltipLocked}</span>
+          <span className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 bg-[rgba(6,10,20,0.78)]">
+            <LockIcon className="h-4 w-4 text-[var(--arc-ink-3)]" />
+            <span className="arc-label">{t.game.towerTooltipLocked}</span>
           </span>
         )}
 
-        {isBanned && !isLocked && (
-          <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[rgba(6,7,10,0.72)]">
-            <span className="border border-[rgba(255,75,62,0.5)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--hl-alarm)]">
-              {t.game.towerBanned}
-            </span>
-          </span>
-        )}
-
-        {cannotAfford && !isLocked && !isBanned && (
-          <span className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-[rgba(255,75,62,0.5)]" />
+        {cannotAfford && !isLocked && (
+          <span className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-[rgba(255,61,113,0.65)]" />
         )}
       </button>
 
@@ -263,7 +250,7 @@ export const TowerButton = ({
           {isHovered && (
             <motion.div
               key={`tooltip-${towerId}`}
-              className="pointer-events-none fixed z-[9999] w-56 border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3"
+              className="arc-panel pointer-events-none fixed z-[9999] w-56 p-3"
               style={{ top: tooltipPos.top, left: tooltipPos.left }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -271,13 +258,13 @@ export const TowerButton = ({
               transition={{ duration: 0.12 }}
             >
               <div className="mb-2 flex items-start gap-2.5">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-[var(--hl-line)]">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)]">
                   <TowerPreview towerId={towerId} size={26} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-[13px] font-semibold text-[var(--hl-ink)]">{towerData.name}</div>
+                  <div className="arc-title truncate text-[13px] font-semibold text-[var(--arc-ink)]">{towerData.name}</div>
                   {isModContent && towerData.modName && (
-                    <div className="mt-0.5 flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--hl-ink-3)]">
+                    <div className="mt-0.5 flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--arc-ink-3)]">
                       <PuzzleIcon className="h-2.5 w-2.5 shrink-0" />
                       <span className="truncate">{towerData.modName}</span>
                     </div>
@@ -289,8 +276,8 @@ export const TowerButton = ({
                 <p
                   className={`mb-2 border-l-2 px-2 py-1 font-mono text-[9.5px] uppercase tracking-[0.06em] ${
                     cannotAfford
-                      ? 'border-[var(--hl-caution)] text-[var(--hl-caution)]'
-                      : 'border-[var(--hl-alarm)] text-[var(--hl-alarm)]'
+                      ? 'border-[var(--arc-caution)] text-[var(--arc-caution)]'
+                      : 'border-[var(--arc-alert)] text-[var(--arc-alert)]'
                   }`}
                 >
                   {lockReason}
@@ -298,10 +285,10 @@ export const TowerButton = ({
               )}
 
               {towerData.description && (
-                <p className="mb-2.5 text-[10.5px] leading-relaxed text-[var(--hl-ink-3)]">{towerData.description}</p>
+                <p className="mb-2.5 text-[10.5px] leading-relaxed text-[var(--arc-ink-3)]">{towerData.description}</p>
               )}
 
-              <div className="border-t border-[var(--hl-line)]">
+              <div className="border-t border-[var(--cn-line-soft)]">
                 {[
                   { label: t.game.towerTooltipDamage, value: String(towerData.damage) },
                   { label: t.game.towerTooltipRange, value: String(towerData.range) },
@@ -311,14 +298,14 @@ export const TowerButton = ({
                 ].map((stat) => (
                   <div
                     key={stat.label}
-                    className="flex items-baseline justify-between border-b border-[var(--hl-line)] py-1 last:border-b-0"
+                    className="flex items-baseline justify-between border-b border-[var(--cn-line-soft)] py-1 last:border-b-0"
                   >
-                    <span className="hl-label">{stat.label}</span>
+                    <span className="arc-label">{stat.label}</span>
                     <span
-                      className={`font-mono text-[11px] font-semibold tabular-nums ${
+                      className={`arc-num font-mono text-[11px] font-semibold tabular-nums ${
                         stat.label === t.game.towerTooltipPrice && cannotAfford
-                          ? 'text-[var(--hl-alarm)]'
-                          : 'text-[var(--hl-ink)]'
+                          ? 'text-[var(--arc-alert)]'
+                          : 'text-[var(--arc-ink)]'
                       }`}
                     >
                       {stat.value}
@@ -328,26 +315,26 @@ export const TowerButton = ({
               </div>
 
               {(towerData.slowEffect || towerData.poisonEffect || towerData.splash || towerData.lightningEffect) && (
-                <div className="mt-2 border-t border-[var(--hl-line)] pt-2">
-                  <div className="hl-label mb-1.5">{t.game.towerTooltipSpecialEffects}</div>
+                <div className="mt-2 border-t border-[var(--cn-line-soft)] pt-2">
+                  <div className="arc-label mb-1.5">{t.game.towerTooltipSpecialEffects}</div>
                   <div className="flex flex-wrap gap-1">
                     {towerData.slowEffect && (
-                      <span className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9px] text-[var(--hl-reach)]">
+                      <span className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9px] text-[var(--arc-reach)]">
                         {t.game.slow}
                       </span>
                     )}
                     {towerData.poisonEffect && (
-                      <span className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9px] text-[var(--hl-vital)]">
+                      <span className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9px] text-[var(--arc-vital)]">
                         {t.game.poisonDmg}
                       </span>
                     )}
                     {towerData.splash && (
-                      <span className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9px] text-[var(--hl-caution)]">
+                      <span className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9px] text-[var(--arc-caution)]">
                         {t.game.splashDmg}
                       </span>
                     )}
                     {towerData.lightningEffect && (
-                      <span className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9px] text-[var(--hl-caution)]">
+                      <span className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9px] text-[var(--arc-caution)]">
                         {t.game.chainTargets}
                       </span>
                     )}

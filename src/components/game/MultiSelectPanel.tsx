@@ -12,7 +12,7 @@ import { useGetTowerData } from './hooks';
 import { canBatchUpgradeTower, getTowerUpgradeCost } from '@/data/towerUpgradeCost';
 import { requestBatchSell, summarizeBatchSell } from '@/store/sellConfirm';
 import { resolveBatchUpgradeHint } from '@/data/batchUpgradeHint';
-import { Deck } from '@/components/hl';
+import { Deck, Num } from '@/components/hl';
 
 export function MultiSelectPanel() {
   const { t } = useTranslation();
@@ -23,7 +23,6 @@ export function MultiSelectPanel() {
   const batchUpgradeSelected = useGameStore((s) => s.batchUpgradeSelected);
   const batchSellSelected = useGameStore((s) => s.batchSellSelected);
   const confirmSell = useSettingsStore((s) => s.gameplay.confirmSell);
-  const sellingDisabled = Boolean(useGameStore((s) => s.mutatorRules?.sellingDisabled));
   const getTowerData = useGetTowerData();
 
   if (multiSelectedTowerIds.length === 0) return null;
@@ -39,7 +38,7 @@ export function MultiSelectPanel() {
     };
   });
   const batchSummary = summarizeBatchSell(batchTowers, t.game.multiSelectTowers);
-  const canSellBatch = !sellingDisabled && batchSummary.towerIds.length > 0;
+  const canSellBatch = batchSummary.towerIds.length > 0;
 
   let totalUpgradeCost = 0;
   let upgradableCount = 0;
@@ -75,23 +74,21 @@ export function MultiSelectPanel() {
       >
         <Deck notch className="flex items-stretch overflow-hidden">
           {/* 左側：選擇統計 */}
-          <div className="min-w-[168px] border-r border-[var(--hl-line)] px-3 py-2.5">
+          <div className="min-w-[168px] border-r border-[var(--cn-line-soft)] px-3 py-2.5">
             <div className="flex items-center gap-1.5">
-              <CheckIcon className="h-3 w-3 text-[var(--hl-signal)]" />
-              <span className="hl-label">{t.game.multiSelectSelected}</span>
+              <CheckIcon className="h-3 w-3 text-[var(--arc-gold)]" />
+              <span className="arc-label">{t.game.multiSelectSelected}</span>
             </div>
             <div className="mt-1.5 flex items-baseline gap-1.5">
-              <span className="font-mono text-[18px] font-semibold tabular-nums leading-none text-[var(--hl-ink)]">
-                {selectedTowers.length}
-              </span>
-              <span className="font-mono text-[10px] text-[var(--hl-ink-3)]">{t.game.multiSelectTowers}</span>
+              <Num value={selectedTowers.length} tone="ink" size="md" className="font-mono font-semibold tabular-nums leading-none" />
+              <span className="font-mono text-[10px] text-[var(--arc-ink-3)]">{t.game.multiSelectTowers}</span>
             </div>
             <div className="mt-1.5 flex flex-wrap items-center gap-1">
               {Object.entries(typeCount).slice(0, 4).map(([type, count]) => {
                 return (
                   <span
                     key={type}
-                    className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[9px] tabular-nums text-[var(--hl-ink-2)]"
+                    className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9px] tabular-nums text-[var(--arc-ink-2)]"
                     title={type}
                   >
                     {type} ×{count}
@@ -99,7 +96,7 @@ export function MultiSelectPanel() {
                 );
               })}
               {Object.keys(typeCount).length > 4 && (
-                <span className="font-mono text-[9px] text-[var(--hl-ink-4)]">
+                <span className="font-mono text-[9px] text-[var(--arc-ink-4)]">
                   +{Object.keys(typeCount).length - 4}
                 </span>
               )}
@@ -114,19 +111,17 @@ export function MultiSelectPanel() {
               batchUpgradeSelected();
             }}
             disabled={!canUpgradeAll}
-            className={`flex min-w-[112px] flex-col items-start justify-center gap-1 border-r border-[var(--hl-line)] px-3 py-2.5 text-left transition-colors ${
+            className={`flex min-w-[112px] flex-col items-start justify-center gap-1 border-r border-[var(--cn-line-soft)] px-3 py-2.5 text-left transition-colors ${
               canUpgradeAll
-                ? 'text-[var(--hl-signal)] hover:bg-[var(--hl-signal-veil)]'
-                : 'cursor-not-allowed text-[var(--hl-ink-4)]'
+                ? 'text-[var(--arc-gold)] hover:brightness-110 hover:bg-[var(--arc-gold-veil)]'
+                : 'cursor-not-allowed text-[var(--arc-ink-4)]'
             }`}
           >
             <span className="flex items-center gap-1.5">
               <UpArrowIcon className="h-3 w-3" />
-              <span className="hl-label">{t.game.multiSelectUpgrade}</span>
+              <span className="arc-label">{t.game.multiSelectUpgrade}</span>
             </span>
-            <span className="font-mono text-[15px] font-semibold tabular-nums leading-none">
-              {upgradeHint === 'none' ? t.game.multiSelectNotEnough : `$${totalUpgradeCost}`}
-            </span>
+            <Num value={upgradeHint === 'none' ? t.game.multiSelectNotEnough : `$${totalUpgradeCost}`} tone="ink" size="md" className="font-mono font-semibold tabular-nums leading-none" />
           </button>
 
           {/* 批次出售 */}
@@ -136,24 +131,23 @@ export function MultiSelectPanel() {
               const intent = requestBatchSell({
                 towers: batchTowers,
                 confirmSell,
-                sellingDisabled,
                 unitLabel: t.game.multiSelectTowers,
               });
               if (intent !== 'sell_now') return;
               batchSellSelected();
             }}
             disabled={!canSellBatch}
-            className={`flex min-w-[104px] flex-col items-start justify-center gap-1 border-r border-[var(--hl-line)] px-3 py-2.5 text-left transition-colors ${
+            className={`flex min-w-[104px] flex-col items-start justify-center gap-1 border-r border-[var(--cn-line-soft)] px-3 py-2.5 text-left transition-colors ${
               canSellBatch
-                ? 'text-[var(--hl-alarm)] hover:bg-[rgba(255,75,62,0.1)]'
-                : 'cursor-not-allowed text-[var(--hl-ink-4)]'
+                ? 'text-[var(--arc-alert)] hover:brightness-110 hover:bg-[rgba(255,61,113,0.12)]'
+                : 'cursor-not-allowed text-[var(--arc-ink-4)]'
             }`}
           >
             <span className="flex items-center gap-1.5">
               <TrashIcon className="h-3 w-3" />
-              <span className="hl-label">{t.game.multiSelectSell}</span>
+              <span className="arc-label">{t.game.multiSelectSell}</span>
             </span>
-            <span className="flex items-baseline gap-1 font-mono text-[15px] font-semibold tabular-nums leading-none">
+            <span className="arc-num flex items-baseline gap-1 font-mono text-[15px] font-semibold tabular-nums leading-none">
               <MoneyBagIcon className="h-3 w-3 self-center" />
               +${batchSummary.refund}
             </span>
@@ -163,7 +157,7 @@ export function MultiSelectPanel() {
           <button
             type="button"
             onClick={clearMultiSelect}
-            className="flex w-10 items-center justify-center text-[var(--hl-ink-3)] transition-colors hover:bg-[var(--hl-deck-2)] hover:text-[var(--hl-ink)]"
+            className="flex w-10 items-center justify-center text-[var(--arc-ink-3)] transition-colors hover:bg-[var(--arc-deck-2)] hover:text-[var(--arc-ink)]"
             title={t.common.cancel}
           >
             <CrossIcon className="h-4 w-4" />

@@ -6,8 +6,7 @@ import { useGameStore } from '@/store/gameStore';
 import { useTutorialStore } from '@/store/tutorialStore';
 import { useTranslation } from '@/i18n';
 import { SearchIcon, CrossIcon } from '@/components/ui/Icons';
-import { Btn, Deck, Num, SegHead } from '@/components/hl';
-import { getMutatorChallengeById } from '@/data/mutatorChallengeData';
+import { Btn, Deck, IconBtn, Num, SegHead } from '@/components/hl';
 
 /** 儀表帶單格：mono 標籤 + mono 數值，右側 1px 分隔線 */
 function BandCell({
@@ -27,13 +26,13 @@ function BandCell({
 }) {
   return (
     <div
-      className={`flex h-full flex-col justify-center gap-1 border-r border-[var(--hl-line)] px-3 ${wide ? 'min-w-[92px]' : 'min-w-[74px]'}`}
+      className={`flex h-full flex-col justify-center gap-1 border-r border-[var(--arc-line)] px-3 ${wide ? 'min-w-[92px]' : 'min-w-[74px]'}`}
       title={title}
     >
-      <span className="hl-label truncate">{label}</span>
+      <span className="arc-label truncate">{label}</span>
       <span className="flex items-baseline gap-1">
         <Num value={value} tone={tone} size="sm" />
-        {hint && <span className="font-mono text-[9.5px] text-[var(--hl-ink-4)]">{hint}</span>}
+        {hint && <span className="font-mono text-[9.5px] text-[var(--arc-ink-4)]">{hint}</span>}
       </span>
     </div>
   );
@@ -56,8 +55,6 @@ export const TopStatsBar = () => {
   const autoBattleStats = useGameStore((s) => s.autoBattleStats);
   const autoBattleStrategy = useGameStore((s) => s.autoBattleStrategy);
   const tutorialActive = useTutorialStore((s) => s.isActive);
-  const mutatorChallengeId = useGameStore((s) => s.mutatorChallengeId);
-  const mutatorChallenge = mutatorChallengeId ? getMutatorChallengeById(mutatorChallengeId) : undefined;
 
   const waveValue = endlessMode ? currentWave : maxWaves > 0 ? `${currentWave}/${maxWaves}` : currentWave;
 
@@ -92,38 +89,23 @@ export const TopStatsBar = () => {
           tone="muted"
           title={t.game.score}
         />
-
-        {mutatorChallenge && (
-          <div className="hidden h-full items-center gap-1.5 border-r border-[var(--hl-line)] px-3 md:flex">
-            {mutatorChallenge.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="border border-[var(--hl-line-strong)] px-1.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--hl-ink-3)]"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <button
-          type="button"
-          className={`flex h-full w-9 shrink-0 items-center justify-center border-r border-[var(--hl-line)] transition-colors ${
+        <IconBtn
+          label={t.game.zoomDetailInfo}
+          className={`flex h-full w-9 shrink-0 items-center justify-center rounded-sm border-r border-[var(--arc-line)] px-0 ${
             tutorialActive
-              ? 'cursor-not-allowed text-[var(--hl-ink-4)]'
-              : 'text-[var(--hl-ink-3)] hover:bg-[var(--hl-deck-2)] hover:text-[var(--hl-ink)]'
+              ? 'cursor-not-allowed text-[var(--arc-ink-4)]'
+              : 'text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]'
           }`}
           onClick={() => !tutorialActive && setShowStatsDialog(true)}
           disabled={tutorialActive}
-          title={t.game.zoomDetailInfo}
         >
           <SearchIcon className="h-3.5 w-3.5" />
-        </button>
+        </IconBtn>
       </div>
 
       {showStatsDialog && createPortal(
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[rgba(6,7,10,0.82)] p-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[rgba(6,10,20,0.86)] p-4"
           onClick={() => setShowStatsDialog(false)}
         >
           <motion.div
@@ -134,33 +116,32 @@ export const TopStatsBar = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <Deck notch className="flex max-h-[86vh] flex-col overflow-hidden">
-              <header className="flex items-start gap-3 border-b border-[var(--hl-line)] px-4 py-3">
+              <header className="flex items-start gap-3 border-b border-[var(--arc-line)] px-4 py-3">
                 <div className="min-w-0 flex-1">
-                  <div className="hl-label">theater / stats</div>
-                  <h2 className="mt-1 text-[17px] font-semibold leading-tight text-[var(--hl-ink)]">
+                  <div className="arc-label">theater / stats</div>
+                  <h2 className="arc-title mt-1 text-[17px] font-semibold leading-tight text-[var(--arc-ink)]">
                     {t.game.statsOverview}
                   </h2>
                 </div>
-                <button
-                  type="button"
-                  className="flex h-7 w-7 shrink-0 items-center justify-center border border-[var(--hl-line-strong)] text-[var(--hl-ink-3)] transition-colors hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]"
+                <IconBtn
+                  label={t.common.close}
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm px-0 text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]"
                   onClick={() => setShowStatsDialog(false)}
-                  aria-label={t.common.close}
                 >
                   <CrossIcon className="h-3.5 w-3.5" />
-                </button>
+                </IconBtn>
               </header>
 
               <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
-                <dl className="grid grid-cols-2 gap-px bg-[var(--hl-line)]">
+                <dl className="grid grid-cols-2 gap-px bg-[var(--arc-line)]">
                   {[
                     { label: t.game.money, value: `$${Math.floor(money)}`, tone: 'signal' as const },
                     { label: t.game.health, value: health, tone: health <= 3 ? ('alarm' as const) : ('ink' as const) },
                     { label: endlessMode ? t.pathSelection.endlessMode : t.game.wave, value: waveValue, tone: 'ink' as const },
                     { label: t.game.score, value: score, tone: 'ink' as const },
                   ].map((cell) => (
-                    <div key={cell.label} className="bg-[var(--hl-deck)] px-3 py-2.5">
-                      <dt className="hl-label">{cell.label}</dt>
+                    <div key={cell.label} className="bg-[var(--arc-deck)] px-3 py-2.5">
+                      <dt className="arc-label">{cell.label}</dt>
                       <dd className="mt-1.5">
                         <Num value={cell.value} tone={cell.tone} size="md" />
                       </dd>
@@ -183,9 +164,9 @@ export const TopStatsBar = () => {
                     ].map((row) => (
                       <div
                         key={row.k}
-                        className="flex items-baseline justify-between gap-4 border-b border-[var(--hl-line)] py-1.5 last:border-b-0"
+                        className="flex items-baseline justify-between gap-4 border-b border-[var(--arc-line)] py-1.5 last:border-b-0"
                       >
-                        <span className="hl-label">{row.k}</span>
+                        <span className="arc-label">{row.k}</span>
                         <Num value={row.v} size="sm" />
                       </div>
                     ))}
@@ -213,9 +194,9 @@ export const TopStatsBar = () => {
                       ].map((row) => (
                         <div
                           key={row.k}
-                          className="flex items-baseline justify-between gap-4 border-b border-[var(--hl-line)] py-1.5 last:border-b-0"
+                          className="flex items-baseline justify-between gap-4 border-b border-[var(--arc-line)] py-1.5 last:border-b-0"
                         >
-                          <span className="hl-label">{row.k}</span>
+                          <span className="arc-label">{row.k}</span>
                           <Num value={row.v} size="sm" />
                         </div>
                       ))}
@@ -224,7 +205,7 @@ export const TopStatsBar = () => {
                 )}
               </div>
 
-              <footer className="border-t border-[var(--hl-line)] p-3">
+              <footer className="border-t border-[var(--arc-line)] p-3">
                 <Btn variant="line" block onClick={() => setShowStatsDialog(false)}>
                   {t.common.close}
                 </Btn>

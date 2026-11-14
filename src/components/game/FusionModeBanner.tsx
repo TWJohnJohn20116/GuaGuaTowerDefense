@@ -22,12 +22,12 @@ export function FusionModeBanner() {
   });
 
   return (
-    <div className="absolute left-1/2 top-12 z-[101] flex max-w-[min(92vw,560px)] -translate-x-1/2 items-center gap-3 border border-[var(--hl-line)] border-l-2 border-l-[var(--hl-caution)] bg-[var(--hl-deck)] px-3 py-2">
-      <SparklesIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-caution)]" />
-      <span className="hl-sub truncate text-[11.5px] text-[var(--hl-ink-2)]">{hint}</span>
+    <div className="arc-panel--flat absolute left-1/2 top-12 z-[101] flex max-w-[min(92vw,560px)] -translate-x-1/2 items-center gap-3 border-l-2 border-l-[var(--arc-caution)] px-3 py-2">
+      <SparklesIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-caution)]" />
+      <span className="arc-micro truncate text-[11.5px] text-[var(--arc-ink-2)]">{hint}</span>
       <button
         type="button"
-        className="shrink-0 border border-[var(--hl-line-strong)] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--hl-ink-2)] transition-colors hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]"
+        className="arc-btn arc-btn--ghost h-7 shrink-0 px-2 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--arc-ink-2)] hover:text-[var(--arc-ink)]"
         onClick={() => useGameStore.getState().cancelFusion()}
       >
         {t.towers.fusion.cancel}

@@ -62,8 +62,8 @@ export function BossWarning() {
           className="pointer-events-none fixed inset-0 z-[9999] flex items-center justify-center bg-[rgba(6,7,10,0.82)] p-4"
         >
           {/* 上下 1px 警報線，不用閃爍紅框 */}
-          <span className="absolute inset-x-0 top-0 h-px bg-[rgba(255,75,62,0.6)]" />
-          <span className="absolute inset-x-0 bottom-0 h-px bg-[rgba(255,75,62,0.6)]" />
+          <span className="absolute inset-x-0 top-0 h-px bg-[rgba(255,61,113,0.6)]" />
+          <span className="absolute inset-x-0 bottom-0 h-px bg-[rgba(255,61,113,0.6)]" />
 
           <motion.div
             initial={{ y: -10, opacity: 0 }}
@@ -72,21 +72,21 @@ export function BossWarning() {
             transition={{ duration: 0.18 }}
             className="w-full max-w-[420px]"
           >
-            <Deck notch className="border-[rgba(255,75,62,0.45)]">
-              <header className="flex items-center gap-3 border-b border-[var(--hl-line)] px-4 py-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-[rgba(255,75,62,0.45)] text-[var(--hl-alarm)]">
+            <Deck notch className="border-[rgba(255,61,113,0.5)]">
+              <header className="flex items-center gap-3 border-b border-[var(--cn-line-soft)] px-4 py-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-[rgba(255,61,113,0.5)] text-[var(--arc-alert)]">
                   <SkullIcon className="h-4 w-4" />
                 </span>
                 <div className="min-w-0">
-                  <div className="hl-label text-[var(--hl-alarm)]">threat / boss</div>
-                  <h2 className="mt-1 truncate text-[17px] font-semibold leading-tight text-[var(--hl-ink)]">
+                  <div className="arc-label text-[var(--arc-alert)]">threat / boss</div>
+                  <h2 className="arc-title mt-1 truncate text-[17px] font-semibold leading-tight text-[var(--arc-ink)]">
                     {showWarning.type === 'miniboss' ? t.game.eliteEnemy : t.game.bossIncoming}
                   </h2>
                 </div>
               </header>
               <div className="flex items-center gap-2 px-4 py-3">
-                <WarningIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-caution)]" />
-                <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-[var(--hl-caution)]">
+                <WarningIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-caution)]" />
+                <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-[var(--arc-caution)]">
                   {t.game.bossSpawned}
                 </span>
               </div>
