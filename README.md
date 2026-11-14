@@ -1,5 +1,7 @@
 # 瓜瓜塔防遊戲
 
+[![CI](https://github.com/TWJohnJohn20116/GuaGuaTowerDefense/actions/workflows/ci.yml/badge.svg)](https://github.com/TWJohnJohn20116/GuaGuaTowerDefense/actions/workflows/ci.yml)
+
 一個功能完備的現代化塔防遊戲，使用 Tauri 2 + React 18 + TypeScript 開發，採用北歐風格深色主題。
 
 ## 遊戲特色
