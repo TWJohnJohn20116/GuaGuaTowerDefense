@@ -128,7 +128,9 @@ services → types（只能 import type 或由入口注入）
 
 - ✅ 測試是行為斷言（真的呼叫 action、真的跑一幀），不是讀原始碼比對字串。
 - ✅ fixture 用 `src/test/fixtures.ts`（`makeEnemy` / `makeTower` / `makeSkill`），不要 `as Enemy` 硬轉。
-- ❌ 不新增死 export／死檔案：加完 export 若沒人用，就別加（目前 88 個零引用 export、0 個死檔；TD-18 刪掉 7 檔後 `utils/animations.ts` 的 45 個 export 也一起消失）。
+- ❌ 不新增死 export／死檔案：加完 export 若沒人用，就別加（TD-18 刪掉 7 個死檔、TD-19 清空 444 個零引用 export 後，現況是 **0 個零引用 export、0 個死檔**；只要不是給外部用的，就不要加 `export`）。
+  - 判定方式：數的是「定義檔以外的出現次數」，不是「檔內有沒有用到」。檔內自用卻標了 `export` 的一律收成模組私有。
+  - 刪整段宣告**只准用 TypeScript AST 定位**（`getFullStart()`／`getEnd()`）；用括號配對數深度曾在 `types/game.ts` 把 `GameState` 與 `GameScene` 一起吃掉，commit 後來整批 revert。
 - ❌ 不動 `dist/`、`.shots/`、`src/components/scenes/encyclopedia/srcFileManifest.json`（生成物，build 會覆寫）。
 
 ### 4.7 編輯方式：一律用編輯工具，不准用腳本改檔
@@ -291,7 +293,7 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 |---|---|---|
 | `as any` / `: any` | 0 / 0 | 卡住就補型別或收斂成聯集；不要放寬回 any（TD-13、TD-14 已清空） |
 | 硬編碼中文（可見字串） | 445 條 | `t(` + `locales/zh-TW.ts` |
-| 零引用 export / 死檔 | 88 / 0 | 不確定就先不加；加了就要有引用 |
+| 零引用 export / 死檔 | 0 / 0 | 不確定就先不加；加了就要有引用（判定＝定義檔以外的出現次數） |
 | 新 barrel `index.ts` | 0 個無人 import 的檔案（TD-18 已清空 5 個死 barrel） | 直接 import 目標檔 |
 | `console.log` | 專案用 `console.error` 於錯誤路徑 | 沿用錯誤路徑的 `console.error`，不要加 log |
 | > 888 行的新檔 | 7 個既有上帝檔 | 先拆模組 |

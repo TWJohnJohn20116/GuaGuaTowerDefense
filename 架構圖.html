@@ -1669,7 +1669,7 @@
     <p class="lead"><b>編號規則：</b>每一項都有固定編號 <span class="tid">TD-01</span>～<span class="tid">TD-42</span>，
       字母前綴代表分類（A 流程與版控、B 架構分層、C 型別、D 死碼重複、E 效能打包、F 可觀測性、G 資料 i18n、H 資產、I 測試）。
       commit、PR、issue、回報請直接寫 <code>TD-13</code>，不要只寫「那個 as any 的債」。</p>
-    <p class="lead"><b>還債進度：</b><span class="sev done">11 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
+    <p class="lead"><b>還債進度：</b><span class="sev done">12 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
       <span class="tid">TD-01</span> 已建立版本控制（branch <code>main</code>、基準 commit <code>1f347c7</code>、1,177 檔納入）；
       <span class="tid">TD-09</span> 場景清單三份真相收斂成一份（<code>SceneName = GameScene</code>，Dev 面板選單改由 <code>Record&lt;GameScene, string&gt;</code> 產生，補回漏掉的 10 個場景）；
       <span class="tid">TD-10</span> 刪掉從未被載入的 <code>data/gameData/index.ts</code>（同名 barrel 只剩檔案版一個入口，並清掉 3 處路徑字串與 10 語系的死文案）；
@@ -1681,9 +1681,10 @@
       <span class="tid">TD-14</span> 14 處 <code>: any</code> 全數清空：<code>grid: any[][]</code> → <code>Tile[][]</code>、6 個效果 buffer 改 <code>DamageText[]</code>／<code>ImpactParticle[]</code>／<code>DeathAnimation[]</code>，另有一處是變數名誤判（改名 <code>someEnemyTookDamage</code>）；棘輪基準 14 → 0；
       <span class="tid">TD-15</span> <code>TowerData</code> 的 Mod 欄位（<code>flameEffect</code>／<code>windEffect</code>／<code>laserEffect</code>／<code>lightningEffect</code>／<code>moneyGeneration</code>／<code>damagePerSecond</code>）早已是可選屬性，最後 7 處殘留斷言已隨 TD-13 刪除；
       <span class="tid">TD-18</span> 7 個零引用檔案全刪（5 個 barrel、<code>ReplayListCard.tsx</code>、以及只被死 barrel 轉出的 <code>utils/animations.ts</code> 309 行）：零引用 export 133 → 88，沒有任何 import 的檔案 6 → 0；
+      <span class="tid">TD-19</span> 零引用 export 全靠實測清空：444 個零外部引用先分「真死 71／檔內自用 373」，373 個收成模組私有、71 個分兩批刪除（含整組被 <code>TutorialPageData.ts</code> 取代的舊教材模組 484 行），重掃 0 個；
       <span class="tid">TD-07</span> 七個上帝檔案減為六個（<code>Icons.tsx</code> 已拆）；
       <span class="tid">TD-20</span> <code>Icons.tsx</code> 2,426 行 → 8 個分區模組 + 12 行門面，主 chunk 1,165,958 → <b>1,154,208 bytes</b>；
-      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 28 項待處理。</p>
+      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 27 項待處理。</p>
 
     <div class="kpi">
       <div class="good"><b>0</b><span>TODO / FIXME / @ts-ignore</span></div>
@@ -1691,7 +1692,7 @@
       <div class="good"><b>0</b><span>處 <code>as any</code></span></div>
       <div class="good"><b>0</b><span>處 <code>: any</code></span></div>
       <div class="good"><b>0</b><span>個 eslint-disable（專案沒有 ESLint）</span></div>
-      <div class="bad"><b>88</b><span>個零引用 export</span></div>
+      <div class="good"><b>0</b><span>個零引用 export</span></div>
       <div class="good"><b>0</b><span>個檔案沒有任何 import</span></div>
       <div class="bad"><b>445</b><span>條硬編碼中文（components 內）</span></div>
       <div class="mid"><b>1.15<small>MB</small></b><span>主 chunk（gzip 未計）</span></div>
@@ -1862,11 +1863,10 @@
           <td>已還：7 檔全部 <code>git rm</code>；grep 過 <code>@/utils</code>、<code>components/game</code>、<code>./utils</code>、<code>../game</code> 等相對路徑，命中的都是別目錄的同名模組。沒有任何 import 的檔案 6 → 0，零引用 export 133 → 88。</td>
         </tr>
         <tr>
-          <td><span class="tid">TD-19</span><span class="sev p2">P2</span><b>D2 88 個零引用 export</b></td>
-          <td>原 133 個，其中 <code>utils/animations.ts</code> 的 45 個已隨 TD-18 整檔刪除（88 是 133 − 45 的算術差，尚未逐個重掃）。剩下的還有：
-            <code>shopData.ts</code> 5 個、<code>TutorialPageComponents.tsx</code> 5 個、<code>Icons.tsx</code> 6 個…</td>
+          <td><span class="tid">TD-19</span><span class="sev done">✓ 已還 · P2</span><b>D2 零引用 export</b></td>
+          <td>實測 955 檔、2,539 個 export：外顯零引用 <b>444</b> 個（文件原本寫的 88 是「133 − 45」的算術差，不是掃描結果）。分兩類處理：<b>373</b> 個只是檔內自用 → 拿掉 <code>export</code> 收成模組私有；<b>71</b> 個是宣告之外零出現的真死宣告 → 分兩批刪除。重掃結果 <b>0</b> 個。</td>
           <td>讀者會以為是公共 API；改動時不敢刪，債越積越多。</td>
-          <td>一次清一批：<code>shopData.ts</code> → <code>TutorialPageComponents.tsx</code> → <code>Icons.tsx</code></td>
+          <td>已還：373 個收成私有（196 檔，372 進 372 出）；真死 71 個分兩批——批次 A 用 AST 精準切除 50 個函式／常數／型別，批次 B 刪掉整組零 import 的舊教材模組（<code>TutorialComponents.tsx</code>＋<code>TutorialData.ts</code>，484 行）與 4 個無人讀的資料常數，最後 2 個收成私有。<b>教訓</b>：括號配對式「刪整段宣告」在 <code>types/game.ts</code> 吃掉 <code>GameState</code> 與 <code>GameScene</code>，已 revert（<code>587177c</code>），只准用 AST 定位。</td>
         </tr>
         <tr>
           <td><span class="tid">TD-20</span><span class="sev p1">◐ 部分償還 · P2</span><b>D3 <code>Icons.tsx</code> 237 個 icon 全擠在單檔</b></td>
