@@ -40,7 +40,7 @@
 
 | 目的 | 指令 | 位置 | 備註 |
 |---|---|---|---|
-| 開發（瀏覽器） | `npm run dev` | ❌ 使用者自己跑 | 埠 1421，`?scene=game` 可跳場景（僅 DEV） |
+| 開發（瀏覽器） | `npm run dev` | ❌ 使用者自己跑 | 埠由系統動態分配（`VITE_DEV_PORT` 可指定），`?scene=game` 可跳場景（僅 DEV） |
 | 開發（桌面） | `npm run tauri dev` | ❌ 使用者自己跑 | 會先跑 `predev` 產生百科檔案清單 |
 | 型別 | `npm run typecheck` | ❌ CI | `tsc --noEmit`，0 error 是底線 |
 | 測試 | `npm run test` | ❌ CI | Vitest + jsdom，測試檔在 `src/test/**/*.test.ts` |
