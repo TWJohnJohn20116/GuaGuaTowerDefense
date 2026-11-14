@@ -1669,7 +1669,7 @@
     <p class="lead"><b>編號規則：</b>每一項都有固定編號 <span class="tid">TD-01</span>～<span class="tid">TD-42</span>，
       字母前綴代表分類（A 流程與版控、B 架構分層、C 型別、D 死碼重複、E 效能打包、F 可觀測性、G 資料 i18n、H 資產、I 測試）。
       commit、PR、issue、回報請直接寫 <code>TD-13</code>，不要只寫「那個 as any 的債」。</p>
-    <p class="lead"><b>還債進度：</b><span class="sev done">7 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
+    <p class="lead"><b>還債進度：</b><span class="sev done">10 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
       <span class="tid">TD-01</span> 已建立版本控制（branch <code>main</code>、基準 commit <code>1f347c7</code>、1,177 檔納入）；
       <span class="tid">TD-09</span> 場景清單三份真相收斂成一份（<code>SceneName = GameScene</code>，Dev 面板選單改由 <code>Record&lt;GameScene, string&gt;</code> 產生，補回漏掉的 10 個場景）；
       <span class="tid">TD-10</span> 刪掉從未被載入的 <code>data/gameData/index.ts</code>（同名 barrel 只剩檔案版一個入口，並清掉 3 處路徑字串與 10 語系的死文案）；
@@ -1677,20 +1677,23 @@
       <span class="tid">TD-16</span> 18 個無效的 <code>eslint-disable</code> 全數清空（10 處改寫成 TD-17 的說明），棘輪基準 18 → 0；
       <span class="tid">TD-11</span> 測試專用 API 移出正式碼：3 個零引用 export 直接刪（136 → 133），檢查器與 class 契約樣本搬進 <code>src/test/contracts/</code>；
       <span class="tid">TD-17</span> 10 處手動接管的 effect deps 逐一查核：3 處是真 stale closure（已修），其餘 7 處判定為非債並在原地寫明理由；
+      <span class="tid">TD-13</span> 19 處 <code>as any</code> 全數清空：9 處補型別根因（<code>hitEffect</code> 加 <code>'wind'</code>、<code>CustomEnemyData</code> 補兩個難度倍率），10 處是多餘斷言直接刪；棘輪基準 19 → 0；
+      <span class="tid">TD-14</span> 14 處 <code>: any</code> 全數清空：<code>grid: any[][]</code> → <code>Tile[][]</code>、6 個效果 buffer 改 <code>DamageText[]</code>／<code>ImpactParticle[]</code>／<code>DeathAnimation[]</code>，另有一處是變數名誤判（改名 <code>someEnemyTookDamage</code>）；棘輪基準 14 → 0；
+      <span class="tid">TD-15</span> <code>TowerData</code> 的 Mod 欄位（<code>flameEffect</code>／<code>windEffect</code>／<code>laserEffect</code>／<code>lightningEffect</code>／<code>moneyGeneration</code>／<code>damagePerSecond</code>）早已是可選屬性，最後 7 處殘留斷言已隨 TD-13 刪除；
       <span class="tid">TD-07</span> 七個上帝檔案減為六個（<code>Icons.tsx</code> 已拆）；
       <span class="tid">TD-20</span> <code>Icons.tsx</code> 2,426 行 → 8 個分區模組 + 12 行門面，主 chunk 1,165,958 → <b>1,154,208 bytes</b>；
-      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 32 項待處理。</p>
+      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 29 項待處理。</p>
 
     <div class="kpi">
       <div class="good"><b>0</b><span>TODO / FIXME / @ts-ignore</span></div>
       <div class="bad"><b>42</b><span>項技術債（9 類）</span></div>
-      <div class="mid"><b>19</b><span>處 <code>as any</code></span></div>
-      <div class="mid"><b>13</b><span>處 <code>: any</code></span></div>
-      <div class="bad"><b>17</b><span>個 eslint-disable（但專案沒有 ESLint）</span></div>
+      <div class="good"><b>0</b><span>處 <code>as any</code></span></div>
+      <div class="good"><b>0</b><span>處 <code>: any</code></span></div>
+      <div class="good"><b>0</b><span>個 eslint-disable（專案沒有 ESLint）</span></div>
       <div class="bad"><b>133</b><span>個零引用 export</span></div>
-      <div class="mid"><b>8</b><span>個檔案沒有任何 import</span></div>
+      <div class="mid"><b>6</b><span>個檔案沒有任何 import</span></div>
       <div class="bad"><b>445</b><span>條硬編碼中文（components 內）</span></div>
-      <div class="mid"><b>1.33<small>MB</small></b><span>主 chunk（gzip 未計）</span></div>
+      <div class="mid"><b>1.15<small>MB</small></b><span>主 chunk（gzip 未計）</span></div>
       <div class="mid"><b>78.2%</b><span>最低語言覆蓋率</span></div>
     </div>
 
@@ -1803,26 +1806,28 @@
       <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
       <tbody>
         <tr>
-          <td><span class="tid">TD-13</span><span class="sev p1">P1</span><b>C1 19 處 <code>as any</code></b></td>
+          <td><span class="tid">TD-13</span><span class="sev done">✓ 已還 · P1</span><b>C1 19 處 <code>as any</code></b></td>
           <td><code>FloatingTowerPanel.tsx</code>(2)、<code>TowerShootPreview.tsx</code>(5)、<code>PathSelection.tsx</code>(3)、
             <code>EnemyEditor.tsx</code>(2)、<code>ModEditor.tsx</code>(2)、<code>WorkshopCard.tsx</code>(2)、
             <code>useGameSceneEffects.ts:421</code>、<code>updateTowers.ts:449</code>、<code>gameStoreAutoBattle.ts:207</code></td>
           <td>型別檢查在這些點完全失效；欄位改名不會報錯，會在執行時變 <code>undefined</code>。</td>
-          <td>先修根因（C3 的 Mod 欄位型別），剩下的用窄化函式或正確泛型取代</td>
+          <td>已還：9 處要補型別或改結構（<code>hitEffect</code> union 加 <code>'wind'</code>、<code>CustomEnemyData</code> 補兩個難度倍率、<code>MapBriefing</code> 的 <code>selectedMap</code> 定成 <code>MapItemData | undefined</code>、<code>FullscreenMapEditor</code> 補 <code>ToolBtnProps</code>、<code>WorkshopCard</code> 改具名 ref 回呼分派 button／div、<code>ModEditor</code> 改用 <code>ModItem</code> 聯集），其餘 10 處是多餘斷言直接刪。棘輪基準 19 → 0</td>
         </tr>
         <tr>
-          <td><span class="tid">TD-14</span><span class="sev p1">P1</span><b>C2 13 處 <code>: any</code></b></td>
-          <td>集中在 <code>GameCanvasStatic.ts</code> 的 <code>grid: any[][]</code>（3 處，另有 7 個 <code>eslint-disable</code>）、
-            <code>gameStoreEffects.ts</code> 的 6 個 <code>any[]</code> buffer、<code>FullscreenMapEditor.tsx</code>、<code>MapBriefing.tsx</code></td>
+          <td><span class="tid">TD-14</span><span class="sev done">✓ 已還 · P1</span><b>C2 14 處 <code>: any</code></b></td>
+          <td>集中在 <code>GameCanvasStatic.ts</code> 的 <code>grid: any[][]</code>（3 處）、
+            <code>gameStoreEffects.ts</code> 的 6 個 <code>any[]</code> buffer、<code>FullscreenMapEditor.tsx</code>、<code>MapBriefing.tsx</code>、
+            <code>gameStore.ts</code>、<code>ModEditor.tsx</code>，以及 <code>updateProjectiles.ts</code> 的變數名誤判</td>
           <td>畫布拿到的格子資料完全沒型別；特效 buffer 也是。錯誤只會在畫面上「怪怪的」而不會編譯失敗。</td>
-          <td><code>grid: Tile[][]</code>；buffer 改 <code>DamageText[]</code>／<code>ImpactParticle[]</code>／<code>DeathAnimation[]</code></td>
+          <td>已還：<code>grid: Tile[][]</code>；6 個 buffer 改 <code>DamageText[]</code>／<code>ImpactParticle[]</code>／<code>DeathAnimation[]</code>；<code>anyEnemyTookDamage</code> 改名 <code>someEnemyTookDamage</code>（原記載 13 處是漏算這一筆變數名誤判，實測 14 處）。棘輪基準 14 → 0</td>
         </tr>
         <tr>
-          <td><span class="tid">TD-15</span><span class="sev p1">P1</span><b>C3 <code>TowerData</code> 缺 Mod 專屬欄位</b></td>
+          <td><span class="tid">TD-15</span><span class="sev done">✓ 已還 · P1</span><b>C3 <code>TowerData</code> 缺 Mod 專屬欄位</b></td>
           <td><code>damagePerSecond</code>／<code>flameEffect</code>／<code>laserEffect</code>／<code>windEffect</code>／<code>moneyGeneration</code>
             不在 <code>TowerData</code> 上，UI 只能 <code>(data as any).xxx</code> 探測（共 7 處）</td>
           <td>新增 Mod 塔效果時，面板／預覽／AI 三邊都可能漏顯示；型別不會提醒。</td>
-          <td>把這些欄位提升成 <code>TowerData</code> 的可選屬性，或建 <code>ModTowerData extends TowerData</code> 並在 <code>getTowerData</code> 回傳聯合型別</td>
+          <td>已還：這些欄位早已提升成 <code>TowerData</code> 的可選屬性（<code>src/types/game.ts:76-113</code>），
+            <code>TowerShootPreview</code> 5 處與 <code>FloatingTowerPanel</code> 2 處的斷言因此變成純殘留，已隨 TD-13 一併刪除</td>
         </tr>
         <tr>
           <td><span class="tid">TD-16</span><span class="sev done">✓ 已還 · P2</span><b>C4 18 個 eslint-disable 卻沒有 ESLint</b></td>
@@ -2063,7 +2068,7 @@
         </tr>
         <tr>
           <td><b>階段 1</b><br><span class="small">讓型別真的有用</span></td>
-          <td><b>TD-15</b> → <b>TD-13</b>（Mod 欄位型別）、<b>TD-14</b>（canvas grid 改 <code>Tile[][]</code>）、<b>TD-16</b> 真裝 ESLint（無效註解已清空，只差加依賴）、<b>TD-29</b> logger、<b>TD-30</b> 三條 rAF 加護欄</td>
+          <td><b>TD-16</b> 真裝 ESLint（無效註解與 <code>any</code> 都已清空，只差加依賴）、<b>TD-29</b> logger、<b>TD-30</b> 三條 rAF 加護欄</td>
           <td>2–3 天</td>
           <td>低。型別與日誌，不動行為；<code>tsc</code> 會逐一指出要改哪</td>
         </tr>

@@ -101,7 +101,7 @@ services → types（只能 import type 或由入口注入）
 
 ### 4.3 型別（不准再借）
 
-- ❌ 不新增 `as any` / `: any`。目前 19 + 14 處都是待償債（`node scripts/ci/guards.mjs --debt` 是唯一可信的計數）。
+- ❌ 不新增 `as any` / `: any`。TD-13／TD-14 已於 2026-11-14 全部清空，棘輪基準是 **0 / 0**，新增會直接打紅（`node scripts/ci/guards.mjs --debt` 是唯一可信的計數；它用純字串比對，連註解與字串內容都算，所以不要在任何檔案裡寫出這兩個字串本身）。
   - 若卡在 Mod 動態欄位（`flameEffect`、`windEffect`、`moneyGeneration`…）：**先補 `TowerData` 可選欄位**，不要在 UI 端硬轉。
 - ❌ 不用 `@ts-ignore` / `@ts-expect-error`（目前 0，保持 0）。
 - ❌ 不要靠 `eslint-disable` 當護欄——專案**沒有** ESLint，寫了也不會生效。舊的 18 處已在 TD-16 全部清空（棘輪基準 0，新增會直接打紅）；要護欄就去裝 ESLint，不是加註解。
@@ -289,7 +289,7 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 
 | 不准 | 現況基準 | 替代做法 |
 |---|---|---|
-| `as any` / `: any` | 19 / 14 | 補型別（尤其 `TowerData` 的 Mod 欄位） |
+| `as any` / `: any` | 0 / 0 | 卡住就補型別或收斂成聯集；不要放寬回 any（TD-13、TD-14 已清空） |
 | 硬編碼中文（可見字串） | 445 條 | `t(` + `locales/zh-TW.ts` |
 | 零引用 export / 死檔 | 133 / 6 | 不確定就先不加；加了就要有引用 |
 | 新 barrel `index.ts` | 已有 6 個無人 import 的檔案（5 個是 barrel） | 直接 import 目標檔 |
