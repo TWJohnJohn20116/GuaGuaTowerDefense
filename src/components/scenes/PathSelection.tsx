@@ -185,8 +185,8 @@ export default function PathSelection() {
           }
         />
 
-        <div className="flex min-h-0 flex-1 gap-3">
-          <Rail>
+        <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
+          <Rail className="max-h-[46vh] md:max-h-none">
             <MapSidebar
               activeCategory={activeCategory}
               selectedId={selectedPath}
