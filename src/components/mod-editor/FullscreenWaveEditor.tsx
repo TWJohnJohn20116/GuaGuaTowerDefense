@@ -77,11 +77,13 @@ export function FullscreenWaveEditor({
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
+  // 外部（上一層）切換波形時同步本地選取。selectedWaveIdx 也是 deps：
+  // setSelectedWaveIdx 之後條件就不再成立，最多多跑一次就停，不會迴圈（TD-17）
   useEffect(() => {
     if (focusedWaveIdx != null && focusedWaveIdx !== selectedWaveIdx) {
       setSelectedWaveIdx(focusedWaveIdx);
     }
-  }, [focusedWaveIdx]); // TD-17：deps 刻意只列 focusedWaveIdx
+  }, [focusedWaveIdx, selectedWaveIdx]);
 
   const selectWave = (idx: number) => {
     setSelectedWaveIdx(idx);

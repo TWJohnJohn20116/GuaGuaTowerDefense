@@ -89,7 +89,9 @@ export function ModIconEditor({
       return next.length > 30 ? next.slice(next.length - 30) : next;
     });
     setHistoryIdx((prev) => Math.min(prev + 1, 29));
-  }, [icons]); // TD-17：deps 刻意只列 icons
+    // historyIdx 刻意不列 deps：它與 icons 永遠同批更新，icons 變動的那次 render 拿到的
+    // 就是最新索引；列進來反而會在 undo/redo 之後多推一筆歷史（TD-17）
+  }, [icons]);
 
   const canUndo = historyIdx > 0;
   const canRedo = historyIdx < history.length - 1;
@@ -143,8 +145,8 @@ export function ModIconEditor({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  // TD-17：deps 手動維護，undo/redo 的函式識別每次 render 都會變，不能列進去
-  }, [selectedIconId, performUndo, performRedo, confirmClearOpen]);
+  // 三個函式都是 useCallback：識別變了就得重掛監聽，否則 Ctrl+Z／Ctrl+D 會用舊閉包（TD-17）
+  }, [selectedIconId, performUndo, performRedo, duplicateLayer, confirmClearOpen]);
 
   // emoji \u641c\u5c0b\u7d50\u679c (\u8de8\u985e\u5225)
   const filteredCategories = useMemo(() => {
@@ -195,7 +197,8 @@ export function ModIconEditor({
     ));
   };
 
-  const duplicateLayer = (id: string) => {
+  // useCallback + [icons]：keydown 監聽器要靠這份識別才不會抓到舊的圖層清單（TD-17）
+  const duplicateLayer = useCallback((id: string) => {
     if (icons.length >= 15) return; // increase max limit to 15
     const iconToCopy = icons.find(i => i.id === id);
     if (!iconToCopy) return;
@@ -214,7 +217,7 @@ export function ModIconEditor({
       }
     ]);
     setSelectedIconId(newId);
-  };
+  }, [icons]);
 
   const clearCanvas = () => {
     setIcons([]);
