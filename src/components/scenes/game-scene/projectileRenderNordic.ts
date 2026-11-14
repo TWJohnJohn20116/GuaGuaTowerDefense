@@ -13,7 +13,8 @@
 //        wind      -> 三葉旋轉刃 + 弧形尾跡
 //   4. 雷射 / 閃電 (isInstant) 採用「線+端點發光」, 雷射為平直雙線, 閃電為折線。
 
-import type { Projectile, TowerType } from '@/types/game';
+import type { TowerType } from '@/types/game';
+import type { ProjectileRenderFrame, RenderSnapshot } from '@/data/renderSnapshot';
 
 type GetSkinVisuals = (type: TowerType) => {
   projectileColor?: string;
@@ -32,11 +33,12 @@ export const drawProjectilesNordic = (
   tileSize: number,
   offsetX: number,
   offsetY: number,
-  projectiles: Projectile[],
+  snapshot: RenderSnapshot,
   getSkinVisuals: GetSkinVisuals,
 ): void => {
-  for (let i = 0; i < projectiles.length; i++) {
-    const proj = projectiles[i];
+  const frames = snapshot.projectiles;
+  for (let i = 0; i < snapshot.projectileCount; i++) {
+    const proj = frames[i];
     const x = offsetX + proj.x * tileSize + tileSize / 2;
     const y = offsetY + proj.y * tileSize + tileSize / 2;
     const targetX = offsetX + proj.targetX * tileSize + tileSize / 2;
@@ -64,7 +66,7 @@ const drawInstantNordic = (
   now: number,
   x: number, y: number,
   targetX: number, targetY: number,
-  proj: Projectile,
+  proj: ProjectileRenderFrame,
   projColor: string,
   scale: number,
 ): void => {
@@ -174,7 +176,7 @@ const drawNormalNordic = (
   tileSize: number,
   offsetX: number,
   offsetY: number,
-  proj: Projectile,
+  proj: ProjectileRenderFrame,
   projColor: string,
   trailColor: string,
 ): void => {
