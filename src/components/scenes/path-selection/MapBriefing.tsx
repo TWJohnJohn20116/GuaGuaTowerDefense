@@ -69,6 +69,8 @@ export function MapBriefing({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="mx-auto flex min-h-0 w-full max-w-[1220px] flex-1 flex-col gap-3 overflow-y-auto p-3">
+        {/* 地圖卡固定高度，作戰卡吃掉剩餘空間，避免下半留白 */}
+        <div className="flex min-h-[300px] flex-1 flex-col">
         <BriefingHero
           path={selectedMap.path}
           eyebrow={c.missionObjective}
@@ -86,8 +88,9 @@ export function MapBriefing({
             { label: c.expectedReward, value: rewardCoins, unit: 'coins' },
           ]}
         />
+        </div>
 
-        <Deck className="overflow-hidden">
+        <Deck className="shrink-0 overflow-hidden">
           {/* 難度列 */}
           <div className="p-4">
             <SectionHeader
@@ -145,7 +148,7 @@ export function MapBriefing({
           </details>
 
           {/* 出擊列 */}
-          <div className="flex items-center justify-between gap-3 border-t-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] px-4 py-3">
+          <div className="mt-auto flex items-center justify-between gap-3 border-t-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] px-4 py-3">
             <StatCell
               label={c.expectedReward}
               value={rewardCoins}

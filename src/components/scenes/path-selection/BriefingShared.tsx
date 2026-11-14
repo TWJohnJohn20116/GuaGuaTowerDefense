@@ -95,7 +95,7 @@ export function BriefingHero({
   stats,
 }: BriefingHeroProps) {
   return (
-    <div className="m-3 mb-0 grid grid-cols-1 overflow-hidden rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] lg:grid-cols-[300px_1fr]">
+    <div className="m-3 mb-0 grid h-full grid-cols-1 overflow-hidden rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] lg:grid-cols-[minmax(260px,340px)_1fr]">
       <div className="border-b-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] p-3 lg:border-b-0 lg:border-r-[3px]">
         <PathPreview pathConfig={path} size="large" className="w-full border-[3px] border-[var(--cn-line-soft)]" />
         <div className="mt-2 flex items-center justify-between font-mono text-[9.5px] uppercase tracking-[0.1em] text-[var(--arc-ink-4)]">
