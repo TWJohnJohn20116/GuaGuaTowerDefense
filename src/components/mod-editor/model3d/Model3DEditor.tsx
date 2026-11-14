@@ -249,7 +249,8 @@ export function Model3DEditor({ tower, onSave, onClose }: Model3DEditorProps) {
       if (renderer.domElement.parentElement === container) container.removeChild(renderer.domElement);
       sceneRef.current = null;
     };
-    // TD-17：只在掛載時建立一次 3D 場景，deps 刻意留空
+    // 空 deps 是正確的：這裡是命令式資源建立（renderer／scene／ResizeObserver），重跑等於
+    // 重建整個場景；effect 內只碰 container ref 與模組常數，不讀 props／state（TD-17：非債）
   }, []);
 
   const syncSelectionBox = useCallback(() => {

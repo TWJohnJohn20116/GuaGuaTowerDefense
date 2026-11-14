@@ -29,23 +29,25 @@ export function useMapEditorState() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportedCode, setExportedCode] = useState('');
 
-  // 同步 waypoints 到 active segment
+  // 這一對 effect 的 deps 刻意互斥，不是漏列（TD-17）：
+  // ①只跟 waypoints 跑 → 編輯點位時把結果寫回當前分段
+  // 若把 activeSegmentId 也列進來，切換分段的瞬間會先把「舊分段的點位」寫進新分段，
+  // 再被下一支 effect 用新分段的資料蓋掉，中途就多了一次錯誤寫入。
   useEffect(() => {
     if (mapCategory === 'advanced' && activeSegmentId) {
       setSegments((prev) =>
         prev.map((s) => (s.id === activeSegmentId ? { ...s, waypoints } : s))
       );
     }
-    // TD-17：只跟著 waypoints 跑，activeSegmentId 刻意不列入
   }, [waypoints]);
 
-  // 切換 active segment 時載入其 waypoints
+  // ②只跟 activeSegmentId 跑 → 換分段時把該分段的點位載回來。
+  // waypoints 不列（它就是被寫入的目標），segments 只在同一次 render 讀一次即可。
   useEffect(() => {
     if (mapCategory === 'advanced' && activeSegmentId) {
       const seg = segments.find((s) => s.id === activeSegmentId);
       if (seg) setWaypoints([...seg.waypoints]);
     }
-    // TD-17：切換分段時才回填 waypoints，waypoints 刻意不列入 deps
   }, [activeSegmentId]);
 
   const addSegment = () => {

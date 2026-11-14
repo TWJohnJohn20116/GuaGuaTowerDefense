@@ -269,7 +269,8 @@ const GameCanvasImpl = () => {
       // 繪製當下取最新塔清單（結構變更時本 effect 才會被觸發）
       towers: useGameStore.getState().towers,
     });
-    // TD-17：deps 刻意只列實際會變的欄位，塔清單由 getState() 即時取
+    // deps 已列齊實際會變的欄位（含 towerLayoutKey）；towers 由 getState() 當下取，
+    // 是為了避免每殺一隻就重繪整層，不是漏列（TD-17 判定：非債）
   }, [grid, hoveredTile, selectedTower, selectedTowerType, canAffordSelected, tileSize, offsetX, offsetY, getSkinVisuals, showTacticalView, tacticalScores, getTowerData, showTowerRange, showGrid, showPath, showHitboxes, showEnemyPath, multiSelectedTowerIds, towerLayoutKey]);
 
 

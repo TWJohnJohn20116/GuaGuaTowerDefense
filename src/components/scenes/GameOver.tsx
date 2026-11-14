@@ -79,7 +79,8 @@ export default function GameOver() {
     if (tutorialStore.isActive) {
       tutorialStore.endTutorial({ awardGold: false });
     }
-    // TD-17：只在掛載時跑一次，deps 刻意留空
+    // 空 deps 是刻意的：結算獎勵只發一次（coinRewardedRef 守門），而這些值在結算畫面
+    // 掛載期間不會再變；列進來只會多跑幾次 no-op（TD-17 判定：非債）
   }, []);
 
   const totalKills = towers.reduce((sum, tower) => sum + tower.kills, 0);

@@ -136,7 +136,8 @@ export default function Victory() {
         });
       }
     }
-    // TD-17：只在掛載時跑一次，deps 刻意留空
+    // 空 deps 是刻意的：獎勵與通關紀錄只寫一次（rewardedRef 守門），而 score／stars／
+    // campaignGrant 在勝利畫面掛載期間不會再變，列進來只是多跑 no-op（TD-17 判定：非債）
   }, []);
 
   const totalKills = towers.reduce((sum, tower) => sum + tower.kills, 0);
