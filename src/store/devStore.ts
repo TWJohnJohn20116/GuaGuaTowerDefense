@@ -1,11 +1,13 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import type { EnemyType, TowerType } from '@/types/game';
+import type { EnemyType, GameScene, TowerType } from '@/types/game';
 import { setPerfEnabled } from '@/utils/perfMonitor';
 
 // 已移除 testOverlay：勝利與失敗皆為獨立場景，請使用 testScene 機制
 
-type SceneName = 'mainMenu' | 'pathSelection' | 'game' | 'settings' | 'tutorial' | 'encyclopedia' | 'changelog' | 'workshop' | 'achievements' | 'skins' | 'shop' | 'modEditor' | 'modManager' | 'mapEditor' | 'talentTree' | 'replay' | 'memorial' | 'statistics' | 'gameOver' | 'victory' | 'dailyChallenge' | 'mutatorChallenge';
+// TD-09：場景清單的唯一真相是 types/game.ts 的 GameScene。
+// 這裡只做別名，不要手抄一份清單——新增場景漏改會讓 Dev 面板的測試清單少一個。
+type SceneName = GameScene;
 
 export interface DevState {
   // ============================================================

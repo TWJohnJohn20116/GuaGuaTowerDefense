@@ -4,7 +4,7 @@ import { useGameStore } from '@/store/gameStore';
 import { useTalentStore } from '@/store/talentStore';
 import { useShopStore } from '@/store/shopStore';
 import { TOWER_DATA } from '@/data/gameData';
-import type { TowerType } from '@/types/game';
+import type { GameScene, TowerType } from '@/types/game';
 import { useTranslation } from '@/i18n';
 import {
   TrophyIcon, SkullIcon, RefreshIcon, PauseIcon, PlayIcon,
@@ -22,7 +22,9 @@ const SNAPSHOT_KEY = 'guagua-td-dev-snapshot';
 // 場景測試
 // ============================================================
 
-type SceneOption = 'mainMenu' | 'pathSelection' | 'game' | 'settings' | 'tutorial' | 'encyclopedia' | 'changelog' | 'workshop' | 'achievements' | 'skins' | 'shop' | 'talentTree' | '';
+// TD-09：場景清單的唯一真相是 types/game.ts 的 GameScene。
+// 這裡不再手抄，改成 GameScene | ''（關閉測試）。
+type SceneOption = GameScene | '';
 
 const SceneTest = () => {
   const { t } = useTranslation();
@@ -30,31 +32,50 @@ const SceneTest = () => {
   const testScene = useDevStore((s) => s.testScene);
   const setTestScene = useDevStore((s) => s.setTestScene);
 
+  // 以 Record<GameScene, string> 宣告：新增場景若沒補標籤，這裡就是型別錯誤，
+  // 不會再出現「新增場景但 Dev 面板選單漏掉」的靜默缺漏。
+  const sceneLabels: Record<GameScene, string> = {
+    mainMenu: u.sceneMainMenu,
+    pathSelection: u.scenePathSelection,
+    game: u.sceneGame,
+    settings: u.sceneSettings,
+    tutorial: u.sceneTutorial,
+    encyclopedia: u.sceneEncyclopedia,
+    changelog: u.sceneChangelog,
+    workshop: u.sceneWorkshop,
+    achievements: u.sceneAchievements,
+    skins: u.sceneSkins,
+    shop: u.sceneShop,
+    talentTree: u.sceneTalentTree,
+    modEditor: u.sceneModEditor,
+    modManager: u.sceneModManager,
+    mapEditor: u.sceneMapEditor,
+    replay: u.sceneReplay,
+    memorial: u.sceneMemorial,
+    statistics: u.sceneStatistics,
+    gameOver: u.sceneGameOver,
+    victory: u.sceneVictory,
+    dailyChallenge: u.sceneDailyChallenge,
+    mutatorChallenge: u.sceneMutatorChallenge,
+  };
+
   const sceneOptions: { value: SceneOption; label: string }[] = [
     { value: '', label: u.sceneCloseTest },
-    { value: 'mainMenu', label: u.sceneMainMenu },
-    { value: 'pathSelection', label: u.scenePathSelection },
-    { value: 'game', label: u.sceneGame },
-    { value: 'settings', label: u.sceneSettings },
-    { value: 'tutorial', label: u.sceneTutorial },
-    { value: 'encyclopedia', label: u.sceneEncyclopedia },
-    { value: 'changelog', label: u.sceneChangelog },
-    { value: 'workshop', label: u.sceneWorkshop },
-    { value: 'achievements', label: u.sceneAchievements },
-    { value: 'skins', label: u.sceneSkins },
-    { value: 'shop', label: u.sceneShop },
-    { value: 'talentTree', label: u.sceneTalentTree },
+    ...(Object.keys(sceneLabels) as GameScene[]).map((scene) => ({
+      value: scene,
+      label: sceneLabels[scene],
+    })),
   ];
 
   return (
     <div className="space-y-2">
       <DevSelect<SceneOption>
-        value={(testScene as SceneOption) || ''}
-        onChange={(v) => setTestScene(v === '' ? null : v as Exclude<SceneOption, ''>)}
+        value={testScene ?? ''}
+        onChange={(v) => setTestScene(v === '' ? null : v)}
         options={sceneOptions}
       />
       <div className="text-[10px] text-[var(--hl-ink-4)] px-1">
-        {testScene ? u.testSceneActive.replace('{scene}', testScene) : u.testSceneIdle}
+        {testScene ? u.testSceneActive.replace('{scene}', sceneLabels[testScene]) : u.testSceneIdle}
       </div>
     </div>
   );
