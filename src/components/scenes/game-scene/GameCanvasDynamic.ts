@@ -212,8 +212,7 @@ export function renderDynamicLayer(
     offsetX,
     offsetY,
     playerSkillAnimations,
-    enemies,
-    towers,
+    snapshot,
   );
 }
 

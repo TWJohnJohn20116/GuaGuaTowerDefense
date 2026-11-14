@@ -11,7 +11,7 @@
  *   - warpTrap       (傳送陷阱): 紫紅雙端六角傳送門（拆檔於 GameCanvasPlayerSkillFxWarp.ts）
  */
 
-import type { Enemy, Tower } from '@/types/game';
+import type { RenderSnapshot } from '@/data/renderSnapshot';
 import type { PlayerSkillAnimation } from '@/store/gameStoreTypes';
 import { fxProgress } from '@/data/fxProgress';
 import { drawWarpTrap } from './GameCanvasPlayerSkillFxWarp';
@@ -48,8 +48,8 @@ export function drawPlayerSkillAnimations(
   offsetX: number,
   offsetY: number,
   animations: PlayerSkillAnimation[],
-  enemies: Enemy[],
-  towers: Tower[],
+  // 技能演出只用到「敵人座標/血量」與「塔的格子」，兩者都在渲染 snapshot 裡
+  snapshot: RenderSnapshot,
 ): void {
   if (animations.length === 0) return;
 
@@ -61,7 +61,7 @@ export function drawPlayerSkillAnimations(
 
     switch (anim.skillId) {
       case 'lightningStorm':
-        drawLightningStorm(ctx, visualProgress, canvasWidth, canvasHeight, tileSize, offsetX, offsetY, enemies);
+        drawLightningStorm(ctx, visualProgress, canvasWidth, canvasHeight, tileSize, offsetX, offsetY, snapshot);
         break;
       case 'frozenTime':
         drawFrozenTime(ctx, elapsed, anim.duration, canvasWidth, canvasHeight);
@@ -70,10 +70,10 @@ export function drawPlayerSkillAnimations(
         drawCashRain(ctx, visualProgress, canvasWidth, canvasHeight, anim.id);
         break;
       case 'battleInspire':
-        drawBattleInspire(ctx, elapsed, anim.duration, canvasWidth, canvasHeight, tileSize, offsetX, offsetY, towers);
+        drawBattleInspire(ctx, elapsed, anim.duration, canvasWidth, canvasHeight, tileSize, offsetX, offsetY, snapshot);
         break;
       case 'meteorStorm':
-        drawMeteorStorm(ctx, visualProgress, canvasWidth, canvasHeight, tileSize, offsetX, offsetY, enemies);
+        drawMeteorStorm(ctx, visualProgress, canvasWidth, canvasHeight, tileSize, offsetX, offsetY, snapshot);
         break;
       case 'chainLightning':
         drawChainLightning(ctx, visualProgress, tileSize, offsetX, offsetY, anim.chainPath);
@@ -103,7 +103,7 @@ function drawLightningStorm(
   tileSize: number,
   offsetX: number,
   offsetY: number,
-  enemies: Enemy[],
+  snapshot: RenderSnapshot,
 ): void {
   // 同心六角脈衝環 (3 圈, 由內向外擴張)
   const cx = cw / 2;
@@ -126,7 +126,9 @@ function drawLightningStorm(
   ctx.restore();
 
   // 對每隻敵人畫一道雷
-  for (const e of enemies) {
+  const enemyFrames = snapshot.enemies;
+  for (let i = 0; i < snapshot.enemyCount; i++) {
+    const e = enemyFrames[i];
     if (e.health <= 0) continue;
     const ex = offsetX + e.x * tileSize + tileSize / 2;
     const ey = offsetY + e.y * tileSize + tileSize / 2;
@@ -315,7 +317,7 @@ function drawBattleInspire(
   tileSize: number,
   offsetX: number,
   offsetY: number,
-  towers: Tower[],
+  snapshot: RenderSnapshot,
 ): void {
   const fadeIn = Math.min(1, elapsed / 400);
   const fadeOut = elapsed > duration - 600 ? Math.max(0, (duration - elapsed) / 600) : 1;
@@ -355,7 +357,9 @@ function drawBattleInspire(
   ctx.restore();
 
   // 塔身六角脈衝環 (取代圓形)
-  for (const tower of towers) {
+  const towerFrames = snapshot.towers;
+  for (let i = 0; i < snapshot.towerCount; i++) {
+    const tower = towerFrames[i];
     const tx = offsetX + tower.gridPos.col * tileSize + tileSize / 2;
     const ty = offsetY + tower.gridPos.row * tileSize + tileSize / 2;
     const ringAlpha = baseAlpha * (0.3 + pulse * 0.4);
@@ -381,7 +385,7 @@ function drawMeteorStorm(
   tileSize: number,
   offsetX: number,
   offsetY: number,
-  enemies: Enemy[],
+  snapshot: RenderSnapshot,
 ): void {
   // 同心六角脈衝環 (橙色, 由內向外擴張)
   const cx = cw / 2;
@@ -404,7 +408,9 @@ function drawMeteorStorm(
   ctx.restore();
 
   // 對每隻敵人砸一顆隕石
-  for (const e of enemies) {
+  const meteorTargets = snapshot.enemies;
+  for (let i = 0; i < snapshot.enemyCount; i++) {
+    const e = meteorTargets[i];
     if (e.health <= 0) continue;
     const ex = offsetX + e.x * tileSize + tileSize / 2;
     const ey = offsetY + e.y * tileSize + tileSize / 2;
