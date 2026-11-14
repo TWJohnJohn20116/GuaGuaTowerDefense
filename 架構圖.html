@@ -759,7 +759,7 @@
 ├── <span class="d">docs/</span>                       <span class="m"># 設計文件（Nordic UI、3D、戰役、整治紀錄）</span>
 ├── <span class="d">public/</span> <span class="d">sounds/</span> <span class="d">GameVideos/</span> <span class="m"># 靜態資源</span>
 ├── <span class="d">dist/</span>                       <span class="m"># vite build 產物（Tauri 指向此處）</span>
-├── <span class="d">.github/workflows/</span>          <span class="m"># ci.yml（push/PR）· release.yml（v* tag）</span>
+├── <span class="d">.github/workflows/</span>          <span class="m"># ci.yml（push/PR，3 個平行 job，全繁中）· release.yml（v* tag）</span>
 ├── CHANGELOG.md / README.md / UPDATING.md
 └── <span class="a">架構圖.html</span>                  <span class="m"># ← 本文件（唯一架構文件）</span>
 </div>
@@ -1494,11 +1494,25 @@
       </ul>
     </div>
 
-    <h3>CI 上的執行順序</h3>
-    <div class="chips">
-      <span>npm ci</span><span>→ typecheck</span><span>→ i18n:check --strict</span><span>→ guards --debt</span><span>→ test（710）</span><span>→ build</span><span>→ guards --bundle</span>
-    </div>
-    <p class="small">前四道最快，壞了早點紅；<code>guards --bundle</code> 要等 build 產出 <code>dist/assets/index-*.js</code> 才能比預算（上限 1.4 MB，目前 1.33 MB）。</p>
+    <h3>CI 上的執行方式（3 個平行 job，全繁中）</h3>
+    <table>
+      <thead><tr><th>Job（顯示名稱）</th><th>步驟（依序）</th><th>實測</th></tr></thead>
+      <tbody>
+        <tr><td><b>靜態檢查與建置</b></td>
+            <td>取得原始碼 → 設定 Node 24 → 安裝依賴 → 型別檢查 → 語言鍵對齊 → 技術債棘輪 → 產線建置 → 打包體積預算</td>
+            <td>42s</td></tr>
+        <tr><td><b>單元測試（第 k 片／共 3 片）</b></td>
+            <td><code>vitest run --shard=k/3</code>，3 個 runner 平行；<code>fail-fast: false</code> 讓所有失敗一次看到</td>
+            <td>30–43s</td></tr>
+        <tr><td><b>結果總結</b></td>
+            <td><code>needs: [static, test]</code> ＋ <code>if: always()</code>：寫中文摘要表（關卡／結果／commit／觸發方式），
+                並把「任一關卡失敗」收斂成這一個 job 的紅燈（要設必要檢查就指這個）</td>
+            <td>3s</td></tr>
+      </tbody>
+    </table>
+    <p class="small">整條 CI 實測 wall clock：單一 job 序列 <b>1m31s</b> → 平行 3 片 <b>53s</b>（-42%）。
+      關鍵路徑是「靜態檢查與建置」（typecheck 14s + build 8s + 固定開銷約 16s）與測試第 1 片。
+      <code>guards --bundle</code> 要等 build 產出 <code>dist/assets/index-*.js</code> 才能比預算（上限 1.18 MB，目前 1.17 MB，見 <a href="#debt">22 技術債</a> 的 TD-24）。</p>
 
     <div class="note"><b>要加新測試：</b>在 <code>src/test/</code> 建 <code>&lt;功能&gt;.test.ts</code>，
       fixture 從 <code>src/test/fixtures.ts</code> 拿；先跑 <code>npm run test</code> 確認，再跑 <code>npm run check</code>。</div>
