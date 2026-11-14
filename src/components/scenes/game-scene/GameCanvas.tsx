@@ -21,6 +21,7 @@ import { resolveFusionCanvasClick } from '@/data/fusionCanvasClick';
 import { resolveGridTowerClick } from '@/data/gridTowerClick';
 import { resolveCanvasShakeIntensity, visibleDamageTexts } from '@/data/hudVisualVisibility';
 import { createRenderSnapshot, writeRenderSnapshot } from '@/data/renderSnapshot';
+import { createFrameLoopGuard } from '@/utils/frameLoopGuard';
 import { renderStaticLayer } from './GameCanvasStatic';
 import { renderDynamicLayer } from './GameCanvasDynamic';
 
@@ -194,12 +195,13 @@ const GameCanvasImpl = () => {
 
     // 渲染 snapshot 緩衝：與 3D 視圖共用同一份純函式契約，只建立一次、逐幀原地寫入
     const snapshot = createRenderSnapshot();
+    const frameGuard = createFrameLoopGuard({ label: '2d-canvas' });
     
     let frameCount = 0;
     let lastTime = performance.now();
     let currentFps = 0;
     
-    const loop = () => {
+    const drawFrame = () => {
       const now = performance.now();
       frameCount++;
       
@@ -244,7 +246,11 @@ const GameCanvasImpl = () => {
         fusionBurstLabel: t.towers.fusion.burst,
         maxLevelLabel: t.towers.maxLevel,
       });
+    };
 
+    // 單幀異常只掉一幀：guard 接住並節流上報，不會讓繪製層安靜停住（§4.5）
+    const loop = () => {
+      frameGuard.run(drawFrame);
       animFrameRef.current = requestAnimationFrame(loop);
     };
     

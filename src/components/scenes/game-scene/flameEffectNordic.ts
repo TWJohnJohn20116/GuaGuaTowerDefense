@@ -6,7 +6,8 @@
 //   3. 目標處: 六邊形脈衝光 (替代寫實圓形紅光), 與其他北歐元素一致
 //   4. 配色: 以塔色 (#ff6432) 為主, NORDIC_WHITE 為高光, 不再有亂噴的火星顆粒
 
-import type { Tower, Enemy } from '@/types/game';
+import type { RenderSnapshot } from '@/data/renderSnapshot';
+import { enemyFrameById } from '@/data/renderSnapshot';
 
 const NORDIC_WHITE = '#f4f7fb';
 const FLAME_DARK = '#1a1d24';
@@ -20,13 +21,14 @@ export const drawFlameEffectsNordic = (
   tileSize: number,
   offsetX: number,
   offsetY: number,
-  towers: Tower[],
-  enemies: Enemy[],
+  snapshot: RenderSnapshot,
 ): void => {
-  for (let i = 0; i < towers.length; i++) {
-    const tower = towers[i];
-    if (tower.type !== 'flame' || !tower.target) continue;
-    const target = enemies.find(e => e.id === tower.target?.id);
+  const towerFrames = snapshot.towers;
+  for (let i = 0; i < snapshot.towerCount; i++) {
+    const tower = towerFrames[i];
+    if (tower.type !== 'flame' || !tower.targetId) continue;
+    // 目標位置由同一份 snapshot 解析（契約的 targetId → 敵人 frame），不再掃 store 的 Enemy 陣列
+    const target = enemyFrameById(snapshot, tower.targetId);
     if (!target || target.health <= 0) continue;
 
     const tx = offsetX + tower.gridPos.col * tileSize + tileSize / 2;

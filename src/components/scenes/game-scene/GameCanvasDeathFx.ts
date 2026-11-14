@@ -12,6 +12,7 @@
  */
 
 import type { DeathAnimation, DeathShard } from '@/types/game';
+import { fxProgress } from '@/data/fxProgress';
 
 const TWO_PI = Math.PI * 2;
 
@@ -204,7 +205,7 @@ export function drawDeathAnimations(
     const elapsed = now - d.startTime;
     if (elapsed < 0 || elapsed >= d.duration) continue;
 
-    const progress = Math.min(1, elapsed / d.duration);
+    const progress = fxProgress(d.startTime, d.duration, now);
     const elapsedSec = elapsed / 1000;
 
     const cx = offsetX + d.x * tileSize + tileSize / 2;

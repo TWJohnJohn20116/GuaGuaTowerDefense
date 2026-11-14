@@ -13,6 +13,7 @@
 
 import type { Enemy, Tower } from '@/types/game';
 import type { PlayerSkillAnimation } from '@/store/gameStoreTypes';
+import { fxProgress } from '@/data/fxProgress';
 import { drawWarpTrap } from './GameCanvasPlayerSkillFxWarp';
 import { drawEmpPulse } from './GameCanvasPlayerSkillFxEmp';
 
@@ -56,7 +57,7 @@ export function drawPlayerSkillAnimations(
     const elapsed = now - anim.startTime;
     const visualDuration = Math.min(anim.duration, 1500);
     if (elapsed > Math.max(visualDuration, anim.duration)) continue;
-    const visualProgress = Math.min(1, elapsed / visualDuration);
+    const visualProgress = fxProgress(anim.startTime, visualDuration, now);
 
     switch (anim.skillId) {
       case 'lightningStorm':

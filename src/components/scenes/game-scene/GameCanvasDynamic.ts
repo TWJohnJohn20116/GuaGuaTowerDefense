@@ -25,6 +25,7 @@ import { getSynergyModsForTower, listActiveSynergyLinks, toTowerRef } from '@/da
 import { collectJammerAurasCached, isTowerJammed, type JammerAura } from '@/data/jammerAura';
 import { getMoneyAuraRange } from '@/data/moneyAura';
 import { healthBarColorCss } from '@/data/healthBarColor';
+import { fxProgress } from '@/data/fxProgress';
 import { shouldShowTowerHealthBar } from '@/data/towerHealthBarVisibility';
 
 // ===== 除錯資訊繪製 =====
@@ -177,7 +178,7 @@ export function renderDynamicLayer(
   drawFusionAnimations(ctx, now, tileSize, offsetX, offsetY, fusionAnimations, fusionBurstLabel);
 
   // 火焰塔噴射特效 (北歐極簡幾何風重設計; 實作於 flameEffectNordic.ts)
-  drawFlameEffectsNordic(ctx, now, tileSize, offsetX, offsetY, towers, enemies);
+  drawFlameEffectsNordic(ctx, now, tileSize, offsetX, offsetY, snapshot);
 
   // 擊中粒子
   drawImpactParticles(ctx, now, tileSize, offsetX, offsetY, impactParticles);
@@ -256,8 +257,7 @@ function drawDamageTexts(
 ): void {
   ctx.textAlign = 'center';
   damageTexts.forEach(t => {
-    const elapsed = now - t.startTime;
-    const progress = elapsed / t.duration;
+    const progress = fxProgress(t.startTime, t.duration, now);
     const alpha = Math.min(1, (1 - progress) * 1.5);
 
     const tx = offsetX + t.x * tileSize + tileSize / 2;
