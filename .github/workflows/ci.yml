@@ -1,31 +1,43 @@
 # 瓜瓜塔防 · CI（建置與測試）
 #
-# 六道閘門：型別 → 語言鍵對齊 → 技術債棘輪 → 單元測試 → 產線建置 → 打包體積預算。
+# 六道閘門：型別 → 語言鍵對齊 → 技術債棘輪 → 產線建置 → 打包體積預算 → 單元測試。
 # 這道閘門的由來：本專案早期只有 tag 觸發的 release workflow，沒型別檢查也沒測試，
 # 於是 tsc 累積到 89 個錯誤、10 個測試長期紅著，`generateId 未定義` 這種會打死幀迴圈
 # 的 bug 也能一路進到發佈版。
 #
-# ── 速度設計（2026-11-14 第二版，目標 wall clock < 30s）─────────────────────
-# 每個 job 的固定成本才是地板：job 啟動 1s + checkout 1.5s + setup-node 3s + npm ci 4s
-# ≈ 10s。所以「再拆 job」只有在每個 job 的工作量都壓到 ≤15s 時才划算，拆過頭反而變慢。
+# ── 速度設計（2026-11-14 第三版，目標 wall clock < 30s）────────────────────
 #
-# 時間預算（2026-11-14 實測，run 43555514703，wall clock 51s）：
-#   型別檢查 20s  ← skipLibCheck 已開，這是真實在檢查 952 檔／164,918 行
-#   產線建置 11s
-#   單元測試 單進程 44s，切 3 片後為 18/24/26s（切片不平均）
-#   結果總結 4s（runner 佇列 2s + 腳本 2s）
+# 這條 CI 的時間幾乎都花在「每個 job 的固定成本」，不是花在工作本身：
 #
-# 對策：
-#   1. 型別與建置拆成兩個 job —— 原本序列相加 31s，拆開後兩邊各自與固定成本重疊
-#   2. tsc 開 --incremental，.tsbuildinfo 快取（key 含 tsconfig 與 lock 的 hash）；
-#      冷啟動仍要 20s，第二趟起只重驗改動檔
-#   3. 單元測試切 6 片（每片 ~12s 工作量），讓測試不再是關鍵路徑
-#   4. npm ci 加 --no-audit --no-fund --prefer-offline（省掉 registry metadata 重驗）
+#   job 啟動 1–3s ＋ checkout 1–5s ＋ setup-node 1–7s ＋ npm ci 3–5s ＝ 6–20s
 #
-# 刻意不做（量測過或算過不划算）：
-#   - 快取 node_modules：還原 tar 比 npm ci 的 4s 更慢
-#   - 切 8 片以上：固定成本 10s 不變，收益被稀釋，還會讓必要檢查數變多
-#   - 移除 summary job：它需要等所有 job 結束，但那 3–4s 換來單一紅綠燈與中文摘要
+# 而真正的工作量（實測）：
+#
+#   型別檢查 20s 冷跑／2s 命中增量快取      ← skipLibCheck 已開，20s 是真的在讀 952 檔
+#   產線建置 8–11s
+#   單元測試 單進程 44s；切 6 片後每片 7–10s；切 8 片後 6–9s
+#   結果總結 1s 腳本＋等 needs 的 3–4s 排隊
+#
+# 三個關鍵實驗（都留下數據）：
+#
+#   3 片＋單一 static job  → wall 51s（static 序列跑型別 20s＋建置 11s＝關鍵路徑）
+#   8 片（11 個 job）      → wall 41s（工作只剩 2s／6–9s，但 runner 擠爆：
+#                                   有一片 Set up job 3s＋checkout 5s＋setup-node 8s）
+#   6 片（9 個 job）       → wall 40s（建置 job 固定成本 20s＋建置 8s＝31s 關鍵路徑，
+#                                   再加上 summary 在尾端多等 6s）
+#
+# 結論：job 開得越多，每個 VM 的冷啟動越慢，所以「再拆」是負優化。這一版反過來收斂：
+#
+#   1. 型別與建置合併成一個 static job（固定成本只付一次；型別命中快取時只 2s）
+#   2. 單元測試切 4 片（每片 ~12s 工作量，與 static 的工作量對齊）
+#   3. tsc 開 --incremental ＋快取 .tsbuildinfo（key 含 tsconfig 與 lock 的 hash）
+#   4. npm ci 加 --no-audit --no-fund --prefer-offline
+#   5. summary 只在有 job 失敗時才跑（成功時它要排在所有 job 之後，白等 6–9s）
+#
+# 刻意不做（量過或算過不划算）：
+#   - 快取 node_modules：還原 tar 比 npm ci 的 3–5s 更慢
+#   - 再切更多測試片：固定成本 6–20s 不變，只會讓更多 VM 一起冷啟動
+#   - 把 tsc 與 vite build 在同一 job 內用背景並行：省不到 3s，卻失去「哪一步紅」的歸屬
 #
 # 觸發規則（見 AGENTS.md §13.1）：
 #   - push 可加 paths-ignore（純文件／截圖不燒 CI 分鐘）
@@ -66,18 +78,19 @@ env:
   # 用 Node 20（npm 10）會對 vitest@4 的嵌套 vite 解析出不同樹，
   # 導致 npm ci 判定 lock 不完整（Missing: esbuild@0.28.2）。
   NODE_VERSION: '24'
-  # 測試分片數。8 片時每片只剩 6–9s 工作量，但「11 個 job 同時搶 runner」會讓
-  # 個別 job 的固定成本膨脹（實測有一片 checkout 5s + setup-node 8s = 17s），
-  # 反而拉高 wall clock。6 片是工作量與固定成本的平衡點。
-  TEST_SHARDS: 6
+  # 測試分片數。實測每片工作量 ≈ 3s 啟動 + 44s/片數，所以片數越多每片越短，
+  # 但每個 job 的固定成本是 6–20s，片數一多就會有多個 VM 同時冷啟動（見檔頭實驗）。
+  # 4 片 ≈ 每片 12s 工作量，剛好與 static job 對齊。
+  TEST_SHARDS: 4
 
 jobs:
   # ─────────────────────────────────────────────
-  # 型別與靜態檢查：型別、語言鍵、技術債棘輪
-  # （刻意不含建置：建置與它工作量相當，綁在一起就是兩份時間相加）
+  # 靜態檢查與建置：型別、語言鍵、技術債棘輪、產線建置、打包體積預算
+  # 合併成一個 job 的理由：拆成兩個要多付一份 6–20s 的固定成本，
+  # 而型別命中增量快取後只剩 2s，根本不值得再開一個 VM。
   # ─────────────────────────────────────────────
-  types:
-    name: 型別與靜態檢查
+  static:
+    name: 靜態檢查與建置
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 
@@ -97,7 +110,7 @@ jobs:
       # tsc 的 --incremental 只重驗有改動的檔案；沒有這份快取就要每次冷跑 20s。
       # key 含 tsconfig 與 lock 的 hash：編譯選項或型別套件版本一變就自動失效。
       # restore-keys 用前綴，允許跨分支取最近一份（tsc 以檔案內容 hash 驗證，
-      # 不相符就重新檢查，不會把別人的結論當自己的）。
+      # 內容不符就重新檢查，不會把別人的結論當自己的）。
       - name: 還原型別檢查快取
         uses: actions/cache@v4
         with:
@@ -117,27 +130,6 @@ jobs:
       - name: "技術債棘輪（as any／: any／eslint-disable 只准降）"
         run: node scripts/ci/guards.mjs --debt
 
-  # ─────────────────────────────────────────────
-  # 建置與體積：產線建置 + 打包體積預算
-  # ─────────────────────────────────────────────
-  build:
-    name: 建置與體積
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-
-    steps:
-      - name: 取得原始碼
-        uses: actions/checkout@v4
-
-      - name: 設定 Node ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: 安裝依賴
-        run: npm ci --no-audit --no-fund --prefer-offline
-
       - name: 產線建置
         # TAURI_PLATFORM=windows → build.target 用 chrome105，也就是 release.yml
         # 實際出貨的那一份。不設的話 CI 會用 safari13 目標，多做一層降級轉譯，
@@ -153,16 +145,14 @@ jobs:
   # 單元測試：vitest 分片平行跑，任一片紅就算紅
   # ─────────────────────────────────────────────
   test:
-    # 片數寫死在名稱裡：job 的 name 取不到 env 與 strategy 這兩個 context
-    # （只能用 github / vars / inputs），所以片數要跟上面 TEST_SHARDS 手動同步。
-    name: 單元測試（第 ${{ matrix.shard }} 片 / 共 6 片）
+    name: 單元測試（第 ${{ matrix.shard }} 片 / 共 4 片）
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       # 一片紅了其他片也跑完，方便一次看到所有失敗
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6]
+        shard: [1, 2, 3, 4]
 
     steps:
       - name: 取得原始碼
@@ -181,22 +171,26 @@ jobs:
         run: npm run test -- --shard=${{ matrix.shard }}/${{ env.TEST_SHARDS }}
 
   # ─────────────────────────────────────────────
-  # 結果總結：中文摘要表寫進 run 首頁，並把「任一關卡失敗」變成這一個 job 的紅燈
-  # （要設成分支保護的必要檢查時，指定這一個即可）
+  # 結果總結：只在有 job 失敗時才跑
+  #
+  # 它必須排在所有 job 之後，成功時要多等 6–9s（needs 結算 + runner 排隊 + 腳本），
+  # 而成功時的資訊價值接近零（GitHub 自己就會顯示每個 job 的綠勾）。
+  # 失敗時那張中文表才真的有用，所以條件改成 failure()。
+  #
+  # 注意：這個 job 在成功時是 skipped。若要把它設成分支保護的必要檢查，
+  # 必須改回 `if: always()`，否則「skipped」不會被視為通過。
   # ─────────────────────────────────────────────
   summary:
-    name: 結果總結
+    name: 結果總結（僅失敗時）
     runs-on: ubuntu-24.04
-    needs: [types, build, test]
-    # 一定要 always()：needs 失敗時若 job 被略過，依賴它的檢查會永遠停在 waiting
-    if: always()
+    needs: [static, test]
+    if: failure()
     timeout-minutes: 5
 
     steps:
       - name: 彙總各關卡結果
         env:
-          TYPES_RESULT: ${{ needs.types.result }}
-          BUILD_RESULT: ${{ needs.build.result }}
+          STATIC_RESULT: ${{ needs.static.result }}
           TEST_RESULT: ${{ needs.test.result }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
@@ -215,8 +209,7 @@ jobs:
             echo ""
             echo "| 關卡 | 內容 | 結果 |"
             echo "|---|---|---|"
-            echo "| 型別與靜態檢查 | 型別、語言鍵、技術債棘輪 | $(chinese_result "$TYPES_RESULT") |"
-            echo "| 建置與體積 | 產線建置、打包體積預算 | $(chinese_result "$BUILD_RESULT") |"
+            echo "| 靜態檢查與建置 | 型別、語言鍵、技術債棘輪、產線建置、體積預算 | $(chinese_result "$STATIC_RESULT") |"
             echo "| 單元測試 | 159 個測試檔分 ${TEST_SHARDS} 片平行跑 | $(chinese_result "$TEST_RESULT") |"
             echo ""
             echo "- 分支：\\`${GITHUB_REF_NAME}\\`"
@@ -229,8 +222,8 @@ jobs:
             echo "- 觸發：\\`${GITHUB_EVENT_NAME}\\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
-          if [ "$TYPES_RESULT" != "success" ] || [ "$BUILD_RESULT" != "success" ] || [ "$TEST_RESULT" != "success" ]; then
-            echo "::error::有閘門未通過（型別與靜態=$TYPES_RESULT，建置=$BUILD_RESULT，單元測試=$TEST_RESULT）"
+          if [ "$STATIC_RESULT" != "success" ] || [ "$TEST_RESULT" != "success" ]; then
+            echo "::error::有閘門未通過（靜態檢查=$STATIC_RESULT，單元測試=$TEST_RESULT）"
             exit 1
           fi
           echo "全部閘門通過 ✅"
