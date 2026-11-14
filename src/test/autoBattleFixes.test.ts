@@ -19,7 +19,7 @@ import {
   getTowerUpgradeCost,
 } from '@/data/towerUpgradeCost';
 import { getTowerBuildCost } from '@/data/towerCost';
-import type { GridPosition, Tile } from '@/types/game';
+import type { GridPosition, Tile, Tower } from '@/types/game';
 import { makeTower } from './fixtures';
 
 /** 找第一個可建塔的空格（與 towerGridConsistency 同一招） */
@@ -116,10 +116,42 @@ describe('B1：自動戰鬥的升級判定', () => {
       moneyBefore - getTowerUpgradeCost(TOWER_DATA.basic.cost, 1),
     );
   });
+
+  it('實際跑一輪決策就會升級（不只是謂詞正確）', () => {
+    const grid = resetMatch();
+    // 12 座高績效 Lv1 塔：valueScore = 2(擊殺) + 2(傷害) + 2(剩餘等級) = 6 > 3 → 必定觸發升級
+    const towers: Tower[] = Array.from({ length: 12 }, (_, i) =>
+      makeTower({
+        id: `tw-${i}`,
+        type: 'basic',
+        gridPos: { col: (i % 5) + 1, row: Math.floor(i / 5) + 1 },
+        level: 1,
+        upgradePath: null,
+        kills: 100,
+        totalDamage: 5000,
+      }),
+    );
+    useGameStore.setState({
+      grid,
+      towers,
+      money: 10_000,
+      isPlaying: true,
+      isPaused: false,
+      isGameOver: false,
+      autoBattleEnabled: true,
+      autoBattleLastDecision: 0,
+    });
+
+    useGameStore.getState().runAutoBattleLogic();
+
+    const upgraded = useGameStore.getState().towers.filter((t) => t.level >= 2);
+    expect(upgraded.length, 'AI 完全沒有升級任何塔（B1 回歸）').toBeGreaterThan(0);
+    // Lv1 → Lv2 必須自己選路線，否則 store 的契約（newLevel===2 需 path）會擋下
+    expect(upgraded.every((t) => t.upgradePath === 'A' || t.upgradePath === 'B')).toBe(true);
+  });
 });
 
-describe('B2：建塔費用倍率', () => {
-  it('getTowerBuildCost 套用倍率並四捨五入', () => {
+describe('B2：建塔費用倍率', () => {  it('getTowerBuildCost 套用倍率並四捨五入', () => {
     expect(getTowerBuildCost(150, 1)).toBe(150);
     expect(getTowerBuildCost(150, 1.3)).toBe(195);
     expect(getTowerBuildCost(150, 0.5)).toBe(75);
