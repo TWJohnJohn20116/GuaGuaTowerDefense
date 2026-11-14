@@ -141,20 +141,3 @@ export const createStatusRingBatch = (): StatusRingBatch => {
     },
   };
 };
-
-/**
- * 單一敵人的狀態環（保留舊介面）。
- * 內部走同一套批次，確保只有一份繪製規則。
- */
-export function drawEnemyStatusRings(
-  ctx: CanvasRenderingContext2D,
-  enemy: Enemy,
-  x: number,
-  y: number,
-  radius: number,
-  now: number,
-): void {
-  const batch = createStatusRingBatch();
-  batch.add(enemy, x, y, radius, now);
-  batch.flush(ctx);
-}

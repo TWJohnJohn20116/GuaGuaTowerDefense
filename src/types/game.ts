@@ -502,42 +502,6 @@ export interface Tile {
   towerId: string | null;
 }
 
-// 游戏状态
-export type GameState = 
-  | 'menu' | 'pathSelection' | 'playing' | 'paused' 
-  | 'gameOver' | 'victory' | 'settings' | 'tutorial' 
-  | 'changelog' | 'encyclopedia' | 'editor';
-
-// 游戏场景
-export type GameScene =
-  | 'mainMenu' | 'pathSelection' | 'talentTree' | 'game' | 'settings'
-  | 'tutorial' | 'changelog' | 'encyclopedia' | 'workshop'
-  | 'achievements' | 'skins' | 'shop' | 'statistics'
-  | 'modEditor' | 'modManager' | 'mapEditor' | 'replay'
-  | 'memorial' | 'gameOver' | 'victory' | 'dailyChallenge' | 'mutatorChallenge';
-
-
-// ===== Mod 系統 =====
-
-// Mod 類型
-export type ModType = 'tower' | 'enemy' | 'map' | 'wave' | 'full';
-
-// Mod 元數據
-interface ModMetadata {
-  id: string;
-  name: string;
-  version: string;
-  author: string;
-  description: string;
-  type: ModType;
-  gameVersion: string;
-  icon?: string;
-  tags?: string[];
-  dependencies?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
 // 自訂塔 Mod
 // 自訂 3D 模型部件（模組 3D 模型編輯器產生）
 export interface Custom3DPart {

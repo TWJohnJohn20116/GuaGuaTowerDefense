@@ -85,18 +85,6 @@ interface ModVisuals {
 const DEFAULT_TOWER_VISUALS: ModVisuals = { modelType: 'basic', modelScale: 1, glowColor: null, glowIntensity: 0, barrelLength: 1, custom3d: null };
 const DEFAULT_ENEMY_VISUALS: ModVisuals = { modelType: 'normal', modelScale: 1, glowColor: null, glowIntensity: 0, barrelLength: 1, custom3d: null };
 
-// 獲取塔的模型類型（支援 Mod 塔自訂模型）
-export const getTowerModelType = (towerType: string): string => {
-  if (TOWER_DATA[towerType as TowerType]) return towerType;
-  const mods = useModStore.getState().mods;
-  for (const mod of mods) {
-    if (!mod.enabled) continue;
-    const t = mod.content.towers?.find(t => t.id === towerType);
-    if (t?.modelType) return t.modelType;
-  }
-  return 'basic';
-};
-
 // 獲取塔的完整視覺參數
 export const getTowerVisuals = (towerType: string): ModVisuals => {
   if (TOWER_DATA[towerType as TowerType]) return { ...DEFAULT_TOWER_VISUALS, modelType: towerType };
@@ -114,18 +102,6 @@ export const getTowerVisuals = (towerType: string): ModVisuals => {
     };
   }
   return DEFAULT_TOWER_VISUALS;
-};
-
-// 獲取敵人的模型類型
-export const getEnemyModelType = (enemyType: string): string => {
-  if (ENEMY_DATA[enemyType as keyof typeof ENEMY_DATA]) return enemyType;
-  const mods = useModStore.getState().mods;
-  for (const mod of mods) {
-    if (!mod.enabled) continue;
-    const e = mod.content.enemies?.find(e => e.id === enemyType);
-    if (e?.modelType) return e.modelType;
-  }
-  return 'normal';
 };
 
 // 獲取敵人的完整視覺參數
@@ -491,25 +467,4 @@ export const getSavedGameSpeed = (): number => {
 // 保存遊戲速度到本地存儲
 export const saveGameSpeed = (speed: number): void => {
   localStorage.setItem('guagua-td-game-speed', String(speed));
-};
-
-// 計算路徑轉彎點分數
-export const calculatePathTurnBonus = (
-  pathConfig: PathConfig,
-  col: number,
-  row: number
-): number => {
-  const waypoints = pathConfig.waypoints;
-  let bonus = 0;
-  
-  // 檢查是否靠近轉彎點
-  for (let i = 1; i < waypoints.length - 1; i++) {
-    const wp = waypoints[i];
-    const distance = Math.abs(wp.col - col) + Math.abs(wp.row - row);
-    if (distance <= 2) {
-      bonus += (3 - distance) * 10;
-    }
-  }
-  
-  return bonus;
 };

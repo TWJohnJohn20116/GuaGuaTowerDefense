@@ -162,13 +162,6 @@ export const RainIcon = (p: IconProps) => (
 );
 
 /** ❄️ 雪花 — 預設色：text-[var(--hl-reach)] */
-export const Snowflake2Icon = (p: IconProps) => (
-  <svg {...s(p)}>
-    <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93 4.93 19.07" strokeWidth="2" />
-    <path d="M12 6l-1.5-1.5M12 18l-1.5 1.5M6 12l-1.5-1.5M18 12l1.5-1.5" strokeWidth="1.5" />
-  </svg>
-);
-
 /** 🌨️ 小雪花 — 預設色：text-[var(--hl-reach)] */
 export const SnowIcon = (p: IconProps) => (
   <svg {...s(p)}>
@@ -486,12 +479,6 @@ export const RedCircleIcon = (p: IconProps) => (
 );
 
 /** 🔴 實心紅點 */
-export const SolidRedDotIcon = (p: IconProps) => (
-  <svg {...s(p)}>
-    <circle cx="12" cy="12" r="10" fill="currentColor" />
-  </svg>
-);
-
 /** ⬛ 實心黑方塊 */
 export const SolidBlackSquareIcon = (p: IconProps) => (
   <svg {...s(p)}>

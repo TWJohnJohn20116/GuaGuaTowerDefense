@@ -39,7 +39,3 @@ export function getFileImportedBy(filePath: string): string[] {
 }
 
 /** 引用圖統計 */
-export const IMPORT_GRAPH_STATS = {
-  filesWithImports: manifest.filter((e) => (e.imports?.length ?? 0) > 0).length,
-  totalEdges: manifest.reduce((sum, e) => sum + (e.imports?.length ?? 0), 0),
-};

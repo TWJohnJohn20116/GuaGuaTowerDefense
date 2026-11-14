@@ -48,11 +48,6 @@ export function buildWaveSpawnSchedule(
   return schedule;
 }
 
-export function pickWaveSet(waves: CustomWaveData[], index = 0): CustomWaveData | null {
-  const valid = waves.filter((w) => w.waves.length > 0);
-  return valid[index] ?? valid[0] ?? null;
-}
-
 export function getValidWaveSets(waves: CustomWaveData[]): CustomWaveData[] {
   return waves.filter((w) => w.waves.length > 0);
 }

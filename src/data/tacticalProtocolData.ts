@@ -426,10 +426,6 @@ export const TACTICAL_PROTOCOLS: TacticalProtocol[] = [
 
 const PROTOCOL_MAP = new Map(TACTICAL_PROTOCOLS.map((p) => [p.id, p]));
 
-export function getTacticalProtocol(id: string): TacticalProtocol | undefined {
-  return PROTOCOL_MAP.get(id);
-}
-
 /** 完成第 1、3、5… 波後提供協議（下一波為偶數波）；終局勝利不再出牌 */
 export function shouldOfferProtocol(
   currentWave: number,

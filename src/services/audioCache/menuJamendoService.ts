@@ -98,11 +98,3 @@ export async function getMenuAlbumTrackCount(albumId: string): Promise<number> {
   const meta = await readMenuAlbumMeta(albumId);
   return meta?.tracks.length ?? 0;
 }
-
-export function albumDownloadItemKey(albumId: string): string {
-  return `music:menu-album-pack:${albumId}`;
-}
-
-export function describeMenuAlbum(album: MenuMusicAlbum): string {
-  return `${album.title}（${album.trackCount} 首）`;
-}

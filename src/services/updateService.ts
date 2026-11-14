@@ -52,10 +52,6 @@ export interface UpdateInstallProgress {
 
 let pendingNativeUpdate: Update | null = null;
 
-export function clearPendingNativeUpdate(): void {
-  pendingNativeUpdate = null;
-}
-
 // ============================================================
 // 版本比較
 // ============================================================

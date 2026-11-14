@@ -97,10 +97,6 @@ const EFFECT_LABEL_KEY: Record<TowerEffectId, TowerEffectLabelKey> = {
   money: 'moneyLabel',
 };
 
-export function getTowerEffectLabelKey(id: TowerEffectId): TowerEffectLabelKey {
-  return EFFECT_LABEL_KEY[id];
-}
-
 type TowerEffectShortKey =
   | 'fxShortSplash' | 'fxShortSlow' | 'fxShortPoison' | 'fxShortChain'
   | 'fxShortLaser' | 'fxShortFlame' | 'fxShortWind' | 'fxShortMoney';
@@ -115,10 +111,6 @@ const EFFECT_SHORT_KEY: Record<TowerEffectId, TowerEffectShortKey> = {
   wind: 'fxShortWind',
   money: 'fxShortMoney',
 };
-
-export function getTowerEffectShortKey(id: TowerEffectId): TowerEffectShortKey {
-  return EFFECT_SHORT_KEY[id];
-}
 
 export function getTowerEffectShortLabel(
   id: TowerEffectId,

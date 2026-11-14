@@ -200,10 +200,6 @@ export async function ensureSfxCached(soundId: SoundId): Promise<string | null> 
   });
 }
 
-export function getPrefetchStatus(): PrefetchStatus {
-  return useAudioDownloadStore.getState().status;
-}
-
 export function isRemoteAudioEnabled(): boolean {
   return isJamendoConfigured() || isFreesoundConfigured();
 }
@@ -305,11 +301,3 @@ export async function getMusicBlobUrl(trackId: MusicTrackId): Promise<string | n
 }
 
 /** 下載完成後強制以快取曲目重新播放 BGM */
-export function notifyMusicCacheReady(): void {
-  notifyPrefetchDone();
-}
-
-export function revokeSfxBlobUrls(): void {
-  for (const url of sfxBlobUrls.values()) URL.revokeObjectURL(url);
-  sfxBlobUrls.clear();
-}
