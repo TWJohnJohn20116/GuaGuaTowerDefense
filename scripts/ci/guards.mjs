@@ -27,7 +27,7 @@ const BASELINE = {
   ': any': 14,
   '@ts-ignore': 0,
   '@ts-expect-error': 0,
-  'eslint-disable': 18,
+  'eslint-disable': 0,
   'console.log': 1,
 };
 
