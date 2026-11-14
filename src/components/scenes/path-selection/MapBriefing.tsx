@@ -15,6 +15,7 @@ import { SectionHeader, BriefingHero, EmptyBriefing, Badge } from './BriefingSha
 import { calculatePathStats } from './utils';
 import { DifficultyRow, StatsGrid, CustomSliders, ModePanel, DIFFICULTY_META } from './briefing';
 import { getPathDifficultyLabel, getDifficultyMeta } from './sidebar/difficulty';
+import { gameDifficultyLabelsFromGameCopy } from '@/data/gameRecordLabels';
 import type { MapItemData } from './sidebar/MapRow';
 
 export interface MapBriefingProps {
@@ -58,6 +59,7 @@ export function MapBriefing({
   const stats = calculatePathStats(selectedMap.path.waypoints, selectedMap.path.segments);
   const mapMeta = getDifficultyMeta(selectedMap.difficulty);
   const diffMeta = DIFFICULTY_META[selectedDifficulty];
+  const diffLabels = gameDifficultyLabelsFromGameCopy(t.game);
 
   const rewardCoins = Math.round(
     (endlessMode ? 100 : selectedWaves) *
@@ -70,7 +72,7 @@ export function MapBriefing({
     <div className="flex h-full min-h-0 flex-col">
       <div className="mx-auto flex min-h-0 w-full max-w-[1220px] flex-1 flex-col gap-3 overflow-y-auto p-3">
         {/* 地圖卡固定高度，作戰卡吃掉剩餘空間，避免下半留白 */}
-        <div className="flex min-h-[300px] flex-1 flex-col">
+        <div className="flex min-h-[280px] flex-1 flex-col">
         <BriefingHero
           path={selectedMap.path}
           eyebrow={c.missionObjective}
@@ -157,7 +159,7 @@ export function MapBriefing({
             />
             <div className="flex items-center gap-2">
               <span className="text-[11.5px] font-bold text-[var(--cn-ink-3)]">
-                {endlessMode ? '∞' : `${selectedWaves}`} · {getPathDifficultyLabel(selectedDifficulty, t)}
+                {endlessMode ? '∞' : `${selectedWaves}`} · {diffLabels[selectedDifficulty] ?? selectedDifficulty}
               </span>
               <Btn variant="signal" size="lg" onClick={onStart}>
                 {t.pathSelection.startBattle}

@@ -43,9 +43,7 @@ export function DifficultyRow({ selected, onChange }: DifficultyRowProps) {
                 }`}
               >
                 {String(i + 1).padStart(2, '0')}
-              </span>
-              <span className={`font-mono text-[9px] tabular-nums ${meta.text}`}>
-                {meta.stars > 0 ? `${meta.stars}/5` : '—'}
+
               </span>
             </span>
             <span
