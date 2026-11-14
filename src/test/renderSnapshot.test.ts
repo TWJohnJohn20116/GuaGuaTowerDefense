@@ -188,82 +188,6 @@ describe('renderSnapshot 共用與緩衝重用', () => {
 });
 
 describe('renderSnapshot 塔與投射物投影', () => {
-  it('塔 frame 保留 gridPos 參照（不複製），並算出血量比例', () => {
-    const snapshot = createRenderSnapshot();
-    const tower = makeTower({
-      id: 't1',
-      type: 'frost',
-      level: 3,
-      gridPos: { col: 2, row: 4 },
-      health: 40,
-      maxHealth: 80,
-      placedAt: 100,
-      lastAttackTime: 200,
-      locked: true,
-      fusedFrom: ['basic', 'frost'],
-    });
-
-    writeRenderSnapshot({ enemies: [], towers: [tower] }, snapshot, 1000);
-
-    expect(snapshot.towerCount).toBe(1);
-    const frame = snapshot.towers[0];
-    expect(frame.gridPos).toBe(tower.gridPos);
-    expect(frame.healthRatio).toBeCloseTo(0.5);
-    expect(frame.locked).toBe(true);
-    expect(frame.fusedFrom).toEqual(['basic', 'frost']);
-    expect(frame.lastAttackTime).toBe(200);
-  });
-
-  it('投射物 frame 投影座標、形狀與軌跡參照', () => {
-    const snapshot = createRenderSnapshot();
-    const trailPoints = [{ x: 1, y: 1, alpha: 0.5 }];
-    const projectile: Projectile = {
-      id: 'p1',
-      x: 1,
-      y: 2,
-      targetId: 'e1',
-      targetX: 3,
-      targetY: 4,
-      damage: 10,
-      speed: 100,
-      size: 5,
-      color: '#ffffff',
-      towerId: 't1',
-      towerType: 'laser',
-      isInstant: true,
-      createdAt: 50,
-      rotation: 1.2,
-      hitEffect: 'ice',
-      trailPoints,
-    };
-
-    writeRenderSnapshot({ enemies: [], projectiles: [projectile] }, snapshot, 1000);
-
-    expect(snapshot.projectileCount).toBe(1);
-    const frame = snapshot.projectiles[0];
-    expect(frame.x).toBe(1);
-    expect(frame.targetY).toBe(4);
-    expect(frame.towerType).toBe('laser');
-    expect(frame.isInstant).toBe(true);
-    expect(frame.rotation).toBe(1.2);
-    expect(frame.trailPoints).toBe(trailPoints);
-    expect(frame.createdAt).toBe(50);
-  });
-
-  it('來源沒有塔或投射物時計數歸零（舊呼叫端不必補參數）', () => {
-    const snapshot = createRenderSnapshot();
-    writeRenderSnapshot({ enemies: [] }, snapshot, 0);
-    expect(snapshot.towerCount).toBe(0);
-    expect(snapshot.projectileCount).toBe(0);
-  });
-
-  it('塔等級縮放公式由契約提供（3D 模型與血條共用）', () => {
-    expect(towerLevelScale(1)).toBe(1);
-    expect(towerLevelScale(3)).toBeCloseTo(1.18);
-  });
-});
-
-describe('renderSnapshot 塔與投射物投影', () => {
   const makeProjectile = (overrides: Partial<Projectile> & { id: string }): Projectile => ({
     x: 1,
     y: 2,
@@ -290,6 +214,8 @@ describe('renderSnapshot 塔與投射物投影', () => {
       maxHealth: 240,
       locked: true,
       gridPos: { col: 4, row: 9 },
+      fusedFrom: ['basic', 'frost'],
+      lastAttackTime: 200,
     });
 
     writeRenderSnapshot({ enemies: [], towers: [tower] }, snapshot, 500);
@@ -298,14 +224,16 @@ describe('renderSnapshot 塔與投射物投影', () => {
     const frame = snapshot.towers[0];
     expect(frame.id).toBe('t1');
     expect(frame.type).toBe('cannon');
-    expect(frame.col).toBe(4);
-    expect(frame.row).toBe(9);
+    // gridPos 直接沿用塔自身的物件參照，不每幀複製
+    expect(frame.gridPos).toBe(tower.gridPos);
     expect(frame.level).toBe(3);
     expect(frame.rotation).toBe(1.25);
     expect(frame.health).toBe(60);
     expect(frame.maxHealth).toBe(240);
     expect(frame.healthRatio).toBeCloseTo(0.25);
     expect(frame.locked).toBe(true);
+    expect(frame.fusedFrom).toEqual(['basic', 'frost']);
+    expect(frame.lastAttackTime).toBe(200);
   });
 
   it('maxHealth 為 0 時塔血量比例是 0 而不是 NaN', () => {
@@ -340,6 +268,8 @@ describe('renderSnapshot 塔與投射物投影', () => {
       towerType: 'sniper',
       rotation: 0.75,
       trailPoints: trail,
+      createdAt: 50,
+      hitEffect: 'ice',
     });
 
     writeRenderSnapshot({ enemies: [], projectiles: [projectile] }, snapshot, 0);
@@ -356,7 +286,10 @@ describe('renderSnapshot 塔與投射物投影', () => {
     expect(frame.towerType).toBe('sniper');
     expect(frame.isInstant).toBe(false);
     expect(frame.rotation).toBe(0.75);
+    // 軌跡陣列沿用參照，避免每幀複製點陣列
     expect(frame.trailPoints).toBe(trail);
+    expect(frame.createdAt).toBe(50);
+    expect(frame.hitEffect).toBe('ice');
   });
 
   it('沒有提供 towers / projectiles 時兩個 count 都是 0（舊呼叫端仍可用）', () => {
