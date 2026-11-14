@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>瓜瓜塔防 · 專案架構圖</title>
+<style>
+  @font-face{
+    font-family:'Noto Sans TC Local';
+    src:url('public/fonts/NotoSansTC.ttf') format('truetype');
+    font-weight:400; font-display:swap;
+  }
+
+  /* ===== 主題 token：深色為預設 ===== */
+  :root{
+    color-scheme:dark;
+    --bg:#0b0c10; --bg2:#0f1116; --surface:#181a21; --surface2:#1e2129;
+    --border:#2c313c; --border2:#3a404f;
+    --text:#e2e4e9; --text-strong:#ffffff; --text-soft:#c3c9d6; --text-soft-2:#cfd6e6;
+    --muted:#8b92a5; --dim:#6b7280;
+    --primary:#5c83d6; --secondary:#4a9e88; --accent:#60a5fa;
+    --danger:#d95555; --warn:#d9a441; --ok:#4aa06e;
+    --l0:#64748b; --l1:#6366f1; --l2:#3b82f6; --l3:#14b8a6;
+    --l4:#a855f7; --l5:#f59e0b; --l6:#f43f5e; --l7:#22c55e;
+
+    /* 版面與裝飾 */
+    --body-glow-1:rgba(92,131,214,.12); --body-glow-2:rgba(74,158,136,.08);
+    --side-bg:rgba(15,17,22,.92);
+    --hero-grad:linear-gradient(135deg,rgba(92,131,214,.16),rgba(74,158,136,.06) 55%,transparent);
+    --hero-grid-line:rgba(255,255,255,.03);
+    --chip-bg:rgba(255,255,255,.05); --chip-bd:#3a404f; --chip-text:#cfd6e6;
+    --oneliner-bg:rgba(74,158,136,.08);
+    --idx-bg:rgba(92,131,214,.16); --idx-bd:rgba(92,131,214,.45); --idx-text:#a9c1f5;
+    --toc-on-bg:rgba(92,131,214,.14);
+
+    /* 表格與程式碼 */
+    --row-border:rgba(44,49,60,.7); --row-hover:rgba(255,255,255,.015);
+    --code-bg:rgba(255,255,255,.06); --code-bd:#2c313c; --code-text:#cdd7ea;
+    --pre-bg:#0d0f14;
+    --tok-comment:#6b7280; --tok-key:#c084fc; --tok-str:#86efac;
+
+    /* 提示框 */
+    --note-bg:rgba(92,131,214,.09); --warn-bg:rgba(217,164,65,.1); --ok-bg:rgba(74,160,110,.1);
+
+    /* 圖表 */
+    --arrow:#5b6478;
+    --pipe-glow-1:rgba(92,131,214,.6); --pipe-glow-2:rgba(74,158,136,.35);
+    --tree-text:#c3cadb; --tree-dir:#7dd3fc; --tree-file:#e2e8f0;
+    --tree-meta:#6b7280; --tree-accent:#fbbf24;
+
+    /* 技術債清冊 */
+    --kpi-good:#7fd1a3; --kpi-bad:#fca5a5; --kpi-mid:#fcd34d;
+    --sev0-fg:#fca5a5; --sev0-bd:rgba(217,85,85,.55); --sev0-bg:rgba(217,85,85,.14);
+    --sev1-fg:#fcd34d; --sev1-bd:rgba(217,164,65,.55); --sev1-bg:rgba(217,164,65,.13);
+    --sev2-fg:#93c5fd; --sev2-bd:rgba(96,165,250,.5); --sev2-bg:rgba(96,165,250,.11);
+    --tid-fg:#e6ebf5; --tid-bd:rgba(255,255,255,.18); --tid-bg:rgba(255,255,255,.07);
+    --card-shadow:none;
+
+    --mono:ui-monospace,SFMono-Regular,"Cascadia Mono","Consolas",monospace;
+    --sans:'Noto Sans TC Local','Noto Sans TC',"Microsoft JhengHei","PingFang TC",system-ui,-apple-system,sans-serif;
+    --r:10px;
+  }
+
+  /* ===== 淺色 token ===== */
+  :root[data-theme="light"]{
+    color-scheme:light;
+    --bg:#f4f6fb; --bg2:#ffffff; --surface:#ffffff; --surface2:#eef2f9;
+    --border:#d9e0ec; --border2:#c2ccdd;
+    --text:#1a2334; --text-strong:#0b1220; --text-soft:#33405a; --text-soft-2:#3c4a66;
+    --muted:#5a6478; --dim:#6e7789;
+    --primary:#3d63c6; --secondary:#2b7d68; --accent:#1f5fd0;
+    --danger:#c0392b; --warn:#a97c12; --ok:#2c7d55;
+    --l0:#5b6b82; --l1:#4f46e5; --l2:#2563eb; --l3:#0d9488;
+    --l4:#9333ea; --l5:#b45309; --l6:#dc2626; --l7:#15803d;
+
+    --body-glow-1:rgba(92,131,214,.10); --body-glow-2:rgba(74,158,136,.07);
+    --side-bg:rgba(255,255,255,.94);
+    --hero-grad:linear-gradient(135deg,rgba(92,131,214,.13),rgba(74,158,136,.09) 55%,rgba(255,255,255,0));
+    --hero-grid-line:rgba(24,38,72,.05);
+    --chip-bg:rgba(24,38,72,.045); --chip-bd:#c9d2e2; --chip-text:#33405a;
+    --oneliner-bg:rgba(43,125,104,.08);
+    --idx-bg:rgba(61,99,198,.12); --idx-bd:rgba(61,99,198,.32); --idx-text:#2a4a9e;
+    --toc-on-bg:rgba(61,99,198,.12);
+
+    --row-border:rgba(199,209,224,.8); --row-hover:rgba(24,38,72,.025);
+    --code-bg:rgba(24,38,72,.05); --code-bd:#d9e0ec; --code-text:#243049;
+    --pre-bg:#f7f9fd;
+    --tok-comment:#6b7280; --tok-key:#7c3aed; --tok-str:#15803d;
+
+    --note-bg:rgba(61,99,198,.07); --warn-bg:rgba(169,124,18,.09); --ok-bg:rgba(44,125,85,.09);
+
+    --arrow:#98a2b3;
+    --pipe-glow-1:rgba(61,99,198,.45); --pipe-glow-2:rgba(43,125,104,.3);
+    --tree-text:#26314a; --tree-dir:#0369a1; --tree-file:#1f2937;
+    --tree-meta:#6b7488; --tree-accent:#b45309;
+
+    --kpi-good:#15803d; --kpi-bad:#b91c1c; --kpi-mid:#a16207;
+    --sev0-fg:#b91c1c; --sev0-bd:rgba(185,28,28,.32); --sev0-bg:rgba(185,28,28,.08);
+    --sev1-fg:#a16207; --sev1-bd:rgba(161,98,7,.32); --sev1-bg:rgba(161,98,7,.09);
+    --sev2-fg:#1d4ed8; --sev2-bd:rgba(29,78,216,.3); --sev2-bg:rgba(29,78,216,.07);
+    --tid-fg:#2a3446; --tid-bd:rgba(24,38,72,.2); --tid-bg:rgba(24,38,72,.05);
+    --card-shadow:0 1px 2px rgba(24,38,72,.06),0 2px 10px rgba(24,38,72,.04);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:24px}
+  body{
+    margin:0;background:
+      radial-gradient(1200px 600px at 85% -10%,var(--body-glow-1),transparent 60%),
+      radial-gradient(900px 500px at -10% 20%,var(--body-glow-2),transparent 60%),
+      var(--bg);
+    color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    transition:background-color .2s,color .2s;
+  }
+  code,pre,.mono{font-family:var(--mono)}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ===== 版面 ===== */
+  .side{
+    position:fixed;inset:0 auto 0 0;width:270px;padding:20px 14px 24px;
+    background:var(--side-bg);border-right:1px solid var(--border);
+    backdrop-filter:blur(8px);overflow-y:auto;z-index:20;
+  }
+  .brand{padding:0 8px 14px;border-bottom:1px solid var(--border);margin-bottom:14px}
+  .brand .t{font-size:17px;font-weight:700;letter-spacing:.04em;color:var(--text-strong)}
+  .brand .s{font-size:12px;color:var(--muted);margin-top:4px}
+  .brand .v{display:inline-block;margin-top:8px;font-size:11px;font-family:var(--mono);
+    color:var(--secondary);border:1px solid var(--border2);
+    border-color:color-mix(in srgb,var(--secondary) 45%,transparent);
+    border-radius:99px;padding:1px 8px}
+  #q{width:100%;margin:0 0 10px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);
+    background:var(--surface);color:var(--text);font-size:13px;font-family:var(--sans)}
+  #q:focus{outline:none;border-color:var(--primary)}
+  #q::placeholder{color:var(--dim)}
+
+  /* 主題切換 */
+  .themebar{display:flex;gap:4px;margin:0 0 12px}
+  .themebar button{
+    flex:1;padding:5px 0;font-size:11.5px;font-family:var(--sans);cursor:pointer;
+    color:var(--muted);background:var(--surface);border:1px solid var(--border);
+    border-radius:7px;transition:color .15s,border-color .15s,background .15s;
+  }
+  .themebar button:hover{color:var(--text);border-color:var(--border2)}
+  .themebar button.on{
+    color:var(--idx-text);border-color:var(--idx-bd);background:var(--idx-bg);font-weight:600;
+  }
+  .themebar button:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
+
+  #toc{display:flex;flex-direction:column;gap:2px}
+  #toc a{
+    display:flex;align-items:baseline;gap:8px;padding:6px 8px;border-radius:7px;
+    color:var(--muted);font-size:13.5px;border-left:2px solid transparent;text-decoration:none;
+  }
+  #toc a .n{font-family:var(--mono);font-size:11px;color:var(--dim);min-width:16px}
+  #toc a:hover{background:var(--surface);color:var(--text);text-decoration:none}
+  #toc a.on{background:var(--toc-on-bg);color:var(--text-strong);border-left-color:var(--primary)}
+  .side-foot{margin-top:18px;padding:12px 8px 0;border-top:1px solid var(--border);
+    font-size:11.5px;color:var(--dim);line-height:1.7}
+
+  main{margin-left:270px;padding:40px 40px 120px;max-width:1180px}
+
+  /* ===== Hero ===== */
+  .hero{
+    position:relative;border:1px solid var(--border);border-radius:16px;overflow:hidden;
+    background:var(--hero-grad);
+    padding:34px 34px 28px;margin-bottom:34px;
+  }
+  .hero:before{content:"";position:absolute;inset:0;
+    background-image:linear-gradient(var(--hero-grid-line) 1px,transparent 1px),
+                     linear-gradient(90deg,var(--hero-grid-line) 1px,transparent 1px);
+    background-size:26px 26px;mask-image:linear-gradient(180deg,#000,transparent 85%);pointer-events:none}
+  .hero h1{margin:0;font-size:32px;letter-spacing:.02em;color:var(--text-strong)}
+  .hero .sub{color:var(--muted);margin-top:8px;font-size:14.5px}
+  .hero .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .hero .chips span{font-size:12px;font-family:var(--mono);color:var(--chip-text);
+    background:var(--chip-bg);border:1px solid var(--chip-bd);border-radius:99px;padding:3px 10px}
+  .hero .oneliner{
+    margin-top:20px;padding:12px 16px;border-left:3px solid var(--secondary);
+    background:var(--oneliner-bg);border-radius:0 8px 8px 0;font-size:14.5px;
+  }
+
+  /* ===== 標題 / 區塊 ===== */
+  section{margin:0 0 46px}
+  h2{
+    display:flex;align-items:center;gap:12px;font-size:22px;margin:0 0 6px;
+    padding-bottom:10px;border-bottom:1px solid var(--border);color:var(--text-strong);
+  }
+  h2 .idx{
+    flex:0 0 auto;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;
+    background:var(--idx-bg);border:1px solid var(--idx-bd);
+    color:var(--idx-text);font-family:var(--mono);font-size:13px;
+  }
+  h3{font-size:16px;margin:26px 0 10px;color:var(--text-strong)}
+  h3 .tag{font-size:11px;font-family:var(--mono);color:var(--muted);font-weight:400;
+    border:1px solid var(--border2);border-radius:6px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+  h4{font-size:14px;margin:18px 0 8px;color:var(--text-soft-2)}
+  p{margin:8px 0}
+  ul,ol{margin:8px 0;padding-left:22px}
+  li{margin:3px 0}
+  .lead{color:var(--text-soft)}
+  .small{font-size:13px;color:var(--muted)}
+
+  /* ===== 卡片 / 表格 ===== */
+  .grid{display:grid;gap:12px}
+  .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+    padding:14px 16px;box-shadow:var(--card-shadow);
+  }
+  .card .ct{font-weight:600;font-size:14px;margin-bottom:4px;display:flex;gap:8px;align-items:center;color:var(--text-strong)}
+  .card .cd{font-size:13px;color:var(--muted);line-height:1.65}
+  .card .key{font-family:var(--mono);font-size:11.5px;color:var(--secondary);
+    background:var(--oneliner-bg);border:1px solid var(--border2);
+    border-color:color-mix(in srgb,var(--secondary) 34%,transparent);
+    border-radius:5px;padding:1px 6px;display:inline-block;margin-top:8px}
+
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px;
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;
+    box-shadow:var(--card-shadow)}
+  thead th{background:var(--surface2);text-align:left;font-weight:600;color:var(--text-soft-2);
+    padding:9px 12px;border-bottom:1px solid var(--border2);white-space:nowrap}
+  tbody td{padding:8px 12px;border-bottom:1px solid var(--row-border);vertical-align:top}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:var(--row-hover)}
+  td.num,th.num{text-align:right;font-family:var(--mono)}
+  td code,p code,li code,td b code{font-size:12.5px;background:var(--code-bg);
+    border:1px solid var(--code-bd);border-radius:4px;padding:0 5px;color:var(--code-text);white-space:nowrap}
+
+  pre{background:var(--pre-bg);border:1px solid var(--border);border-radius:var(--r);
+    padding:14px 16px;overflow:auto;font-size:12.5px;line-height:1.7;margin:12px 0;color:var(--text)}
+  pre .c{color:var(--tok-comment)}
+  pre .k{color:var(--tok-key)}
+  pre .s{color:var(--tok-str)}
+
+  .note,.warn,.ok{
+    border-radius:var(--r);padding:12px 16px;margin:14px 0;font-size:13.5px;
+    border-left:3px solid var(--primary);background:var(--note-bg);
+  }
+  .warn{border-left-color:var(--warn);background:var(--warn-bg)}
+  .ok{border-left-color:var(--ok);background:var(--ok-bg)}
+  .note b,.warn b,.ok b{color:var(--text-strong)}
+
+  /* ===== 層級堆疊圖 ===== */
+  .stack{display:flex;flex-direction:column;gap:0;margin:16px 0}
+  .layer{
+    display:flex;gap:14px;padding:12px 16px;background:var(--surface);
+    border:1px solid var(--border);border-left:4px solid var(--c,var(--primary));
+    border-bottom:none;
+  }
+  .layer:first-child{border-radius:var(--r) var(--r) 0 0}
+  .layer:last-child{border-bottom:1px solid var(--border);border-radius:0 0 var(--r) var(--r)}
+  .layer .lnum{flex:0 0 30px;height:30px;display:grid;place-items:center;border-radius:8px;
+    background:var(--chip-bg);color:var(--text-soft-2);font-family:var(--mono);font-size:13px;
+    border:1px solid var(--border2)}
+  .layer .lbody{flex:1;min-width:0}
+  .layer .lname{font-weight:600;font-size:14.5px;color:var(--text-strong)}
+  .layer .lname em{font-style:normal;color:var(--muted);font-weight:400;font-size:12.5px;margin-left:6px}
+  .layer .ldesc{font-size:12.8px;color:var(--muted);margin-top:2px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chips span{font-size:11px;font-family:var(--mono);color:var(--chip-text);
+    background:var(--chip-bg);border:1px solid var(--border2);border-radius:5px;padding:1px 7px}
+
+  /* ===== 流程圖（橫向鏈） ===== */
+  .chain{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:14px 0}
+  .chain .node{
+    flex:1 1 150px;min-width:140px;background:var(--surface);border:1px solid var(--border);
+    border-top:3px solid var(--c,var(--primary));border-radius:8px;padding:10px 12px;
+    display:flex;flex-direction:column;justify-content:center;
+  }
+  .chain .node b{display:block;font-size:13px;margin-bottom:3px;color:var(--text-strong)}
+  .chain .node span{font-size:12px;color:var(--muted)}
+  .chain .ar{display:grid;place-items:center;color:var(--arrow);font-size:18px;flex:0 0 20px}
+
+  /* ===== 流程圖（縱向 pipeline） ===== */
+  .pipe{list-style:none;margin:16px 0;padding:0;position:relative}
+  .pipe:before{content:"";position:absolute;left:15px;top:8px;bottom:8px;width:2px;
+    background:linear-gradient(180deg,var(--pipe-glow-1),var(--pipe-glow-2))}
+  .pipe li{position:relative;display:flex;gap:14px;padding:0 0 14px 44px}
+  .pipe li .pn{
+    position:absolute;left:0;top:0;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;
+    background:var(--surface2);border:1px solid var(--border2);color:var(--text-soft-2);
+    font-family:var(--mono);font-size:12.5px;z-index:1;
+  }
+  .pipe li .pb{flex:1;background:var(--surface);border:1px solid var(--border);
+    border-radius:9px;padding:10px 14px}
+  .pipe li .pb b{font-size:13.5px;color:var(--text-strong)}
+  .pipe li .pb .f{display:block;font-family:var(--mono);font-size:11.5px;color:var(--secondary);margin:2px 0 0}
+  .pipe li .pb p{margin:3px 0 0;font-size:12.8px;color:var(--muted)}
+
+  /* ===== 步驟（縱向 timeline） ===== */
+  .steps{list-style:none;padding:0;margin:14px 0;display:flex;flex-direction:column;gap:10px}
+  .steps li{display:flex;gap:12px;align-items:flex-start}
+  .steps li .sn{flex:0 0 26px;height:26px;border-radius:50%;display:grid;place-items:center;
+    background:var(--idx-bg);border:1px solid var(--idx-bd);
+    color:var(--idx-text);font-family:var(--mono);font-size:12px}
+  .steps li .sb{flex:1;font-size:13.5px;padding-top:2px}
+  .steps li .sb code{font-size:12.5px}
+
+  /* ===== 場景格 ===== */
+  .scene-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(164px,1fr));gap:8px;margin:12px 0}
+  .scene{
+    background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;
+    font-size:13px;transition:border-color .15s,background .15s;
+  }
+  .scene:hover{border-color:var(--border2);background:var(--surface2)}
+  .scene b{display:block;font-size:13px;color:var(--text-strong)}
+  .scene i{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .scene.flow{border-left:3px solid var(--l2)}
+  .scene.meta{border-left:3px solid var(--l4)}
+  .scene.tool{border-left:3px solid var(--l5)}
+  .scene.info{border-left:3px solid var(--l3)}
+  .scene.sys{border-left:3px solid var(--l0)}
+
+  /* ===== 樹狀圖 ===== */
+  .tree{background:var(--pre-bg);border:1px solid var(--border);border-radius:var(--r);
+    padding:14px 16px;font-family:var(--mono);font-size:12.3px;line-height:1.75;
+    white-space:pre;overflow:auto;color:var(--tree-text)}
+  .tree .d{color:var(--tree-dir)}
+  .tree .f{color:var(--tree-file)}
+  .tree .m{color:var(--tree-meta)}
+  .tree .a{color:var(--tree-accent)}
+
+  /* ===== 圖例 ===== */
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 0;font-size:12px;color:var(--muted)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle}
+
+  .kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:12px 0}
+  .kv .k{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;
+    box-shadow:var(--card-shadow)}
+  .kv .k b{display:block;font-size:12px;color:var(--muted);font-weight:500;font-family:var(--mono)}
+  .kv .k span{font-size:14.5px;color:var(--text)}
+  .kv .k span em{font-style:normal;font-size:11.5px;color:var(--dim);margin-left:4px}
+
+  footer{border-top:1px solid var(--border);padding-top:18px;color:var(--dim);font-size:12.5px}
+
+  /* ===== 技術債清冊 ===== */
+  .kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;margin:16px 0}
+  .kpi div{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px 12px;
+    box-shadow:var(--card-shadow)}
+  .kpi b{display:block;font-family:var(--mono);font-size:20px;color:var(--text-strong);line-height:1.25}
+  .kpi b small{font-size:11px;color:var(--muted);margin-left:2px}
+  .kpi span{font-size:12px;color:var(--muted);display:block;margin-top:2px}
+  .kpi .good b{color:var(--kpi-good)}
+  .kpi .bad b{color:var(--kpi-bad)}
+  .kpi .mid b{color:var(--kpi-mid)}
+  .sev{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:1px 6px;border-radius:4px;
+    border:1px solid;vertical-align:middle;white-space:nowrap;margin-right:6px}
+  .sev.p0{color:var(--sev0-fg);border-color:var(--sev0-bd);background:var(--sev0-bg)}
+  .sev.p1{color:var(--sev1-fg);border-color:var(--sev1-bd);background:var(--sev1-bg)}
+  .sev.p2{color:var(--sev2-fg);border-color:var(--sev2-bd);background:var(--sev2-bg)}
+  .sev.p3{color:var(--muted);border-color:var(--border2);background:var(--chip-bg)}
+  .tid{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:1px 5px;border-radius:4px;
+    border:1px solid var(--tid-bd);background:var(--tid-bg);color:var(--tid-fg);
+    margin-right:5px;letter-spacing:.02em;white-space:nowrap}
+  .debt-table td:first-child{min-width:160px;width:19%}
+  .debt-table td:nth-child(2){color:var(--text-soft);font-size:12.8px;width:31%}
+  .debt-table td:nth-child(3){color:var(--muted);font-size:12.8px;width:22%}
+  .debt-table td:nth-child(4){font-size:12.8px;width:28%}
+  .debt-table td code{font-size:11.8px;white-space:normal;overflow-wrap:anywhere}
+  #top{position:fixed;right:22px;bottom:22px;width:40px;height:40px;border-radius:10px;
+    background:var(--surface2);border:1px solid var(--border2);color:var(--text);
+    font-size:16px;cursor:pointer;display:none;z-index:30}
+  #top.show{display:block}
+
+  @media (max-width:1000px){
+    .side{position:static;width:auto;border-right:none;border-bottom:1px solid var(--border)}
+    #toc{flex-direction:row;flex-wrap:wrap;gap:4px}
+    #toc a{border-left:none;border:1px solid var(--border);font-size:12.5px}
+    #toc a.on{border-color:var(--primary)}
+    main{margin-left:0;padding:22px 18px 80px;max-width:none}
+    .g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .themebar{max-width:320px}
+  }
+  @media (max-width:640px){
+    .g2,.g3,.g4{grid-template-columns:1fr}
+    .hero{padding:22px}
+    .hero h1{font-size:24px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    body{transition:none}
+  }
+  @media print{
+    :root{
+      --bg:#fff; --bg2:#fff; --surface:#fff; --surface2:#f4f6fa;
+      --border:#cfd6e2; --border2:#bfc7d6;
+      --text:#111827; --text-strong:#000; --text-soft:#1f2937; --text-soft-2:#1f2937;
+      --muted:#4b5563; --dim:#6b7280;
+      --side-bg:#fff; --pre-bg:#f7f9fd; --code-bg:#f2f4f8; --code-text:#1f2937;
+      --row-hover:transparent; --card-shadow:none;
+      --tree-text:#1f2937; --tree-dir:#0369a1; --tree-file:#111827; --tree-meta:#6b7280; --tree-accent:#b45309;
+    }
+    .side,#top,.themebar{display:none}
+    main{margin:0;padding:0;max-width:none}
+    body{background:#fff;color:#111}
+    .hero:before{display:none}
+    .card,table,pre,.layer,.pipe li .pb,.kpi div,.kv .k{break-inside:avoid}
+  }
+</style>
+<script>
+  /* 主題開機：避免載入閃爍。auto 跟隨系統，手動選擇會被記住。 */
+  (function () {
+    try {
+      var qp = new URLSearchParams(location.search).get('theme');
+      if (qp === 'light' || qp === 'dark') {
+        document.documentElement.setAttribute('data-theme', qp);
+        return;
+      }
+      var pref = localStorage.getItem('guagua-arch-theme') || 'auto';
+      var light = pref === 'auto'
+        ? window.matchMedia('(prefers-color-scheme: light)').matches
+        : pref === 'light';
+      document.documentElement.setAttribute('data-theme', light ? 'light' : 'dark');
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  })();
+</script>
+</head>
+<body>
+
+<aside class="side">
+  <div class="brand">
+    <div class="t">瓜瓜塔防 · 架構圖</div>
+    <div class="s">guagua-tower-defense</div>
+    <span class="v">v1.2.0 · Tauri 2</span>
+  </div>
+  <input id="q" type="search" placeholder="搜尋章節（例：迴圈 / store / Mod）" autocomplete="off">
+  <div class="themebar" role="group" aria-label="主題切換">
+    <button type="button" data-t="auto" aria-pressed="false">自動</button>
+    <button type="button" data-t="light" aria-pressed="false">淺色</button>
+    <button type="button" data-t="dark" aria-pressed="false">深色</button>
+  </div>
+  <nav id="toc">
+    <a href="#overview" data-k="總覽 一句話 三個事實 引擎 rust"><span class="n">01</span>一眼看懂</a>
+    <a href="#layers" data-k="分層 架構圖 外殼 入口 場景 元件 狀態 邏輯 服務 輸出"><span class="n">02</span>八層架構總圖</a>
+    <a href="#size" data-k="規模 統計 行數 檔案 塔 敵人 地圖 成就 皮膚"><span class="n">03</span>規模與內容量</a>
+    <a href="#tree" data-k="資料夾 目錄 src components store data services"><span class="n">04</span>資料夾地圖</a>
+    <a href="#boot" data-k="啟動 流程 main app tauri webview"><span class="n">05</span>啟動流程</a>
+    <a href="#scenes" data-k="場景 路由 22 個 切換 history 返回"><span class="n">06</span>場景系統</a>
+    <a href="#stores" data-k="store zustand 狀態 持久化 localStorage slice"><span class="n">07</span>狀態層</a>
+    <a href="#loop" data-k="主迴圈 每幀 rAF 遊戲 loop 幀護欄 倍速 暫停"><span class="n">08</span>遊戲主迴圈</a>
+    <a href="#combat" data-k="戰鬥 塔 敵人 子彈 狀態 技能 融合 傷害"><span class="n">09</span>戰鬥子系統</a>
+    <a href="#render" data-k="渲染 2d 3d canvas three 皮膚 效能 主題"><span class="n">10</span>渲染層</a>
+    <a href="#data" data-k="資料層 資料檔 地圖 波次 難度"><span class="n">11</span>資料層</a>
+    <a href="#meta" data-k="元遊戲 天賦 成就 商店 皮膚 戰役 每日 突變"><span class="n">12</span>元遊戲系統</a>
+    <a href="#mod" data-k="mod 編輯器 地圖編輯器 工作坊 創作"><span class="n">13</span>創作工具</a>
+    <a href="#replay" data-k="回放 統計 百科 設定 備份"><span class="n">14</span>回放 · 統計 · 百科</a>
+    <a href="#services" data-k="服務 音效 音樂 api 更新 音訊"><span class="n">15</span>服務層</a>
+    <a href="#cross" data-k="i18n 多語言 持久化 效能 護欄"><span class="n">16</span>跨層機制</a>
+    <a href="#tauri" data-k="tauri rust 後端 權限 capabilities"><span class="n">17</span>Tauri 後端</a>
+    <a href="#build" data-k="建置 測試 ci 發布 更新 簽章 npm"><span class="n">18</span>建置與發布</a>
+    <a href="#deps" data-k="依賴 方向 規則 import"><span class="n">19</span>依賴規則</a>
+    <a href="#recipes" data-k="食譜 新增 塔 敵人 場景 語言 成就 平衡"><span class="n">20</span>實戰食譜</a>
+    <a href="#debt" data-k="技術債 清冊 死碼 重複 型別 any eslint 覆蓋率 資產 測試 debt roadmap"><span class="n">21</span>技術債清冊</a>
+  </nav>
+  <div class="side-foot">
+    單檔 HTML · 無外部依賴<br>
+    所有數字為原始碼實測<br>
+    主題：<code>?theme=light|dark</code> 可指定<br>
+    AI 工作手冊：AGENTS.md
+  </div>
+</aside>
+
+<main>
+
+  <!-- ==================== HERO ==================== -->
+  <header class="hero">
+    <h1>瓜瓜塔防 · 完整架構圖</h1>
+    <div class="sub">Tauri 2 + React 18 + TypeScript + Vite + Zustand + Three.js · 北歐風格 · 深色／淺色雙主題</div>
+    <div class="chips">
+      <span>952 個 TS/TSX 檔案</span>
+      <span>164,918 行</span>
+      <span>22 場景</span>
+      <span>18 store</span>
+      <span>18 塔 / 22 敵人</span>
+      <span>39 地圖</span>
+      <span>17 章 81 關</span>
+      <span>607 成就</span>
+      <span>10 語言</span>
+      <span>42 項技術債</span>
+    </div>
+    <div class="oneliner">
+      <b>一句話：</b>把「塔防遊戲引擎 + 22 個 UI 場景 + 創作工具」全部塞進瀏覽器渲染層的 Tauri 桌面程式。
+    </div>
+  </header>
+
+  <!-- ==================== 01 總覽 ==================== -->
+  <section id="overview">
+    <h2><span class="idx">01</span>一眼看懂</h2>
+    <p class="lead">先看三個「不迷路」的事實，後面所有章節都只是它們的展開。</p>
+
+    <div class="grid g3">
+      <div class="card">
+        <div class="ct">🧩 前端就是引擎</div>
+        <div class="cd">Rust 端沒有任何遊戲邏輯、沒有自訂 IPC 指令；玩法 100% 在 <code>src/</code>。<br>
+          <code>main.rs</code> 只有 13 行。</div>
+        <span class="key">src-tauri/src/main.rs</span>
+      </div>
+      <div class="card">
+        <div class="ct">🎯 狀態是唯一真相</div>
+        <div class="cd">遊戲世界 = <code>useGameStore</code> 欄位；畫布每幀 <code>getState()</code> 讀它；格子只記塔的 <b>id</b>。</div>
+        <span class="key">gameStore.ts · gridTower.ts</span>
+      </div>
+      <div class="card">
+        <div class="ct">📚 資料與程式分離</div>
+        <div class="cd">塔／敵人／地圖／波次／成就／皮膚都是純資料檔，改數值不用碰邏輯。</div>
+        <span class="key">src/data/** 214 檔 / 27,569 行</span>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>怎麼用這份文件：</b>左側可搜尋章節。想看「遊戲怎麼跑」直接跳 <a href="#loop">08 主迴圈</a>；
+      想改東西跳 <a href="#recipes">20 實戰食譜</a>；想理解 UI 為什麼這樣長跳 <a href="#render">10 渲染層</a>。
+    </div>
+  </section>
+
+  <!-- ==================== 02 分層 ==================== -->
+  <section id="layers">
+    <h2><span class="idx">02</span>八層架構總圖</h2>
+    <p class="lead">由上往下是「外殼 → 入口 → 場景 → 元件 → 狀態 → 邏輯／資料 → 服務 → 輸出」。
+      箭頭代表「呼叫／讀取」。<b>狀態層（⑤）是樞紐</b>：場景只讀它、迴圈只寫它、畫面只投影它。</p>
+
+    <div class="stack">
+      <div class="layer" style="--c:var(--l0)">
+        <div class="lnum">①</div>
+        <div class="lbody">
+          <div class="lname">桌面外殼 · Tauri 2（Rust）<em>只有 13 行</em></div>
+          <div class="ldesc">建立視窗、載入 <code>dist/index.html</code>、註冊外掛、管理權限與自動更新。</div>
+          <div class="chips"><span>main.rs</span><span>tauri.conf.json</span><span>capabilities/*.json</span><span>NSIS 打包</span></div>
+        </div>
+      </div>
+
+      <div class="layer" style="--c:var(--l1)">
+        <div class="lnum">②</div>
+        <div class="lbody">
+          <div class="lname">入口層 · HTML / React 啟動</div>
+          <div class="ldesc">解析 HTML → 掛載 React → 注入音效偏好 provider → 訂閱場景狀態 → 初始化音訊 → 渲染主選單。</div>
+          <div class="chips"><span>index.html</span><span>main.tsx</span><span>App.tsx（場景分派表）</span></div>
+        </div>
+      </div>
+
+      <div class="layer" style="--c:var(--l2)">
+        <div class="lnum">③</div>
+        <div class="lbody">
+          <div class="lname">場景層 · 22 個 Scene</div>
+          <div class="ldesc">主選單、選關、戰鬥、百科、成就、商店、皮膚、天賦、回放、統計、設定、教學、Mod 編輯器…全部 lazy 載入。</div>
+          <div class="chips"><span>components/scenes/*</span><span>game-scene/</span><span>settings/</span><span>replay/</span><span>talent/</span></div>
+        </div>
+      </div>
+
+      <div class="layer" style="--c:var(--l3)">
+        <div class="lnum">④</div>
+        <div class="lbody">
+          <div class="lname">元件層 · 共用 UI 與視覺資產</div>
+          <div class="ldesc">場景殼層、設定列、Modal、HUD、塔身繪製、HARDLINE 設計語言、Mod 編輯器元件。</div>
+          <div class="chips"><span>components/ui</span><span>components/hl</span><span>components/game</span><span>components/mod-editor</span></div>
+        </div>
+      </div>
+
+      <div class="layer" style="--c:var(--l4)">
+        <div class="lnum">⑤</div>
+        <div class="lbody">
+          <div class="lname">狀態層 · 18 個 Zustand store<em>樞紐</em></div>
+          <div class="ldesc">局內世界（gameStore + 7 個 action slice）、元遊戲進度、設定、Dev、語言。</div>
+          <div class="chips"><span>gameStore</span><span>achievementStore</span><span>statsStore</span><span>settingsStore</span><span>languageStore</span></div>
+        </div>
+      </div>
+
+      <div class="layer" style="--c:var(--l5)">
+        <div class="lnum">⑥</div>
+        <div class="lbody">
+          <div class="lname">邏輯與資料層 · 沒有 React 的世界</div>
+          <div class="ldesc">每幀更新（敵人／塔／子彈／移除）、塔與敵人的數值資料、純函式規則（傷害倍率、融合、協同）。</div>
+          <div class="chips"><span>store/gameLoop</span><span>data/gameData</span><span>data/combatStatus</span><span>utils/spatialHash</span></div>
+        </div>
+      </div>
+
+      <div class="layer" style="--c:var(--l6)">
+        <div class="lnum">⑦</div>
+        <div class="lbody">
+          <div class="lname">服務層 · 有副作用的 I/O</div>
+          <div class="ldesc">音效與 BGM、音源 API 下載與快取、更新檢查、設定檔案匯出／匯入。</div>
+          <div class="chips"><span>audioService</span><span>musicService</span><span>audioCache/*</span><span>updateService</span><span>settingsFileDb</span></div>
+        </div>
+      </div>
+
+      <div class="layer" style="--c:var(--l7)">
+        <div class="lnum">⑧</div>
+        <div class="lbody">
+          <div class="lname">渲染輸出 · 三種畫法</div>
+          <div class="ldesc">2D 雙 Canvas（靜態層＋動態層）、Three.js 3D 視圖、DOM + Framer Motion 的 UI。</div>
+          <div class="chips"><span>GameCanvasStatic</span><span>GameCanvasDynamic</span><span>three/GameScene3D</span><span>Tailwind</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:var(--l0)"></i>外殼</span>
+      <span><i style="background:var(--l1)"></i>入口</span>
+      <span><i style="background:var(--l2)"></i>場景</span>
+      <span><i style="background:var(--l3)"></i>元件</span>
+      <span><i style="background:var(--l4)"></i>狀態</span>
+      <span><i style="background:var(--l5)"></i>邏輯資料</span>
+      <span><i style="background:var(--l6)"></i>服務</span>
+      <span><i style="background:var(--l7)"></i>輸出</span>
+    </div>
+
+    <div class="warn">
+      <b>關鍵：沒有任何元件直接互相呼叫遊戲邏輯。</b> 按鈕按下去 → 呼叫 store action → 世界狀態改變 → 畫布下一幀自己畫出來。
+      這就是為什麼「改 UI 不會改壞玩法」。
+    </div>
+  </section>
+
+  <!-- ==================== 03 規模 ==================== -->
+  <section id="size">
+    <h2><span class="idx">03</span>規模與內容量</h2>
+
+    <h3>程式碼分布</h3>
+    <table>
+      <thead><tr><th>目錄</th><th class="num">檔案</th><th class="num">行數</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td><code>components/</code></td><td class="num">464</td><td class="num">72,266</td><td>全部 UI 與場景（含 2D／3D 渲染器）</td></tr>
+        <tr><td><code>data/</code></td><td class="num">214</td><td class="num">27,569</td><td>塔／敵人／地圖／波次／戰役／成就／皮膚等純資料</td></tr>
+        <tr><td><code>i18n/</code></td><td class="num">19</td><td class="num">36,518</td><td>10 種語言 + 標籤映射工具</td></tr>
+        <tr><td><code>store/</code></td><td class="num">47</td><td class="num">11,854</td><td>Zustand 狀態與遊戲迴圈</td></tr>
+        <tr><td><code>test/</code></td><td class="num">160</td><td class="num">10,496</td><td>Vitest 行為測試（jsdom）</td></tr>
+        <tr><td><code>services/</code></td><td class="num">22</td><td class="num">2,860</td><td>音效／音樂／更新／設定檔案</td></tr>
+        <tr><td><code>utils/</code></td><td class="num">12</td><td class="num">1,671</td><td>空間哈希、精靈快取、幀護欄、效能監控</td></tr>
+        <tr><td><code>types/</code></td><td class="num">9</td><td class="num">1,265</td><td>全域型別定義</td></tr>
+        <tr><td><code>hooks/</code></td><td class="num">2</td><td class="num">275</td><td>成就追蹤、回放錄製</td></tr>
+        <tr><td><b>合計</b></td><td class="num"><b>952</b></td><td class="num"><b>164,918</b></td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <h3>遊戲內容量（資料檔實測）</h3>
+    <div class="kv">
+      <div class="k"><b>塔</b><span>18<em>14 基礎 + 4 融合</em></span></div>
+      <div class="k"><b>敵人</b><span>22</span></div>
+      <div class="k"><b>狀態效果</b><span>22</span></div>
+      <div class="k"><b>地圖</b><span>39<em>含叉路／隱藏／戰役圖</em></span></div>
+      <div class="k"><b>官方波次</b><span>15<em>+ 無盡生成</em></span></div>
+      <div class="k"><b>玩家主動技能</b><span>10</span></div>
+      <div class="k"><b>戰術協議</b><span>39</span></div>
+      <div class="k"><b>自訂波次組</b><span>36</span></div>
+      <div class="k"><b>戰役</b><span>17 章 / 81 關</span></div>
+      <div class="k"><b>突變規則</b><span>約 106<em>+8 地圖改造包</em></span></div>
+      <div class="k"><b>每日模板</b><span>95</span></div>
+      <div class="k"><b>成就</b><span>607</span></div>
+      <div class="k"><b>塔皮膚</b><span>144</span></div>
+      <div class="k"><b>天賦節點</b><span>23</span></div>
+      <div class="k"><b>語言</b><span>10<em>zh-TW 4,610 行為基準</em></span></div>
+    </div>
+  </section>
+
+  <!-- ==================== 04 資料夾 ==================== -->
+  <section id="tree">
+    <h2><span class="idx">04</span>資料夾地圖</h2>
+    <p class="lead">只要記住「<b>components 畫畫面、store 存狀態、data 放數值、services 碰外部世界</b>」，就不會找不到東西。</p>
+
+    <div class="tree"><span class="d">D:\guatd\</span>
+├── index.html                  <span class="m"># 入口 HTML：字型、Nordic 主題 CSS 變數</span>
+├── package.json                <span class="m"># dev / build / test / typecheck / i18n:check / tauri</span>
+├── vite.config.ts              <span class="m"># 埠 1421、@ 別名、手動分塊</span>
+├── vitest.config.ts            <span class="m"># jsdom + setup.ts</span>
+├── tailwind.config.js          <span class="m"># hl-* HARDLINE 色票</span>
+│
+├── <span class="d">src/</span>
+│   ├── main.tsx                <span class="m"># React 入口；注入音效偏好 provider</span>
+│   ├── App.tsx                 <span class="m"># 場景分派表（唯一真相）+ 全域浮層</span>
+│   ├── <span class="d">components/</span>             <span class="m"># 464 檔 · 全部畫面</span>
+│   │   ├── <span class="d">scenes/</span>             <span class="m"># 22 場景 + 23 個子資料夾</span>
+│   │   │   ├── GameScene.tsx         <span class="m">#   戰鬥組裝（2D/3D、暫停、對話）</span>
+│   │   │   ├── <span class="d">game-scene/</span>        <span class="m">#   渲染與迴圈副作用（26 檔）</span>
+│   │   │   │   ├── GameCanvas.tsx        <span class="m"># 雙層畫布 + 點擊互動</span>
+│   │   │   │   ├── GameCanvasStatic.ts   <span class="m"># 地板／路徑／射程圈</span>
+│   │   │   │   ├── GameCanvasDynamic.ts  <span class="m"># 塔／敵人／子彈／特效</span>
+│   │   │   │   ├── useGameSceneEffects.ts<span class="m"># 主迴圈 + 快捷鍵</span>
+│   │   │   │   └── <span class="d">three/</span>              <span class="m"># Three.js 3D 視圖（11 檔）</span>
+│   │   │   ├── <span class="d">main-menu/</span> <span class="d">path-selection/</span> <span class="d">encyclopedia/</span>
+│   │   │   ├── <span class="d">settings/</span> <span class="d">replay/</span> <span class="d">statistics/</span> <span class="d">skin-system/</span>
+│   │   │   ├── <span class="d">talent/</span> <span class="d">shop/</span> <span class="d">achievement-observatory/</span>
+│   │   │   ├── <span class="d">daily-challenge/</span> <span class="d">mutator-challenge/</span> <span class="d">tutorial/</span>
+│   │   │   ├── <span class="d">mod-editor-scene/</span> <span class="d">mod-manager/</span> <span class="d">map-editor/</span>
+│   │   │   └── <span class="d">creative-workshop/</span> <span class="d">changelog-scene/</span> <span class="d">game-end/</span> <span class="d">campaign-end/</span> <span class="d">memorial/</span>
+│   │   ├── <span class="d">game/</span>              <span class="m"># 戰鬥 HUD：Sidebar、WaveBanner、塔模型</span>
+│   │   ├── <span class="d">ui/</span>                <span class="m"># 共用元件：SceneShell、Modal、Tabs、DevPanel</span>
+│   │   ├── <span class="d">hl/</span>                <span class="m"># HARDLINE：方角、無陰影、單一強調色</span>
+│   │   └── <span class="d">mod-editor/</span>        <span class="m"># Mod 編輯器元件（58 檔）</span>
+│   ├── <span class="d">store/</span>                 <span class="m"># 47 檔 · Zustand 狀態</span>
+│   │   ├── gameStore.ts              <span class="m">#   局內世界總組裝</span>
+│   │   ├── gameStoreTypes.ts          <span class="m">#   GameStore 介面（299 行，唯一契約）</span>
+│   │   ├── gameStoreActions.ts        <span class="m">#   建塔／升級／出售／融合／技能</span>
+│   │   ├── gameStoreWave.ts           <span class="m">#   波次／跳波／協議</span>
+│   │   ├── gameStoreAutoBattle.ts     <span class="m">#   AI 決策（1,063 行）</span>
+│   │   ├── <span class="d">gameLoop/</span>            <span class="m">#   每幀更新（4 個階段模組）</span>
+│   │   ├── gridTower.ts              <span class="m">#   格子 ↔ 塔 id 唯一入口</span>
+│   │   ├── matchState.ts             <span class="m">#   開局／重開共用空白狀態工廠</span>
+│   │   └── achievementStore* / statsStore / replayStore / talentStore …
+│   ├── <span class="d">data/</span>                  <span class="m"># 214 檔 · 純資料與純函式</span>
+│   │   ├── <span class="d">gameData/</span>             <span class="m">#   towerData / enemyData / pathData / waveData</span>
+│   │   ├── <span class="d">campaignData/</span>         <span class="m">#   17 章 + 81 關卡檔</span>
+│   │   ├── <span class="d">achievements/</span>         <span class="m">#   11 個成就資料檔（607 筆）</span>
+│   │   ├── <span class="d">skins/</span>                <span class="m">#   144 皮膚 + 3D 模型庫</span>
+│   │   ├── combatStatus.ts           <span class="m">#   狀態與傷害倍率純函式</span>
+│   │   ├── tacticalProtocolData.ts / officialWaveSets.ts
+│   │   ├── mutatorChallengeData.ts / dailyChallengeData.ts
+│   │   └── skillData.ts / fusionRecipes.ts / towerSynergyData.ts …
+│   ├── <span class="d">services/</span>              <span class="m"># 22 檔 · 有副作用的 I/O</span>
+│   │   ├── audioService.ts / musicService.ts
+│   │   ├── <span class="d">music/</span> <span class="d">sfx/</span> <span class="d">audioCache/</span>
+│   │   └── updateService.ts / settingsExportService.ts / settingsFileDb.ts
+│   ├── <span class="d">utils/</span>                 <span class="m"># 12 檔 · 無狀態工具</span>
+│   │   ├── spatialHash.ts            <span class="m">#   空間哈希（塔搜敵）</span>
+│   │   ├── enemyRenderer.ts / enemySpriteCache.ts
+│   │   ├── frameLoopGuard.ts         <span class="m">#   幀護欄：單幀異常不掉局</span>
+│   │   └── perfMonitor.ts
+│   ├── <span class="d">i18n/</span>                  <span class="m"># 10 語言，zh-TW 為基準</span>
+│   ├── <span class="d">types/</span>                 <span class="m"># game.ts（19KB 核心型別）等</span>
+│   ├── <span class="d">hooks/</span>                 <span class="m"># useAchievementTracking / useReplayRecorder</span>
+│   ├── <span class="d">styles/</span>                <span class="m"># index.css + hardline.css</span>
+│   └── <span class="d">test/</span>                  <span class="m"># 160 個測試檔（含 fixtures.ts）</span>
+│
+├── <span class="d">src-tauri/</span>                  <span class="m"># 桌面外殼</span>
+│   ├── src/main.rs             <span class="m">#   13 行：3 外掛 + run</span>
+│   ├── tauri.conf.json         <span class="m">#   視窗、打包、updater 公鑰</span>
+│   ├── capabilities/           <span class="m">#   default.json / desktop.json</span>
+│   └── icons/
+│
+├── <span class="d">scripts/</span>
+│   ├── generate-src-file-manifest.mjs  <span class="m"># 產生百科用原始碼清單</span>
+│   ├── i18n-parity.mjs                 <span class="m"># 語言鍵值對齊（CI）</span>
+│   ├── verify-playstyle-isms.ts
+│   └── <span class="d">legacy/i18n-codemods/</span>          <span class="m"># 74 支一次性腳本（歷史保留）</span>
+│
+├── <span class="d">docs/</span>                       <span class="m"># 設計文件（Nordic UI、3D、戰役、整治紀錄）</span>
+├── <span class="d">public/</span> <span class="d">sounds/</span> <span class="d">GameVideos/</span> <span class="m"># 靜態資源</span>
+├── <span class="d">dist/</span>                       <span class="m"># vite build 產物（Tauri 指向此處）</span>
+├── <span class="d">.github/workflows/</span>          <span class="m"># ci.yml（push/PR）· release.yml（v* tag）</span>
+├── CHANGELOG.md / README.md / UPDATING.md
+└── <span class="a">架構圖.html</span>                  <span class="m"># ← 本文件（唯一架構文件）</span>
+</div>
+  </section>
+
+  <!-- ==================== 05 啟動 ==================== -->
+  <section id="boot">
+    <h2><span class="idx">05</span>啟動流程</h2>
+    <p class="lead">從雙擊 exe 到看見主選單，總共 9 步。注意「首屏只載入 MainMenu」——其餘 21 個場景都是 lazy chunk。</p>
+
+    <ol class="steps">
+      <li><span class="sn">1</span><div class="sb">Windows 啟動 <code>guagua-tower-defense.exe</code></div></li>
+      <li><span class="sn">2</span><div class="sb">Tauri Builder 註冊 3 個外掛：<code>process</code> / <code>updater</code> / <code>shell</code></div></li>
+      <li><span class="sn">3</span><div class="sb">建立 WebView2 視窗（1280×720，載入 <code>dist/index.html</code>）</div></li>
+      <li><span class="sn">4</span><div class="sb">解析 HTML：Noto Sans TC 字型 + Nordic CSS 變數</div></li>
+      <li><span class="sn">5</span><div class="sb"><code>main.tsx</code> → <code>ReactDOM.createRoot(#root)</code></div></li>
+      <li><span class="sn">6</span><div class="sb"><code>setAudioPrefsProvider()</code> 把 store 的音效偏好注入 audioService <span class="small">（刻意切斷循環 import）</span></div></li>
+      <li><span class="sn">7</span><div class="sb"><code>App.tsx</code> 訂閱 <code>scene</code> / <code>isPaused</code> / <code>animationsEnabled</code>，並同步 <code>no-anim</code> class</div></li>
+      <li><span class="sn">8</span><div class="sb"><code>initAudio()</code> / <code>initMusic()</code> / 預取主選單專輯；同步成就統計與登入天數</div></li>
+      <li><span class="sn">9</span><div class="sb">渲染主選單（Suspense fallback = <code>&lt;Loading/&gt;</code>），全域浮層同時掛上</div></li>
+    </ol>
+
+    <div class="grid g3">
+      <div class="card"><div class="ct">🧪 開發捷徑</div><div class="cd"><code>?scene=game</code> 直接跳場景（僅 DEV 生效）；DevPanel 的 <code>testScene</code> 可覆蓋任何場景。</div></div>
+      <div class="card"><div class="ct">🧷 全域浮層</div><div class="cd"><code>AchievementNotification</code>、<code>UpdateNotification</code>、<code>DevPanel</code> 永遠在場景之上。</div></div>
+      <div class="card"><div class="ct">🔁 循環依賴</div><div class="cd"><code>audioService</code> 只 import type，偏好由入口注入 → ESM 不會拿到未初始化 binding。</div></div>
+    </div>
+  </section>
+
+  <!-- ==================== 06 場景 ==================== -->
+  <section id="scenes">
+    <h2><span class="idx">06</span>場景系統</h2>
+
+    <h3>唯一真相：一張表 <span class="tag">App.tsx</span></h3>
+    <pre><span class="k">const</span> SCENE_COMPONENTS: Record&lt;GameScene, ComponentType&gt; = {
+  mainMenu: MainMenu,        pathSelection: PathSelection,  game: Game,
+  settings: Settings,        tutorial: Tutorial,            encyclopedia: Encyclopedia,
+  changelog: Changelog,      workshop: CreativeWorkshop,    achievements: Achievements,
+  dailyChallenge: DailyChallenge, mutatorChallenge: MutatorChallenge,
+  skins: Skins,              shop: Shop,                    modEditor: ModEditor,
+  modManager: ModManager,    mapEditor: MapEditor,           talentTree: TalentTree,
+  replay: Replay,            memorial: Memorial,             statistics: Statistics,
+  gameOver: GameOver,        victory: Victory,
+};</pre>
+    <p class="small">場景型別 <code>GameScene</code> 在 <code>src/types/game.ts</code>（22 個字串聯集）。新增場景只要改這張表 + 型別。</p>
+
+    <h3>22 個場景分組</h3>
+    <div class="scene-grid">
+      <div class="scene flow"><b>mainMenu</b><i>主選單（首屏常駐）</i></div>
+      <div class="scene flow"><b>pathSelection</b><i>選關 / 戰役</i></div>
+      <div class="scene flow"><b>game</b><i>戰鬥</i></div>
+      <div class="scene flow"><b>gameOver</b><i>失敗結算</i></div>
+      <div class="scene flow"><b>victory</b><i>勝利結算</i></div>
+      <div class="scene meta"><b>talentTree</b><i>天賦樹</i></div>
+      <div class="scene meta"><b>shop</b><i>商店</i></div>
+      <div class="scene meta"><b>skins</b><i>皮膚</i></div>
+      <div class="scene meta"><b>achievements</b><i>成就館</i></div>
+      <div class="scene meta"><b>dailyChallenge</b><i>每日挑戰</i></div>
+      <div class="scene meta"><b>mutatorChallenge</b><i>突變挑戰</i></div>
+      <div class="scene meta"><b>memorial</b><i>紀念館</i></div>
+      <div class="scene tool"><b>workshop</b><i>創意工坊</i></div>
+      <div class="scene tool"><b>modEditor</b><i>Mod 編輯器</i></div>
+      <div class="scene tool"><b>modManager</b><i>Mod 管理器</i></div>
+      <div class="scene tool"><b>mapEditor</b><i>地圖編輯器</i></div>
+      <div class="scene info"><b>encyclopedia</b><i>百科（含原始碼庫）</i></div>
+      <div class="scene info"><b>replay</b><i>回放</i></div>
+      <div class="scene info"><b>statistics</b><i>統計</i></div>
+      <div class="scene info"><b>tutorial</b><i>教學</i></div>
+      <div class="scene sys"><b>settings</b><i>設定</i></div>
+      <div class="scene sys"><b>changelog</b><i>更新日誌</i></div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--l2)"></i>主循環</span>
+      <span><i style="background:var(--l4)"></i>元遊戲</span>
+      <span><i style="background:var(--l5)"></i>創作工具</span>
+      <span><i style="background:var(--l3)"></i>資訊</span>
+      <span><i style="background:var(--l0)"></i>系統</span>
+    </div>
+
+    <h3>切換與「智慧返回」<span class="tag">sceneHistory</span></h3>
+    <table>
+      <thead><tr><th>機制</th><th>行為</th><th>為什麼</th></tr></thead>
+      <tbody>
+        <tr><td><code>setScene(next)</code></td><td>當前場景推入歷史（同場景不重複入棧，最多 15 筆）</td><td>BackButton 逐層返回</td></tr>
+        <tr><td><code>goBackScene()</code></td><td>pop 一筆；空則回主選單</td><td>通用返回</td></tr>
+        <tr><td><code>resumePauseOnGameReturn</code></td><td>從暫停中的戰鬥跳去百科／設定，返回 <code>game</code> 時恢復暫停疊層</td><td>不讓玩家用暫停偷時間</td></tr>
+        <tr><td>結算頁特例</td><td>從 <code>gameOver</code>/<code>victory</code> 去別處時，歷史重設為 <code>[結算頁]</code></td><td>避免返回鏈繞回已結束的局</td></tr>
+        <tr><td><code>encyclopediaDeepLink</code></td><td>帶 <code>{tab, itemId}</code> 直接打開指定條目</td><td>塔詳情 → 百科、成就 → 百科</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ==================== 07 狀態 ==================== -->
+  <section id="stores">
+    <h2><span class="idx">07</span>狀態層 · 18 個 Zustand store</h2>
+
+    <h3>gameStore 是「總組裝」檔<span class="tag">7 個 action slice</span></h3>
+    <div class="chain">
+      <div class="node" style="--c:var(--l4)"><b>gameStoreTypes.ts</b><span>GameStore 介面（唯一契約）</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l4)"><b>gameStore.ts</b><span>初始狀態 + 場景切換 + startGame/resetGame + persist</span></div>
+    </div>
+    <div class="grid g4">
+      <div class="card"><div class="ct">gameStoreActions</div><div class="cd">建塔／升級／出售／融合／塔技能／多選</div></div>
+      <div class="card"><div class="ct">gameStoreWave</div><div class="cd">startWave／skipWave／戰術協議／生成敵人</div></div>
+      <div class="card"><div class="ct">gameLoop/</div><div class="cd">updateEnemies / updateTowers / updateProjectiles / removeEnemy</div></div>
+      <div class="card"><div class="ct">gameStoreAutoBattle</div><div class="cd">AI 決策（建／升／融合／技能／跳波）</div></div>
+      <div class="card"><div class="ct">gameStoreEffects</div><div class="cd">傷害文字／粒子／死亡動畫／震屏</div></div>
+      <div class="card"><div class="ct">gameStorePlayerSkills</div><div class="cd">10 個主動技能冷卻與釋放</div></div>
+      <div class="card"><div class="ct">stressTestActions</div><div class="cd">壓測灌入／清除／計數</div></div>
+      <div class="card"><div class="ct">matchState</div><div class="cd">createEmptyMatchState()：開局與重開共用</div></div>
+    </div>
+
+    <div class="note">
+      <b>為什麼要拆：</b><code>GameStore</code> 介面有 299 行欄位／方法，全塞一個檔會超過 2,000 行且無法測試。
+      每個 slice 都是 <code>(get, set) =&gt; actions</code> 的純工廠，可獨立思考、獨立測。
+    </div>
+
+    <h3>全部 store 與持久化 key</h3>
+    <table>
+      <thead><tr><th>Store</th><th>持久化 key</th><th>職責</th></tr></thead>
+      <tbody>
+        <tr><td><code>gameStore</code></td><td><code>guagua-game-prefs</code></td><td>局內世界＋音效／快捷鍵／倍速偏好（只存偏好）</td></tr>
+        <tr><td><code>settingsStore</code></td><td><code>guagua-settings</code></td><td>視覺／玩法／音訊／操作／HUD 版面</td></tr>
+        <tr><td><code>achievementStore</code></td><td><code>melon-td-achievements</code></td><td>607 成就進度、統計、通知、遊玩風格</td></tr>
+        <tr><td><code>statsStore</code></td><td><code>stats-storage</code></td><td>每局紀錄、逐塔統計、波次／經濟快照、個人最佳</td></tr>
+        <tr><td><code>replayStore</code></td><td><code>guagua-replays</code></td><td>回放錄製／播放／標籤／筆記（上限 15 局）</td></tr>
+        <tr><td><code>talentStore</code></td><td><code>guagua-talent-storage</code></td><td>23 節點天賦、點數、修飾器計算</td></tr>
+        <tr><td><code>campaignStore</code></td><td><code>guatd-campaign-storage</code></td><td>17 章進度、星數、解鎖、獎勵</td></tr>
+        <tr><td><code>dailyChallengeStore</code></td><td><code>guagua-daily-challenge</code></td><td>每日條件、歷史、連續天數</td></tr>
+        <tr><td><code>mutatorChallengeStore</code></td><td><code>guagua-mutator-challenge</code></td><td>突變通關紀錄與頭像統計</td></tr>
+        <tr><td><code>skinStore</code></td><td><code>tower-skin-storage</code></td><td>144 皮膚解鎖／裝備／3D 模型組</td></tr>
+        <tr><td><code>shopStore</code></td><td><code>tower-shop-storage</code></td><td>塔解鎖、主動技能購買</td></tr>
+        <tr><td><code>modStore</code></td><td><code>guagua-mods</code></td><td>Mod 清單、啟用狀態、編輯器焦點</td></tr>
+        <tr><td><code>tutorialStore</code></td><td>—</td><td>互動教學步驟、對話（每次啟動重來）</td></tr>
+        <tr><td><code>devStore</code></td><td><code>devStore</code>（devtools）</td><td>作弊開關、生成器、除錯視覺、壓測</td></tr>
+        <tr><td><code>audioDownloadStore</code></td><td>—</td><td>音訊下載佇列與進度</td></tr>
+        <tr><td><code>menuMusicStore</code></td><td><code>guagua-menu-music</code></td><td>主選單專輯選擇</td></tr>
+        <tr><td><code>sellConfirmStore</code></td><td>—</td><td>賣塔二次確認對話框</td></tr>
+        <tr><td><code>languageStore</code></td><td><code>guagua-language</code></td><td>語言與翻譯樹（只存語言代碼）</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <b>純模組不是 store：</b><code>pauseBuildMode</code>、<code>placementHistory</code>、<code>gameHotkeys</code>、
+      <code>gridTower</code>、<code>statsGameMode</code>、<code>playerSkillWarp</code> 都只是函式／常數。
+    </div>
+
+    <h3>依賴方向</h3>
+    <div class="chain">
+      <div class="node" style="--c:var(--l4)"><b>gameStore</b><span>開局讀修飾器 / 結束回報</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l4)"><b>talentStore · statsStore</b><span>同步讀取</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l4)"><b>achievementStore</b><span>延遲 import（破循環）</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l5)"><b>data/**</b><span>純資料</span></div>
+    </div>
+    <p class="small">規則：資料層不 import 任何 store；store 之間的反向依賴一律 <code>await import()</code> 延遲化解。</p>
+  </section>
+
+  <!-- ==================== 08 主迴圈 ==================== -->
+  <section id="loop">
+    <h2><span class="idx">08</span>遊戲主迴圈 <span class="tag">最核心</span></h2>
+    <p class="lead">一句話：<code>useGameSceneEffects</code> 開一條 <code>requestAnimationFrame</code> 迴圈，
+      每幀把「真實時間差 × 倍速」當 <code>deltaTime</code>，依序推進 10 個階段。渲染是<b>另一條獨立迴圈</b>，只讀狀態。</p>
+
+    <ol class="pipe">
+      <li><span class="pn">1</span><div class="pb"><b>生成敵人</b><span class="f">useGameSceneEffects.ts</span>
+        <p>依 <code>spawnQueue</code> 的累積延遲（<code>ENEMY_SPAWN_DELAY = 800ms</code> × 倍速）逐隻 <code>spawnEnemy</code>。</p></div></li>
+      <li><span class="pn">2</span><div class="pb"><b>自動跳波</b><span class="f">同上</span>
+        <p>全部生成完 + 場上仍有敵人 → <code>skipWave()</code>（同時開下一波）。</p></div></li>
+      <li><span class="pn">3</span><div class="pb"><b>updateEnemies</b><span class="f">gameLoop/updateEnemies.ts · 24KB</span>
+        <p>沿路徑／叉路前進、狀態效果計時、光環（護航／干擾／錢塔）、Boss 行為、塔被摧毀清理。</p></div></li>
+      <li><span class="pn">4</span><div class="pb"><b>updateTowers</b><span class="f">gameLoop/updateTowers.ts · 26KB</span>
+        <p>建空間哈希 → 每塔搜敵 → 冷卻期快路徑 → 開火建立投射物／瞬發傷害／技能。</p></div></li>
+      <li><span class="pn">5</span><div class="pb"><b>updateProjectiles</b><span class="f">gameLoop/updateProjectiles.ts · 24KB</span>
+        <p>追蹤、命中判定、穿透、連鎖、Splash、風擊退、狀態附加。</p></div></li>
+      <li><span class="pn">6</span><div class="pb"><b>updateVisualEffects</b><span class="f">gameStoreEffects.ts</span>
+        <p>傷害文字上浮、粒子、死亡碎片、震屏衰減。</p></div></li>
+      <li><span class="pn">7</span><div class="pb"><b>updateSkills / updatePlayerSkills</b><span class="f">gameStoreActions · gameStorePlayerSkills</span>
+        <p>塔主動技能冷卻與光環 tick；玩家技能持續時間與冷卻。</p></div></li>
+      <li><span class="pn">8</span><div class="pb"><b>runAutoBattleLogic</b><span class="f">gameStoreAutoBattle.ts</span>
+        <p>AI 依策略建塔／升級／融合／放技能／跳波。</p></div></li>
+      <li><span class="pn">9</span><div class="pb"><b>removeAndReward</b><span class="f">useGameSceneEffects.ts</span>
+        <p>死亡結算：獎勵、分數、<b>生產型敵人分裂</b>、<b>爆破型敵人炸塔</b>、成就與統計批次上報。</p></div></li>
+      <li><span class="pn">10</span><div class="pb"><b>波次完成</b><span class="f">同上</span>
+        <p>清空 → 波次獎金 → 統計快照 → 戰術協議三選一 or 勝利（戰役則算星）。</p></div></li>
+    </ol>
+
+    <h3>為什麼迴圈不會「安靜地死掉」</h3>
+    <pre><span class="c">// src/components/scenes/game-scene/useGameSceneEffects.ts</span>
+<span class="k">const</span> frameGuard = createFrameLoopGuard({ label: <span class="s">'game-loop'</span> });
+
+<span class="k">const</span> gameLoop = (currentTime) =&gt; {
+  frameGuard.run(() =&gt; runFrame(currentTime));  <span class="c">// 單幀異常只掉一幀</span>
+  perfTickFrame();                              <span class="c">// 效能統計</span>
+  animationFrameId = requestAnimationFrame(gameLoop); <span class="c">// 排下一幀，永遠執行得到</span>
+};</pre>
+    <div class="warn">
+      <b>歷史事故：</b><code>generateId</code> 忘了 import → 殺死「生產型敵人」時拋錯 → 下一幀排程寫在 callback 尾端 → <b>整局永久停格</b>。
+      現在 <code>frameLoopGuard</code> 用 try/catch 包住單幀，並對重複錯誤節流（2 秒內只上報一次）。
+    </div>
+
+    <h3>倍速與暫停</h3>
+    <table>
+      <thead><tr><th>項目</th><th>實作方式</th><th>效果</th></tr></thead>
+      <tbody>
+        <tr><td>倍速 <code>gameSpeed</code></td><td>只乘在 <code>deltaTime</code> 上</td><td>畫面仍 60fps，世界變快；生成節奏同步加快</td></tr>
+        <tr><td>暫停</td><td>整個 effect 直接 return、取消 rAF（依賴 <code>isPaused</code> 重啟）</td><td>生成佇列的累積時間也一起凍結</td></tr>
+        <tr><td>教學降速</td><td><code>loopFlags</code> 共享可變物件：本幀有無新子彈／敵人在射程內</td><td>教學需要「等玩家」時可精準判定</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ==================== 09 戰鬥 ==================== -->
+  <section id="combat">
+    <h2><span class="idx">09</span>戰鬥子系統</h2>
+
+    <h3>一發子彈的旅程（傷害管線）</h3>
+    <div class="chain">
+      <div class="node" style="--c:var(--l5)"><b>塔開火</b><span>冷卻到 → 選目標</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l5)"><b>Projectile</b><span>damage / speed / owner</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l5)"><b>命中判定</b><span>追蹤 + 半徑</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l5)"><b>applyDamageToEnemy</b><span>護盾先扣 → 生命</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l5)"><b>combatStatus 倍率</b><span>護甲／易傷／冰凍／流血…</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l7)"><b>擊殺結算</b><span>獎勵 + 成就 + 統計</span></div>
+    </div>
+    <p class="small">純函式集中在 <code>src/data/combatStatus.ts</code>（約 70 個 export）。<b>平衡數值改這裡，不用碰迴圈。</b></p>
+
+    <h3>塔（18 種）</h3>
+    <table>
+      <thead><tr><th>類別</th><th>塔</th><th>特色機制</th></tr></thead>
+      <tbody>
+        <tr><td>基礎攻擊</td><td>basic 基礎、sniper 狙擊、cannon 加農、machine 機槍、shotgun 散彈、ballista 弩炮</td><td>標記、處決、暈眩、破甲、流血、定身</td></tr>
+        <tr><td>元素／控制</td><td>frost 冰凍、poison 毒、laser 雷射、lightning 電擊、flame 火焰</td><td>冰霜印記→凍結、毒素抑制治療、暴露破甲、弱化、燃燒處決</td></tr>
+        <tr><td>經濟／輔助</td><td>money 錢塔、wind 風塔、pulse 脈衝</td><td>產金、擊退與恐懼、範圍暴露</td></tr>
+        <tr><td>融合</td><td>storm 暴風、plague 瘟疫、demolisher 攻城、tempest 颶風</td><td>兩塔合體，可再升級、有專屬技能</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid g3">
+      <div class="card"><div class="ct">升級</div><div class="cd">5 級 + A/B 分支（<code>upgradeBranches.ts</code> 19.6KB）、成本計算 <code>towerUpgradeCost.ts</code></div></div>
+      <div class="card"><div class="ct">目標優先級</div><div class="cd">first / strongest / weakest / closest / last / fastest / 血量百分比 / threat</div></div>
+      <div class="card"><div class="ct">相鄰協同</div><div class="cd"><code>towerSynergyData.ts</code>：相鄰塔種類組合提供加成</div></div>
+      <div class="card"><div class="ct">融合</div><div class="cd"><code>fusionRecipes.ts</code> 配方與費用；<code>fusionMode</code> 進入合體模式</div></div>
+      <div class="card"><div class="ct">塔技能</div><div class="cd"><code>skillData.ts</code>（範圍／冷卻）＋ <code>skillAura.ts</code> 持續光環</div></div>
+      <div class="card"><div class="ct">多選／鎖定</div><div class="cd">批量升級/出售、鎖定防誤售、放置歷史 undo/redo</div></div>
+    </div>
+
+    <h3>敵人（22 種）特殊行為落點</h3>
+    <table>
+      <thead><tr><th>行為</th><th>實作位置</th></tr></thead>
+      <tbody>
+        <tr><td>隱身／相位（不可鎖定但可被 AOE）</td><td><code>gameStoreUtils.isEnemyPhased</code> + <code>updateTowers</code> 的 <code>hasPulseTarget</code> 分支</td></tr>
+        <tr><td>護航光環（周邊減傷）</td><td><code>data/escortAura.ts</code></td></tr>
+        <tr><td>干擾（沉默塔技能）</td><td><code>data/jammerAura.ts</code> + <code>applyFrostSilenceToJammer</code></td></tr>
+        <tr><td>生產型死亡分裂</td><td><code>removeAndReward</code>（繼承死亡位置與路徑進度）</td></tr>
+        <tr><td>爆破型死亡炸塔</td><td><code>removeAndReward</code>（<code>explosionRadius</code>／<code>explosionDamage</code>，50px = 1 格）</td></tr>
+        <tr><td>飛行抗性</td><td><code>combatStatus.getAntiAirMult</code></td></tr>
+        <tr><td>治療抑制</td><td><code>getIncomingHealMult</code>（毒 0.35 ／ 詛咒 0.25）</td></tr>
+      </tbody>
+    </table>
+
+    <h3>玩家主動技能（10 個）</h3>
+    <p><code>playerSkillData.ts</code> 定義 <code>PLAYER_SKILLS</code>（含 <code>hotkey</code>，對應 Shift+0~9）；
+      冷卻與持續時間在 <code>gameStorePlayerSkills.ts</code>；特效 2D 在 <code>GameCanvasPlayerSkillFx*.ts</code>、3D 在 <code>three/skillFx3d.ts</code>。
+      技能需在商店購買。</p>
+
+    <h3>經濟與波次</h3>
+    <ul>
+      <li>起始金錢 500 / 生命 10（<code>GAME_CONSTANTS</code>），先乘難度修飾器，再乘<b>天賦修飾器</b>。</li>
+      <li>波次：<code>WAVE_CONFIGS</code>（15 波）→ 超出時 <code>generateEndlessWaveConfig(n)</code> 動態生成；部分戰役關卡有硬編碼 Boss 波。</li>
+      <li>戰術協議：每完成奇數波三選一，效果如 <code>waveClearBonus</code>、<code>towerDiscount</code>、<code>heal</code>。</li>
+    </ul>
+  </section>
+
+  <!-- ==================== 10 渲染 ==================== -->
+  <section id="render">
+    <h2><span class="idx">10</span>渲染層</h2>
+
+    <h3>2D 雙層畫布<span class="tag">同時疊在同一個容器</span></h3>
+    <div class="grid g2">
+      <div class="card" style="border-left:3px solid var(--l3)">
+        <div class="ct">靜態層 canvas · 低頻重繪</div>
+        <div class="cd">地板／格子、路徑與起終點、塔射程圈、多選高亮、協同預覽、網格、hitbox。</div>
+        <div class="cd" style="margin-top:8px"><b>只訂閱兩個低頻鍵：</b>
+          <span class="key">towerLayoutKey（id/type/level/path/locked/col/row）</span>
+          <span class="key">canAffordSelected（金額壓成布林）</span></div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--l7)">
+        <div class="ct">動態層 canvas · 每幀</div>
+        <div class="cd">塔身（皮膚＋後座力＋升級脈動）、敵人（精靈快取＋狀態環合批）、投射物（軌跡／追蹤）、特效（傷害文字／粒子／死亡碎片／融合爆發）。</div>
+        <div class="cd" style="margin-top:8px">每幀 <code>useGameStore.getState()</code> 直接讀，不走 React 重繪。</div>
+      </div>
+    </div>
+
+    <h3>五個踩過坑才有的效能設計</h3>
+    <table>
+      <thead><tr><th>問題</th><th>解法</th><th>量級</th></tr></thead>
+      <tbody>
+        <tr><td>靜態層訂閱 <code>towers</code>/<code>money</code> → 每秒重繪 60 次</td><td>改訂閱「塔結構字串簽章」＋「買不買得起」布林</td><td>整張畫面少畫一遍</td></tr>
+        <tr><td><code>shadowBlur</code> 每隻敵人每幀一次</td><td><code>getEnemySprite()</code> 同造型只烘一次到離屏 canvas</td><td>最貴操作從 O(敵人) → O(造型)</td></tr>
+        <tr><td>狀態環每敵人每狀態一次 stroke</td><td><code>createStatusRingBatch()</code> 依樣式分組，每組只 stroke 一次</td><td>壓測時數萬次 → 數十次</td></tr>
+        <tr><td><code>getEnemyVisuals</code> 每隻每幀新建物件</td><td>以 <code>enemyType</code> 為 key 快取</td><td>7,500 隻 ≈ 45 萬物件/秒 → 0</td></tr>
+        <tr><td>干擾光環同幀被 4 處各掃全部敵人</td><td><code>collectJammerAurasCached()</code> 以陣列參考為 key</td><td>少 3 萬次比較 + 4 個陣列</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3D 模式（Three.js）<span class="tag">lazy 載入</span></h3>
+    <div class="chain">
+      <div class="node" style="--c:var(--l2)"><b>gameStore</b><span>每幀讀狀態</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l3)"><b>狀態同步</b><span>toWorld(col,row)</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l3)"><b>場景模組</b><span>environment / instanced / towerModels / walker / effects / skillFx / attackLights</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l4)"><b>EffectComposer</b><span>RenderPass → UnrealBloomPass → OutputPass</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l7)"><b>WebGL</b><span>OrbitControls + 邊緣平移</span></div>
+    </div>
+    <div class="note">
+      <b>遊戲邏輯零改動</b>：3D 只是另一種「視圖」，每幀從 store 拉狀態同步到場景。
+      偏好存在 <code>settingsStore.visual.prefer3DView</code>；<b>教學模式強制 2D</b>（引導拾取需要精確 2D 座標）。
+      點擊互動由 <code>interaction3d.ts</code> raycast 回傳格座標，呼叫與 2D 相同的 store action。
+    </div>
+
+    <h3>UI 主題</h3>
+    <table>
+      <thead><tr><th>主題層</th><th>檔案</th><th>規則</th></tr></thead>
+      <tbody>
+        <tr><td>Nordic（預設）</td><td><code>index.html</code> CSS 變數 + <code>styles/index.css</code></td><td>玻璃質感、圓角、柔和陰影</td></tr>
+        <tr><td>HARDLINE</td><td><code>styles/hardline.css</code> + <code>components/hl/*</code></td><td><b>圓角只能 0</b>、不用陰影、不用漸層、強調色只有 <code>--hl-signal</code></td></tr>
+        <tr><td>場景殼層</td><td><code>SceneShell</code> / <code>SceneWorkshopLayout</code></td><td>佈局只准 Home／Page／Split／Battle／Overlay</td></tr>
+        <tr><td>字級 token</td><td><code>SceneTypography.ts</code></td><td><code>sectionTitle</code> / <code>microLabel</code> / <code>microMuted</code></td></tr>
+      </tbody>
+    </table>
+    <p class="small">這些規則由 <code>src/test/designTokens.test.ts</code> 守著，改壞會紅。</p>
+  </section>
+
+  <!-- ==================== 11 資料 ==================== -->
+  <section id="data">
+    <h2><span class="idx">11</span>資料層</h2>
+    <p class="lead">設計原則：<b>資料檔不含 React、不含 store、不含副作用</b>（唯一例外是成就的 icon 用 <code>React.createElement</code>，這也是主 chunk 偏大的原因之一）。</p>
+
+    <div class="grid g2">
+      <div class="card"><div class="ct">遊戲核心 <span class="tag">gameData/</span></div>
+        <div class="cd"><code>towerData.ts</code>（18 塔）、<code>enemyData.ts</code>（22 敵人 + 22 狀態）、
+          <code>pathData.ts</code>（39 地圖，10 檔聚合）、<code>waveData.ts</code>（15 波 + 無盡生成 + 常數 + 難度）。</div>
+        <span class="key">data/gameData/index.ts 只 re-export</span></div>
+      <div class="card"><div class="ct">戰役 <span class="tag">campaignData/</span></div>
+        <div class="cd"><code>chapter1..17.ts</code> 聚合各關卡檔（<code>chapterNLevels/*</code>），含地形、波次、對話、星條件。</div>
+        <span class="key">101 檔 / 81 關卡 id</span></div>
+      <div class="card"><div class="ct">元遊戲資料</div>
+        <div class="cd"><code>achievements/*</code>（607 筆，11 檔 → <code>achievementData.ts</code> 攤平）、
+          <code>skins/*</code>（144 皮膚 + 模型庫）、<code>officialWaveSets.ts</code>（36 組）、
+          <code>tacticalProtocolData.ts</code>（39 協議）、<code>mutatorChallenge*.ts</code>、<code>dailyChallengeData.ts</code>。</div></div>
+      <div class="card"><div class="ct">規則純函式</div>
+        <div class="cd"><code>combatStatus.ts</code>、<code>skillData.ts</code>／<code>skillAura.ts</code>、
+          <code>fusionRecipes.ts</code>、<code>towerSynergyData.ts</code>、<code>upgradeBranches.ts</code>、
+          <code>towerUpgradeCost.ts</code>、<code>towerTargeting.ts</code>。</div></div>
+    </div>
+
+    <h3>地圖資料兩種形態</h3>
+    <table>
+      <thead><tr><th>類別</th><th>結構</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td><code>category: 'normal'</code></td><td>單一路徑 <code>waypoints</code></td><td>一般關卡</td></tr>
+        <tr><td><code>category: 'advanced'</code></td><td>多段 <code>segments</code> + <code>startSegmentId</code> + <code>blockedCells</code></td><td>叉路、障礙、隱藏／戰役圖</td></tr>
+      </tbody>
+    </table>
+    <p class="small">難度是「修飾器」而非另一份資料：<code>enemyHealthMult / enemySpeedMult / enemyRewardMult / startingMoney / startingHealth / towerCostMult / waveDelayMult</code>，
+      可被戰役關卡與突變規則覆蓋。</p>
+  </section>
+
+  <!-- ==================== 12 元遊戲 ==================== -->
+  <section id="meta">
+    <h2><span class="idx">12</span>元遊戲系統</h2>
+
+    <div class="chain">
+      <div class="node" style="--c:var(--l4)"><b>戰役 17 章 81 關</b><span>通關給天賦點／星／獎勵</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l4)"><b>天賦樹 23 節點</b><span>開局修飾器</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l2)"><b>每一局戰鬥</b><span>擊殺／波次／建塔</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l4)"><b>成就 607 筆</b><span>成就點數</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l6)"><b>商店／皮膚</b><span>解鎖新塔與外觀</span></div>
+    </div>
+
+    <table>
+      <thead><tr><th>系統</th><th>場景</th><th>核心模組</th><th>機制重點</th></tr></thead>
+      <tbody>
+        <tr><td>天賦樹</td><td>TalentTree</td><td><code>store/talentStore.ts</code>、<code>scenes/talent/*</code></td><td>4 類 23 節點，開局乘進難度修飾器</td></tr>
+        <tr><td>成就館</td><td>Achievements</td><td><code>store/achievementStore*.ts</code>、<code>achievement-observatory/*</code></td><td>7 種條件檢查、稀有度、領取獎勵、遊玩風格分析</td></tr>
+        <tr><td>商店</td><td>Shop</td><td><code>store/shopStore.ts</code>、<code>scenes/shop/*</code></td><td>塔解鎖 + 10 個主動技能</td></tr>
+        <tr><td>皮膚</td><td>Skins</td><td><code>store/skinStore.ts</code>、<code>data/skins/*</code>、<code>skin-system/*</code></td><td>144 款、套組、3D 預覽、每塔獨立裝備</td></tr>
+        <tr><td>戰役</td><td>PathSelection</td><td><code>data/campaignData/**</code>、<code>campaignStore.ts</code></td><td>17 章 81 關、戰前戰後對話、星條件</td></tr>
+        <tr><td>每日挑戰</td><td>DailyChallenge</td><td><code>dailyChallengeStore.ts</code>、<code>dailyChallengeData.ts</code></td><td>95 模板、每日條件、歷史、連續天數</td></tr>
+        <tr><td>突變挑戰</td><td>MutatorChallenge</td><td><code>mutatorChallengeStore.ts</code>、<code>mutatorChallenge*.ts</code></td><td>禁塔／鎖建造波次／地圖改造，寫入 <code>mutatorRules</code></td></tr>
+        <tr><td>紀念館</td><td>Memorial</td><td><code>data/memorialData.ts</code></td><td>通關紀錄展示與回顧</td></tr>
+        <tr><td>教學</td><td>Tutorial</td><td><code>tutorialStore.ts</code>、<code>scenes/tutorial/*</code></td><td>互動式覆蓋層 + 教學頁雙模式</td></tr>
+      </tbody>
+    </table>
+
+    <div class="warn">
+      <b>效能注意：</b>局內擊殺<b>不可</b>逐筆觸發成就檢查。一次 <code>batchOnEnemyKilled(kills, reward)</code> 批次上報，
+      統計同理（<code>trackEnemyKilledBatch</code>）。
+    </div>
+  </section>
+
+  <!-- ==================== 13 創作 ==================== -->
+  <section id="mod">
+    <h2><span class="idx">13</span>創作工具</h2>
+
+    <div class="chain">
+      <div class="node" style="--c:var(--l5)"><b>編輯</b><span>塔／敵人／地圖／波次／3D 模型</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l5)"><b>驗證 + 平衡分析</b><span>modValidation · modBalanceAnalysis</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l5)"><b>即時預覽</b><span>livePreview*（戰鬥／路徑／生成）</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l4)"><b>modStore</b><span>guagua-mods（persist）</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l2)"><b>執行時注入</b><span>getTowerData／PATHS／波次組</span></div>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><div class="ct">單一取值入口</div><div class="cd"><code>gameStoreUtils.getTowerData()</code> 是「基礎塔 + Mod 塔」唯一實作（含快取）。曾有 3 份實作，導致 Mod 塔效果欄位在面板消失。</div></div>
+      <div class="card"><div class="ct">地圖注入</div><div class="cd"><code>startGame()</code> 發現 <code>PATHS[mapId]</code> 不存在 → 掃 <code>modStore.mods</code> 的 <code>content.maps</code> 補進去。</div></div>
+      <div class="card"><div class="ct">波次組</div><div class="cd">以 <code>customWaveSetId</code> 傳入，由 <code>utils/waveSets.findPlayableWaveSet</code> 解析。</div></div>
+      <div class="card"><div class="ct">範例與模板</div><div class="cd"><code>data/sampleMods.ts</code>、<code>mod-editor/templates.ts</code>。</div></div>
+      <div class="card"><div class="ct">匯入合併</div><div class="cd"><code>modEditorImportMerge.ts</code> 處理 ID 衝突。</div></div>
+      <div class="card"><div class="ct">3D 模型編輯器</div><div class="cd"><code>Model3DEditor.tsx</code> + <code>shapeLibrary.ts</code> 以基本形狀組模型。</div></div>
+    </div>
+  </section>
+
+  <!-- ==================== 14 回放統計百科 ==================== -->
+  <section id="replay">
+    <h2><span class="idx">14</span>回放 · 統計 · 百科 · 設定備份</h2>
+
+    <h3>回放：錄製 → 播放</h3>
+    <div class="grid g2">
+      <div class="card"><div class="ct">錄製 <span class="tag">useReplayRecorder</span></div>
+        <div class="cd">
+          · <code>isPlaying</code> false→true 開始錄<br>
+          · 每 <b>333ms</b> 抓一次快照（塔 ≤60／敵人 ≤40／子彈 ≤24）<br>
+          · 另存事件流：建塔／升級／技能／波次<br>
+          · 結束（勝／敗）→ <code>stopRecording</code> 寫入 replayStore<br>
+          · 上限 15 局（localStorage 容量與流暢度的折衷）
+        </div></div>
+      <div class="card"><div class="ct">播放 <span class="tag">scenes/replay/*</span></div>
+        <div class="cd">
+          · <code>ReplayCanvas</code> 用 <code>playheadRef</code> + rAF 插值（跟隨顯示器幀率）<br>
+          · <code>ReplayCharts</code> 圖表、<code>ReplayTimeline</code> 時間軸<br>
+          · <code>ReplayNotesPanel</code> 筆記、<code>ReplayTagsPanel</code> 標籤<br>
+          · 匯入驗證 <code>isValidReplay()</code>、批次匯出 JSON
+        </div></div>
+    </div>
+
+    <h3>統計</h3>
+    <p><code>statsStore</code> 記錄：每局 <code>GameRecord</code>（地圖／難度／波數／結果／時長）、逐塔 <code>TowerStats</code>
+      （傷害／擊殺／花費／每費傷害／每分鐘擊殺）、<code>WaveSnapshot</code>、<code>EconomySnapshot</code>、<code>PersonalBests</code>、<code>GlobalStats</code>。
+      統計頁可篩選與匯出。</p>
+
+    <h3>百科（最特別的場景）</h3>
+    <ul>
+      <li>6 個分頁：<code>enemies / towers / maps / difficulty / effects / skills</code></li>
+      <li>還有<b>原始碼檔案庫</b>：<code>generate-src-file-manifest.mjs</code> 在 predev/prebuild 掃 <code>src/</code>，
+        產生 <code>srcFileManifest.json</code>（路徑、行數、import 關係），場景內用 <code>fileImportGraph.ts</code> 畫檔案樹。</li>
+      <li>深層連結：<code>encyclopediaDeepLink = { tab, itemId }</code>，可從塔面板／成就／Mod 編輯器跳入。</li>
+    </ul>
+
+    <h3>設定備份</h3>
+    <p><code>settingsExportService.ts</code> 把設定拆成多個區段（<code>settingsExportSections.ts</code>），支援
+      JSON 匯出／匯入、<b>File System Access API</b> 直接寫本機檔案、備份本體存 IndexedDB（<code>guagua-settings-vault-v1</code>）。</p>
+  </section>
+
+  <!-- ==================== 15 服務 ==================== -->
+  <section id="services">
+    <h2><span class="idx">15</span>服務層</h2>
+
+    <h3>音訊雙軌：檔案優先、程序化保底</h3>
+    <div class="grid g2">
+      <div class="card"><div class="ct">音效（短促、可疊加）</div>
+        <div class="cd"><code>audioService.playSfx(id, 分類, 音量)</code> → 有檔案就播 <code>sounds/*.wav</code>（13 個），
+          沒有或失敗就 <code>sfx/proceduralSfx.ts</code> 用 WebAudio 即時合成。<br>
+          分類開關：attack / build / death / ui。</div></div>
+      <div class="card"><div class="ct">音樂（長、可切換）</div>
+        <div class="cd"><code>musicService.syncMusic(scene)</code> → 每場景對應曲目 → <code>musicEngine.ts</code>（WebAudio）。
+          主選單專輯走 <code>menuAlbumCatalog</code> + <code>menuMusicPlayback</code>；環境音走 <code>proceduralAmbient.ts</code>。</div></div>
+      <div class="card"><div class="ct">API 音源</div>
+        <div class="cd"><code>audioFetchService</code> → Jamendo（BGM）／Freesound（SFX）→ IndexedDB 快取
+          <code>guagua-audio-cache-v1</code>；<code>audioDownloadStore</code> 顯示進度、<code>AudioCreditsPanel</code> 署名。</div></div>
+      <div class="card"><div class="ct">Key 與降級</div>
+        <div class="cd">API key 在 <code>.env.local</code>（<code>VITE_JAMENDO_CLIENT_ID</code> / <code>VITE_FREESOUND_API_KEY</code>）；
+          未設定時自動退回本地檔案或程序化合成。同一資源用 <code>dedupe()</code> 防重複請求。</div></div>
+    </div>
+
+    <h3>更新</h3>
+    <table>
+      <thead><tr><th>函式</th><th>作用</th></tr></thead>
+      <tbody>
+        <tr><td><code>checkForUpdates()</code></td><td>呼叫 Tauri updater（GitHub <code>latest.json</code> 端點）</td></tr>
+        <tr><td><code>installPendingUpdate(onProgress)</code></td><td>下載安裝，回報 downloading／installing／done／error</td></tr>
+        <tr><td><code>shouldCheckForUpdates()</code> / <code>setLastCheckTime()</code></td><td>節流，避免每次啟動都打 API</td></tr>
+        <tr><td><code>getIgnoredVersion()</code> / <code>setIgnoredVersion()</code></td><td>「略過此版本」</td></tr>
+        <tr><td><code>fetchAllReleases(limit)</code></td><td>更新日誌頁抓 GitHub Releases</td></tr>
+        <tr><td><code>openDownloadPage(url)</code></td><td>用 <code>shell:allow-open</code> 開瀏覽器（手動下載備援）</td></tr>
+      </tbody>
+    </table>
+    <p class="small">更新提示 UI 是全域浮層 <code>components/ui/UpdateNotification.tsx</code>。</p>
+  </section>
+
+  <!-- ==================== 16 跨層 ==================== -->
+  <section id="cross">
+    <h2><span class="idx">16</span>跨層機制</h2>
+
+    <h3>i18n：zh-TW 常駐、其餘按需</h3>
+    <ol class="steps">
+      <li><span class="sn">1</span><div class="sb"><code>setLanguage('ja')</code> → <code>ticket = ++pendingSwitch</code>（防競態：連點兩個語言時慢的不會蓋回去）</div></li>
+      <li><span class="sn">2</span><div class="sb"><code>loadTranslations('ja')</code> → <code>import('./locales/ja')</code>（獨立 chunk）</div></li>
+      <li><span class="sn">3</span><div class="sb"><code>mergeTranslations(zhTW, ja)</code>：缺的鍵回退繁中；結果進 <code>resolvedCache</code></div></li>
+      <li><span class="sn">4</span><div class="sb">store 的 <code>t</code> 換掉 → 畫面重繪</div></li>
+      <li><span class="sn">5</span><div class="sb">載入失敗（離線／chunk 抓不到）→ 保留舊語言，<b>不白屏</b>、不產生未處理 rejection</div></li>
+    </ol>
+    <div class="grid g3">
+      <div class="card"><div class="ct">單一真相</div><div class="cd"><code>type Translations = typeof zhTW</code>：型別由資料推導。曾手抄 4,077 行造成 77 鍵不存在、276 鍵沒宣告 → UI 渲染 <code>undefined</code>。</div></div>
+      <div class="card"><div class="ct">重繪控制</div><div class="cd"><code>useTranslation()</code> 用三個原子 selector（<code>t</code> / <code>language</code> / <code>setLanguage</code>）。</div></div>
+      <div class="card"><div class="ct">閘門</div><div class="cd"><code>scripts/i18n-parity.mjs</code>（TS AST，非正則）在 CI 檢查鍵集合與覆蓋率。</div></div>
+    </div>
+
+    <h3>持久化全景</h3>
+    <table>
+      <thead><tr><th>儲存</th><th>內容</th><th>位置</th></tr></thead>
+      <tbody>
+        <tr><td><code>localStorage</code></td><td>15 個 store 的 persist（偏好、進度、成就、統計、回放、Mod、語言）</td><td>見 §07 表格</td></tr>
+        <tr><td><code>IndexedDB: guagua-audio-cache-v1</code></td><td>下載音訊 blob + 授權署名</td><td><code>audioCacheDb.ts</code></td></tr>
+        <tr><td><code>IndexedDB: guagua-settings-vault-v1</code></td><td>設定備份檔</td><td><code>settingsFileDb.ts</code></td></tr>
+        <tr><td>檔案系統</td><td>設定／Mod／回放 JSON（File System Access API）</td><td><code>settingsLocalFileAccess.ts</code></td></tr>
+        <tr><td>安裝目錄</td><td><code>sounds/</code>、<code>public/fonts</code>、<code>GameVideos/</code></td><td>打包資源</td></tr>
+      </tbody>
+    </table>
+
+    <h3>效能工具箱</h3>
+    <div class="grid g3">
+      <div class="card"><div class="ct">空間哈希</div><div class="cd"><code>spatialHash.ts</code>：敵人按 2×2 格分桶（15×11 地圖 ≈ 48 桶），塔搜敵從 O(塔×敵人) 降到 O(塔×桶內)。</div></div>
+      <div class="card"><div class="ct">冷卻期快路徑</div><div class="cd">冷卻中只維護槍口朝向，不建陣列不排序：<b>18.3ms → 0.98ms/幀</b>（4,500 敵人 × 100 塔）。</div></div>
+      <div class="card"><div class="ct">精靈快取</div><div class="cd">同造型敵人共用一張離屏圖，之後只 <code>drawImage</code>。</div></div>
+      <div class="card"><div class="ct">狀態環合批</div><div class="cd">同樣式圓弧合併為單一 path，只 stroke 一次。</div></div>
+      <div class="card"><div class="ct">perfMonitor</div><div class="cd">分階段耗時（updateEnemies／updateTowers／…），Dev HUD 顯示 p50／p95。</div></div>
+      <div class="card"><div class="ct">壓測模式</div><div class="cd">一鍵 10,000 敵人 + 100 塔（id 前綴 <code>stress_e_</code>／<code>stress_t_</code>，不影響玩家塔），HUD 自己用 rAF 取樣 FPS。</div></div>
+    </div>
+
+    <h3>錯誤護欄與不變式</h3>
+    <ul>
+      <li><code>frameLoopGuard</code>：幀迴圈單幀異常只掉一幀（見 §08）。</li>
+      <li><code>findGridTowerMismatches(grid, towers)</code>：格子 id 與塔清單一致性檢查器；壓測測試會斷言「灌 10,000 敵人 + 100 塔後仍一致」。</li>
+      <li><code>isValidReplay()</code>：匯入回放結構驗證。</li>
+      <li><code>modValidation.ts</code>：Mod 存檔前合法性與平衡分數檢查。</li>
+    </ul>
+  </section>
+
+  <!-- ==================== 17 Tauri ==================== -->
+  <section id="tauri">
+    <h2><span class="idx">17</span>Tauri 後端（Rust）</h2>
+    <p class="lead">全部後端程式碼就這些——沒有自訂 command、沒有 IPC。前端不透過 Rust 做任何遊戲運算。</p>
+    <pre><span class="c">// src-tauri/src/main.rs</span>
+<span class="k">fn</span> main() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_process::init())                 <span class="c">// 重啟（更新後）</span>
+        .plugin(tauri_plugin_updater::Builder::new().build()) <span class="c">// 自動更新</span>
+        .plugin(tauri_plugin_shell::init())                   <span class="c">// 開外部連結</span>
+        .run(tauri::generate_context!())
+        .expect(<span class="s">"error while running tauri application"</span>);
+}</pre>
+
+    <table>
+      <thead><tr><th>設定</th><th>值</th><th>意義</th></tr></thead>
+      <tbody>
+        <tr><td><code>identifier</code></td><td><code>com.guagua.towerdefense</code></td><td>應用 ID</td></tr>
+        <tr><td>視窗</td><td>1280×720，可縮放，最小 1024×600</td><td>桌面尺寸基準</td></tr>
+        <tr><td><code>security.csp</code></td><td><code>null</code></td><td>關閉 CSP（本機資源 + 外部音源 API）</td></tr>
+        <tr><td><code>frontendDist</code></td><td><code>../dist</code></td><td>Vite 產物</td></tr>
+        <tr><td><code>devUrl</code></td><td><code>http://localhost:1421</code></td><td>與 vite 的 <code>strictPort</code> 對齊</td></tr>
+        <tr><td>打包</td><td><code>nsis</code>，語言 <code>TradChinese</code></td><td>Windows 安裝檔</td></tr>
+        <tr><td>updater</td><td><code>pubkey</code> + GitHub <code>latest.json</code></td><td>簽章驗證 + 增量更新</td></tr>
+        <tr><td>capabilities</td><td><code>default.json</code>：<code>core:default</code>、<code>shell:allow-open</code><br>
+          <code>desktop.json</code>：<code>updater:default</code>、<code>process:default</code>、<code>process:allow-restart</code></td><td>最小權限</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      要加「讀本機檔案／系統整合」能力，才需要在 <code>main.rs</code> 加 <code>#[tauri::command]</code> 並在 capabilities 開對應權限。
+    </div>
+  </section>
+
+  <!-- ==================== 18 建置 ==================== -->
+  <section id="build">
+    <h2><span class="idx">18</span>建置、測試與發布</h2>
+
+    <div class="chain">
+      <div class="node" style="--c:var(--l0)"><b>開發</b><span>npm run dev（1421）→ tauri dev</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l1)"><b>品質閘門</b><span>typecheck → i18n:check → test → build</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l2)"><b>CI</b><span>push / PR（ubuntu + node 20）</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l3)"><b>Release</b><span>v* tag → tauri-action</span></div>
+      <div class="ar">→</div>
+      <div class="node" style="--c:var(--l7)"><b>GitHub Release</b><span>簽章安裝檔 + updater artifacts</span></div>
+    </div>
+
+    <h3>常用指令</h3>
+    <table>
+      <thead><tr><th>指令</th><th>作用</th></tr></thead>
+      <tbody>
+        <tr><td><code>npm run dev</code></td><td>Vite 開發伺服器（1421）</td></tr>
+        <tr><td><code>npm run tauri dev</code></td><td>桌面開發模式（先跑 predev 生成清單）</td></tr>
+        <tr><td><code>npm run build</code></td><td>prebuild + vite build</td></tr>
+        <tr><td><code>npm run build:check</code></td><td>先型別檢查再建置</td></tr>
+        <tr><td><code>npm run typecheck</code></td><td><code>tsc --noEmit</code></td></tr>
+        <tr><td><code>npm run i18n:check</code></td><td>語言檔鍵值對齊（嚴格模式）</td></tr>
+        <tr><td><code>npm run test</code> / <code>test:coverage</code></td><td>Vitest（jsdom）</td></tr>
+        <tr><td><code>npm run check</code></td><td>typecheck + i18n + test（提交前必跑）</td></tr>
+        <tr><td><code>npm run verify:isms</code></td><td>遊玩風格定義完整性</td></tr>
+        <tr><td><code>npm run tauri build</code></td><td>產出 NSIS 安裝檔</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid g2">
+      <div class="card"><div class="ct">測試策略</div><div class="cd">160 個測試檔幾乎都是「行為斷言」（真的呼叫 store action、真的跑一幀迴圈），
+        不是讀原始碼比對字串。共用 fixture 在 <code>src/test/fixtures.ts</code>（<code>makeEnemy</code>／<code>makeTower</code>／<code>makeSkill</code>）。</div></div>
+      <div class="card"><div class="ct">發布簽章</div><div class="cd"><code>TAURI_SIGNING_PRIVATE_KEY</code>（私鑰在 <code>src-tauri/.tauri/guagua-td.key</code>，不進版控）
+        與 <code>tauri.conf.json</code> 的公鑰成對；客戶端只接受此私鑰簽出的更新包。</div></div>
+    </div>
+
+    <h3>Vite 分塊策略</h3>
+    <p class="small"><code>vendor-react</code>／<code>vendor-framer</code>／<code>vendor-zustand</code> 三個手動 chunk，
+      其餘按路徑分成 <code>chunks/game-*</code>、<code>scenes-*</code>、<code>data-*</code>、<code>i18n-*</code>；
+      target 為 <code>chrome105</code>（Windows）／<code>safari13</code>；<code>@</code> 指向 <code>./src</code>。</p>
+  </section>
+
+  <!-- ==================== 19 依賴 ==================== -->
+  <section id="deps">
+    <h2><span class="idx">19</span>依賴方向規則</h2>
+
+    <div class="stack">
+      <div class="layer" style="--c:var(--l2)"><div class="lnum">A</div><div class="lbody">
+        <div class="lname">components/scenes</div><div class="ldesc">可以 import 全部下層</div></div></div>
+      <div class="layer" style="--c:var(--l3)"><div class="lnum">B</div><div class="lbody">
+        <div class="lname">components/ui · hl · game</div><div class="ldesc">→ store · data · utils · types · i18n（不碰 services）</div></div></div>
+      <div class="layer" style="--c:var(--l4)"><div class="lnum">C</div><div class="lbody">
+        <div class="lname">store</div><div class="ldesc">→ data · utils · services · types</div></div></div>
+      <div class="layer" style="--c:var(--l5)"><div class="lnum">D</div><div class="lbody">
+        <div class="lname">data</div><div class="ldesc">→ types · utils（<b>禁止</b> import store／components）</div></div></div>
+      <div class="layer" style="--c:var(--l6)"><div class="lnum">E</div><div class="lbody">
+        <div class="lname">services</div><div class="ldesc">→ types（<b>禁止</b> import store：要偏好就注入或用 import type）</div></div></div>
+      <div class="layer" style="--c:var(--l0)"><div class="lnum">F</div><div class="lbody">
+        <div class="lname">types</div><div class="ldesc">只有型別，含 <code>dom-file-system.d.ts</code> 補丁</div></div></div>
+    </div>
+
+    <h3>五條硬規則</h3>
+    <ol>
+      <li><b>data 不得 import store/components</b>（保持純資料）；唯一歷史例外是成就的 icon 用 React 元素。</li>
+      <li><b>services 不得 import store</b>（避免 ESM 循環）→ 用注入（<code>setAudioPrefsProvider</code>）或 <code>import type</code>。</li>
+      <li><b>store 之間用延遲載入</b>（<code>await import('./achievementStore')</code>）處理「遊戲結束通知成就」這類反向依賴。</li>
+      <li><b>types 只放型別</b>，不放執行期程式碼。</li>
+      <li><b>元件不直接改別人的狀態</b>：一律呼叫 store action；畫布渲染用 <code>getState()</code> 而非訂閱整個陣列。</li>
+    </ol>
+  </section>
+
+  <!-- ==================== 20 食譜 ==================== -->
+  <section id="recipes">
+    <h2><span class="idx">20</span>實戰食譜</h2>
+
+    <div class="grid g2">
+      <div class="card">
+        <div class="ct">🗼 新增一種塔</div>
+        <ol class="small" style="color:var(--muted)">
+          <li><code>types/game.ts</code> → <code>TowerType</code> 加字串</li>
+          <li><code>data/gameData/towerData.ts</code> → <code>TowerData</code> 數值</li>
+          <li><code>data/upgradeBranches.ts</code> → 5 級 + A/B 分支</li>
+          <li><code>towerCombatIdentity.ts</code> / <code>towerTargeting.ts</code> → 定位與優先級</li>
+          <li>外觀：<code>components/game/towerModels/*</code> + <code>three/towerModels3d.ts</code></li>
+          <li><code>data/skins/*</code> → 皮膚（可先給預設）</li>
+          <li><code>i18n/locales/zh-TW.ts</code> → 文案（再讓 i18n:check 帶出待補鍵）</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="ct">👾 新增一種敵人</div>
+        <ol class="small" style="color:var(--muted)">
+          <li><code>types/game.ts</code> → <code>EnemyType</code></li>
+          <li><code>data/gameData/enemyData.ts</code> → 數值 + 能力旗標</li>
+          <li>造型：<code>utils/enemyRenderer.ts</code>（2D）+ <code>three/walker3d.ts</code>（3D）</li>
+          <li>排進 <code>waveData.ts</code> 或 <code>officialWaveSets.ts</code></li>
+          <li>新邏輯：<code>gameLoop/updateEnemies.ts</code> 或 <code>data/combatStatus.ts</code></li>
+          <li>（可選）<code>data/achievements/*</code> 相關成就</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="ct">🖼 新增一個場景</div>
+        <ol class="small" style="color:var(--muted)">
+          <li><code>types/game.ts</code> → <code>GameScene</code> 加字串</li>
+          <li><code>components/scenes/YourScene.tsx</code>（預設 export）</li>
+          <li><code>App.tsx</code> → <code>SCENE_COMPONENTS</code> 加一條 <code>lazy()</code></li>
+          <li>入口：<code>data/mainMenuHome.ts</code> / <code>MenuHomeGrid.tsx</code></li>
+          <li><code>services/musicService.ts</code> → 場景 BGM</li>
+          <li><code>i18n</code> 文案</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="ct">🌐 新增語言</div>
+        <ol class="small" style="color:var(--muted)">
+          <li>新增 <code>i18n/locales/xx.ts</code>（<code>DeepPartial&lt;Translations&gt;</code>）</li>
+          <li><code>i18n/index.ts</code> → <code>Language</code>、<code>LANGUAGE_NAMES</code>、<code>LOCALE_LOADERS</code></li>
+          <li><code>npm run i18n:check</code> 驗證鍵集合</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="ct">🏆 新增成就</div>
+        <ol class="small" style="color:var(--muted)">
+          <li><code>data/achievements/&lt;分類&gt;.ts</code> → 加 <code>Achievement</code></li>
+          <li>新條件型別 → <code>store/achievementStoreCheck.ts</code> 的 <code>checkCondition</code></li>
+          <li>排序：<code>data/achievementSort.ts</code>（<code>order → category → id</code>）</li>
+          <li><code>i18n</code> + <code>achievementConditionLabels.ts</code></li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="ct">⚖️ 調整平衡數值</div>
+        <ol class="small" style="color:var(--muted)">
+          <li>塔：<code>towerData.ts</code>／<code>upgradeBranches.ts</code>／<code>towerSynergyData.ts</code></li>
+          <li>敵人：<code>enemyData.ts</code></li>
+          <li>狀態倍率：<code>combatStatus.ts</code></li>
+          <li>難度／經濟：<code>waveData.ts</code> 的 <code>DIFFICULTY_MODIFIERS</code> / <code>GAME_CONSTANTS</code></li>
+          <li>驗證：<code>npm run test</code>（damagePipeline／statusEffects 等）</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ok">
+      <b>三個檔案讓你看懂整個專案：</b>
+      <code>App.tsx</code>（141 行，全部場景）、
+      <code>gameStoreTypes.ts</code>（299 行，整個世界的資料模型）、
+      <code>useGameSceneEffects.ts</code>（670 行，迴圈順序與所有結算規則）。
+    </div>
+  </section>
+
+  <!-- ==================== 21 技術債 ==================== -->
+  <section id="debt">
+    <h2><span class="idx">21</span>技術債清冊 <span class="tag">TD-01～TD-42 · 9 類 · 全專案掃描</span></h2>
+    <p class="lead">這一節不是「感覺哪裡髒」，而是用腳本掃出來的清單：每個數字都能重跑、每條都附檔案位置。
+      依嚴重度分四級：<span class="sev p0">P0</span>沒有它就不能安全改動、
+      <span class="sev p1">P1</span>每次改動都在付利息、
+      <span class="sev p2">P2</span>可排程處理、
+      <span class="sev p3">P3</span>美觀／整潔。</p>
+    <p class="lead"><b>編號規則：</b>每一項都有固定編號 <span class="tid">TD-01</span>～<span class="tid">TD-42</span>，
+      字母前綴代表分類（A 流程與版控、B 架構分層、C 型別、D 死碼重複、E 效能打包、F 可觀測性、G 資料 i18n、H 資產、I 測試）。
+      commit、PR、issue、回報請直接寫 <code>TD-13</code>，不要只寫「那個 as any 的債」。</p>
+
+    <div class="kpi">
+      <div class="good"><b>0</b><span>TODO / FIXME / @ts-ignore</span></div>
+      <div class="bad"><b>42</b><span>項技術債（9 類）</span></div>
+      <div class="mid"><b>19</b><span>處 <code>as any</code></span></div>
+      <div class="mid"><b>13</b><span>處 <code>: any</code></span></div>
+      <div class="bad"><b>17</b><span>個 eslint-disable（但專案沒有 ESLint）</span></div>
+      <div class="bad"><b>136</b><span>個零引用 export</span></div>
+      <div class="mid"><b>8</b><span>個檔案沒有任何 import</span></div>
+      <div class="bad"><b>445</b><span>條硬編碼中文（components 內）</span></div>
+      <div class="mid"><b>1.33<small>MB</small></b><span>主 chunk（gzip 未計）</span></div>
+      <div class="mid"><b>78.2%</b><span>最低語言覆蓋率</span></div>
+    </div>
+
+    <div class="ok">
+      <b>先講好消息：</b>TODO／FIXME／@ts-ignore／@ts-expect-error 全部是 0。
+      這代表這裡的債<u>不是靠註解堆出來的</u>，而是結構性的（重複實作、型別缺口、死碼、缺少護欄）。
+      註解型債好清，結構型債要排順序——所以下面給了 4 個階段。
+    </div>
+
+    <h3>A. 流程與版本控制 <span class="tag">6 項</span></h3>
+    <table class="debt-table">
+      <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tid">TD-01</span><span class="sev p0">P0</span><b>A1 沒有版本控制</b></td>
+          <td><code>Test-Path .git</code> → <code>False</code>；<code>docs/2026-11-10-shishan-remediation.md</code> 也記「無 .git，改動前手動 zip 備份」</td>
+          <td>沒有 diff／blame／回滾／分支。任何重構都沒有安全網，這也是其他債一直不敢動的根因。</td>
+          <td><code>git init</code> → 先提交現狀（含 <code>.gitattributes</code> 統一換行）→ 之後每個債項一個 commit</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-02</span><span class="sev p1">P1</span><b>A2 Cargo.lock 被忽略</b></td>
+          <td><code>.gitignore</code> 有一行 <code>src-tauri/Cargo.lock</code>，但檔案實際存在</td>
+          <td>Rust 依賴版本不固定，換機器建置可能拉到不同 minor；更新與打包結果不可重現。</td>
+          <td>刪掉該行（應用程式應提交 lock；只有 library 才忽略）</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-03</span><span class="sev p2">P2</span><b>A3 產物與截圖留在樹裡</b></td>
+          <td><code>dist/</code> 11.9 MB（77 檔）、<code>.shots/</code> 6.6 MB（53 張 PNG）</td>
+          <td>備份／同步變慢；新人容易改到產物；審查時噪音多。</td>
+          <td><code>dist/</code> 已被 ignore（保留即可）；<code>.shots/</code> 加進 ignore 並移到 <code>%TEMP%</code> 或 CI artifact</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-04</span><span class="sev p2">P2</span><b>A4 生成物寫進 src</b></td>
+          <td><code>scenes/encyclopedia/srcFileManifest.json</code>（194 KB）與 <code>encyclopediaMapSources.json</code>，由 <code>predev</code>/<code>prebuild</code> 覆寫</td>
+          <td>每次 build 工作區就變髒；百科的「原始碼檔案庫」與程式碼耦合，移動檔案要重跑 build 才正確。</td>
+          <td>輸出到 <code>.cache/</code>（ignore）或 <code>public/generated/</code>，改成 runtime fetch</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-05</span><span class="sev p2">P2</span><b>A5 沒有覆蓋率門檻</b></td>
+          <td><code>vitest.config.ts</code> 只有 <code>coverage.include</code>；CI 跑 <code>vitest run</code> 不跑 coverage，也沒有 <code>thresholds</code></td>
+          <td>覆蓋率可以無聲下滑，沒人會發現。</td>
+          <td><code>thresholds: { lines: 60 }</code> 起步，每季 +5 拉到 75</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-06</span><span class="sev p3">P3</span><b>A6 文件漂移</b></td>
+          <td><code>docs/superpowers/specs/*</code>（2026-05～09 設計稿）沒有狀態標記；<code>docs/SCENE_UI.md</code> 仍寫「路徑 <code>src/ui/</code>」</td>
+          <td>照舊文件找檔案會撲空，新人要重新考古。</td>
+          <td>每份 spec 頂端加「狀態：已實作／部分實作／已廢止」；更正 SCENE_UI 的路徑</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>B. 架構與分層 <span class="tag">6 項</span></h3>
+    <table class="debt-table">
+      <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tid">TD-07</span><span class="sev p1">P1</span><b>B1 七個「上帝檔案」</b></td>
+          <td><code>Icons.tsx</code> 2,182 行／237 個 icon；<code>gameStoreAutoBattle.ts</code> 1,016；<code>achievementStore.ts</code> 981；
+            <code>LivePreview.tsx</code> 969；<code>GameScene3D.tsx</code> 850；<code>ModIconEditor.tsx</code> 849；<code>enemyRenderer.ts</code> 828</td>
+          <td>單檔改動風險高；review 看不到全貌；合併衝突永遠在同一檔。</td>
+          <td>Icons 按分類拆檔；AI 拆「策略評估／執行／日誌」；3D 拆「場景建構／狀態同步／互動」</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-08</span><span class="sev p1">P1</span><b>B2 資料層依賴 React</b></td>
+          <td>607 筆成就每筆 <code>icon: React.createElement(Icon, {...})</code>（<code>data/achievements/*.ts</code>）</td>
+          <td>data 不能在 node 腳本／純測試中使用；所有 icon 被迫進主 chunk（B1／D3／E1 的共同根因）。</td>
+          <td>改 <code>iconKey: 'StarIcon'</code> 字串 + 執行期查表（可 lazy、可 tree-shake）</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-09</span><span class="sev p2">P2</span><b>B3 場景清單雙份真相</b></td>
+          <td><code>types/game.ts</code> 的 <code>GameScene</code>（22）vs <code>store/devStore.ts</code> 手抄的 <code>SceneName</code>（22）</td>
+          <td>新增場景只改一處時，Dev 面板的測試清單會漏（歷史上漏過 3 個編輯器場景）。</td>
+          <td><code>type SceneName = GameScene</code>（一行）</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-10</span><span class="sev p2">P2</span><b>B4 兩個同名 barrel</b></td>
+          <td><code>data/gameData.ts</code>（實際解析到的）與 <code>data/gameData/index.ts</code>（沒有任何模組 import，只出現在百科檔案清單的字串裡）</td>
+          <td>兩份 export 清單會漂移；新人不知道該改哪個。</td>
+          <td>刪掉 <code>index.ts</code>，或把檔案版內容併入 <code>index.ts</code> 只留一個入口</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-11</span><span class="sev p3">P3</span><b>B5 測試專用 API 留在正式碼</b></td>
+          <td><code>gridTower.ts</code> 的 <code>hasTowerAt</code>／<code>towerAt</code>／<code>towersByPosition</code>／<code>findGridTowerMismatches</code>；
+            <code>data/splitSceneChrome.ts</code> 的 3 個 <code>SPLIT_*</code> 常數（只被 3 個測試檔引用）</td>
+          <td>正式 bundle 背著只有測試用的契約，也會讓人誤以為是公共 API。</td>
+          <td>移到 <code>src/test/contracts/</code>，或標 <code>@internal</code></td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-12</span><span class="sev p3">P3</span><b>B6 五個空目錄</b></td>
+          <td><code>components/game/overlays</code>、<code>scenes/achievement-gallery</code>、<code>components/ui/Icons</code>、<code>data/achievementData</code>、<code>data/skinData</code></td>
+          <td>誤導（以為裡面有東西）；<code>Icons</code> 目錄與 <code>Icons.tsx</code> 檔案並存尤其容易搞混。</td>
+          <td>直接刪除</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>C. 型別與 API 契約 <span class="tag">5 項</span></h3>
+    <table class="debt-table">
+      <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tid">TD-13</span><span class="sev p1">P1</span><b>C1 19 處 <code>as any</code></b></td>
+          <td><code>FloatingTowerPanel.tsx</code>(2)、<code>TowerShootPreview.tsx</code>(5)、<code>PathSelection.tsx</code>(3)、
+            <code>EnemyEditor.tsx</code>(2)、<code>ModEditor.tsx</code>(2)、<code>WorkshopCard.tsx</code>(2)、
+            <code>useGameSceneEffects.ts:421</code>、<code>updateTowers.ts:449</code>、<code>gameStoreAutoBattle.ts:207</code></td>
+          <td>型別檢查在這些點完全失效；欄位改名不會報錯，會在執行時變 <code>undefined</code>。</td>
+          <td>先修根因（C3 的 Mod 欄位型別），剩下的用窄化函式或正確泛型取代</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-14</span><span class="sev p1">P1</span><b>C2 13 處 <code>: any</code></b></td>
+          <td>集中在 <code>GameCanvasStatic.ts</code> 的 <code>grid: any[][]</code>（3 處，另有 7 個 <code>eslint-disable</code>）、
+            <code>gameStoreEffects.ts</code> 的 6 個 <code>any[]</code> buffer、<code>FullscreenMapEditor.tsx</code>、<code>MapBriefing.tsx</code></td>
+          <td>畫布拿到的格子資料完全沒型別；特效 buffer 也是。錯誤只會在畫面上「怪怪的」而不會編譯失敗。</td>
+          <td><code>grid: Tile[][]</code>；buffer 改 <code>DamageText[]</code>／<code>ImpactParticle[]</code>／<code>DeathAnimation[]</code></td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-15</span><span class="sev p1">P1</span><b>C3 <code>TowerData</code> 缺 Mod 專屬欄位</b></td>
+          <td><code>damagePerSecond</code>／<code>flameEffect</code>／<code>laserEffect</code>／<code>windEffect</code>／<code>moneyGeneration</code>
+            不在 <code>TowerData</code> 上，UI 只能 <code>(data as any).xxx</code> 探測（共 7 處）</td>
+          <td>新增 Mod 塔效果時，面板／預覽／AI 三邊都可能漏顯示；型別不會提醒。</td>
+          <td>把這些欄位提升成 <code>TowerData</code> 的可選屬性，或建 <code>ModTowerData extends TowerData</code> 並在 <code>getTowerData</code> 回傳聯合型別</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-16</span><span class="sev p2">P2</span><b>C4 17 個 eslint-disable 卻沒有 ESLint</b></td>
+          <td><code>package.json</code> 沒有 eslint 依賴、根目錄沒有設定檔、沒有 <code>lint</code> 腳本；
+            但程式裡有 17 個 <code>eslint-disable</code>（含 7 個 <code>react-hooks/exhaustive-deps</code>）</td>
+          <td>這些註解<u>完全沒有作用</u>：hooks 依賴沒人檢查，<code>no-explicit-any</code> 也沒人管。</td>
+          <td>裝 eslint + <code>@typescript-eslint</code> + <code>react-hooks</code>，只開兩條（<code>no-explicit-any: warn</code>、<code>exhaustive-deps: warn</code>），其餘先關</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-17</span><span class="sev p2">P2</span><b>C5 手動接管的 effect 依賴 7 處</b></td>
+          <td><code>GameCanvas.tsx:272</code>、<code>useGameSceneEffects.ts:663</code>、<code>GameOver.tsx:82</code>、<code>Victory.tsx:139</code>、
+            <code>useMapEditorState.ts:39/48</code>、<code>ModIconEditor.tsx:146</code></td>
+          <td>依賴陣列被刻意縮小，改邏輯時很容易 stale closure（讀到舊 state）。</td>
+          <td>抽 <code>useLatestRef</code>／<code>useEvent</code>，並把「為什麼不該重跑」寫在註解</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>D. 死碼與重複實作 <span class="tag">6 項</span></h3>
+    <table class="debt-table">
+      <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tid">TD-18</span><span class="sev p2">P2</span><b>D1 8 個檔案沒有任何 import</b></td>
+          <td>合計 169 行：<code>replay/ReplayListCard.tsx</code>(94)、<code>components/scenes/index.ts</code>、<code>scenes/tutorial/index.ts</code>、
+            <code>game/index.ts</code>、<code>scenes/statistics/index.ts</code>、<code>utils/index.ts</code>、<code>data/splitSceneChrome.ts</code>、<code>data/gameData/index.ts</code></td>
+          <td>死元件與死 barrel 混在樹裡，搜尋結果被污染。</td>
+          <td>刪（<code>splitSceneChrome</code> 先移到測試契約）</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-19</span><span class="sev p2">P2</span><b>D2 136 個零引用 export</b></td>
+          <td>連同檔案內部都沒用到：<code>utils/animations.ts</code> 45 個（該檔 309 行大半是死的動畫變體）、
+            <code>shopData.ts</code> 5 個、<code>TutorialPageComponents.tsx</code> 5 個、<code>Icons.tsx</code> 6 個…</td>
+          <td>讀者會以為是公共 API；改動時不敢刪，債越積越多。</td>
+          <td>一次清一批，先從 <code>animations.ts</code> 下手（幾乎整檔可刪）</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-20</span><span class="sev p2">P2</span><b>D3 <code>Icons.tsx</code> 237 個 icon，72 個零引用</b></td>
+          <td><code>components/ui/Icons.tsx</code>（2,182 行）</td>
+          <td>主 chunk 白背幾百 KB 的 SVG path；也讓「哪些 icon 真的在用」無法回答。</td>
+          <td>與 B2 一起做：icon 改 key + 只保留被引用的，或改成按需 chunk</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-21</span><span class="sev p1">P1</span><b>D4 地圖編輯器雙實作</b></td>
+          <td><code>mod-editor/MapEditorCanvas.tsx</code>(160 行) vs <code>scenes/map-editor/MapEditorCanvas.tsx</code>(146 行)：
+            27% 的行完全相同；<code>MapEditorPanel.tsx</code> 兩版重疊 17%</td>
+          <td>兩套行為會分叉：同一 bug 要修兩次，或只修一邊（常見）。</td>
+          <td>先統一狀態層（只有 scenes 版有 <code>useMapEditorState</code>），mod-editor 版改成 wrapper</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-22</span><span class="sev p2">P2</span><b>D5 結算頁重複</b></td>
+          <td><code>Victory.tsx</code> 391 行／<code>GameOver.tsx</code> 307 行；跨檔的 8 行區塊有 <b>43 組完全相同（14%）</b>、
+            6 行區塊 61 組（21%）、4 行區塊 76 組（28%）</td>
+          <td>結算頁改版要改兩次，兩邊文案與版面已開始不同步。</td>
+          <td>抽 <code>GameEndLayout</code>（<code>GameEndStatGrid</code> 已經存在，往上推一層）</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-23</span><span class="sev p3">P3</span><b>D6 <code>WaveEditor</code> 是 <code>FullscreenWaveEditor</code> 的子集</b></td>
+          <td><code>mod-editor/WaveEditor.tsx</code> vs <code>FullscreenWaveEditor.tsx</code>（761 行）</td>
+          <td>同一功能兩份 UI，改一處忘一處。</td>
+          <td>對照 UI 後合併（需截圖驗收）</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>E. 效能與打包 <span class="tag">5 項</span></h3>
+    <table class="debt-table">
+      <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tid">TD-24</span><span class="sev p1">P1</span><b>E1 主 chunk 1.33 MB</b></td>
+          <td><code>dist/assets/index-*.js</code> 1,333,086 bytes；另有 <code>chunks/towerModels3d</code> 548 KB、<code>chunks/scenes-*</code> 394／262 KB</td>
+          <td>首次啟動要解析 1.3 MB JS；i18n 已 lazy，下一個大頭就是 Icons + 607 筆成就。</td>
+          <td>做 B2 + D3（icon 字串化、拆檔）→ 目標 &lt; 900 KB</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-25</span><span class="sev p2">P2</span><b>E2 每幀熱路徑仍配置物件</b></td>
+          <td><code>perfTime('updateEnemies', () =&gt; ...)</code> 每幀產生閉包；<code>gameStoreEffects.ts</code> 的 <code>any[]</code> buffer</td>
+          <td>高負載時 GC 抖動，是壓測 p95 遠高於 p50 的來源之一。</td>
+          <td>先量 baseline（Dev HUD）再改；把 <code>perfTime</code> 改成取樣模式</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-26</span><span class="sev p2">P2</span><b>E3 效能測試沒有絕對門檻</b></td>
+          <td><code>test/updateTowersPerf.test.ts</code> 只斷言 <code>cooldownMs &lt; readyMs * 0.5</code>（相對倍率）</td>
+          <td>兩邊一起變慢也會過；真正的效能回歸抓不到。</td>
+          <td>加絕對上限（例如 4,500 敵人 × 100 塔的 ready 幀 &lt; 25 ms）</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-27</span><span class="sev p3">P3</span><b>E4 壓測只能手動</b></td>
+          <td><code>stressTestActions.ts</code> + <code>StressTestHud.tsx</code> 要在 Dev 面板按</td>
+          <td>CI 沒有效能回歸訊號。</td>
+          <td>把 <code>spawnStressEntities(5000, 100)</code> 包成 node 測試（<code>stressTest.test.ts</code> 已鋪路）</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-28</span><span class="sev p3">P3</span><b>E5 3D 塔模型 chunk 548 KB</b></td>
+          <td><code>towerModels3d.ts</code>（702 行）產出的 chunk</td>
+          <td>第一次切 3D 要下載；可接受，但沒有載入提示。</td>
+          <td>若要縮：改吃 <code>shapeLibrary</code> 程序化幾何；或加 Suspense 骨架</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>F. 可觀測性與錯誤處理 <span class="tag">4 項</span></h3>
+    <table class="debt-table">
+      <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tid">TD-29</span><span class="sev p2">P2</span><b>F1 17 處 <code>console.*</code>，沒有 logger</b></td>
+          <td><code>settingsExportService.ts</code>(4)、<code>updateService.ts</code>(3)、<code>settingsLocalFileAccess.ts</code>(2)、
+            <code>replayBatchExport.ts</code>、<code>statsExport.ts</code>、<code>gameStore.ts</code>(2)、<code>frameLoopGuard.ts</code>…</td>
+          <td>無法關閉、無法上報、格式不一；玩家回報問題時拿不到結構化資訊。</td>
+          <td>建 <code>utils/logger.ts</code>（level + 環形緩衝），Dev 面板可直接看最近 200 條</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-30</span><span class="sev p2">P2</span><b>F2 三條 rAF 沒有護欄</b></td>
+          <td><code>GameCanvas.tsx</code>、<code>three/GameScene3D.tsx</code>、<code>replay/ReplayCanvas.tsx</code> 都是裸
+            <code>requestAnimationFrame</code> 迴圈；<code>frameLoopGuard</code> 只包住遊戲主迴圈</td>
+          <td>繪製層一拋錯就整層停住（畫面卡住但邏輯還在跑），而且不會被節流上報。</td>
+          <td>三處都套 <code>createFrameLoopGuard({ label: 'canvas' })</code></td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-31</span><span class="sev p3">P3</span><b>F3 更新失敗偏靜默</b></td>
+          <td><code>updateService.ts:152/173</code> 只 <code>console.warn</code>／<code>console.error</code></td>
+          <td>玩家以為「已是最新」，其實是檢查失敗。</td>
+          <td>在 <code>UpdateNotification</code> 顯示「檢查失敗，可手動下載」</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-32</span><span class="sev p3">P3</span><b>F4 Mod 地圖載入失敗只寫 console</b></td>
+          <td><code>gameStore.ts:283</code></td>
+          <td>玩家只看到「地圖不存在」，不知道是哪個 Mod 壞了。</td>
+          <td>回傳明確錯誤（modId + mapId）給 UI 提示</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>G. 資料與 i18n <span class="tag">4 項</span></h3>
+    <table class="debt-table">
+      <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tid">TD-33</span><span class="sev p1">P1</span><b>G1 445 條硬編碼中文</b></td>
+          <td>分布在 <code>components/</code>：<code>modEditorIconI18n.ts</code>(73)、<code>model3d/shapeLibrary.ts</code>(29)、
+            <code>shopData.ts</code>(27)、<code>modValidation.ts</code>(26)、<code>TutorialData.ts</code>(23)、
+            <code>dev-panel/ToolsSection.tsx</code>(23)、<code>templates.ts</code>(22)、<code>Icons.tsx</code>(22)…</td>
+          <td>8 國語言玩家在這些地方會看到中文（商店、教學、驗證訊息都在內）。</td>
+          <td>先清使用者可見的（商店／教學／驗證），Dev 面板最後再處理</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-34</span><span class="sev p2">P2</span><b>G2 語言覆蓋率 78.2%–85%</b></td>
+          <td>zh-TW 基準 3,926 鍵；zh-CN 3,240（82.5%）、en／ja 3,339（85%）、其餘 6 語 3,069（78.2%）</td>
+          <td>缺的鍵靜默回退繁中 → 非中文玩家會突然撞到中文，而且沒人回報。</td>
+          <td>dev 模式把缺鍵渲染成 <code>⟦鍵名⟧</code>（讓缺漏可見），再補翻譯</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-35</span><span class="sev p3">P3</span><b>G3 改一句文案要動 10 個檔</b></td>
+          <td><code>i18n/locales/*</code> 各 3.3k–4.6k 行，合計 36.5k 行</td>
+          <td>翻譯 PR 巨大、容易衝突；review 成本高。</td>
+          <td>依功能拆檔（<code>locales/ja/game.ts</code>、<code>shop.ts</code>…）或改 JSON + 產生器</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-36</span><span class="sev p3">P3</span><b>G4 三處翻譯來源</b></td>
+          <td><code>locales/*</code> + <code>achievementConditionLabels.ts</code> + <code>fileMetaExtraLabels.ts</code> +
+            <code>settingsPickerReasons.ts</code> + <code>playerSkillLabels.ts</code></td>
+          <td>新增一個條件／標籤要改兩三個地方，容易漏。</td>
+          <td>labels 檔只留 key 映射，文字全部進 locales</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>H. 資產與體積 <span class="tag">3 項</span></h3>
+    <table class="debt-table">
+      <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tid">TD-37</span><span class="sev p2">P2</span><b>H1 字型 7.1 MB × 2</b></td>
+          <td><code>public/fonts/NotoSansTC.ttf</code> 7,099,768 bytes 與 <code>dist/fonts/</code> 同檔各一份（合計 14 MB）</td>
+          <td>安裝檔與 repo 都變大；首次載入要下載全量字型。</td>
+          <td>子集化（繁中常用字 + 遊戲用字）轉 woff2，目標 &lt; 1.5 MB</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-38</span><span class="sev p3">P3</span><b>H2 空目錄與截圖</b></td>
+          <td><code>GameVideos/</code> 0 檔；<code>.shots/</code> 53 張 6.6 MB</td>
+          <td>目錄語意混亂，備份變胖。</td>
+          <td>空目錄刪除；截圖移到 CI artifact</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-39</span><span class="sev p3">P3</span><b>H3 <code>dist/</code> 內有舊產物</b></td>
+          <td>11.9 MB／77 檔，含多個舊 hash 的 <code>chunks/*</code></td>
+          <td>容易拿舊包測試，誤判 bug 已修。</td>
+          <td>確認 <code>emptyOutDir</code>（預設 true）；必要時 build 前手動清</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>I. 測試覆蓋 <span class="tag">3 項</span></h3>
+    <table class="debt-table">
+      <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tid">TD-40</span><span class="sev p2">P2</span><b>I1 沒有 e2e</b></td>
+          <td>更新流程、3D 視圖、真實 canvas 繪製、設定／回放檔案匯入匯出，全部沒有自動化</td>
+          <td>這些路徑只能手動驗收，改動風險最高。</td>
+          <td>先 1 條 Playwright 冒煙：開主選單 → 選關 → 建塔 → 跑 3 波 → 看結算</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-41</span><span class="sev p2">P2</span><b>I2 464 個 component 幾乎沒有 component 測試</b></td>
+          <td>160 個測試檔集中在 <code>data/</code> 與 <code>store/</code> 的純邏輯</td>
+          <td>UI 重構完全靠人眼；class 契約靠 <code>designTokens.test.ts</code> 代打。</td>
+          <td>從 3 個高風險場景補：GameScene、Settings、ModEditor</td>
+        </tr>
+        <tr>
+          <td><span class="tid">TD-42</span><span class="sev p3">P3</span><b>I3 designTokens 用字串斷言</b></td>
+          <td><code>test/designTokens.test.ts</code> 對 class 字串做斷言</td>
+          <td>改樣式就紅，但抓不到真的 bug（換個寫法就繞過）。</td>
+          <td>把樣式常數匯出後斷言常數，而不是整串 class</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>建議處理順序（4 個階段）</h3>
+    <table>
+      <thead><tr><th>階段</th><th>內容</th><th>預估</th><th>風險 / 驗收</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>階段 0</b><br><span class="small">先建立安全網</span></td>
+          <td><b>TD-01</b> git init、<b>TD-02</b> 移除 Cargo.lock ignore、<b>TD-04</b> 生成物移出 src、<b>TD-05</b> 覆蓋率門檻、<b>TD-09</b> SceneName 別名、<b>TD-10</b> 刪死 barrel、<b>TD-12</b> 刪空目錄、<b>TD-18</b> 刪 8 個死檔</td>
+          <td>半天</td>
+          <td>低。純刪除／移動，跑 <code>npm run check</code> 即可</td>
+        </tr>
+        <tr>
+          <td><b>階段 1</b><br><span class="small">讓型別真的有用</span></td>
+          <td><b>TD-15</b> → <b>TD-13</b>（Mod 欄位型別）、<b>TD-14</b>（canvas grid 改 <code>Tile[][]</code>）、<b>TD-16</b> 裝 ESLint 只開兩條、<b>TD-29</b> logger、<b>TD-30</b> 三條 rAF 加護欄</td>
+          <td>2–3 天</td>
+          <td>低。型別與日誌，不動行為；<code>tsc</code> 會逐一指出要改哪</td>
+        </tr>
+        <tr>
+          <td><b>階段 2</b><br><span class="small">瘦身與去重</span></td>
+          <td><b>TD-08</b> 成就 icon 字串化 → <b>TD-20</b> Icons 拆分 → <b>TD-24</b> 主 chunk 目標 &lt; 900 KB；<b>TD-22</b> 抽 <code>GameEndLayout</code>；<b>TD-07</b> 拆 AI 與 3D</td>
+          <td>1 週</td>
+          <td>中。成就館與結算頁要做視覺對照（截圖比對）</td>
+        </tr>
+        <tr>
+          <td><b>階段 3</b><br><span class="small">長期工程</span></td>
+          <td><b>TD-21</b> 地圖編輯器合併、<b>TD-33</b> 445 條文案 i18n 化、<b>TD-34</b> 覆蓋率拉到 90%、<b>TD-37</b> 字型子集化、<b>TD-40</b>＋<b>TD-27</b> 自動化測試（e2e + 效能門檻）</td>
+          <td>1–2 週</td>
+          <td>中高。需要 UI 驗收與翻譯資源</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>刻意先不動（成本 &gt; 收益）</h3>
+    <div class="grid g2">
+      <div class="card"><div class="ct">gameStoreTypes 299 行介面</div>
+        <div class="cd">它同時是「世界長什麼樣」的文件與型別契約，拆成多個 interface 只是把 299 行分散，沒有實質收益。</div></div>
+      <div class="card"><div class="ct"><b>TD-25</b> perfTime 之類的微優化</div>
+        <div class="cd">沒有 baseline 就改寫，等於盲改。等 TD-25 建立基準數據再處理。</div></div>
+      <div class="card"><div class="ct">10 個語言檔合併／改 JSON</div>
+        <div class="cd">現有 parity 腳本已經守住，重構的風險（漏鍵、型別推導斷裂）大於收益。</div></div>
+      <div class="card"><div class="ct"><b>TD-23</b> WaveEditor 合併</div>
+        <div class="cd">兩個入口的使用情境不同，合併需要完整 UI 對照與驗收，排在階段 3 之後。</div></div>
+    </div>
+
+    <div class="note">
+      <b>量測方式（可重跑）：</b>
+      檔案行數＝<code>Get-Content | Measure-Object -Line</code>；
+      死 export／未引用檔案／重複區塊＝Node 腳本掃 <code>src/</code> 的 import specifier 與 export 名；
+      <code>as any</code>／<code>: any</code>／eslint-disable／console＝正則全檔計數；
+      覆蓋率＝<code>node scripts/i18n-parity.mjs</code>；
+      主 chunk＝<code>dist/assets/index-*.js</code> 實際 bytes。
+      數字會隨程式碼變動，重跑即可更新。
+    </div>
+  </section>
+
+  <footer>
+    <p><b>瓜瓜塔防 · 架構圖</b> · 依原始碼實測整理（v1.2.0）</p>
+    <p class="small">本頁為單檔 HTML，無外部依賴（不載 CDN、不跑框架），可直接雙擊開啟或列印成 PDF。
+      給 AI 代理的工作手冊：<code>AGENTS.md</code>。</p>
+  </footer>
+
+</main>
+
+<button id="top" title="回到頂部">↑</button>
+
+<script>
+(function () {
+  // 目錄高亮
+  var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+
+  function setActive(id) {
+    links.forEach(function (a) {
+      a.classList.toggle('on', a.getAttribute('href') === '#' + id);
+    });
+  }
+
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) setActive(e.target.id);
+      });
+    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+    sections.forEach(function (s) { if (s) io.observe(s); });
+  }
+
+  // 搜尋：過濾目錄
+  var q = document.getElementById('q');
+  q.addEventListener('input', function () {
+    var v = q.value.trim().toLowerCase();
+    links.forEach(function (a) {
+      var text = (a.textContent + ' ' + (a.dataset.k || '')).toLowerCase();
+      a.style.display = (!v || text.indexOf(v) >= 0) ? '' : 'none';
+    });
+  });
+  q.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var first = links.filter(function (a) { return a.style.display !== 'none'; })[0];
+    if (first) {
+      location.hash = first.getAttribute('href');
+      first.click();
+    }
+  });
+
+  // 回到頂部
+  var top = document.getElementById('top');
+  window.addEventListener('scroll', function () {
+    top.classList.toggle('show', window.scrollY > 600);
+  }, { passive: true });
+  top.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // 目錄點擊也立即高亮
+  links.forEach(function (a) {
+    a.addEventListener('click', function () {
+      setActive(a.getAttribute('href').slice(1));
+    });
+  });
+})();
+</script>
+<script>
+  /* 主題切換：auto / light / dark，選擇記在 localStorage */
+  (function () {
+    var root = document.documentElement;
+    var KEY = 'guagua-arch-theme';
+    var mq = window.matchMedia('(prefers-color-scheme: light)');
+    var btns = Array.prototype.slice.call(document.querySelectorAll('.themebar button'));
+    var pref = 'auto';
+    var urlTheme = null;
+    try { urlTheme = new URLSearchParams(location.search).get('theme'); } catch (e) {}
+    if (urlTheme !== 'light' && urlTheme !== 'dark') urlTheme = null;
+    try { pref = urlTheme || localStorage.getItem(KEY) || 'auto'; } catch (e) { pref = urlTheme || 'auto'; }
+
+    function resolve(p) { return p === 'auto' ? (mq.matches ? 'light' : 'dark') : p; }
+    function paint(p) {
+      var resolved = resolve(p);
+      root.setAttribute('data-theme', resolved);
+      btns.forEach(function (b) {
+        var on = b.getAttribute('data-t') === p;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+    paint(pref);
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        pref = b.getAttribute('data-t');
+        try { localStorage.setItem(KEY, pref); } catch (e) {}
+        paint(pref);
+      });
+    });
+    var onChange = function () { if (pref === 'auto') paint('auto'); };
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else if (mq.addListener) mq.addListener(onChange);
+  })();
+</script>
+</body>
+</html>

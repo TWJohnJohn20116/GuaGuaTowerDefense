@@ -1,0 +1,46 @@
+# CI：型別 + i18n 對齊 + 單元測試 + 產線建置
+#
+# 這個專案先前只有 tag 觸發的 release workflow：沒有型別檢查、沒有測試，
+# 於是 tsc 累積到 89 個錯誤、10 個測試長期紅著，而 generateId 未定義這種
+# 會在遊戲中直接打死幀迴圈的 bug 也能一路進到發佈版。這裡補上那道閘門。
+
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: i18n parity
+        run: npm run i18n:check
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Production build
+        run: npm run build

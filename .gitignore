@@ -1,0 +1,46 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# 構建產物
+dist/
+dist-ssr/
+
+# Tauri
+src-tauri/target/
+src-tauri/Cargo.lock
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# 系統
+.DS_Store
+Thumbs.db
+
+# 環境變數
+.env
+.env.local
+.env.*.local
+
+# Tauri 更新簽名私鑰（勿提交）
+src-tauri/.tauri/*.key
+
+# 日誌與暫存
+*.log
+*.bak
+*.save
+
+# 截圖與驗證產物（TD-03：不進版控，改放 CI artifact 或 %TEMP%）
+.shots/
+
+# 工具執行期狀態（agent 事件流／符號索引，非原始碼）
+.kagent/
+.cache/
+
+# 舊型別檢查暫存輸出（非原始碼）
+tsc-grid.txt

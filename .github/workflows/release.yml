@@ -1,0 +1,51 @@
+# 瓜瓜塔防 — Windows 發版 + 原生更新器產物
+# 觸發：推送 v* tag（例如 v1.1.2）
+#
+# 首次使用前請在 GitHub Repository Secrets 設定：
+#   TAURI_SIGNING_PRIVATE_KEY         — src-tauri/.tauri/guagua-td.key 全文
+#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD — 簽名密碼（本專案預設為 empty）
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build & release (Tauri)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: '瓜瓜塔防 ${{ github.ref_name }}'
+          releaseBody: '詳見 CHANGELOG.md'
+          releaseDraft: false
+          prerelease: false
+          includeUpdaterArtifacts: true

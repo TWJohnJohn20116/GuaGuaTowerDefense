@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>瓜瓜塔防 · 介面重做 Demo</title>
+  <style>
+    html, body { background: #0b0d11; color: #e8edf4; }
+  </style>
+  <link rel="stylesheet" href="./demo.css?v=2" />
+</head>
+<body data-theme="nordic" data-screen="menu">
+  <header class="chrome">
+    <div class="chrome-brand">
+      <strong>介面重做 Demo</strong>
+      <span>靜態預覽 · 尚未改遊戲本體 · 版本仍為 1.2.0</span>
+    </div>
+    <nav class="theme-switch" aria-label="設計方向">
+      <button type="button" data-theme="nordic" class="is-on">北歐指揮所<span>建議</span></button>
+      <button type="button" data-theme="terminal">戰術終端</button>
+      <button type="button" data-theme="paper">紙面圖鑑</button>
+    </nav>
+  </header>
+
+  <nav class="screen-switch" aria-label="畫面">
+    <button type="button" data-screen="menu" class="is-on">主選單</button>
+    <button type="button" data-screen="path">選地圖</button>
+    <button type="button" data-screen="battle">對局</button>
+    <button type="button" data-screen="pause">暫停</button>
+    <button type="button" data-screen="shop">商店</button>
+    <button type="button" data-screen="settings">設定</button>
+    <button type="button" data-screen="victory">勝利</button>
+    <button type="button" data-screen="atlas">全部畫面</button>
+  </nav>
+
+  <main class="stage-wrap">
+    <div class="stage" id="stage"></div>
+  </main>
+
+  <p class="hint" id="hint"></p>
+  <script src="./demo.js?v=2"></script>
+</body>
+</html>

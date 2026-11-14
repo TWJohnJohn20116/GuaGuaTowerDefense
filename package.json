@@ -1,0 +1,52 @@
+{
+  "name": "guagua-tower-defense",
+  "version": "1.2.0",
+  "description": "瓜瓜塔防 - Tauri + React + TypeScript 版本",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "prebuild": "node scripts/generate-src-file-manifest.mjs",
+    "predev": "node scripts/generate-src-file-manifest.mjs",
+    "build": "vite build",
+    "build:check": "npm run typecheck && vite build",
+    "typecheck": "tsc --noEmit",
+    "i18n:check": "node scripts/i18n-parity.mjs --strict",
+    "check": "npm run typecheck && npm run i18n:check && npm run test",
+    "preview": "vite preview",
+    "verify:isms": "npx tsx scripts/verify-playstyle-isms.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-process": "^2.3.1",
+    "@tauri-apps/plugin-shell": "^2",
+    "@tauri-apps/plugin-updater": "^2.10.1",
+    "@types/three": "^0.184.1",
+    "clsx": "^2.1.0",
+    "framer-motion": "^11.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "three": "^0.184.0",
+    "zustand": "^4.5.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.17",
+    "jsdom": "^29.1.1",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3",
+    "vitest": "^4.1.10"
+  }
+}

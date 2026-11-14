@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>瓜瓜塔防</title>
+    <style>
+      @font-face {
+        font-family: 'Noto Sans TC';
+        src: url('/fonts/NotoSansTC.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      :root {
+        /* Nordic Theme Colors (Default) */
+        --color-bg: #0b0c10;
+        --color-surface: #181a21;
+        --color-border: #2c313c;
+        --color-primary: #5c83d6;
+        --color-secondary: #4a9e88;
+        --color-accent: #60a5fa;
+        --color-danger: #d95555;
+        --color-text: #e2e4e9;
+        --color-muted: #8b92a5;
+        
+        /* Glassmorphism Variables */
+        --glass-bg: rgba(24, 26, 33, 0.6);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

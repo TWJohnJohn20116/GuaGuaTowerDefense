@@ -1,0 +1,642 @@
+@import './hardline.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   舊類別相容層 — 名字全部保留，外觀全部換成 HARDLINE
+   這樣 178 個還沒逐一重寫的檔案會立刻一起換皮，不會出現兩套視覺。
+   ========================================================================= */
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--hl-sans);
+  }
+
+  body {
+    background: var(--hl-void);
+    color: var(--hl-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background var(--hl-t) var(--hl-ease);
+  }
+}
+
+@layer components {
+  /* ---------------- 按鈕 ---------------- */
+  .btn-game {
+    @apply relative inline-flex items-center justify-center font-semibold;
+    height: 2.25rem;
+    padding: 0 1rem;
+    font-size: 12.5px;
+    background: var(--hl-deck-2);
+    border: 1px solid var(--hl-line-strong);
+    border-radius: 0;
+    color: var(--hl-ink);
+    clip-path: polygon(
+      0 0,
+      calc(100% - 6px) 0,
+      100% 6px,
+      100% 100%,
+      0 100%
+    );
+    transition:
+      background-color var(--hl-t) var(--hl-ease),
+      border-color var(--hl-t) var(--hl-ease),
+      color var(--hl-t) var(--hl-ease),
+      transform var(--hl-t-fast) var(--hl-ease);
+  }
+
+  .btn-game:hover:not(:disabled) {
+    background: var(--hl-deck-3);
+    border-color: var(--hl-line-hot);
+  }
+
+  .btn-game:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .btn-game:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn-game;
+    background: var(--hl-signal);
+    border-color: var(--hl-signal);
+    color: var(--hl-signal-ink);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: #e6ff74;
+    border-color: #e6ff74;
+  }
+
+  .btn-success {
+    @apply btn-game;
+    background: transparent;
+    border-color: rgba(56, 224, 143, 0.45);
+    color: var(--hl-vital);
+  }
+  .btn-success:hover:not(:disabled) {
+    background: rgba(56, 224, 143, 0.1);
+    border-color: var(--hl-vital);
+  }
+
+  .btn-danger {
+    @apply btn-game;
+    background: transparent;
+    border-color: rgba(255, 75, 62, 0.4);
+    color: var(--hl-alarm);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: rgba(255, 75, 62, 0.1);
+    border-color: var(--hl-alarm);
+  }
+
+  .btn-accent {
+    @apply btn-game;
+    background: transparent;
+    border-color: var(--hl-signal-edge);
+    color: var(--hl-signal);
+  }
+  .btn-accent:hover:not(:disabled) {
+    background: var(--hl-signal-veil);
+    border-color: var(--hl-signal);
+  }
+
+  .btn-with-icon {
+    @apply flex items-center gap-2 whitespace-nowrap;
+  }
+  .btn-with-icon svg {
+    @apply flex-shrink-0;
+  }
+
+  /* ---------------- 面板 ---------------- */
+  /* 不用 clip-path：面板內常有 dropdown / popover，切角會把它們剪掉。 */
+  .panel {
+    background: var(--hl-deck);
+    border: 1px solid var(--hl-line);
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    border-bottom: 1px solid var(--hl-line);
+    font-family: var(--hl-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--hl-ink-3);
+  }
+
+  .panel-content {
+    padding: 0.875rem;
+  }
+
+  /* ---------------- 塔塢按鈕 ---------------- */
+  .tower-btn {
+    @apply relative flex flex-col items-center justify-center gap-1 cursor-pointer;
+    width: 4rem;
+    height: 4.5rem;
+    background: var(--hl-deck-2);
+    border: 1px solid var(--hl-line);
+    border-radius: 0;
+    transition:
+      border-color var(--hl-t) var(--hl-ease),
+      background-color var(--hl-t) var(--hl-ease);
+  }
+
+  .tower-btn:hover:not(.disabled) {
+    border-color: var(--hl-line-hot);
+    background: var(--hl-deck-3);
+  }
+
+  .tower-btn.selected {
+    border-color: var(--hl-signal);
+    background: var(--hl-signal-veil);
+  }
+
+  .tower-btn.disabled {
+    opacity: 0.32;
+    cursor: not-allowed;
+  }
+
+  .tower-btn.disabled:hover {
+    border-color: var(--hl-line);
+    background: var(--hl-deck-2);
+  }
+
+  /* ---------------- 資源燈 ---------------- */
+  .resource-item {
+    @apply inline-flex items-center gap-2;
+    padding: 0.25rem 0.5rem;
+    background: transparent;
+    border: 1px solid var(--hl-line);
+    border-radius: 0;
+    font-family: var(--hl-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------------- 滑桿 ---------------- */
+  .slider {
+    @apply w-full appearance-none cursor-pointer;
+    height: 4px;
+    background: var(--hl-line);
+    border-radius: 0;
+  }
+
+  .slider::-webkit-slider-thumb {
+    @apply appearance-none cursor-pointer;
+    width: 12px;
+    height: 14px;
+    border-radius: 0;
+    background: var(--hl-signal);
+    border: 0;
+    box-shadow: none;
+  }
+
+  .slider::-moz-range-thumb {
+    width: 12px;
+    height: 14px;
+    border-radius: 0;
+    background: var(--hl-signal);
+    border: 0;
+  }
+
+  /* ---------------- 提示 ---------------- */
+  .tooltip {
+    @apply absolute z-50 pointer-events-none opacity-0;
+    padding: 0.375rem 0.5rem;
+    font-size: 11.5px;
+    background: var(--hl-void-2);
+    color: var(--hl-ink);
+    border: 1px solid var(--hl-line-strong);
+    border-radius: 0;
+    box-shadow: none;
+    transition: opacity var(--hl-t) var(--hl-ease);
+  }
+
+  .tooltip.visible {
+    @apply opacity-100;
+  }
+
+  /* ---------------- 動畫（名稱沿用） ---------------- */
+  .animate-fade-in {
+    animation: fadeIn var(--hl-t) var(--hl-ease) forwards;
+  }
+  .animate-fade-out {
+    animation: fadeOut var(--hl-t) var(--hl-ease) forwards;
+  }
+  .animate-slide-up {
+    animation: slideUp var(--hl-t-slow) var(--hl-ease) forwards;
+  }
+  .animate-slide-down {
+    animation: slideDown var(--hl-t-slow) var(--hl-ease) forwards;
+  }
+  .animate-slide-left {
+    animation: slideLeft var(--hl-t-slow) var(--hl-ease) forwards;
+  }
+  .animate-slide-right {
+    animation: slideRight var(--hl-t-slow) var(--hl-ease) forwards;
+  }
+  .animate-scale-in {
+    animation: scaleIn var(--hl-t) var(--hl-ease) forwards;
+  }
+  .animate-scale-out {
+    animation: scaleOut var(--hl-t) var(--hl-ease) forwards;
+  }
+  .animate-bounce-in {
+    animation: bounceIn var(--hl-t-slow) var(--hl-ease) forwards;
+  }
+  .animate-bounce {
+    animation: bounce 0.45s var(--hl-ease);
+  }
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+  .animate-pulse {
+    animation: pulse 2s var(--hl-ease) infinite;
+  }
+  .animate-pulse-fast {
+    animation: pulse 1s var(--hl-ease) infinite;
+  }
+  .animate-shake {
+    animation: shake 0.45s var(--hl-ease);
+  }
+  .animate-wiggle {
+    animation: wiggle 0.5s var(--hl-ease) infinite;
+  }
+  .animate-blink {
+    animation: blink 1s step-end infinite;
+  }
+  .animate-flash {
+    animation: flash 1s var(--hl-ease) infinite;
+  }
+  .animate-ripple {
+    animation: ripple 0.5s var(--hl-ease) forwards;
+  }
+  .animate-glow {
+    animation: pulse 2s var(--hl-ease) infinite;
+  }
+  .animate-glow-primary {
+    animation: pulse 2s var(--hl-ease) infinite;
+  }
+  .animate-float {
+    animation: float 3s var(--hl-ease) infinite;
+  }
+  .animate-elastic {
+    animation: scaleIn var(--hl-t) var(--hl-ease) forwards;
+  }
+  .animate-flip-x {
+    animation: flipX 0.45s var(--hl-ease) forwards;
+  }
+  .animate-flip-y {
+    animation: flipY 0.45s var(--hl-ease) forwards;
+  }
+  .animate-typing {
+    animation: typing 2s steps(20) forwards;
+  }
+  .animate-gradient {
+    animation: none;
+  }
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--hl-deck-2) 0%,
+      var(--hl-deck-3) 50%,
+      var(--hl-deck-2) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+  }
+  .animate-particle {
+    animation: particle 1s var(--hl-ease) forwards;
+  }
+
+  /* ---------------- 過渡與互動 ---------------- */
+  .theme-transition {
+    transition:
+      background-color var(--hl-t) var(--hl-ease),
+      border-color var(--hl-t) var(--hl-ease),
+      color var(--hl-t) var(--hl-ease);
+  }
+
+  .hover-scale {
+    transition: none;
+  }
+  .hover-scale:hover {
+    transform: none;
+  }
+
+  .hover-lift {
+    transition: transform var(--hl-t) var(--hl-ease);
+  }
+  .hover-lift:hover {
+    transform: translateY(-1px);
+  }
+
+  /* 光暈全部取消：HARDLINE 不用光暈表達互動 */
+  .hover-glow {
+    transition: border-color var(--hl-t) var(--hl-ease);
+  }
+  .hover-glow:hover {
+    box-shadow: none;
+  }
+
+  .active-scale:active {
+    transform: translateY(1px);
+  }
+
+  .active-press:active {
+    transform: translateY(1px);
+  }
+}
+
+/* ============ 關鍵幀（名稱沿用，曲線改硬） ============ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-3px);
+  }
+  40%,
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-2deg);
+  }
+  75% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes flash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes flipX {
+  from {
+    opacity: 0;
+    transform: perspective(400px) rotateX(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(400px) rotateX(0);
+  }
+}
+
+@keyframes flipY {
+  from {
+    opacity: 0;
+    transform: perspective(400px) rotateY(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(400px) rotateY(0);
+  }
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes particle {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+}
+
+/* ============ 雜項 ============ */
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 舊的光暈類別：HARDLINE 用線條表達，直接歸零 */
+.theme-glow {
+  box-shadow: none;
+}
+
+.theme-border-glow {
+  border-color: var(--hl-signal);
+  box-shadow: none;
+}
+
+/* 全域動畫關閉 */
+.no-anim *,
+.no-anim *::before,
+.no-anim *::after {
+  animation: none !important;
+  transition: none !important;
+}

@@ -1,0 +1,23 @@
+# 換行策略：repo 內文字檔一律 LF；Windows 腳本保留 CRLF 以免 cmd 解析錯誤
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# 二進位檔：不做換行轉換、不產生 diff
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.zip binary
+*.exe binary
+*.dll binary
