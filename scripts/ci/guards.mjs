@@ -31,8 +31,13 @@ const BASELINE = {
   'console.log': 1,
 };
 
-/** 主 chunk 預算（bytes）。2026-11-14 實測 1,333,086。 */
-const BUNDLE_BUDGET_BYTES = 1_400_000;
+/**
+ * 主 chunk 預算（bytes）。
+ * 2026-11-14 TD-24 第一刀：DevPanel + MainMenu 改 lazy、移除 `@/components/ui` barrel，
+ * 1,333,086 → 1,165,958（-12.5%）。這裡跟著收緊，只准再降。
+ * 目標 < 900,000 需要先還 TD-20（Icons 132 KB）與成就資料 lazy 化。
+ */
+const BUNDLE_BUDGET_BYTES = 1_180_000;
 
 const CODE_EXT = new Set(['.ts', '.tsx']);
 
