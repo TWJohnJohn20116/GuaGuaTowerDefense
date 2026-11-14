@@ -14,6 +14,7 @@ import type { TowerButtonSize, TowerDisplayMode } from '@/store/settingsStore';
 import type { TowerType } from '@/types/game';
 import { useTranslation } from '@/i18n';
 import { getDiscountedTowerCost } from '@/data/tacticalProtocolData';
+import { getTowerBuildCost } from '@/data/towerCost';
 
 const SIZE_TO_BUTTON: Record<TowerButtonSize, {
   container: string;
@@ -91,7 +92,7 @@ export const TowerButton = ({
   const towerCostMult = useGameStore((s) => s.difficultyModifiers.towerCostMult);
   const protocolDiscount = useGameStore((s) => s.protocolNextTowerDiscount);
   const displayCost = getDiscountedTowerCost(
-    Math.round(towerData.cost * towerCostMult),
+    getTowerBuildCost(towerData.cost, towerCostMult),
     protocolDiscount,
   );
   const unlockedTowers = useShopStore((s) => s.unlockedTowers);

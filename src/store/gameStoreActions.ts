@@ -6,6 +6,7 @@ import { GAME_CONSTANTS } from '@/data/gameData';
 import { setTileTowerId } from './gridTower';
 import { getTowerStatBonus } from '@/data/towerCombatStats';
 import { canBatchUpgradeTower, getTowerUpgradeCost } from '@/data/towerUpgradeCost';
+import { getTowerBuildCost } from '@/data/towerCost';
 import { getTowerSellRefund } from '@/store/sellConfirm';
 import { TOWER_SKILLS, SKILL_DATA, getSkillRangeCells, applySkillCooldownReduction } from '@/data/skillData';
 import { tickTowerSkills } from '@/data/skillAura';
@@ -43,9 +44,9 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     const towerData = getTowerData(selectedTowerType);
     if (!towerData) return false;
     
-    // 應用難度修飾器
+    // 應用難度修飾器（費用算式與自動戰鬥、TowerButton 共用同一個純函式）
     const actualCost = getDiscountedTowerCost(
-      Math.round(towerData.cost * difficultyModifiers.towerCostMult),
+      getTowerBuildCost(towerData.cost, difficultyModifiers.towerCostMult),
       protocolNextTowerDiscount,
     );
     const dev = useDevStore.getState();
