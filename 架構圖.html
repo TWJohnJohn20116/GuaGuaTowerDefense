@@ -1625,9 +1625,9 @@
     <p class="lead"><b>編號規則：</b>每一項都有固定編號 <span class="tid">TD-01</span>～<span class="tid">TD-42</span>，
       字母前綴代表分類（A 流程與版控、B 架構分層、C 型別、D 死碼重複、E 效能打包、F 可觀測性、G 資料 i18n、H 資產、I 測試）。
       commit、PR、issue、回報請直接寫 <code>TD-13</code>，不要只寫「那個 as any 的債」。</p>
-    <p class="lead"><b>還債進度：</b><span class="sev done">1 / 42 已還</span>
-      <span class="tid">TD-01</span> 已建立版本控制（branch <code>main</code>、基準 commit <code>1f347c7</code>、1,177 檔納入），
-      其餘 41 項待處理。</p>
+    <p class="lead"><b>還債進度：</b><span class="sev done">1 / 42 已還</span> <span class="sev p1">1 項部分償還 · TD-24</span>
+      <span class="tid">TD-01</span> 已建立版本控制（branch <code>main</code>、基準 commit <code>1f347c7</code>、1,177 檔納入）；
+      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,165,958 bytes</b>（-12.5%，CI 預算同步收緊至 1,180,000）；其餘 40 項待處理。</p>
 
     <div class="kpi">
       <div class="good"><b>0</b><span>TODO / FIXME / @ts-ignore</span></div>
@@ -1831,10 +1831,16 @@
       <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
       <tbody>
         <tr>
-          <td><span class="tid">TD-24</span><span class="sev p1">P1</span><b>E1 主 chunk 1.33 MB</b></td>
-          <td><code>dist/assets/index-*.js</code> 1,333,086 bytes；另有 <code>chunks/towerModels3d</code> 548 KB、<code>chunks/scenes-*</code> 394／262 KB</td>
-          <td>首次啟動要解析 1.3 MB JS；i18n 已 lazy，下一個大頭就是 Icons + 607 筆成就。</td>
-          <td>做 B2 + D3（icon 字串化、拆檔）→ 目標 &lt; 900 KB</td>
+          <td><span class="tid">TD-24</span><span class="sev p1">◐ 部分償還 · P1</span><b>E1 主 chunk 1.17 MB（目標 &lt; 0.9 MB）</b></td>
+          <td><code>dist/assets/index-*.js</code> <b>1,333,086 → 1,165,958 bytes</b>（-12.5%）。
+            已做的兩刀：<code>DevPanel</code>、<code>MainMenu</code> 改 <code>lazy()</code>，並移除 <code>App.tsx</code> 對
+            <code>@/components/ui</code> barrel 的匯入（barrel 會把整個 UI 目錄拉進 entry）。<br>
+            剩餘大頭（entry 模組實測）：<code>Icons.tsx</code> 132 KB、成就資料 9 檔約 157 KB、
+            <code>zh-TW.ts</code> 137 KB、<code>gameStore*</code>＋<code>gameLoop/*</code> 約 150 KB、skins 約 53 KB。</td>
+          <td>首次啟動要解析 1.17 MB JS（原 1.33 MB）。i18n 其他語言與 3D／場景已是 lazy chunk。</td>
+          <td>下一步（依可行性排序）：<b>TD-20</b> Icons 依類別拆檔（-132 KB）、成就資料改 lazy registry（-157 KB）；
+            <code>zh-TW</code> 需先重構 i18n（710 個測試同步使用 <code>t</code>，不能單純 lazy）；skins 卡在 <code>skinStore</code> 的同步 API。
+            閘門已收緊：<code>guards.mjs</code> 的 <code>BUNDLE_BUDGET_BYTES = 1,180,000</code>，只准降。</td>
         </tr>
         <tr>
           <td><span class="tid">TD-25</span><span class="sev p2">P2</span><b>E2 每幀熱路徑仍配置物件</b></td>
