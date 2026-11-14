@@ -128,13 +128,12 @@ export function MenuHomeRail() {
         </div>
       </div>
 
-      {/* 主行動 */}
+      {/* 主行動：整頁唯一的大面積訊號色，也只留一個入口
+          ——原本還有一顆「選擇地圖」，但兩顆都只做 setScene('pathSelection')，
+             同一個目的地放兩顆按鈕等於叫玩家猜差別在哪 */}
       <div className="relative flex flex-col gap-2 border-t-[3px] border-[var(--cn-line-soft)] px-6 py-4">
         <Btn variant="signal" size="lg" block onClick={() => setScene('pathSelection')}>
           {t.mainMenu.startGame}
-        </Btn>
-        <Btn variant="line" size="md" block onClick={() => setScene('pathSelection')}>
-          {t.game.selectMap}
         </Btn>
         <div className="mt-1 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--arc-ink-4)]">
           <span>{`build ${APP_VERSION}`}</span>
