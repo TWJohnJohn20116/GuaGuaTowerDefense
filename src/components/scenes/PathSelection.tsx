@@ -196,7 +196,7 @@ export default function PathSelection() {
             />
           </Rail>
 
-          <main className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)]">
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <MapBriefing
               selectedMap={currentSelectedMapData}
               selectedDifficulty={selectedDifficulty}

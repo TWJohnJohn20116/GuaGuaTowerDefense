@@ -1,18 +1,18 @@
 /**
- * 戰前簡報共用組件（HARDLINE）
+ * 戰前簡報 · 共用組件（CANDY POP）
  *
- * - SectionHeader：區段頭，mono 標籤 + 一路延伸的 1px 線
- * - StatChip：行內資料，mono 標籤 + 等寬數值
- * - BriefingHero：地圖預覽（左）+ 標題與資料格（右）
- * - BriefingFooter：獎勵 + 出擊鈕（全畫面唯一的訊號色面積）
- * - EmptyBriefing：空狀態
- * - Badge：純文字資料標籤（不發光、不漸層）
+ * 這裡只有四件事：
+ *   1. SectionHeader：卡片內的區段頭（標題 + 一行說明 + 右側資料）
+ *   2. Badge：純資料標籤（不發光、不漸層）
+ *   3. BriefingHero：地圖預覽（左）+ 名稱／說明／數據（右）
+ *   4. EmptyBriefing：沒有可選地圖時的空狀態
+ *
+ * 出擊列不放這裡——它需要完整的地圖與難度資訊，留在 MapBriefing 內組裝。
  */
 
 import type { ReactNode } from 'react';
 import type { PathConfig } from '@/types/game';
-import { useTranslation } from '@/i18n';
-import { Btn, Empty, StatCell } from '@/components/hl';
+import { Empty, Segments, StatCell } from '@/components/hl';
 import { PathPreview } from './PathPreview';
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -21,29 +21,25 @@ import { PathPreview } from './PathPreview';
 
 export function SectionHeader({
   title,
+  hint,
   right,
 }: {
   title: string;
+  hint?: string;
   right?: ReactNode;
 }) {
   return (
-    <div className="mb-3 flex items-center justify-between gap-3">
-      <span className="arc-title text-[15px]">{title}</span>
-      {right}
+    <div className="mb-3 flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <span className="arc-title text-[15px]">{title}</span>
+        {hint && (
+          <p className="mt-1 text-[11px] font-semibold leading-snug text-[var(--cn-ink-3)]">
+            {hint}
+          </p>
+        )}
+      </div>
+      {right && <div className="shrink-0">{right}</div>}
     </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────────────────────────
-// 行內資料
-// ──────────────────────────────────────────────────────────────────────────
-
-export function StatChip({ label, value }: { label: string; value: string | number }) {
-  return (
-    <span className="arc-kv border-[3px] border-[var(--cn-line-soft)] px-2 py-1">
-      <span className="uppercase tracking-[0.08em]">{label}</span>
-      <span className="tabular-nums text-[var(--arc-ink)]">{value}</span>
-    </span>
   );
 }
 
@@ -51,20 +47,21 @@ export function StatChip({ label, value }: { label: string; value: string | numb
 // 資料標籤
 // ──────────────────────────────────────────────────────────────────────────
 
-type BadgeTone = 'signal' | 'vital' | 'caution' | 'alarm' | 'muted';
+type BadgeTone = 'signal' | 'vital' | 'reach' | 'caution' | 'alarm' | 'muted';
 
 const BADGE_TONE: Record<BadgeTone, string> = {
-  signal: 'border-[var(--arc-gold-edge)] text-[var(--arc-gold)]',
-  vital: 'border-[var(--arc-vital)]/40 text-[var(--arc-vital)]',
-  caution: 'border-[var(--arc-caution)]/40 text-[var(--arc-caution)]',
-  alarm: 'border-[var(--arc-alert)]/40 text-[var(--arc-alert)]',
-  muted: 'border-[var(--cn-line-soft)] text-[var(--arc-ink-3)]',
+  signal: 'border-[var(--cn-coral)] text-[var(--cn-coral-deep)] bg-[var(--cn-coral-soft)]',
+  vital: 'border-[var(--cn-mint)] text-[var(--cn-mint-deep)] bg-[var(--cn-mint-soft)]',
+  reach: 'border-[var(--cn-grape)] text-[var(--cn-grape-deep)] bg-[var(--cn-grape-soft)]',
+  caution: 'border-[var(--cn-sun)] text-[var(--cn-sun-deep)] bg-[var(--cn-sun-soft)]',
+  alarm: 'border-[var(--cn-alert)] text-[var(--cn-alert-deep)] bg-[var(--cn-alert-soft)]',
+  muted: 'border-[var(--cn-line-soft)] text-[var(--cn-ink-3)] bg-[var(--cn-card)]',
 };
 
 export function Badge({ label, tone = 'muted' }: { label: string; tone?: BadgeTone }) {
   return (
     <span
-      className={`whitespace-nowrap border px-1.5 py-0.5 font-mono text-[9.5px] uppercase leading-[14px] tracking-[0.08em] ${BADGE_TONE[tone]}`}
+      className={`whitespace-nowrap rounded-[var(--cn-r-pill)] border-2 px-2 py-0.5 text-[10px] font-extrabold leading-[16px] tracking-[0.04em] ${BADGE_TONE[tone]}`}
     >
       {label}
     </span>
@@ -75,15 +72,19 @@ export function Badge({ label, tone = 'muted' }: { label: string; tone?: BadgeTo
 // Hero
 // ──────────────────────────────────────────────────────────────────────────
 
+type SegmentTone = 'signal' | 'vital' | 'alarm' | 'caution' | 'reach' | 'ink';
+
 interface BriefingHeroProps {
   path: PathConfig;
-  /** 標題上方的 mono 路徑（章節／任務目標） */
+  /** 標題上方的說明（章節／任務目標） */
   eyebrow: string;
   title: string;
   description: string;
   topBadges?: ReactNode;
   /** 底部資料格 */
   stats: { label: string; value: string | number; unit?: string }[];
+  /** 地圖原生難度：與玩家選的「難度設定」分開呈現，避免兩組星星混在一起 */
+  nativeDifficulty?: { label: string; filled: number; tone: SegmentTone; caption: string };
 }
 
 export function BriefingHero({
@@ -93,120 +94,58 @@ export function BriefingHero({
   description,
   topBadges,
   stats,
+  nativeDifficulty,
 }: BriefingHeroProps) {
   return (
-    <div className="m-3 mb-0 grid h-full grid-cols-1 overflow-hidden rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] lg:grid-cols-[minmax(300px,420px)_1fr]">
-      <div className="flex flex-col justify-center border-b-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] p-3 lg:border-b-0 lg:border-r-[3px]">
-        <PathPreview pathConfig={path} size="large" className="w-full border-[3px] border-[var(--cn-line-soft)]" />
-        <div className="mt-2 flex items-center justify-between font-mono text-[9.5px] uppercase tracking-[0.1em] text-[var(--arc-ink-4)]">
+    <section className="arc-panel grid shrink-0 overflow-hidden lg:grid-cols-[232px_minmax(0,1fr)]">
+      <div className="flex flex-col justify-center gap-2 border-b-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] p-3 lg:border-b-0 lg:border-r-[3px]">
+        <PathPreview pathConfig={path} size="normal" className="w-full shrink-0" />
+        <div className="flex items-center justify-between rounded-[var(--cn-r-sm)] border-2 border-[var(--cn-line-soft)] bg-[var(--cn-card)] px-2 py-1 text-[10px] font-extrabold text-[var(--cn-ink-3)]">
           <span>grid 15 × 11</span>
-          <span>{path.category ?? 'path'}</span>
+          <span className="font-mono uppercase tracking-[0.06em]">{path.category ?? 'path'}</span>
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3 p-4 lg:p-5">
+      <div className="flex min-w-0 flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <span className="arc-label">{eyebrow}</span>
-            <h2 className="mt-1.5 text-[28px] font-black leading-[1.15] tracking-[-0.02em] text-[var(--arc-ink)]">
+            <h2 className="mt-1 text-[26px] font-black leading-[1.15] tracking-[-0.02em] text-[var(--cn-ink)]">
               {title}
             </h2>
           </div>
-          {topBadges && (
-            <div className="flex shrink-0 flex-col items-end gap-1">{topBadges}</div>
-          )}
+          {topBadges && <div className="flex shrink-0 flex-wrap justify-end gap-1">{topBadges}</div>}
         </div>
 
         {description && (
-          <p className="max-w-[76ch] text-[13px] leading-relaxed text-[var(--arc-ink-2)]">
+          <p className="max-w-[68ch] text-[13px] font-medium leading-relaxed text-[var(--cn-ink-2)]">
             {description}
           </p>
         )}
 
-        <div className="mt-auto grid grid-cols-2 gap-2 border-t-[3px] border-[var(--cn-line-soft)] pt-3 sm:grid-cols-3">
+        <div className="mt-auto grid grid-cols-2 gap-2 border-t-[3px] border-[var(--cn-line-soft)] pt-3 sm:grid-cols-4">
           {stats.map((s) => (
             <StatCell key={s.label} label={s.label} value={s.value} unit={s.unit} />
           ))}
+          {nativeDifficulty && (
+            <div className="flex flex-col gap-1">
+              <span className="arc-label">{nativeDifficulty.label}</span>
+              <span className="flex items-center gap-2">
+                <Segments
+                  total={5}
+                  filled={nativeDifficulty.filled}
+                  size="sm"
+                  tone={nativeDifficulty.tone}
+                />
+                <span className="text-[11px] font-extrabold text-[var(--cn-ink-3)]">
+                  {nativeDifficulty.caption}
+                </span>
+              </span>
+            </div>
+          )}
         </div>
       </div>
-    </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────────────────────────
-// 出擊列
-// ──────────────────────────────────────────────────────────────────────────
-
-interface BriefingFooterProps {
-  unlocked?: boolean;
-  rewardCoins: number;
-  rewardTalent?: number;
-  rewardNote?: string;
-  rewardLabel?: string;
-  lockedHint?: string;
-  buttonLabel?: string;
-  lockedButtonLabel?: string;
-  onStart: () => void;
-}
-
-export function BriefingFooter({
-  unlocked = true,
-  rewardCoins,
-  rewardTalent,
-  rewardNote,
-  rewardLabel,
-  lockedHint,
-  buttonLabel,
-  lockedButtonLabel,
-  onStart,
-}: BriefingFooterProps) {
-  const { t } = useTranslation();
-  const c = t.pathSelection.campaign;
-  const resolvedRewardLabel = rewardLabel ?? c.expectedReward;
-  const resolvedLockedHint = lockedHint ?? c.lockedHint;
-  const resolvedButtonLabel = buttonLabel ?? c.deploy;
-  const resolvedLockedButtonLabel = lockedButtonLabel ?? c.locked;
-
-  return (
-    <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] px-4 py-3">
-      <div className="flex min-w-0 items-center gap-5">
-        <StatCell
-          label={unlocked ? resolvedRewardLabel : c.levelLocked}
-          value={
-            unlocked
-              ? rewardNote
-                ? '—'
-                : rewardCoins
-              : '—'
-          }
-          unit={unlocked && !rewardNote ? 'coins' : undefined}
-          tone={unlocked ? 'signal' : 'muted'}
-        />
-        {unlocked && rewardTalent !== undefined && (
-          <StatCell label={c.rewardTalent} value={rewardTalent} tone="reach" />
-        )}
-        {!unlocked && (
-          <span className="min-w-0 max-w-[46ch] truncate text-[11px] text-[var(--arc-ink-3)]">
-            {resolvedLockedHint}
-          </span>
-        )}
-        {unlocked && rewardNote && (
-          <span className="min-w-0 max-w-[46ch] truncate text-[11px] text-[var(--arc-ink-3)]">
-            {rewardNote}
-          </span>
-        )}
-      </div>
-
-      {unlocked ? (
-        <Btn variant="signal" size="lg" onClick={onStart}>
-          {resolvedButtonLabel}
-        </Btn>
-      ) : (
-        <Btn variant="line" size="lg" disabled>
-          {resolvedLockedButtonLabel}
-        </Btn>
-      )}
-    </footer>
+    </section>
   );
 }
 
@@ -216,7 +155,7 @@ export function BriefingFooter({
 
 export function EmptyBriefing({ title, hint }: { title: string; hint: string }) {
   return (
-    <div className="flex h-full items-center justify-center p-6">
+    <div className="flex min-h-0 flex-1 items-center justify-center p-6">
       <Empty title={title} hint={hint} className="w-full max-w-[420px]" />
     </div>
   );
