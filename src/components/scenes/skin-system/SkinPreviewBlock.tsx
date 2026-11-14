@@ -47,7 +47,7 @@ export function SkinPreviewBlock({
           animMode={animMode}
         />
       ) : (
-        <div className="relative flex h-44 items-center justify-center overflow-hidden border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+        <div className="relative flex h-44 items-center justify-center overflow-hidden border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
           <div className={`scale-[1.6] ${!isUnlocked ? 'opacity-40' : ''}`}>
             <TowerPreview
               towerId={previewTower}
@@ -60,18 +60,18 @@ export function SkinPreviewBlock({
             />
           </div>
 
-          <span className="absolute left-2 top-2 hl-label">
+          <span className="absolute left-2 top-2 arc-label">
             {skin.modelSet ? skin.modelSet : skin.category}
           </span>
 
           {isUnlocked ? (
-            <span className="absolute right-2 top-2 flex items-center gap-1 text-[var(--hl-vital)]">
+            <span className="absolute right-2 top-2 flex items-center gap-1 text-[var(--arc-vital)]">
               <CheckIcon className="h-3 w-3" />
-              <span className="hl-label text-[var(--hl-vital)]">{t.skins.unlocked}</span>
+              <span className="arc-label text-[var(--arc-vital)]">{t.skins.unlocked}</span>
             </span>
           ) : (
-            <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-void)]">
-              <LockIcon className="h-2.5 w-2.5 text-[var(--hl-ink-4)]" />
+            <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void)]">
+              <LockIcon className="h-2.5 w-2.5 text-[var(--arc-ink-4)]" />
             </span>
           )}
         </div>

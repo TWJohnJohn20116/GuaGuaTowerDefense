@@ -39,7 +39,7 @@ function CardShell({
       className={[
         'group relative flex h-full min-h-[172px] w-full flex-col overflow-hidden text-left',
         'transition-colors duration-150',
-        selected ? '' : 'hover:border-[var(--hl-line-hot)]',
+        selected ? '' : 'hover:border-[var(--arc-line-hot)]',
       ].join(' ')}
     >
       <button
@@ -66,18 +66,18 @@ function CardFooter({ unlocked, free, price, canAfford }: CardFooterProps) {
   const { t } = useTranslation();
   if (unlocked) {
     return (
-      <span className="flex items-center gap-1.5 text-[var(--hl-vital)]">
+      <span className="flex items-center gap-1.5 text-[var(--arc-vital)]">
         <CheckIcon className="h-3 w-3" />
-        <span className="hl-label text-[var(--hl-vital)]">{t.shop.statusUnlocked}</span>
+        <span className="arc-label text-[var(--arc-vital)]">{t.shop.statusUnlocked}</span>
       </span>
     );
   }
   if (free) {
-    return <span className="hl-label text-[var(--hl-vital)]">{t.shop.statusFree}</span>;
+    return <span className="arc-label text-[var(--arc-vital)]">{t.shop.statusFree}</span>;
   }
   return (
     <span className="flex items-center gap-1.5">
-      <CoinIcon className={`h-3 w-3 ${canAfford ? 'text-[var(--hl-signal)]' : 'text-[var(--hl-ink-4)]'}`} />
+      <CoinIcon className={`h-3 w-3 ${canAfford ? 'text-[var(--arc-gold)]' : 'text-[var(--arc-ink-4)]'}`} />
       <Num value={price.toLocaleString()} size="sm" tone={canAfford ? 'signal' : 'caution'} />
     </span>
   );
@@ -97,11 +97,11 @@ function PreviewSlot({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex h-24 shrink-0 items-center justify-center overflow-hidden border-b border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+    <div className="relative flex h-24 shrink-0 items-center justify-center overflow-hidden border-b border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
       <div className={`relative z-[1] ${dimmed ? 'opacity-40' : ''}`}>{children}</div>
       {locked && (
-        <span className="absolute right-2 top-2 z-[2] flex h-5 w-5 items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-void)]">
-          <LockIcon className={`h-2.5 w-2.5 ${canAfford ? 'text-[var(--hl-caution)]' : 'text-[var(--hl-ink-4)]'}`} />
+        <span className="absolute right-2 top-2 z-[2] flex h-5 w-5 items-center justify-center border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void)]">
+          <LockIcon className={`h-2.5 w-2.5 ${canAfford ? 'text-[var(--arc-caution)]' : 'text-[var(--arc-ink-4)]'}`} />
         </span>
       )}
     </div>
@@ -135,11 +135,11 @@ function TowerCard({ towerId, coins, unlocked, selected, onSelect }: TowerCardPr
       <div className="flex min-w-0 flex-1 flex-col justify-between gap-1.5 px-3 py-2.5">
         <div className="min-w-0">
           <span className={`block truncate text-[13px] font-medium leading-tight ${
-            dimmed ? 'text-[var(--hl-ink-2)]' : 'text-[var(--hl-ink)]'
+            dimmed ? 'text-[var(--arc-ink-2)]' : 'text-[var(--arc-ink)]'
           }`}>
             {name}
           </span>
-          <span className="mt-1 block truncate font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-3)]">
+          <span className="mt-1 block truncate font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-ink-3)]">
             {getTowerRoleLabel(t.shop, towerId)}
           </span>
         </div>
@@ -171,21 +171,21 @@ function SkillCard({ skill, coins, unlocked, selected, onSelect }: SkillCardProp
   return (
     <CardShell selected={selected} onClick={onSelect} label={name}>
       <PreviewSlot dimmed={dimmed} locked={!unlocked} canAfford={canAfford}>
-        <Icon className="h-10 w-10 text-[var(--hl-ink-2)]" />
+        <Icon className="h-10 w-10 text-[var(--arc-ink-2)]" />
       </PreviewSlot>
 
-      <span className="absolute left-2 top-2 z-[2] border border-[var(--hl-line)] bg-[var(--hl-void)] px-1 py-0.5 font-mono text-[9px] tabular-nums text-[var(--hl-ink-3)]">
+      <span className="absolute left-2 top-2 z-[2] border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-1 py-0.5 font-mono text-[9px] tabular-nums text-[var(--arc-ink-3)]">
         ⇧{skill.hotkey}
       </span>
 
       <div className="flex min-w-0 flex-1 flex-col justify-between gap-1.5 px-3 py-2.5">
         <div className="min-w-0">
           <span className={`block truncate text-[13px] font-medium leading-tight ${
-            dimmed ? 'text-[var(--hl-ink-2)]' : 'text-[var(--hl-ink)]'
+            dimmed ? 'text-[var(--arc-ink-2)]' : 'text-[var(--arc-ink)]'
           }`}>
             {name}
           </span>
-          <span className="mt-1 block truncate font-mono text-[10px] tracking-[0.04em] text-[var(--hl-ink-3)]">
+          <span className="mt-1 block truncate font-mono text-[10px] tracking-[0.04em] text-[var(--arc-ink-3)]">
             {tb.skillCooldown} {skill.cooldown / 1000}s · {skill.duration ? `${tb.skillDuration} ${skill.duration / 1000}s` : tb.skillInstant}
           </span>
         </div>

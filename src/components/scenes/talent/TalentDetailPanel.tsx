@@ -43,7 +43,7 @@ export function TalentDetailPanel({
       {/* 標頭 */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-start gap-2.5">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--hl-line-strong)] text-[var(--hl-ink-2)]">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-[var(--arc-line-strong)] text-[var(--arc-ink-2)]">
             {getCategoryIcon(node.category, 'h-4 w-4')}
           </span>
           <div className="min-w-0">
@@ -52,17 +52,17 @@ export function TalentDetailPanel({
                 {getCategoryLabel(node.category, t)}
               </span>
               {isKeystone && (
-                <span className="flex items-center gap-1 border border-[var(--hl-line-strong)] px-1 font-mono text-[9px] text-[var(--hl-caution)]">
+                <span className="flex items-center gap-1 border border-[var(--arc-line-strong)] px-1 font-mono text-[9px] text-[var(--arc-caution)]">
                   <StarIcon className="h-2 w-2" /> KEYSTONE
                 </span>
               )}
               {maxed && !isKeystone && (
-                <span className="border border-[var(--hl-signal-edge)] px-1 font-mono text-[9px] text-[var(--hl-signal)]">
+                <span className="border border-[var(--arc-gold-edge)] px-1 font-mono text-[9px] text-[var(--arc-gold)]">
                   MAX
                 </span>
               )}
             </div>
-            <h2 className="mt-1 truncate text-[17px] font-semibold leading-tight tracking-[-0.01em] text-[var(--hl-ink)]">
+            <h2 className="mt-1 truncate text-[17px] font-semibold leading-tight tracking-[-0.01em] text-[var(--arc-ink)]">
               {node.name}
             </h2>
           </div>
@@ -82,7 +82,7 @@ export function TalentDetailPanel({
       </div>
 
       {/* 描述 */}
-      <p className="hl-sub">{node.description}</p>
+      <p className="arc-title">{node.description}</p>
 
       {/* 前置需求 */}
       {reqText && (
@@ -90,37 +90,37 @@ export function TalentDetailPanel({
           <LockIcon
             className={[
               'mt-0.5 h-3 w-3 shrink-0',
-              meetsReq ? 'text-[var(--hl-ink-4)]' : 'text-[var(--hl-alarm)]',
+              meetsReq ? 'text-[var(--arc-ink-4)]' : 'text-[var(--arc-alert)]',
             ].join(' ')}
           />
           <div className="min-w-0">
-            <div className="hl-label">{t.talent.nodeRequirement}</div>
+            <div className="arc-label">{t.talent.nodeRequirement}</div>
             <div
               className={[
                 'mt-1 font-mono text-[10px]',
-                meetsReq ? 'text-[var(--hl-ink-2)]' : 'text-[var(--hl-alarm)]',
+                meetsReq ? 'text-[var(--arc-ink-2)]' : 'text-[var(--arc-alert)]',
               ].join(' ')}
             >
               {reqText}
             </div>
           </div>
-          {meetsReq && <CheckIcon className="ml-auto mt-0.5 h-3 w-3 shrink-0 text-[var(--hl-vital)]" />}
+          {meetsReq && <CheckIcon className="ml-auto mt-0.5 h-3 w-3 shrink-0 text-[var(--arc-vital)]" />}
         </Deck>
       )}
 
       {/* 底部操作 */}
-      <div className="mt-auto flex flex-col gap-2 border-t border-[var(--hl-line)] pt-3">
+      <div className="mt-auto flex flex-col gap-2 border-t border-[var(--cn-line-soft)] pt-3">
         {maxed ? (
-          <div className="flex items-center justify-center gap-2 border border-[var(--hl-signal-edge)] py-2.5 text-[var(--hl-signal)]">
+          <div className="flex items-center justify-center gap-2 border border-[var(--arc-gold-edge)] py-2.5 text-[var(--arc-gold)]">
             <CheckIcon className="h-3.5 w-3.5" />
-            <span className="hl-label text-[var(--hl-signal)]">{t.talent.nodeMaxLevel}</span>
+            <span className="arc-label text-[var(--arc-gold)]">{t.talent.nodeMaxLevel}</span>
           </div>
         ) : (
           <>
             <div className="flex items-center justify-between">
-              <span className="hl-label">{t.talent.nodeUpgradeCost}</span>
+              <span className="arc-label">{t.talent.nodeUpgradeCost}</span>
               <span className="flex items-center gap-1.5">
-                <CoinIcon className="h-3 w-3 text-[var(--hl-signal)]" />
+                <CoinIcon className="h-3 w-3 text-[var(--arc-gold)]" />
                 <Num value={String(cost)} unit={t.talent.pointUnit} tone="signal" />
               </span>
             </div>

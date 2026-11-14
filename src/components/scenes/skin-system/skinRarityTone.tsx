@@ -8,11 +8,11 @@ import { SKIN_RARITY_CONFIG } from '@/types/skin';
 import type { SkinRarity } from '@/types/skin';
 
 const SKIN_RARITY_TONE: Record<SkinRarity, { label: string; className: string }> = {
-  common: { label: SKIN_RARITY_CONFIG.common.label, className: 'text-[var(--hl-ink-3)]' },
-  uncommon: { label: SKIN_RARITY_CONFIG.uncommon.label, className: 'text-[var(--hl-ink-2)]' },
-  rare: { label: SKIN_RARITY_CONFIG.rare.label, className: 'text-[var(--hl-reach)]' },
-  epic: { label: SKIN_RARITY_CONFIG.epic.label, className: 'text-[var(--hl-caution)]' },
-  legendary: { label: SKIN_RARITY_CONFIG.legendary.label, className: 'text-[var(--hl-signal)]' },
+  common: { label: SKIN_RARITY_CONFIG.common.label, className: 'text-[var(--arc-ink-3)]' },
+  uncommon: { label: SKIN_RARITY_CONFIG.uncommon.label, className: 'text-[var(--arc-ink-2)]' },
+  rare: { label: SKIN_RARITY_CONFIG.rare.label, className: 'text-[var(--arc-reach)]' },
+  epic: { label: SKIN_RARITY_CONFIG.epic.label, className: 'text-[var(--arc-caution)]' },
+  legendary: { label: SKIN_RARITY_CONFIG.legendary.label, className: 'text-[var(--arc-gold)]' },
 };
 
 /** 稀有度文字標籤：mono 10px、uppercase、資料色。 */

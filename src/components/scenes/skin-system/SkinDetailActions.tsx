@@ -13,7 +13,7 @@ import {
   PaletteIcon,
   StarIcon,
 } from '@/components/ui/Icons';
-import { Btn } from '@/components/hl';
+import { Btn, Deck } from '@/components/hl';
 import { ALL_TOWER_TYPES } from './skinShared';
 import { useTranslation } from '@/i18n';
 
@@ -37,18 +37,18 @@ export function SkinEquipAction({
 
   if (!isUnlocked) {
     return (
-      <div className="flex items-center justify-center gap-2 border border-[var(--hl-line)] bg-[var(--hl-deck-2)] py-3 text-[var(--hl-ink-3)]">
+      <Deck className="flex items-center justify-center gap-2 py-3 text-[var(--arc-ink-3)]">
         <LockIcon className="h-3.5 w-3.5" />
-        <span className="hl-label">{s.unlockToEquip}</span>
-      </div>
+        <span className="arc-label">{s.unlockToEquip}</span>
+      </Deck>
     );
   }
 
   if (isEquipped && skin.towerType !== 'all') {
     return (
-      <div className="flex items-center justify-center gap-2 border border-[var(--hl-signal-edge)] py-3 text-[var(--hl-signal)]">
+      <div className="flex items-center justify-center gap-2 border border-[var(--arc-gold-edge)] py-3 text-[var(--arc-gold)]">
         <CheckIcon className="h-3.5 w-3.5" />
-        <span className="hl-label text-[var(--hl-signal)]">{s.currentlyEquipped}</span>
+        <span className="arc-label text-[var(--arc-gold)]">{s.currentlyEquipped}</span>
       </div>
     );
   }
@@ -56,7 +56,7 @@ export function SkinEquipAction({
   if (skin.towerType === 'all') {
     return (
       <div className="flex flex-col gap-2">
-        <span className="hl-label">{s.universalPickTower}</span>
+        <span className="arc-label">{s.universalPickTower}</span>
         <div className="grid grid-cols-5 gap-1.5">
           {ALL_TOWER_TYPES.map((tower) => {
             const towerData = TOWER_DATA[tower];
@@ -70,12 +70,12 @@ export function SkinEquipAction({
                 className={[
                   'flex flex-col items-center gap-1 border px-1 py-1.5 transition-colors duration-150',
                   thisEquipped
-                    ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)] text-[var(--hl-signal)]'
-                    : 'border-[var(--hl-line)] text-[var(--hl-ink-3)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink-2)]',
+                    ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
+                    : 'border-[var(--cn-line-soft)] text-[var(--arc-ink-3)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink-2)]',
                 ].join(' ')}
               >
                 <span
-                  className="h-4 w-4 border border-[var(--hl-line)]"
+                  className="h-4 w-4 border-[3px] border-[var(--cn-line-soft)]"
                   style={{ backgroundColor: towerData?.color || '#4a515b' }}
                 />
                 <span className="w-full truncate font-mono text-[9px] tabular-nums">

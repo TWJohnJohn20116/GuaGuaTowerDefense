@@ -8,7 +8,7 @@ import {
   TimerIcon, HourglassIcon, KeyboardIcon,
   LightbulbIcon, ShopIcon, RobotIcon, TargetIcon,
 } from '@/components/ui/Icons';
-import { Key } from '@/components/hl';
+import { Deck, Key } from '@/components/hl';
 import { SpecCell, SpecGrid, SpecNote, SpecRow, SpecSection } from './TutorialPageComponents';
 import { PLAYER_SKILLS } from '@/data/playerSkillData';
 import type { PlayerSkill } from '@/data/playerSkillData';
@@ -38,10 +38,10 @@ export function TutorialPlayerSkills() {
     <div className="space-y-5">
       <SpecSection label={p.title}>
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
-            <LightningIcon className="h-4 w-4 text-[var(--hl-signal)]" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
+            <LightningIcon className="h-4 w-4 text-[var(--arc-gold)]" />
           </div>
-          <p className="text-[12.5px] leading-relaxed text-[var(--hl-ink-2)]">{p.intro}</p>
+          <p className="text-[12.5px] leading-relaxed text-[var(--arc-ink-2)]">{p.intro}</p>
         </div>
       </SpecSection>
 
@@ -52,7 +52,7 @@ export function TutorialPlayerSkills() {
           const guide = guides[skill.id];
 
           return (
-            <div key={skill.id} className="border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3">
+            <Deck key={skill.id} className="p-3">
               <div className="flex items-start gap-2.5">
                 <div
                   className="flex h-9 w-9 shrink-0 items-center justify-center border"
@@ -62,13 +62,13 @@ export function TutorialPlayerSkills() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[13px] font-semibold text-[var(--hl-ink)]">{getPlayerSkillName(skill, t)}</span>
+                    <span className="text-[13px] font-semibold text-[var(--arc-ink)]">{getPlayerSkillName(skill, t)}</span>
                     <span className="flex items-center gap-1">
-                      <span className="hl-label">shift</span>
+                      <span className="arc-label">shift</span>
                       <Key>{skill.hotkey}</Key>
                     </span>
                   </div>
-                  <p className="mt-1 text-[11.5px] leading-relaxed text-[var(--hl-ink-2)]">{getPlayerSkillDesc(skill, t)}</p>
+                  <p className="mt-1 text-[11.5px] leading-relaxed text-[var(--arc-ink-2)]">{getPlayerSkillDesc(skill, t)}</p>
                 </div>
               </div>
 
@@ -105,33 +105,33 @@ export function TutorialPlayerSkills() {
                   </SpecNote>
                 </div>
               )}
-            </div>
+            </Deck>
           );
         })}
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <SpecSection label={<span className="flex items-center gap-1.5"><ShopIcon className="h-3 w-3" />{p.shopFlowTitle}</span>}>
-          <div className="border-t border-[var(--hl-line)]">
+          <div className="border-t border-[var(--cn-line-soft)]">
             {p.shopFlowSteps.map((step, i) => (
               <SpecRow key={i} index={i + 1} title={step} />
             ))}
           </div>
-          <p className="mt-2 hl-label">{p.shopFlowNote}</p>
+          <p className="mt-2 arc-label">{p.shopFlowNote}</p>
         </SpecSection>
 
         <SpecSection label={<span className="flex items-center gap-1.5"><RobotIcon className="h-3 w-3" />{p.aiAutoTitle}</span>}>
-          <div className="border-t border-[var(--hl-line)]">
+          <div className="border-t border-[var(--cn-line-soft)]">
             {p.aiAutoItems.map((item, i) => (
-              <div key={i} className="flex items-start gap-2 border-b border-[var(--hl-line)] py-2 last:border-b-0">
-                <span className="w-[26px] shrink-0 font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+              <div key={i} className="flex items-start gap-2 border-b border-[var(--cn-line-soft)] py-2 last:border-b-0">
+                <span className="w-[26px] shrink-0 font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <span className="text-[11.5px] leading-relaxed text-[var(--hl-ink-2)]">
+                <span className="text-[11.5px] leading-relaxed text-[var(--arc-ink-2)]">
                   {item.includes(p.aiAutoPurchased) ? (
                     <>
                       {item.split(p.aiAutoPurchased)[0]}
-                      <span className="text-[var(--hl-caution)]">{p.aiAutoPurchased}</span>
+                      <span className="text-[var(--arc-caution)]">{p.aiAutoPurchased}</span>
                       {item.split(p.aiAutoPurchased)[1]}
                     </>
                   ) : item}
@@ -139,7 +139,7 @@ export function TutorialPlayerSkills() {
               </div>
             ))}
           </div>
-          <p className="mt-2 hl-label">{p.aiAutoNote}</p>
+          <p className="mt-2 arc-label">{p.aiAutoNote}</p>
         </SpecSection>
       </div>
 
@@ -150,10 +150,10 @@ export function TutorialPlayerSkills() {
             return (
               <div
                 key={s.id}
-                className="flex items-center gap-2 border border-[var(--hl-line)] px-2 py-1.5"
+                className="flex items-center gap-2 border-[3px] border-[var(--cn-line-soft)] px-2 py-1.5"
               >
                 <Icon className="h-3.5 w-3.5" style={{ color: s.iconColor } as React.CSSProperties} />
-                <span className="text-[11.5px] text-[var(--hl-ink-2)]">{getPlayerSkillName(s, t)}</span>
+                <span className="text-[11.5px] text-[var(--arc-ink-2)]">{getPlayerSkillName(s, t)}</span>
                 <Key>⇧{s.hotkey}</Key>
               </div>
             );

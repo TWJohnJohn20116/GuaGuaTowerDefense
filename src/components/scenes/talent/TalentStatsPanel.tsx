@@ -1,6 +1,6 @@
 /**
  * 天賦樹 - 當前加成總覽
- * 每一列都是 hl-row 結構，數值全部 mono tabular。
+ * 每一列都是 arc-row 結構，數值全部 mono tabular。
  */
 
 import type React from 'react';
@@ -118,17 +118,17 @@ export function TalentStatsPanel({ modifiers }: TalentStatsPanelProps) {
           <div
             key={row.label}
             className={[
-              'flex items-center justify-between border-b border-[var(--hl-line)] py-1.5 last:border-b-0',
+              'flex items-center justify-between border-b border-[var(--cn-line-soft)] py-1.5 last:border-b-0',
               row.active ? '' : 'opacity-45',
             ].join(' ')}
           >
             <span className="flex min-w-0 items-center gap-2">
-              <span className={row.active ? 'text-[var(--hl-signal)]' : 'text-[var(--hl-ink-4)]'}>
+              <span className={row.active ? 'text-[var(--arc-gold)]' : 'text-[var(--arc-ink-4)]'}>
                 {row.icon}
               </span>
-              <span className="hl-label truncate">{row.label}</span>
+              <span className="arc-label truncate">{row.label}</span>
             </span>
-            <span className={row.active ? 'text-[var(--hl-ink)]' : 'text-[var(--hl-ink-3)]'}>
+            <span className={row.active ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-3)]'}>
               <Num value={row.value} size="sm" tone={row.active ? 'signal' : 'muted'} />
             </span>
           </div>

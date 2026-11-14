@@ -30,7 +30,7 @@ export function SkinPreviewControls({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-1">
-        <span className="hl-label mr-1">lv</span>
+        <span className="arc-label mr-1">lv</span>
         {LEVELS.map((lv) => (
           <Chip key={lv} active={previewLevel === lv} onClick={() => onLevelChange(lv)}>
             {lv}
@@ -45,7 +45,7 @@ export function SkinPreviewControls({
         <Chip active={animMode === 'attack'} onClick={() => onAnimModeChange('attack')}>
           {s.previewAttack}
         </Chip>
-        <span className="mx-0.5 h-4 w-px bg-[var(--hl-line)]" />
+        <span className="mx-0.5 h-4 w-px bg-[var(--arc-line)]" />
         <Chip active={compareMode} onClick={() => onCompareModeChange(!compareMode)}>
           {compareMode ? s.compareOn : s.compareOff}
         </Chip>

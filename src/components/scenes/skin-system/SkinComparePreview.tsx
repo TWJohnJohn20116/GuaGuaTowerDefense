@@ -45,12 +45,12 @@ function CompareColumn({
       className={[
         'flex flex-col items-center gap-1.5 border py-2.5',
         active
-          ? 'border-[var(--hl-signal)]'
-          : 'border-[var(--hl-line)]',
-        'bg-[var(--hl-void-2)]',
+          ? 'border-[var(--arc-gold)]'
+          : 'border-[var(--cn-line-soft)]',
+        'bg-[var(--arc-void-2)]',
       ].join(' ')}
     >
-      <span className="hl-label w-full max-w-[92px] truncate px-1 text-center">{label}</span>
+      <span className="arc-label w-full max-w-[92px] truncate px-1 text-center">{label}</span>
       <div className={dimmed ? 'opacity-40' : ''}>
         <TowerPreview
           towerId={previewTower}

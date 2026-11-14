@@ -6,7 +6,7 @@ import {
   TargetIcon, SwordsIcon, LightbulbIcon, SparklesIcon,
 } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
-import { Segments } from '@/components/hl';
+import { Deck, Segments } from '@/components/hl';
 import { SpecNote, SpecRow, SpecSection } from './TutorialPageComponents';
 
 export function TutorialAdvancedTactics() {
@@ -16,48 +16,48 @@ export function TutorialAdvancedTactics() {
   return (
     <div className="space-y-5">
       <SpecSection label={p.pageTitle}>
-        <p className="text-[12.5px] leading-relaxed text-[var(--hl-ink-2)]">{p.pageIntro}</p>
+        <p className="text-[12.5px] leading-relaxed text-[var(--arc-ink-2)]">{p.pageIntro}</p>
       </SpecSection>
 
       <SpecSection label={<span className="flex items-center gap-1.5"><TargetIcon className="h-3 w-3" />{p.placementSection}</span>}>
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
           {p.placementTactics.map((tactic, idx) => (
-            <div key={tactic.title} className="border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3">
-              <div className="mb-2 flex items-baseline gap-2 border-b border-[var(--hl-line)] pb-1.5">
-                <span className="hl-label">{String(idx + 1).padStart(2, '0')}</span>
-                <span className="min-w-0 truncate text-[12.5px] font-medium text-[var(--hl-ink)]">{tactic.title}</span>
+            <Deck key={tactic.title} className="p-3">
+              <div className="mb-2 flex items-baseline gap-2 border-b border-[var(--cn-line-soft)] pb-1.5">
+                <span className="arc-label">{String(idx + 1).padStart(2, '0')}</span>
+                <span className="min-w-0 truncate text-[12.5px] font-medium text-[var(--arc-ink)]">{tactic.title}</span>
               </div>
               <ul className="space-y-1.5">
                 {tactic.bullets.map((b, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1 w-1 shrink-0 bg-[var(--hl-signal)]" />
-                    <span className="text-[11px] leading-relaxed text-[var(--hl-ink-2)]">{b}</span>
+                    <span className="mt-1.5 h-1 w-1 shrink-0 bg-[var(--arc-gold)]" />
+                    <span className="text-[11px] leading-relaxed text-[var(--arc-ink-2)]">{b}</span>
                   </li>
                 ))}
               </ul>
-            </div>
+            </Deck>
           ))}
         </div>
       </SpecSection>
 
       <SpecSection label={<span className="flex items-center gap-1.5"><SparklesIcon className="h-3 w-3" />{p.combosSection}</span>}>
-        <div className="border-t border-[var(--hl-line)]">
+        <div className="border-t border-[var(--cn-line-soft)]">
           {p.towerCombos.map((combo) => (
-            <div key={combo.title} className="border-b border-[var(--hl-line)] py-2.5 last:border-b-0">
+            <div key={combo.title} className="border-b border-[var(--cn-line-soft)] py-2.5 last:border-b-0">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[12.5px] font-medium text-[var(--hl-ink)]">{combo.title}</span>
+                <span className="text-[12.5px] font-medium text-[var(--arc-ink)]">{combo.title}</span>
                 <Segments total={5} filled={combo.rating} tone="caution" size="sm" />
                 <span className="ml-auto flex flex-wrap items-center gap-1">
                   {combo.towers.map((name, i) => (
-                    <span key={i} className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--hl-ink-2)]">
+                    <span key={i} className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--arc-ink-2)]">
                       {name}
                     </span>
                   ))}
                 </span>
               </div>
-              <p className="mt-1.5 text-[11.5px] leading-relaxed text-[var(--hl-ink-2)]">{combo.desc}</p>
-              <p className="mt-1 font-mono text-[10px] text-[var(--hl-ink-3)]">
-                {p.bestForLabel} <span className="text-[var(--hl-vital)]">{combo.best}</span>
+              <p className="mt-1.5 text-[11.5px] leading-relaxed text-[var(--arc-ink-2)]">{combo.desc}</p>
+              <p className="mt-1 font-mono text-[10px] text-[var(--arc-ink-3)]">
+                {p.bestForLabel} <span className="text-[var(--arc-vital)]">{combo.best}</span>
               </p>
             </div>
           ))}
@@ -65,7 +65,7 @@ export function TutorialAdvancedTactics() {
       </SpecSection>
 
       <SpecSection label={<span className="flex items-center gap-1.5"><SwordsIcon className="h-3 w-3" />{p.rhythmSection}</span>}>
-        <div className="border-t border-[var(--hl-line)]">
+        <div className="border-t border-[var(--cn-line-soft)]">
           {p.rhythmTips.map((tip, idx) => (
             <SpecRow key={tip.title} index={idx + 1} title={tip.title} desc={tip.desc} />
           ))}
@@ -76,7 +76,7 @@ export function TutorialAdvancedTactics() {
         <div className="space-y-1.5">
           {p.antiPatterns.map((ap) => (
             <SpecNote key={ap.warn} label={ap.warn} tone="alarm">
-              <span className="text-[var(--hl-vital)]">→</span> {ap.fix}
+              <span className="text-[var(--arc-vital)]">→</span> {ap.fix}
             </SpecNote>
           ))}
         </div>

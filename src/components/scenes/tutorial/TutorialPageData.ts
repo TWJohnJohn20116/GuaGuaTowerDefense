@@ -101,14 +101,14 @@ export const buildUpgradeGuides = (t: Translations) => [
     title: t.tutorial.upgradeGuides.pathATitle,
     description: t.tutorial.upgradeGuides.pathADesc,
     icon: '⚔️',
-    color: 'text-red-400',
+    color: 'text-[var(--cn-alert)]',
     benefits: [...t.tutorial.upgradeGuides.pathABenefits],
   },
   {
     title: t.tutorial.upgradeGuides.pathBTitle,
     description: t.tutorial.upgradeGuides.pathBDesc,
     icon: '✨',
-    color: 'text-blue-400',
+    color: 'text-[var(--cn-sky-deep)]',
     benefits: [...t.tutorial.upgradeGuides.pathBBenefits],
   },
 ];
@@ -211,10 +211,10 @@ interface TowerGuideEntry {
 }
 
 const TOWER_ROLES_VISUAL: Record<TowerRole, { icon: string; color: string }> = {
-  damage: { icon: '⚔️', color: 'text-red-400' },
-  control: { icon: '❄️', color: 'text-blue-400' },
-  aoe: { icon: '💥', color: 'text-orange-400' },
-  economy: { icon: '💰', color: 'text-yellow-400' },
+  damage: { icon: '⚔️', color: 'text-[var(--cn-alert)]' },
+  control: { icon: '❄️', color: 'text-[var(--cn-sky-deep)]' },
+  aoe: { icon: '💥', color: 'text-[var(--cn-coral)]' },
+  economy: { icon: '💰', color: 'text-[var(--cn-sun-deep)]' },
 };
 
 export const buildTowerRoles = (t: Translations): Record<TowerRole, { label: string; icon: string; color: string; description: string }> => ({
@@ -324,11 +324,11 @@ interface EnemyGuideEntry {
 }
 
 const ENEMY_ROLES_VISUAL: Record<EnemyRole, { icon: string; color: string }> = {
-  basic:   { icon: '👤', color: 'text-[var(--hl-ink-3)]' },
-  speed:   { icon: '💨', color: 'text-green-400' },
-  tank:    { icon: '🛡️', color: 'text-blue-400' },
-  special: { icon: '✨', color: 'text-purple-400' },
-  boss:    { icon: '👑', color: 'text-yellow-400' },
+  basic:   { icon: '👤', color: 'text-[var(--arc-ink-3)]' },
+  speed:   { icon: '💨', color: 'text-[var(--cn-mint-deep)]' },
+  tank:    { icon: '🛡️', color: 'text-[var(--cn-sky-deep)]' },
+  special: { icon: '✨', color: 'text-[var(--cn-grape-deep)]' },
+  boss:    { icon: '👑', color: 'text-[var(--cn-sun-deep)]' },
 };
 
 export const buildEnemyRoles = (t: Translations): Record<EnemyRole, { label: string; icon: string; color: string; description: string }> => ({

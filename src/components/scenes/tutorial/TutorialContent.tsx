@@ -2,7 +2,7 @@
  * 模組教學內容 — HARDLINE 規格文件版
  */
 import { useTranslation } from '@/i18n';
-import { Btn } from '@/components/hl';
+import { Btn, Deck } from '@/components/hl';
 import {
   buildModIntroSteps,
   buildModTowerGuide,
@@ -29,8 +29,8 @@ export const ModIntroContent = ({ modStep, setModStep }: { modStep: number; setM
         label={`${String(modStep + 1).padStart(2, '0')} / ${String(steps.length).padStart(2, '0')}`}
         right={<StepIndicator current={modStep} total={steps.length} onSelect={setModStep} />}
       >
-        <h2 className="hl-title">{current.title}</h2>
-        <p className="hl-sub mt-1.5">{current.description}</p>
+        <h2 className="arc-title">{current.title}</h2>
+        <p className="arc-title mt-1.5">{current.description}</p>
 
         <div className="mt-3">
           <SpecNote label={t.tutorial.hintLabel} tone="caution">
@@ -38,14 +38,14 @@ export const ModIntroContent = ({ modStep, setModStep }: { modStep: number; setM
           </SpecNote>
         </div>
 
-        <div className="mt-4 border-t border-[var(--hl-line)]">
+        <div className="mt-4 border-t border-[var(--cn-line-soft)]">
           {steps.map((step, i) => (
             <button key={step.title} type="button" onClick={() => setModStep(i)} className="block w-full text-left">
-              <div className={i === modStep ? 'bg-[var(--hl-deck-2)]' : ''}>
+              <div className={i === modStep ? 'bg-[var(--arc-deck-2)]' : ''}>
                 <SpecRow
                   index={i + 1}
                   title={step.title}
-                  right={i === modStep ? <span className="h-1.5 w-1.5 bg-[var(--hl-signal)]" /> : undefined}
+                  right={i === modStep ? <span className="h-1.5 w-1.5 bg-[var(--arc-gold)]" /> : undefined}
                 />
               </div>
             </button>
@@ -75,10 +75,10 @@ export const ModIntroContent = ({ modStep, setModStep }: { modStep: number; setM
             { title: t.tutorial.modContent.mapCard, desc: t.tutorial.modContent.mapCardDesc },
             { title: t.tutorial.modContent.themeCard, desc: t.tutorial.modContent.themeCardDesc },
           ].map((card) => (
-            <div key={card.title} className="border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3">
-              <div className="hl-label truncate">{card.title}</div>
-              <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--hl-ink-2)]">{card.desc}</p>
-            </div>
+            <Deck key={card.title} className="p-3">
+              <div className="arc-label truncate">{card.title}</div>
+              <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--arc-ink-2)]">{card.desc}</p>
+            </Deck>
           ))}
         </div>
       </SpecSection>
@@ -93,11 +93,11 @@ export const ModTowerContent = () => {
   return (
     <div className="space-y-5">
       <SpecSection label={guide.title}>
-        <p className="hl-sub">{m.towerSubtitle}</p>
+        <p className="arc-title">{m.towerSubtitle}</p>
       </SpecSection>
 
       <SpecSection label={m.towerCard}>
-        <div className="border-t border-[var(--hl-line)]">
+        <div className="border-t border-[var(--cn-line-soft)]">
           {guide.steps.map((step, index) => (
             <ModStepCard key={step.title} step={step} index={index} />
           ))}
@@ -113,7 +113,7 @@ export const ModTowerContent = () => {
         </SpecGrid>
         <div className="mt-2.5 flex flex-wrap gap-1.5">
           {guide.example.effects.map((effect) => (
-            <span key={effect} className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--hl-ink-2)]">
+            <span key={effect} className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--arc-ink-2)]">
               {effect}
             </span>
           ))}
@@ -130,11 +130,11 @@ export const ModEnemyContent = () => {
   return (
     <div className="space-y-5">
       <SpecSection label={guide.title}>
-        <p className="hl-sub">{m.enemySubtitle}</p>
+        <p className="arc-title">{m.enemySubtitle}</p>
       </SpecSection>
 
       <SpecSection label={m.enemyCard}>
-        <div className="border-t border-[var(--hl-line)]">
+        <div className="border-t border-[var(--cn-line-soft)]">
           {guide.steps.map((step, index) => (
             <ModStepCard key={step.title} step={step} index={index} />
           ))}
@@ -164,11 +164,11 @@ export const ModMapContent = () => {
   return (
     <div className="space-y-5">
       <SpecSection label={guide.title}>
-        <p className="hl-sub">{m.mapSubtitle}</p>
+        <p className="arc-title">{m.mapSubtitle}</p>
       </SpecSection>
 
       <SpecSection label={m.mapCard}>
-        <div className="border-t border-[var(--hl-line)]">
+        <div className="border-t border-[var(--cn-line-soft)]">
           {guide.steps.map((step, index) => (
             <ModStepCard key={step.title} step={step} index={index} />
           ))}
@@ -178,17 +178,17 @@ export const ModMapContent = () => {
       <SpecSection label={m.mapEditorTitle}>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {[
-            { label: m.mapStartLabel, desc: m.mapStartDesc, color: 'var(--hl-vital)' },
-            { label: m.mapPathLabel, desc: m.mapPathDesc, color: 'var(--hl-caution)' },
-            { label: m.mapEndLabel, desc: m.mapEndDesc, color: 'var(--hl-alarm)' },
+            { label: m.mapStartLabel, desc: m.mapStartDesc, color: 'var(--arc-vital)' },
+            { label: m.mapPathLabel, desc: m.mapPathDesc, color: 'var(--arc-caution)' },
+            { label: m.mapEndLabel, desc: m.mapEndDesc, color: 'var(--arc-alert)' },
           ].map((cell) => (
-            <div key={cell.label} className="border border-[var(--hl-line)] bg-[var(--hl-deck)] p-3">
+            <Deck key={cell.label} className="p-3">
               <div className="mb-2 flex items-center gap-2">
-                <span className="h-2.5 w-2.5 border border-[var(--hl-line-strong)]" style={{ backgroundColor: cell.color }} />
-                <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-2)]">{cell.label}</span>
+                <span className="h-2.5 w-2.5 border border-[var(--arc-line-strong)]" style={{ backgroundColor: cell.color }} />
+                <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-ink-2)]">{cell.label}</span>
               </div>
-              <p className="text-[11px] leading-relaxed text-[var(--hl-ink-3)]">{cell.desc}</p>
-            </div>
+              <p className="text-[11px] leading-relaxed text-[var(--arc-ink-3)]">{cell.desc}</p>
+            </Deck>
           ))}
         </div>
       </SpecSection>
@@ -202,12 +202,12 @@ export const ModExportContent = () => {
   return (
     <div className="space-y-5">
       <SpecSection label={m.exportTitle}>
-        <p className="hl-sub">{m.exportSubtitle}</p>
+        <p className="arc-title">{m.exportSubtitle}</p>
       </SpecSection>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <SpecSection label={m.exportLabel}>
-          <div className="border-t border-[var(--hl-line)]">
+          <div className="border-t border-[var(--cn-line-soft)]">
             {[m.exportStep1, m.exportStep2, m.exportStep3, m.exportStep4].map((step, i) => (
               <SpecRow key={i} index={i + 1} title={step} />
             ))}
@@ -215,7 +215,7 @@ export const ModExportContent = () => {
         </SpecSection>
 
         <SpecSection label={m.importLabel}>
-          <div className="border-t border-[var(--hl-line)]">
+          <div className="border-t border-[var(--cn-line-soft)]">
             {[m.importStep1, m.importStep2, m.importStep3, m.importStep4].map((step, i) => (
               <SpecRow key={i} index={i + 1} title={step} />
             ))}

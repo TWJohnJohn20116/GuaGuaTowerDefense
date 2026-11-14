@@ -3,7 +3,7 @@
  */
 import TowerPreview from '@/components/ui/TowerPreview';
 import { StarIcon, CheckIcon } from '@/components/ui/Icons';
-import { Deck, Segments, Num } from '@/components/hl';
+import { Deck, Segments, Num, IconBtn } from '@/components/hl';
 import type { SkinModelSetSummary } from './skinModelSets';
 import { getPreviewTower } from './skinShared';
 import { useTranslation } from '@/i18n';
@@ -34,7 +34,7 @@ export function SkinSetCard({
       className={[
         'group relative flex h-full w-full flex-col gap-3 overflow-hidden p-3.5 text-left',
         'transition-colors duration-150',
-        selected ? '' : 'hover:border-[var(--hl-line-hot)]',
+        selected ? '' : 'hover:border-[var(--arc-line-hot)]',
       ].join(' ')}
     >
       <button
@@ -46,33 +46,33 @@ export function SkinSetCard({
 
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-col gap-1">
-          <span className="hl-label-hot font-mono text-[10px] uppercase tracking-[0.08em]">
+          <span className="arc-label-hot font-mono text-[10px] uppercase tracking-[0.08em]">
             {summary.name}
           </span>
-          <span className="text-[11px] leading-relaxed text-[var(--hl-ink-3)]">
+          <span className="text-[11px] leading-relaxed text-[var(--arc-ink-3)]">
             {summary.description}
           </span>
         </div>
-        <button
+        <IconBtn
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             onToggleFavorite();
           }}
-          aria-label={favorite ? t.skins.favorited : t.skins.addFavorite}
+          label={favorite ? t.skins.favorited : t.skins.addFavorite}
           className={[
-            'z-20 flex h-6 w-6 shrink-0 items-center justify-center border bg-[var(--hl-void)] transition-colors duration-150',
+            'z-20 flex h-6 w-6 shrink-0 items-center justify-center border bg-[var(--arc-void)] transition-colors duration-150',
             favorite
-              ? 'border-[var(--hl-caution)] text-[var(--hl-caution)]'
-              : 'border-[var(--hl-line)] text-[var(--hl-ink-4)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink-2)]',
+              ? 'border-[var(--arc-caution)] text-[var(--arc-caution)]'
+              : 'border-[var(--cn-line-soft)] text-[var(--arc-ink-4)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink-2)]',
           ].join(' ')}
         >
           <StarIcon className="h-3 w-3" />
-        </button>
+        </IconBtn>
       </div>
 
       {previewSkin && (
-        <div className="flex h-24 items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+        <div className="flex h-24 items-center justify-center border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
           <div className="scale-[1.3]">
             <TowerPreview
               towerId={previewTower}
@@ -95,9 +95,9 @@ export function SkinSetCard({
             tone="muted"
           />
           {complete && (
-            <span className="flex items-center gap-1 text-[var(--hl-vital)]">
+            <span className="flex items-center gap-1 text-[var(--arc-vital)]">
               <CheckIcon className="h-3 w-3" />
-              <span className="hl-label text-[var(--hl-vital)]">
+              <span className="arc-label text-[var(--arc-vital)]">
                 {t.skins.headerStats.collectionProgress}
               </span>
             </span>

@@ -7,7 +7,7 @@ import TowerPreview from '@/components/ui/TowerPreview';
 import TowerShootPreview from '@/components/ui/TowerShootPreview';
 import { ThemeIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
-import { Meter, SegHead, Segments } from '@/components/hl';
+import { Meter, Num, SegHead, Segments } from '@/components/hl';
 import {
   buildTowerRoles,
   buildTowerGuides,
@@ -24,10 +24,10 @@ interface TutorialTowerTabProps {
 }
 
 const TIER_TONE: Record<string, string> = {
-  S: 'text-[var(--hl-caution)] border-[rgba(255,182,39,0.35)]',
-  A: 'text-[var(--hl-vital)] border-[rgba(56,224,143,0.35)]',
-  B: 'text-[var(--hl-reach)] border-[rgba(111,168,255,0.35)]',
-  C: 'text-[var(--hl-ink-3)] border-[var(--hl-line-strong)]',
+  S: 'text-[var(--arc-caution)] border-[rgba(255,182,39,0.35)]',
+  A: 'text-[var(--arc-vital)] border-[rgba(53,224,138,0.35)]',
+  B: 'text-[var(--arc-reach)] border-[rgba(111,140,255,0.35)]',
+  C: 'text-[var(--arc-ink-3)] border-[var(--arc-line-strong)]',
 };
 
 export const TutorialTowerTab = ({
@@ -47,7 +47,7 @@ export const TutorialTowerTab = ({
     <div className="space-y-5">
       {/* 角色定位 */}
       <SpecSection label={ui.eduTitle}>
-        <p className="hl-sub mb-2.5">{ui.eduSubtitle}</p>
+        <p className="arc-title mb-2.5">{ui.eduSubtitle}</p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {(Object.entries(TOWER_ROLES) as [TowerRole, typeof TOWER_ROLES[TowerRole]][]).map(([key, role]) => {
             const active = towerRoleFilter === key;
@@ -59,15 +59,15 @@ export const TutorialTowerTab = ({
                 className={[
                   'flex flex-col gap-1.5 border px-2.5 py-2 text-left transition-colors duration-150',
                   active
-                    ? 'border-[var(--hl-signal)] bg-[var(--hl-signal-veil)]'
-                    : 'border-[var(--hl-line)] bg-[var(--hl-deck)] hover:border-[var(--hl-line-hot)]',
+                    ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
+                    : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck)] hover:border-[var(--arc-line-hot)]',
                 ].join(' ')}
               >
                 <span className="flex items-center gap-1.5">
                   <ThemeIcon icon={role.icon} className="h-3.5 w-3.5" />
-                  <span className="text-[12px] font-medium text-[var(--hl-ink)]">{role.label}</span>
+                  <span className="text-[12px] font-medium text-[var(--arc-ink)]">{role.label}</span>
                 </span>
-                <span className="text-[10.5px] leading-snug text-[var(--hl-ink-3)]">{role.description}</span>
+                <span className="text-[10.5px] leading-snug text-[var(--arc-ink-3)]">{role.description}</span>
               </button>
             );
           })}
@@ -83,9 +83,9 @@ export const TutorialTowerTab = ({
                 ? TOWER_ROLES[towerRoleFilter].label
                 : ui.allTowers
             }
-            right={<span className="hl-num text-[10px] leading-none text-[var(--hl-ink-4)]">{TOWER_GUIDES.length}</span>}
+            right={<Num value={TOWER_GUIDES.length} tone="muted" size="sm" className="leading-none" />}
           />
-          <div className="mt-2 border border-[var(--hl-line)]">
+          <div className="mt-2 border-[3px] border-[var(--cn-line-soft)]">
             {TOWER_GUIDES
               .filter((g) => !towerRoleFilter || g.role === towerRoleFilter)
               .map((guide, i) => {
@@ -98,18 +98,18 @@ export const TutorialTowerTab = ({
                     type="button"
                     onClick={() => setSelectedTower(guide.id)}
                     className={[
-                      'relative flex w-full items-center gap-2.5 border-b border-[var(--hl-line)] px-2.5 py-2 text-left last:border-b-0 transition-colors duration-150',
-                      active ? 'bg-[var(--hl-deck-2)]' : 'hover:bg-[var(--hl-deck-2)]',
+                      'relative flex w-full items-center gap-2.5 border-b border-[var(--cn-line-soft)] px-2.5 py-2 text-left last:border-b-0 transition-colors duration-150',
+                      active ? 'bg-[var(--arc-deck-2)]' : 'hover:bg-[var(--arc-deck-2)]',
                     ].join(' ')}
                   >
-                    {active && <span className="absolute left-0 top-0 h-full w-[2px] bg-[var(--hl-signal)]" />}
-                    <span className="w-[18px] shrink-0 font-mono text-[9.5px] tabular-nums text-[var(--hl-ink-4)]">
+                    {active && <span className="absolute left-0 top-0 h-full w-[2px] bg-[var(--arc-gold)]" />}
+                    <span className="w-[18px] shrink-0 font-mono text-[9.5px] tabular-nums text-[var(--arc-ink-4)]">
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     <TowerPreview towerId={guide.id} size={22} />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[12px] font-medium text-[var(--hl-ink)]">{data.name}</span>
-                      <span className="mt-0.5 block font-mono text-[10px] tabular-nums text-[var(--hl-ink-3)]">
+                      <span className="block truncate text-[12px] font-medium text-[var(--arc-ink)]">{data.name}</span>
+                      <span className="mt-0.5 block font-mono text-[10px] tabular-nums text-[var(--arc-ink-3)]">
                         ${data.cost}
                       </span>
                     </span>
@@ -146,12 +146,12 @@ export const TutorialTowerTab = ({
                   )}
                 >
                   <div className="flex items-start gap-4">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center border border-[var(--hl-line)] bg-[var(--hl-void-2)]">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
                       <TowerPreview towerId={guide.id} size={52} animate />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[12px] leading-relaxed text-[var(--hl-ink-2)]">{currentTower.description}</p>
-                      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] text-[var(--hl-ink-3)]">
+                      <p className="text-[12px] leading-relaxed text-[var(--arc-ink-2)]">{currentTower.description}</p>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] text-[var(--arc-ink-3)]">
                         <span className="flex items-center gap-1">
                           <ThemeIcon icon={roleInfo.icon} className="h-3 w-3" />
                           {roleInfo.label}
@@ -161,7 +161,7 @@ export const TutorialTowerTab = ({
                     </div>
                   </div>
 
-                  <div className="mt-3 overflow-hidden border border-[var(--hl-line)]">
+                  <div className="mt-3 overflow-hidden border-[3px] border-[var(--cn-line-soft)]">
                     <TowerShootPreview towerId={guide.id} />
                   </div>
 
@@ -182,19 +182,19 @@ export const TutorialTowerTab = ({
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <SpecSection label={`${ui.skillLabel}${guide.skill.name}`}>
-                    <p className="text-[11.5px] leading-relaxed text-[var(--hl-ink-2)]">{guide.skill.description}</p>
-                    <div className="mt-2 border border-[var(--hl-line)] px-2 py-1 font-mono text-[10.5px] text-[var(--hl-ink-3)]">
+                    <p className="text-[11.5px] leading-relaxed text-[var(--arc-ink-2)]">{guide.skill.description}</p>
+                    <div className="mt-2 border-[3px] border-[var(--cn-line-soft)] px-2 py-1 font-mono text-[10.5px] text-[var(--arc-ink-3)]">
                       {ui.cooldownLabel}{guide.skill.cooldown}
                     </div>
                   </SpecSection>
 
                   <SpecSection label={ui.bestPlacement}>
-                    <p className="text-[11.5px] leading-relaxed text-[var(--hl-ink-2)]">{guide.placement}</p>
+                    <p className="text-[11.5px] leading-relaxed text-[var(--arc-ink-2)]">{guide.placement}</p>
                   </SpecSection>
                 </div>
 
                 <SpecSection label={ui.usageTips}>
-                  <div className="border-t border-[var(--hl-line)]">
+                  <div className="border-t border-[var(--cn-line-soft)]">
                     {guide.tips.map((tip, i) => (
                       <SpecRow key={i} index={i + 1} title={tip} />
                     ))}
@@ -202,19 +202,19 @@ export const TutorialTowerTab = ({
                 </SpecSection>
 
                 <SpecSection label={ui.recommendedPairs}>
-                  <div className="border-t border-[var(--hl-line)]">
+                  <div className="border-t border-[var(--cn-line-soft)]">
                     {guide.synergies.map((syn, i) => (
                       <div
                         key={syn.towerId}
-                        className="grid grid-cols-[26px_32px_1fr] items-center gap-2.5 border-b border-[var(--hl-line)] py-2 last:border-b-0"
+                        className="grid grid-cols-[26px_32px_1fr] items-center gap-2.5 border-b border-[var(--cn-line-soft)] py-2 last:border-b-0"
                       >
-                        <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+                        <span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">
                           {String(i + 1).padStart(2, '0')}
                         </span>
                         <TowerPreview towerId={syn.towerId} size={24} />
                         <div className="min-w-0">
-                          <span className="block text-[12px] font-medium text-[var(--hl-ink)]">{syn.towerName}</span>
-                          <p className="mt-0.5 text-[10.5px] leading-relaxed text-[var(--hl-ink-3)]">{syn.reason}</p>
+                          <span className="block text-[12px] font-medium text-[var(--arc-ink)]">{syn.towerName}</span>
+                          <p className="mt-0.5 text-[10.5px] leading-relaxed text-[var(--arc-ink-3)]">{syn.reason}</p>
                         </div>
                       </div>
                     ))}
@@ -228,17 +228,17 @@ export const TutorialTowerTab = ({
 
       {/* 組合 */}
       <SpecSection label={ui.comboTitle}>
-        <div className="border-t border-[var(--hl-line)]">
+        <div className="border-t border-[var(--cn-line-soft)]">
           {TOWER_COMBOS.map((combo) => (
-            <div key={combo.name} className="border-b border-[var(--hl-line)] py-2.5 last:border-b-0">
+            <div key={combo.name} className="border-b border-[var(--cn-line-soft)] py-2.5 last:border-b-0">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[12.5px] font-medium text-[var(--hl-ink)]">{combo.name}</span>
+                <span className="text-[12.5px] font-medium text-[var(--arc-ink)]">{combo.name}</span>
                 <Segments total={5} filled={combo.rating} tone="caution" size="sm" />
                 <span className="ml-auto flex flex-wrap items-center gap-1.5">
                   {combo.towers.map((tw) => (
                     <span
                       key={tw.id}
-                      className="flex items-center gap-1.5 border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--hl-ink-2)]"
+                      className="flex items-center gap-1.5 border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--arc-ink-2)]"
                     >
                       <TowerPreview towerId={tw.id} size={14} />
                       {tw.name}
@@ -246,8 +246,8 @@ export const TutorialTowerTab = ({
                   ))}
                 </span>
               </div>
-              <p className="mt-1.5 text-[11.5px] leading-relaxed text-[var(--hl-ink-2)]">{combo.description}</p>
-              <p className="mt-1 font-mono text-[10px] text-[var(--hl-ink-3)]">
+              <p className="mt-1.5 text-[11.5px] leading-relaxed text-[var(--arc-ink-2)]">{combo.description}</p>
+              <p className="mt-1 font-mono text-[10px] text-[var(--arc-ink-3)]">
                 {ui.comboSituationLabel}{combo.situation}
               </p>
             </div>
@@ -266,20 +266,20 @@ export const TutorialTowerTab = ({
               const maxDps = Math.max(...TOWER_GUIDES.map((g) => g.dps));
               return (
                 <div key={guide.id} className="flex items-center gap-2.5">
-                  <span className="w-5 shrink-0 text-right font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
+                  <span className="w-5 shrink-0 text-right font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <TowerPreview towerId={guide.id} size={18} />
-                  <span className="w-[86px] shrink-0 truncate text-[11.5px] text-[var(--hl-ink-2)]">{data.name}</span>
+                  <span className="w-[86px] shrink-0 truncate text-[11.5px] text-[var(--arc-ink-2)]">{data.name}</span>
                   <Meter value={guide.dps} max={Math.max(1, maxDps)} tone="signal" className="h-1" />
-                  <span className="w-9 shrink-0 text-right font-mono text-[10.5px] tabular-nums text-[var(--hl-ink-2)]">
+                  <span className="w-9 shrink-0 text-right font-mono text-[10.5px] tabular-nums text-[var(--arc-ink-2)]">
                     {guide.dps}
                   </span>
                 </div>
               );
             })}
         </div>
-        <p className="mt-2 hl-label">{ui.dpsRankNote}</p>
+        <p className="mt-2 arc-label">{ui.dpsRankNote}</p>
       </SpecSection>
     </div>
   );

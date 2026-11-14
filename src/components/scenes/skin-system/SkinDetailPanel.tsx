@@ -98,40 +98,40 @@ export function SkinDetailPanel({
 
       <div className="flex min-w-0 flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className="text-[17px] font-semibold leading-tight tracking-[-0.01em] text-[var(--hl-ink)]">
+          <h2 className="text-[17px] font-semibold leading-tight tracking-[-0.01em] text-[var(--arc-ink)]">
             {skin.name}
           </h2>
           <RarityLabel rarity={skin.rarity} />
         </div>
 
-        <p className="hl-sub">{skin.description}</p>
+        <p className="arc-title">{skin.description}</p>
 
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--hl-ink-3)]">
+          <span className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--arc-ink-3)]">
             {category.label}
           </span>
-          <span className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--hl-ink-3)]">
+          <span className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--arc-ink-3)]">
             {towerLabel}
           </span>
           {modelSet && (
-            <span className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--hl-reach)]">
+            <span className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--arc-reach)]">
               {modelSet.name}
             </span>
           )}
           {isEquipped && isUnlocked && (
-            <span className="flex items-center gap-1 border border-[var(--hl-signal-edge)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--hl-signal)]">
+            <span className="flex items-center gap-1 border border-[var(--arc-gold-edge)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--arc-gold)]">
               <CheckIcon className="h-2.5 w-2.5" />
               {sk.equipped}
             </span>
           )}
           {isFavorite && (
-            <span className="flex items-center gap-1 border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--hl-caution)]">
+            <span className="flex items-center gap-1 border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--arc-caution)]">
               <StarIcon className="h-2.5 w-2.5" />
               {d.favoriteBadge}
             </span>
           )}
           {!isUnlocked && (
-            <span className="flex items-center gap-1 border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--hl-ink-3)]">
+            <span className="flex items-center gap-1 border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--arc-ink-3)]">
               <LockIcon className="h-2.5 w-2.5" />
               {sk.locked}
             </span>
@@ -142,17 +142,17 @@ export function SkinDetailPanel({
       <div className="flex flex-col gap-2">
         <SegHead
           label={d.skinProperties}
-          right={<ShieldIcon className="h-3.5 w-3.5 text-[var(--hl-ink-4)]" />}
+          right={<ShieldIcon className="h-3.5 w-3.5 text-[var(--arc-ink-4)]" />}
         />
         <div className="flex flex-col">
           <Field label={d.rarity}>
             <RarityLabel rarity={skin.rarity} />
           </Field>
           <Field label={d.category}>
-            <span className="font-mono text-[11px] text-[var(--hl-ink)]">{category.label}</span>
+            <span className="font-mono text-[11px] text-[var(--arc-ink)]">{category.label}</span>
           </Field>
           <Field label={d.towerLabel}>
-            <span className="font-mono text-[11px] text-[var(--hl-ink)]">{towerLabel}</span>
+            <span className="font-mono text-[11px] text-[var(--arc-ink)]">{towerLabel}</span>
           </Field>
         </div>
 
@@ -160,13 +160,13 @@ export function SkinDetailPanel({
           <>
             <SegHead
               label={d.visualEffects}
-              right={<SparklesIcon className="h-3.5 w-3.5 text-[var(--hl-ink-4)]" />}
+              right={<SparklesIcon className="h-3.5 w-3.5 text-[var(--arc-ink-4)]" />}
             />
             <div className="flex flex-wrap gap-1.5">
               {effectTraits.map((trait) => (
                 <span
                   key={trait}
-                  className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--hl-ink-3)]"
+                  className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--arc-ink-3)]"
                 >
                   {trait}
                 </span>

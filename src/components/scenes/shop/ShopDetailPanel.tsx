@@ -72,23 +72,23 @@ function PurchaseAction({
 
   if (unlocked) {
     return (
-      <div className="flex items-center justify-center gap-2 border border-[var(--hl-line)] bg-[var(--hl-deck-2)] py-3 text-[var(--hl-vital)]">
+      <Deck className="flex items-center justify-center gap-2 py-3 text-[var(--arc-vital)]">
         <CheckIcon className="h-3.5 w-3.5" />
-        <span className="hl-label text-[var(--hl-vital)]">{t.shop.priceOwned}</span>
-      </div>
+        <span className="arc-label text-[var(--arc-vital)]">{t.shop.priceOwned}</span>
+      </Deck>
     );
   }
 
   return (
     <div className="flex flex-col gap-2.5">
       {/* 價格列 */}
-      <div className="flex items-center justify-between border-b border-[var(--hl-line)] pb-2.5">
-        <span className="hl-label">{t.shop.unlockNeeds}</span>
+      <div className="flex items-center justify-between border-b border-[var(--cn-line-soft)] pb-2.5">
+        <span className="arc-label">{t.shop.unlockNeeds}</span>
         {free ? (
-          <span className="hl-label text-[var(--hl-vital)]">{t.shop.free}</span>
+          <span className="arc-label text-[var(--arc-vital)]">{t.shop.free}</span>
         ) : (
           <span className="flex items-center gap-1.5">
-            <CoinIcon className="h-3.5 w-3.5 text-[var(--hl-signal)]" />
+            <CoinIcon className="h-3.5 w-3.5 text-[var(--arc-gold)]" />
             <Num value={price.toLocaleString()} tone="signal" size="md" />
           </span>
         )}
@@ -96,9 +96,9 @@ function PurchaseAction({
 
       {/* 金幣缺口：只有字與線 */}
       {!free && !canAfford && (
-        <div className="flex items-center justify-between border border-[rgba(255,75,62,0.35)] px-2.5 py-1.5">
-          <span className="hl-label text-[var(--hl-alarm)]">{t.shop.coinShort}</span>
-          <span className="font-mono text-[11px] tabular-nums text-[var(--hl-alarm)]">
+        <div className="flex items-center justify-between border border-[rgba(255,61,113,0.35)] px-2.5 py-1.5">
+          <span className="arc-label text-[var(--arc-alert)]">{t.shop.coinShort}</span>
+          <span className="font-mono text-[11px] tabular-nums text-[var(--arc-alert)]">
             {t.shop.coinShortBy.replace('{amount}', String(shortBy))}
           </span>
         </div>
@@ -138,7 +138,7 @@ function TraitRow({ traits }: { traits: { label: string }[] }) {
       {traits.map((trait) => (
         <span
           key={trait.label}
-          className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--hl-ink-3)]"
+          className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-[var(--arc-ink-3)]"
         >
           {trait.label}
         </span>
@@ -187,31 +187,31 @@ export function ShopDetailPanel({
           <div className="scale-[1.5]">
             <TowerPreview towerId={towerId} size={72} animate />
           </div>
-          <span className="absolute left-2 top-2 hl-label">tower</span>
+          <span className="absolute left-2 top-2 arc-label">tower</span>
           {unlocked && (
-            <span className="absolute right-2 top-2 flex items-center gap-1 text-[var(--hl-vital)]">
+            <span className="absolute right-2 top-2 flex items-center gap-1 text-[var(--arc-vital)]">
               <CheckIcon className="h-3 w-3" />
-              <span className="hl-label text-[var(--hl-vital)]">{s.statusUnlocked}</span>
+              <span className="arc-label text-[var(--arc-vital)]">{s.statusUnlocked}</span>
             </span>
           )}
         </Deck>
 
         <div className="flex min-w-0 flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-[17px] font-semibold leading-tight tracking-[-0.01em] text-[var(--hl-ink)]">
+            <h2 className="text-[17px] font-semibold leading-tight tracking-[-0.01em] text-[var(--arc-ink)]">
               {getTowerName(towerId)}
             </h2>
-            <span className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-3)]">
+            <span className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-ink-3)]">
               {getTowerRoleLabel(s, towerId)}
             </span>
           </div>
-          <p className="hl-sub">{getTowerDesc(towerId)}</p>
+          <p className="arc-title">{getTowerDesc(towerId)}</p>
         </div>
 
         <div className="flex flex-col gap-2">
           <SegHead
             label={s.battleStats}
-            right={<ShieldIcon className="h-3.5 w-3.5 text-[var(--hl-ink-4)]" />}
+            right={<ShieldIcon className="h-3.5 w-3.5 text-[var(--arc-ink-4)]" />}
           />
           <div className="flex flex-col">
             {stats.map((stat) => (
@@ -248,32 +248,32 @@ export function ShopDetailPanel({
   return (
     <div className="flex h-full flex-col gap-4">
       <Deck tone="sunken" className="relative flex h-44 shrink-0 items-center justify-center overflow-hidden">
-        <Icon className="h-16 w-16 text-[var(--hl-ink-2)]" />
-        <span className="absolute left-2 top-2 hl-label">skill</span>
+        <Icon className="h-16 w-16 text-[var(--arc-ink-2)]" />
+        <span className="absolute left-2 top-2 arc-label">skill</span>
         {unlocked && (
-          <span className="absolute right-2 top-2 flex items-center gap-1 text-[var(--hl-vital)]">
+          <span className="absolute right-2 top-2 flex items-center gap-1 text-[var(--arc-vital)]">
             <CheckIcon className="h-3 w-3" />
-            <span className="hl-label text-[var(--hl-vital)]">{s.statusUnlocked}</span>
+            <span className="arc-label text-[var(--arc-vital)]">{s.statusUnlocked}</span>
           </span>
         )}
       </Deck>
 
       <div className="flex min-w-0 flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className="text-[17px] font-semibold leading-tight tracking-[-0.01em] text-[var(--hl-ink)]">
+          <h2 className="text-[17px] font-semibold leading-tight tracking-[-0.01em] text-[var(--arc-ink)]">
             {getPlayerSkillName(skill, t)}
           </h2>
-          <span className="border border-[var(--hl-line)] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--hl-ink-3)]">
+          <span className="border-[3px] border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--arc-ink-3)]">
             {t.encyclopedia.detailActiveSkillTag}
           </span>
         </div>
-        <p className="hl-sub">{getPlayerSkillDesc(skill, t)}</p>
+        <p className="arc-title">{getPlayerSkillDesc(skill, t)}</p>
       </div>
 
       <div className="flex flex-col gap-2">
         <SegHead
           label={s.battleStats}
-          right={<LightningIcon className="h-3.5 w-3.5 text-[var(--hl-ink-4)]" />}
+          right={<LightningIcon className="h-3.5 w-3.5 text-[var(--arc-ink-4)]" />}
         />
         <div className="flex flex-col">
           {stats.map((stat) => (

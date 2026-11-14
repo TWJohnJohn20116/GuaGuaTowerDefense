@@ -2,10 +2,10 @@
  * 皮膚工坊 · 篩選列（HARDLINE）
  *
  * 分頁與塔分類已移到左軌，這裡只放：篩選、稀有度、排序、搜尋。
- * 全部用 Chip 與 hl-input，不用彩虹膠囊。
+ * 全部用 Chip 與 arc-field，不用彩虹膠囊。
  */
 import { useTranslation } from '@/i18n';
-import { Chip } from '@/components/hl';
+import { Chip, Input } from '@/components/hl';
 import type {
   SkinFilterMode,
   SkinRarityFilter,
@@ -66,7 +66,7 @@ export function SkinToolbar({
   ];
 
   return (
-    <div className="shrink-0 border-b border-[var(--hl-line)] bg-[var(--hl-void)] px-4 py-2.5 sm:px-5">
+    <div className="shrink-0 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void)] px-4 py-2.5 sm:px-5">
       {tab === 'library' && (
         <div className="flex flex-wrap items-center gap-1.5">
           {filterOptions.map(({ id, label }) => (
@@ -84,15 +84,14 @@ export function SkinToolbar({
               {s[RARITY_KEYS[id]]}
             </Chip>
           ))}
-          <span className="mx-1 h-4 w-px bg-[var(--hl-line)]" />
+          <span className="mx-1 h-4 w-px bg-[var(--arc-line)]" />
           {SORT_OPTIONS.map((id) => (
             <Chip key={id} active={sort === id} onClick={() => onSortChange(id)}>
               {s[SORT_KEYS[id]]}
             </Chip>
           ))}
           <div className="ml-auto w-full sm:w-[220px]">
-            <input
-              className="hl-input"
+            <Input
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder={tab === 'favorites' ? s.searchFavorites : s.searchLibrary}

@@ -17,7 +17,7 @@ export function TalentZoomControls({
   const { t } = useTranslation();
 
   return (
-    <div className="absolute bottom-3 right-3 z-40 flex items-center gap-1 border border-[var(--hl-line)] bg-[var(--hl-deck)] p-1">
+    <div className="absolute bottom-3 right-3 z-40 flex items-center gap-1 arc-panel p-1">
       <Btn size="sm" variant="ghost" onClick={onDecrease} aria-label={t.talent.zoomReset}>
         <MinusIcon className="h-3.5 w-3.5" />
       </Btn>
@@ -27,7 +27,7 @@ export function TalentZoomControls({
       <Btn size="sm" variant="ghost" onClick={onIncrease}>
         <PlusIcon className="h-3.5 w-3.5" />
       </Btn>
-      <span className="mx-1 h-4 w-px bg-[var(--hl-line)]" />
+      <span className="mx-1 h-4 w-px bg-[var(--arc-line)]" />
       <Btn size="sm" variant="line" onClick={onReset}>
         {t.talent.zoomReset}
       </Btn>

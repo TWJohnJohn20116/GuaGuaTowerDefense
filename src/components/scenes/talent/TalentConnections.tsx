@@ -56,7 +56,7 @@ export function TalentConnections({ ranks }: TalentConnectionsProps) {
           d={buildPath(startX, startY, endX, endY)}
           fill="none"
           strokeWidth={1}
-          stroke={isUnlocked ? 'var(--hl-signal-dim)' : 'var(--hl-line-strong)'}
+          stroke={isUnlocked ? 'var(--arc-gold-2)' : 'var(--arc-line-strong)'}
           strokeDasharray={isUnlocked ? undefined : '3 5'}
           opacity={isUnlocked ? 0.9 : 0.75}
         />,

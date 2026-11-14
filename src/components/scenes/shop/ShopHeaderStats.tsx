@@ -25,9 +25,9 @@ function TopStat({
 }) {
   return (
     <span className="flex items-center gap-2">
-      <span className="text-[var(--hl-ink-3)]">{icon}</span>
+      <span className="text-[var(--arc-ink-3)]">{icon}</span>
       <span className="flex flex-col justify-center leading-none">
-        <span className="hl-label">{label}</span>
+        <span className="arc-label">{label}</span>
         <span className="mt-0.5"><Num value={value} size="sm" tone={tone} /></span>
       </span>
     </span>

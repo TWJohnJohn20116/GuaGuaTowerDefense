@@ -17,10 +17,10 @@ interface CategoryStyle {
 }
 
 export const CATEGORY_STYLES: Record<TalentCategory, CategoryStyle> = {
-  economy: { color: 'text-[var(--hl-caution)]' },
-  offense: { color: 'text-[var(--hl-alarm)]' },
-  defense: { color: 'text-[var(--hl-reach)]' },
-  utility: { color: 'text-[var(--hl-vital)]' },
+  economy: { color: 'text-[var(--arc-caution)]' },
+  offense: { color: 'text-[var(--arc-alert)]' },
+  defense: { color: 'text-[var(--arc-reach)]' },
+  utility: { color: 'text-[var(--arc-vital)]' },
 };
 
 export const CATEGORY_LIST: TalentCategory[] = ['economy', 'offense', 'defense', 'utility'];

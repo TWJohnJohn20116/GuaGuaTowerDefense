@@ -68,10 +68,10 @@ export function TalentNode({
   };
 
   const boxState = locked
-    ? 'border-[var(--hl-line)] bg-[var(--hl-void-2)] text-[var(--hl-ink-4)] opacity-60'
+    ? 'border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] text-[var(--arc-ink-4)] opacity-60'
     : invested
-      ? 'border-[var(--hl-signal)] bg-[var(--hl-signal)] text-[var(--hl-signal-ink)]'
-      : 'border-[var(--hl-signal)] bg-[var(--hl-deck-2)] text-[var(--hl-signal)] hover:bg-[var(--hl-deck-3)]';
+      ? 'border-[var(--arc-gold)] bg-[var(--arc-gold)] text-[var(--arc-gold-ink)]'
+      : 'border-[var(--arc-gold)] bg-[var(--arc-deck-2)] text-[var(--arc-gold)] hover:bg-[var(--arc-deck-3)]';
 
   return (
     <div
@@ -89,7 +89,7 @@ export function TalentNode({
       <div className="relative" style={{ width: NODE_SIZE, height: NODE_SIZE }}>
         {/* 選中：外框偏移 4px 的 1px 線，不加光暈 */}
         {isSelected && (
-          <span className="pointer-events-none absolute -inset-[5px] border border-[var(--hl-signal)]" />
+          <span className="pointer-events-none absolute -inset-[5px] border border-[var(--arc-gold)]" />
         )}
 
         <button
@@ -118,18 +118,18 @@ export function TalentNode({
 
         {/* Keystone 角標 */}
         {isKeystone && (
-          <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center border border-[var(--hl-line-strong)] bg-[var(--hl-void)]">
-            <StarIcon className="h-2 w-2 text-[var(--hl-caution)]" />
+          <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center border border-[var(--arc-line-strong)] bg-[var(--arc-void)]">
+            <StarIcon className="h-2 w-2 text-[var(--arc-caution)]" />
           </span>
         )}
 
         {/* 可升級提示：方塊，不閃爍 */}
         {canUpgrade && (
-          <span className="absolute -left-1.5 -top-1.5 h-2 w-2 bg-[var(--hl-vital)]" />
+          <span className="absolute -left-1.5 -top-1.5 h-2 w-2 bg-[var(--arc-vital)]" />
         )}
 
         {/* 等級徽章 */}
-        <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 border border-[var(--hl-line-strong)] bg-[var(--hl-void)] px-1 font-mono text-[9px] tabular-nums text-[var(--hl-ink-2)]">
+        <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 border border-[var(--arc-line-strong)] bg-[var(--arc-void)] px-1 font-mono text-[9px] tabular-nums text-[var(--arc-ink-2)]">
           {rank}/{node.maxRank}
         </span>
       </div>
@@ -140,8 +140,8 @@ export function TalentNode({
           className={[
             'block w-full truncate border px-1.5 py-0.5 font-mono text-[10px] tracking-[0.04em]',
             locked
-              ? 'border-transparent text-[var(--hl-ink-4)]'
-              : 'border-[var(--hl-line)] bg-[var(--hl-void)] text-[var(--hl-ink)]',
+              ? 'border-transparent text-[var(--arc-ink-4)]'
+              : 'border-[var(--cn-line-soft)] bg-[var(--arc-void)] text-[var(--arc-ink)]',
           ].join(' ')}
         >
           {node.name}
@@ -150,36 +150,36 @@ export function TalentNode({
 
       {/* Hover 資訊：Deck，不開切角（會被撐破） */}
       {isHovered && !isSelected && (
-        <div className="pointer-events-none absolute bottom-[56px] left-1/2 z-30 w-60 -translate-x-1/2 border border-[var(--hl-line)] bg-[var(--hl-deck)] px-3 py-2.5">
+        <div className="pointer-events-none absolute bottom-[56px] left-1/2 z-30 w-60 -translate-x-1/2 arc-panel px-3 py-2.5">
           <div className="flex items-center gap-1.5">
             <span className={`font-mono text-[10px] uppercase tracking-[0.08em] ${style.color}`}>
               {getCategoryLabel(node.category, t)}
             </span>
             {isKeystone && (
-              <span className="border border-[var(--hl-line-strong)] px-1 font-mono text-[9px] text-[var(--hl-caution)]">
+              <span className="border border-[var(--arc-line-strong)] px-1 font-mono text-[9px] text-[var(--arc-caution)]">
                 KEYSTONE
               </span>
             )}
-            <span className="ml-auto font-mono text-[10px] tabular-nums text-[var(--hl-ink-2)]">
+            <span className="ml-auto font-mono text-[10px] tabular-nums text-[var(--arc-ink-2)]">
               {rank}/{node.maxRank}
             </span>
           </div>
 
-          <div className="mt-1.5 text-[11px] leading-relaxed text-[var(--hl-ink-2)]">
+          <div className="mt-1.5 text-[11px] leading-relaxed text-[var(--arc-ink-2)]">
             {node.description}
           </div>
 
           {!meetsReq && reqText && (
-            <div className="mt-1.5 font-mono text-[10px] text-[var(--hl-alarm)]">
+            <div className="mt-1.5 font-mono text-[10px] text-[var(--arc-alert)]">
               {t.talent.nodeUnmetReq.replace('{req}', reqText)}
             </div>
           )}
           {meetsReq && cost && !maxed && (
-            <div className="mt-1.5 font-mono text-[10px] text-[var(--hl-signal)]">
+            <div className="mt-1.5 font-mono text-[10px] text-[var(--arc-gold)]">
               {t.talent.nodeNextRank.replace('{cost}', String(cost))}
             </div>
           )}
-          <div className="mt-2 border-t border-[var(--hl-line)] pt-1.5 font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+          <div className="mt-2 border-t border-[var(--cn-line-soft)] pt-1.5 font-mono text-[9px] uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
             {t.talent.hintClick} · {t.talent.hintRightClick}
           </div>
         </div>

@@ -35,25 +35,25 @@ export function ResetConfirmModal({ open, totalSpentPoints, onConfirm, onCancel 
       onClick={onCancel}
     >
       <div className="w-full max-w-[400px]" onClick={(e) => e.stopPropagation()}>
-        <Deck notch className="hl-enter flex w-full flex-col gap-4 p-5" as="section">
+        <Deck notch className="arc-enter flex w-full flex-col gap-4 p-5" as="section">
           <div className="flex items-start gap-2.5">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-[rgba(255,75,62,0.4)] text-[var(--hl-alarm)]">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-[rgba(255,61,113,0.4)] text-[var(--arc-alert)]">
               <WarningIcon className="h-4 w-4" />
             </span>
             <div className="min-w-0">
-              <h3 className="text-[17px] font-semibold leading-tight text-[var(--hl-ink)]">
+              <h3 className="text-[17px] font-semibold leading-tight text-[var(--arc-ink)]">
                 {t.talent.resetTitle}
               </h3>
-              <p className="mt-1 hl-micro">{t.talent.resetDescription}</p>
+              <p className="mt-1 arc-micro">{t.talent.resetDescription}</p>
             </div>
           </div>
 
-          <div className="flex items-baseline justify-between border-y border-[var(--hl-line)] py-2.5">
-            <span className="hl-label">{t.talent.resetWillReturn}</span>
+          <div className="flex items-baseline justify-between border-y border-[var(--cn-line-soft)] py-2.5">
+            <span className="arc-label">{t.talent.resetWillReturn}</span>
             <Num value={`+${totalSpentPoints}`} size="lg" tone="vital" />
           </div>
 
-          <p className="font-mono text-[10px] leading-relaxed text-[var(--hl-ink-4)]">
+          <p className="font-mono text-[10px] leading-relaxed text-[var(--arc-ink-4)]">
             {t.talent.resetIrreversible}
           </p>
 
