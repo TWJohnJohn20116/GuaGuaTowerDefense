@@ -14,10 +14,18 @@ import type { GameScene, TowerType } from '@/types/game';
 import Loading from '@/components/ui/Loading';
 import AchievementNotification from '@/components/ui/AchievementNotification';
 import UpdateNotification from '@/components/ui/UpdateNotification';
-import { DevPanel } from '@/components/ui';
 
-// 主選單立即載入（首屏），其餘場景用 React.lazy 做代碼分割
-import MainMenu from '@/components/scenes/MainMenu';
+// 調適面板 lazy 載入：它連同 dev-panel/* 與 CustomSelect 約 100 KB，
+// 但只有玩家真的按「調適」才會用到，不該擋在首屏。
+// 另外**不要**從 '@/components/ui' barrel 匯入——那條 barrel 會把整個 UI 目錄
+// （含沒用到的元件）一起拉進 entry chunk（TD-24）。
+const DevPanel = lazy(() =>
+  import('@/components/ui/DevPanel').then((m) => ({ default: m.DevPanel })),
+);
+
+// 主選單也走 lazy：它連同 menu 專屬資料（挑戰清單、MenuHomeRail…）約 100 KB，
+// 但 App 已經有 <Suspense>，多一次本地 chunk 讀取對桌面程式沒有體感成本（TD-24）。
+const MainMenu = lazy(() => import('@/components/scenes/MainMenu'));
 
 const PathSelection = lazy(() => import('@/components/scenes/PathSelection'));
 const Game = lazy(() => import('@/components/scenes/GameScene'));
@@ -131,8 +139,10 @@ function App() {
         </Suspense>
         <AchievementNotification />
         <UpdateNotification />
-        {/* 調適介面：左下角「調適」按鈕，任何場景都可打開 */}
-        <DevPanel />
+        {/* 調適介面：左下角「調適」按鈕，任何場景都可打開（lazy，載入完成才出現） */}
+        <Suspense fallback={null}>
+          <DevPanel />
+        </Suspense>
       </div>
     </MotionConfig>
   );
