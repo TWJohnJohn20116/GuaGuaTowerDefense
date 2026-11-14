@@ -6,7 +6,13 @@ import { useTalentStore } from '@/store/talentStore';
 import { useAchievementStore } from '@/store/achievementStore';
 import { getCatalogAchievements } from '@/store/achievementStoreCheck';
 import type { HomeEntryScene } from '@/data/mainMenuHome';
-import { HOME_ENTRY_SCENES } from '@/data/mainMenuHome';
+import {
+  HOME_ENTRY_SCENES,
+  HOME_ENTRY_SPAN,
+  HOME_GRID_CLASS,
+  HOME_SPAN_CLASS,
+  homeEntrySize,
+} from '@/data/mainMenuHome';
 import { version as APP_VERSION } from '../../../../package.json';
 import { useTranslation } from '@/i18n';
 import { MenuHomeCard } from './MenuHomeCard';
@@ -19,7 +25,8 @@ import {
 /**
  * 主選單 · 入口牆
  *
- * 12 個模組排成卡片牆（2 / 3 欄），一張卡就是一個入口。
+ * 12 欄 bento：卡片跨 2/3/4/5 欄，三行各自是不同的切割比例，
+ * 有數值的入口（金幣、天賦點、待領成就）給大磚，工具類收窄成小磚。
  * 方向鍵在牆上移動、Enter 進入；滑鼠與鍵盤共用同一組焦點樣式。
  */
 export function MenuHomeGrid() {
@@ -62,6 +69,16 @@ export function MenuHomeGrid() {
       tag: talentPoints > 0 ? 'ready' : undefined,
       tone: 'signal',
     },
+    achievements: {
+      label: t.mainMenu.achievements,
+      sub:
+        claimableCount > 0
+          ? t.mainMenu.bento.claimableCount.replace('{count}', String(claimableCount))
+          : `${unlockedCount}/${catalog.length}`,
+      icon: <TrophyIcon className="h-6 w-6" />,
+      tag: claimableCount > 0 ? 'claim' : undefined,
+      tone: claimableCount > 0 ? 'signal' : 'caution',
+    },
     encyclopedia: {
       label: t.mainMenu.encyclopedia,
       sub: t.mainMenu.encyclopediaDesc,
@@ -74,26 +91,16 @@ export function MenuHomeGrid() {
       icon: <PaletteIcon className="h-6 w-6" />,
       tone: 'ink',
     },
-    achievements: {
-      label: t.mainMenu.achievements,
-      sub:
-        claimableCount > 0
-          ? t.mainMenu.bento.claimableCount.replace('{count}', String(claimableCount))
-          : `${unlockedCount}/${catalog.length}`,
-      icon: <TrophyIcon className="h-6 w-6" />,
-      tag: claimableCount > 0 ? 'claim' : undefined,
-      tone: claimableCount > 0 ? 'signal' : 'caution',
+    workshop: {
+      label: t.mainMenu.workshop,
+      sub: t.mainMenu.workshopDesc,
+      icon: <WrenchIcon className="h-6 w-6" />,
+      tone: 'ink',
     },
     statistics: {
       label: t.encyclopedia.statsOverview,
       sub: t.encyclopedia.statsOverviewDesc,
       icon: <ChartIcon className="h-6 w-6" />,
-      tone: 'ink',
-    },
-    workshop: {
-      label: t.mainMenu.workshop,
-      sub: t.mainMenu.workshopDesc,
-      icon: <WrenchIcon className="h-6 w-6" />,
       tone: 'ink',
     },
     replay: {
@@ -148,26 +155,26 @@ export function MenuHomeGrid() {
   };
 
   return (
-    <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 p-4">
-      {/* 標頭 */}
-      <div className="flex shrink-0 items-center gap-3 px-1">
-        <span className="arc-title text-[18px]">選單</span>
+    <main className="flex min-h-0 min-w-0 flex-1 flex-col">
+      {/* 標頭：糖果標籤 + 粗虛線 + 入口數 */}
+      <div className="flex shrink-0 items-center gap-3 px-1 pb-2.5 pt-1">
+        <span className="arc-banner">
+          <span className="arc-label !text-[var(--cn-sky-deep)]">{t.mainMenu.modules}</span>
+        </span>
         <span className="h-[3px] flex-1 rounded-full bg-[var(--cn-line-soft)]" />
-        <span className="rounded-full bg-[var(--cn-card-2)] px-2.5 py-0.5 text-[11px] font-extrabold text-[var(--cn-ink-3)]">
-          {String(HOME_ENTRY_SCENES.length)} 個入口
+        <span className="rounded-full border-2 border-[var(--cn-line-soft)] bg-[var(--cn-card)] px-2.5 py-0.5 font-mono text-[10.5px] font-extrabold tabular-nums text-[var(--cn-ink-3)]">
+          {t.mainMenu.entriesCount.replace('{count}', String(HOME_ENTRY_SCENES.length))}
         </span>
       </div>
 
-      {/* 卡片牆 */}
-      <div
-        className="grid min-h-0 flex-1 auto-rows-fr grid-cols-2 gap-3 overflow-y-auto p-1 xl:grid-cols-3"
-        onKeyDown={handleKeyDown}
-      >
+      {/* bento 入口牆 */}
+      <div className={HOME_GRID_CLASS} onKeyDown={handleKeyDown}>
         {HOME_ENTRY_SCENES.map((scene, i) => {
           const row = rows[scene];
           return (
             <div
               key={scene}
+              className={`${HOME_SPAN_CLASS[HOME_ENTRY_SPAN[scene]]} min-h-0`}
               ref={(el) => {
                 rowRefs.current[i] = el;
               }}
@@ -178,6 +185,7 @@ export function MenuHomeGrid() {
                 sub={row.sub}
                 tag={row.tag}
                 tone={row.tone}
+                size={homeEntrySize(scene)}
                 icon={row.icon}
                 focused={focus === i}
                 onSelect={() => setScene(scene)}

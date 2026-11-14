@@ -50,6 +50,8 @@ export const zhTW = {
     encyclopediaDescStats: '百科與統計',
     points: '點',
     coinsUnit: '金幣',
+    modules: '模組入口',
+    entriesCount: '{count} 個入口',
     statusChips: {
       totalBattles: '總出戰',
     },
