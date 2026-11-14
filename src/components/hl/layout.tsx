@@ -1,7 +1,8 @@
 /**
- * HARDLINE · 版面
+ * CANDY POP · 版面
  *
- * 全專案只有一種頂列、一種側欄。場景不准自己畫箭頭或自己發明頂列高度。
+ * 頂列是白色厚卡，底緣一條 3px 墨線；側欄是同一張卡片，選中的列是一顆圓角膠囊。
+ * 不使用掃描線、不使用發光。
  */
 import type React from 'react';
 import { useGameStore } from '@/store/gameStore';
@@ -11,7 +12,6 @@ import type { GameScene } from '@/types/game';
 
 /* --------------------------------------------------------------- BackKey */
 
-/** 全專案唯二的返回外觀之一：36×36 方塊，chevron。 */
 export function BackKey({
   to,
   onClick,
@@ -37,20 +37,12 @@ export function BackKey({
         if (to) return setScene(to);
         goBackScene();
       }}
-      className={[
-        'group inline-flex h-9 items-center gap-1.5 border border-[var(--hl-line-strong)] bg-transparent px-2.5',
-        'text-[var(--hl-ink-2)] transition-colors duration-150',
-        'hover:border-[var(--hl-signal)] hover:text-[var(--hl-signal)]',
-        'active:translate-y-px',
-        className,
-      ].join(' ')}
+      className={`arc-btn h-10 gap-1.5 px-4 text-[13px] ${className}`}
     >
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M15 5 8 12l7 7" />
       </svg>
-      <span className="font-mono text-[10px] tracking-[0.12em] uppercase">
-        {label || t.common.back}
-      </span>
+      <span className="text-[12px] font-extrabold">{label || t.common.back}</span>
     </button>
   );
 }
@@ -59,11 +51,9 @@ export function BackKey({
 
 interface TopBarProps {
   title: React.ReactNode;
-  /** 標題上方的 mono 路徑，例如 "settings / audio" */
   meta?: React.ReactNode;
   back?: { to?: GameScene; onClick?: () => void; label?: string } | false;
   right?: React.ReactNode;
-  /** 標題左側的圖示，會放在方框裡 */
   glyph?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;
@@ -81,28 +71,27 @@ export function TopBar({
   return (
     <header
       className={[
-        'relative z-30 flex h-[52px] shrink-0 items-center gap-3 border-b border-[var(--hl-line)]',
-        'bg-[var(--hl-void)] px-4',
+        'relative z-30 flex h-[68px] shrink-0 items-center gap-3 px-4',
+        'rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)]',
+        'shadow-[0_5px_0_-1px_rgba(46,36,64,0.18)]',
         className,
       ].join(' ')}
     >
       {back !== false && <BackKey to={back?.to} onClick={back?.onClick} label={back?.label} />}
 
       {glyph && (
-        <span className="flex h-7 w-7 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-2)]">
+        <span className="flex h-11 w-11 items-center justify-center rounded-[14px] border-[3px] border-[var(--cn-line)] bg-[var(--cn-sun)] text-[var(--cn-ink)]">
           {glyph}
         </span>
       )}
 
-      <div className="flex min-w-0 flex-col justify-center">
+      <div className="flex min-w-0 flex-col justify-center gap-0.5">
         {meta && (
-          <span className="truncate font-mono text-[9.5px] tracking-[0.14em] text-[var(--hl-ink-4)] uppercase">
+          <span className="truncate rounded-full bg-[var(--cn-sky-soft)] px-2 py-0.5 text-[10.5px] font-extrabold text-[var(--cn-sky-deep)]">
             {meta}
           </span>
         )}
-        <span className="truncate text-[15px] font-semibold leading-tight tracking-[-0.01em] text-[var(--hl-ink)]">
-          {title}
-        </span>
+        <span className="arc-title truncate text-[21px] leading-tight">{title}</span>
       </div>
 
       {children}
@@ -128,17 +117,19 @@ export function Rail({
   return (
     <nav
       className={[
-        'flex w-[212px] shrink-0 flex-col border-r border-[var(--hl-line)] bg-[var(--hl-deck)]',
+        'flex w-[236px] shrink-0 flex-col gap-1 rounded-[var(--cn-r-lg)]',
+        'border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] p-2',
+        'shadow-[0_5px_0_-1px_rgba(46,36,64,0.18)]',
         className,
       ].join(' ')}
     >
       {label && (
-        <div className="border-b border-[var(--hl-line)] px-3 py-2.5">
-          <span className="hl-label">{label}</span>
+        <div className="px-2.5 pb-1 pt-1.5">
+          <span className="arc-label">{label}</span>
         </div>
       )}
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</div>
-      {foot && <div className="border-t border-[var(--hl-line)] p-2.5">{foot}</div>}
+      <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">{children}</div>
+      {foot && <div className="border-t-[3px] border-[var(--cn-line-soft)] p-2 pt-2.5">{foot}</div>}
     </nav>
   );
 }
@@ -162,32 +153,29 @@ export function RailItem({
       onClick={onClick}
       onMouseEnter={() => playUiHover()}
       className={[
-        'group relative flex items-center gap-2.5 border-b border-[var(--hl-line)]/60 px-3 py-2.5 text-left',
-        'transition-colors duration-150 hover:bg-[var(--hl-deck-2)]',
-        active ? 'bg-[var(--hl-deck-2)]' : '',
+        'group relative flex items-center gap-2.5 rounded-[14px] border-[3px] px-2.5 py-2.5 text-left',
+        'transition-[background-color,border-color,transform] duration-[160ms]',
+        active
+          ? 'border-[var(--cn-line)] bg-[var(--cn-sun-soft)] shadow-[0_3px_0_var(--cn-sun-deep)]'
+          : 'border-transparent bg-transparent hover:border-[var(--cn-line-soft)] hover:bg-[var(--cn-card-2)]',
       ].join(' ')}
     >
-      {/* 左緣訊號條：選中唯一的標記 */}
-      <span
-        className={[
-          'absolute left-0 top-0 h-full w-[2px] transition-colors',
-          active ? 'bg-[var(--hl-signal)]' : 'bg-transparent',
-        ].join(' ')}
-      />
       {index !== undefined && (
         <span
           className={[
-            'w-[18px] shrink-0 font-mono text-[9.5px] tracking-wider',
-            active ? 'text-[var(--hl-signal)]' : 'text-[var(--hl-ink-4)]',
+            'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-[11px] font-extrabold',
+            active
+              ? 'border-[var(--cn-line)] bg-[var(--cn-sun)] text-[var(--cn-ink)]'
+              : 'border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] text-[var(--cn-ink-3)]',
           ].join(' ')}
         >
-          {String(index).padStart(2, '0')}
+          {index}
         </span>
       )}
       <span
         className={[
-          'min-w-0 flex-1 text-[12.5px] leading-snug line-clamp-2',
-          active ? 'font-semibold text-[var(--hl-ink)]' : 'text-[var(--hl-ink-2)]',
+          'min-w-0 flex-1 text-[13.5px] leading-snug line-clamp-2',
+          active ? 'font-extrabold text-[var(--cn-ink)]' : 'font-bold text-[var(--cn-ink-2)]',
         ].join(' ')}
       >
         {label}

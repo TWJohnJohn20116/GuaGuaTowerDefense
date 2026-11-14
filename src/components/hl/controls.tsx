@@ -1,7 +1,8 @@
 /**
- * HARDLINE · 控件
+ * CANDY POP · 控件
  *
- * 按鈕只有一個骨架：方角、右下切角、1px 線。差異只在「填什麼色」。
+ * 按鈕是厚實的糖果鍵：3px 墨線外框、底部 4px 實心投影，按下去整顆下沉。
+ * 尺寸比上一版大一級——遊戲的按鈕就是要好按。
  */
 import type React from 'react';
 import { playUiHover } from '@/services/audioService';
@@ -10,22 +11,17 @@ type Variant = 'signal' | 'line' | 'ghost' | 'danger' | 'quiet';
 type Size = 'sm' | 'md' | 'lg';
 
 const SIZE: Record<Size, string> = {
-  sm: 'h-7 px-2.5 text-[11.5px]',
-  md: 'h-9 px-3.5 text-[12.5px]',
-  lg: 'h-11 px-5 text-[13.5px]',
+  sm: 'h-9 px-3.5 text-[12.5px] rounded-[11px] shadow-[0_3px_0_var(--cn-line)]',
+  md: 'h-11 px-5 text-[14px]',
+  lg: 'h-12 px-7 text-[15px] rounded-[18px] shadow-[0_6px_0_var(--cn-line)]',
 };
 
 const VARIANT: Record<Variant, string> = {
-  signal:
-    'bg-[var(--hl-signal)] border-[var(--hl-signal)] text-[var(--hl-signal-ink)] hover:bg-[#e6ff74] hover:border-[#e6ff74] font-semibold',
-  line:
-    'bg-transparent border-[var(--hl-line-strong)] text-[var(--hl-ink-2)] hover:bg-[var(--hl-deck-2)] hover:text-[var(--hl-ink)] hover:border-[var(--hl-line-hot)]',
-  ghost:
-    'bg-transparent border-transparent text-[var(--hl-ink-2)] hover:bg-[var(--hl-deck-2)] hover:text-[var(--hl-ink)]',
-  danger:
-    'bg-transparent border-[rgba(255,75,62,0.4)] text-[var(--hl-alarm)] hover:bg-[rgba(255,75,62,0.1)] hover:border-[var(--hl-alarm)]',
-  quiet:
-    'bg-[var(--hl-deck-2)] border-[var(--hl-line)] text-[var(--hl-ink)] hover:bg-[var(--hl-deck-3)] hover:border-[var(--hl-line-hot)]',
+  signal: 'arc-btn--gold',
+  line: '',
+  ghost: 'arc-btn--ghost',
+  danger: 'arc-btn--danger',
+  quiet: '',
 };
 
 interface BtnProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
@@ -33,7 +29,6 @@ interface BtnProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, '
   size?: Size;
   block?: boolean;
   icon?: React.ReactNode;
-  /** 右側鍵位，例如 "P" */
   kbd?: string;
   className?: string;
 }
@@ -57,27 +52,14 @@ export function Btn({
         playUiHover();
         onMouseEnter?.(e);
       }}
-      className={[
-        'hl-btn-cut inline-flex items-center justify-center gap-2 whitespace-nowrap border font-medium',
-        'transition-colors duration-150 active:translate-y-px disabled:pointer-events-none disabled:opacity-35',
-        SIZE[size],
-        VARIANT[variant],
-        block ? 'w-full' : '',
-        className,
-      ]
+      className={['arc-btn whitespace-nowrap', SIZE[size], VARIANT[variant], block ? 'w-full' : '', className]
         .filter(Boolean)
         .join(' ')}
     >
       {icon}
       {children}
       {kbd && (
-        <span
-          className={`ml-1 border px-1 font-mono text-[10px] leading-[14px] ${
-            variant === 'signal'
-              ? 'border-black/25 text-black/60'
-              : 'border-[var(--hl-line-strong)] text-[var(--hl-ink-3)]'
-          }`}
-        >
+        <span className="ml-1 rounded-[7px] border-2 border-[var(--cn-line)] bg-[var(--cn-sun)] px-1.5 py-0.5 font-mono text-[10px] font-extrabold leading-none text-[var(--cn-ink)]">
           {kbd}
         </span>
       )}
@@ -104,15 +86,68 @@ export function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={[
-        'inline-flex h-7 items-center gap-1.5 border px-2.5 font-mono text-[11px] transition-colors duration-150',
-        active
-          ? 'border-[var(--hl-signal)] bg-[var(--hl-signal)] font-semibold text-[var(--hl-signal-ink)]'
-          : 'border-[var(--hl-line)] bg-transparent text-[var(--hl-ink-2)] hover:border-[var(--hl-line-hot)] hover:text-[var(--hl-ink)]',
-        className,
-      ].join(' ')}
+      data-active={active ? 'true' : 'false'}
+      className={`arc-chip ${className}`}
     >
       {icon}
+      {children}
+    </button>
+  );
+}
+
+
+/* ------------------------------------------------------------------ Input */
+
+/**
+ * 單行輸入框：原生 input 的屬性全部直通，只補 CANDY 外觀。
+ * 需要錯誤態時傳 invalid。
+ */
+export function Input({
+  className = '',
+  invalid = false,
+  ...rest
+}: React.InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }) {
+  return (
+    <input
+      {...rest}
+      className={[
+        'arc-field',
+        invalid ? 'border-[var(--cn-alert)] shadow-[0_0_0_4px_var(--cn-alert-soft)]' : '',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    />
+  );
+}
+
+/* ---------------------------------------------------------------- IconBtn */
+
+/**
+ * 圖示鍵：方形可點區，不做立體厚邊（會把 24–32px 的圖示撐壞）。
+ * label 會變成 aria-label，必填。
+ */
+export function IconBtn({
+  label,
+  className = '',
+  children,
+  ...rest
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      {...rest}
+      className={[
+        'inline-flex items-center justify-center rounded-[12px] text-[var(--cn-ink-2)]',
+        'transition-colors duration-[160ms] hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)]',
+        'disabled:pointer-events-none disabled:opacity-40',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
       {children}
     </button>
   );
@@ -139,7 +174,7 @@ export function Toggle({
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!on)}
-      className="hl-switch disabled:opacity-35"
+      className="arc-switch disabled:opacity-40"
       data-on={on ? 'true' : 'false'}
     />
   );
