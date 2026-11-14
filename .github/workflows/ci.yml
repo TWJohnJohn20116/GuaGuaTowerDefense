@@ -66,9 +66,9 @@ env:
   # 用 Node 20（npm 10）會對 vitest@4 的嵌套 vite 解析出不同樹，
   # 導致 npm ci 判定 lock 不完整（Missing: esbuild@0.28.2）。
   NODE_VERSION: '24'
-  # 測試分片數。3 片時最重的一片 26s，會跟建置一起卡住關鍵路徑；
-  # 6 片把每片壓到 ~12s，讓「建置與體積」（~21s）成為關鍵路徑。
-  TEST_SHARDS: 6
+  # 測試分片數。3 片時最重的一片 26s；6 片時每片工作量降到 8–13s，
+  # 但「建置與體積」仍是關鍵路徑，所以再切到 8 片讓測試確定不是瓶頸。
+  TEST_SHARDS: 8
 
 jobs:
   # ─────────────────────────────────────────────
@@ -138,6 +138,11 @@ jobs:
         run: npm ci --no-audit --no-fund --prefer-offline
 
       - name: 產線建置
+        # TAURI_PLATFORM=windows → build.target 用 chrome105，也就是 release.yml
+        # 實際出貨的那一份。不設的話 CI 會用 safari13 目標，多做一層降級轉譯，
+        # 量到的還是個不出貨的產物（體積也偏大）。
+        env:
+          TAURI_PLATFORM: windows
         run: npm run build
 
       - name: 打包體積預算（主 chunk 上限 1.18 MB）
@@ -149,14 +154,14 @@ jobs:
   test:
     # 片數寫死在名稱裡：job 的 name 取不到 env 與 strategy 這兩個 context
     # （只能用 github / vars / inputs），所以片數要跟上面 TEST_SHARDS 手動同步。
-    name: 單元測試（第 ${{ matrix.shard }} 片 / 共 6 片）
+    name: 單元測試（第 ${{ matrix.shard }} 片 / 共 8 片）
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       # 一片紅了其他片也跑完，方便一次看到所有失敗
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
 
     steps:
       - name: 取得原始碼
