@@ -37,7 +37,9 @@ const SIZES = (argv.sizes ?? '1600x900').split(',').map((s) => {
   return { w, h, key: `${w}x${h}` };
 });
 const OUT_ROOT = path.resolve(ROOT, argv.out ?? '.shots/verify');
-const SETTLE_MS = Number(argv.settle ?? 450);
+const SETTLE_MS = Number(argv.settle ?? 250);
+const SETTLE_MAX_MS = Number(argv['settle-max'] ?? 15000);
+const SETTLE_POLL_MS = 200;
 const CONCURRENCY = Math.max(1, Number(argv.concurrency ?? 4));
 const WITH_DOM = argv['no-dom'] !== 'true';
 const REUSE_SERVER = argv.server ?? null;
@@ -176,7 +178,26 @@ async function captureScene(cdp, baseUrl, scene, size, file) {
     const loaded = waitEvent('Page.loadEventFired', sessionId);
     await send('Page.navigate', { url: `${baseUrl}/?scene=${scene}` }, sessionId);
     await loaded;
-    await sleep(SETTLE_MS); // 等 React 首次繪製 + 字型
+
+    // 場景是 React.lazy 載入的：loadEventFired 時 chunk 還沒到，
+    // 固定 sleep 會拍到「載入中」的空畫面（且 DOM 仍非空，程式檢查抓不到）。
+    // 改成輪詢 root 的 DOM 長度，連續 3 次不變才視為穩定。
+    // 用「可讀文字長度」判斷就緒：載入中的骨架 HTML 很長但幾乎沒有文字
+    const rootLenExpr =
+      'JSON.stringify({ text: (document.body.innerText || "").trim().length, html: document.getElementById("root")?.innerHTML.length ?? 0 })';
+    const deadline = Date.now() + SETTLE_MAX_MS;
+    let lastLen = -1;
+    let stable = 0;
+    while (Date.now() < deadline) {
+      const { result } = await send('Runtime.evaluate', { expression: rootLenExpr, returnByValue: true }, sessionId);
+      const { text: textLen } = JSON.parse(result.value);
+      stable = textLen === lastLen ? stable + 1 : 0;
+      lastLen = textLen;
+      // 骨架／載入中也是「穩定」的，所以必須等到畫面上真的出現文字（>120 字）才算就緒
+      if (stable >= 3 && textLen > 120) break;
+      await sleep(SETTLE_POLL_MS);
+    }
+    await sleep(SETTLE_MS); // 穩定後再留一點時間給字型與動畫
 
     const { data } = await send('Page.captureScreenshot', { format: 'png' }, sessionId);
     writeFileSync(file, Buffer.from(data, 'base64'));
@@ -191,6 +212,7 @@ async function captureScene(cdp, baseUrl, scene, size, file) {
             const html = document.documentElement.outerHTML;
             return JSON.stringify({
               rootLength: root ? root.innerHTML.length : 0,
+              textLength: (document.body.innerText || '').trim().length,
               hasErrorOverlay: html.includes('vite-error-overlay'),
               crash: /Cannot read propert|is not a function|is not defined/.test(html),
             });
@@ -202,6 +224,66 @@ async function captureScene(cdp, baseUrl, scene, size, file) {
       domStats = JSON.parse(result.value);
     }
     return domStats;
+  } finally {
+    await send('Target.closeTarget', { targetId }).catch(() => {});
+  }
+}
+
+/**
+ * 把對照表本身截成一張總表圖。
+ * 為什麼要有它：程式檢查只能抓「空白／崩潰」，看不出「醜」與「錯位」；
+ * 真正的視覺驗證必須有人（或 agent 的看圖能力）實際看過每一格。
+ * 19 張分開看太慢，一頁 3 欄拼成一張最快。
+ */
+async function renderSheet(cdp, outDir, items, cols = 3) {
+  const rows = Math.ceil(items.length / cols);
+  const width = 1860;
+  const rowHeight = 372;
+  const height = rows * rowHeight + 72;
+
+  const cells = items
+    .map(
+      (r) => `<figure class="${r.pass ? 'ok' : 'bad'}">
+        <img src="${path.basename(r.file)}" />
+        <figcaption>${r.scene} · ${r.size}${r.pass ? '' : ' · FAIL'}</figcaption>
+      </figure>`,
+    )
+    .join('');
+
+  const html = `<!doctype html><meta charset="utf-8">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:12px;background:#12121a;font:12px/1.4 system-ui,"Noto Sans TC"}
+  header{color:#9aa;margin:0 0 10px 4px}
+  .grid{display:grid;grid-template-columns:repeat(${cols},1fr);gap:10px}
+  figure{margin:0;background:#1c1c26;border:2px solid #2b4a3a;border-radius:8px;overflow:hidden}
+  figure.bad{border-color:#7a2b3a}
+  img{display:block;width:100%;height:330px;object-fit:contain;background:#0c0c12}
+  figcaption{padding:4px 8px;color:#e6e6f0;font-weight:600}
+  figure.bad figcaption{color:#f87171}
+</style>
+<header>視覺驗證總表 · ${items.length} 幀</header>
+<div class="grid">${cells}</div>`;
+
+  const sheetHtml = path.join(outDir, 'sheet.html');
+  writeFileSync(sheetHtml, html);
+
+  const { send, waitEvent } = cdp;
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank' });
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });
+  try {
+    await send('Page.enable', {}, sessionId);
+    await send('Emulation.setDeviceMetricsOverride',
+      { width, height, deviceScaleFactor: 1, mobile: false }, sessionId);
+    const fileUrl = 'file:///' + sheetHtml.replace(/\\\\/g, '/');
+    const loaded = waitEvent('Page.loadEventFired', sessionId);
+    await send('Page.navigate', { url: fileUrl }, sessionId);
+    await loaded;
+    await sleep(400);
+    const { data } = await send('Page.captureScreenshot', { format: 'png' }, sessionId);
+    const out = path.join(outDir, 'contact-sheet.png');
+    writeFileSync(out, Buffer.from(data, 'base64'));
+    return out;
   } finally {
     await send('Target.closeTarget', { targetId }).catch(() => {});
   }
@@ -286,7 +368,7 @@ try {
       notBlank: bytes > 20000,
       ...(WITH_DOM && dom
         ? {
-            rootFilled: dom.rootLength > 200,
+            textRich: dom.textLength > 120, // 頁面真的畫出文字（載入中的骨架文字很少）
             noErrorOverlay: !dom.hasErrorOverlay,
             noCrashText: !dom.crash,
           }
@@ -356,6 +438,11 @@ ${rows}`,
 
   log(`${passed}/${results.length} 通過 · 總 ${elapsed}s（server ${(serverMs / 1000).toFixed(1)}s + 截圖 ${(shotsMs / 1000).toFixed(1)}s）`);
   log(`對照表：${path.relative(ROOT, path.join(OUT_DIR, 'index.html'))}`);
+
+  if (cdp) {
+    const sheet = await renderSheet(cdp, OUT_DIR, results);
+    log(`總表：${path.relative(ROOT, sheet)}`);
+  }
   process.exitCode = passed === results.length ? 0 : 1;
 } finally {
   try {
