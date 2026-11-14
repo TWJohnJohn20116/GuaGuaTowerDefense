@@ -89,7 +89,7 @@ services → types（只能 import type 或由入口注入）
 - ❌ `services/` 不得 import `store/`（要偏好就用 `setAudioPrefsProvider` 這類注入）
 - ❌ `types/` 不得有執行期程式碼
 - ✅ store 之間的反向依賴用 `await import('./achievementStore')` 延遲載入
-- ❌ 不要再新增 `index.ts` barrel（專案內已有 6 個無人 import 的檔案，其中 5 個是 barrel）
+- ❌ 不要再新增 `index.ts` barrel（TD-18 已把最後 5 個死 barrel 刪掉，現在無人 import 的檔案是 0；新增一個就是新債）
 
 ### 4.2 狀態與資料結構
 
@@ -128,7 +128,7 @@ services → types（只能 import type 或由入口注入）
 
 - ✅ 測試是行為斷言（真的呼叫 action、真的跑一幀），不是讀原始碼比對字串。
 - ✅ fixture 用 `src/test/fixtures.ts`（`makeEnemy` / `makeTower` / `makeSkill`），不要 `as Enemy` 硬轉。
-- ❌ 不新增死 export／死檔案：加完 export 若沒人用，就別加（目前 133 個零引用 export）。
+- ❌ 不新增死 export／死檔案：加完 export 若沒人用，就別加（目前 88 個零引用 export、0 個死檔；TD-18 刪掉 7 檔後 `utils/animations.ts` 的 45 個 export 也一起消失）。
 - ❌ 不動 `dist/`、`.shots/`、`src/components/scenes/encyclopedia/srcFileManifest.json`（生成物，build 會覆寫）。
 
 ### 4.7 編輯方式：一律用編輯工具，不准用腳本改檔
@@ -291,8 +291,8 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 |---|---|---|
 | `as any` / `: any` | 0 / 0 | 卡住就補型別或收斂成聯集；不要放寬回 any（TD-13、TD-14 已清空） |
 | 硬編碼中文（可見字串） | 445 條 | `t(` + `locales/zh-TW.ts` |
-| 零引用 export / 死檔 | 133 / 6 | 不確定就先不加；加了就要有引用 |
-| 新 barrel `index.ts` | 已有 6 個無人 import 的檔案（5 個是 barrel） | 直接 import 目標檔 |
+| 零引用 export / 死檔 | 88 / 0 | 不確定就先不加；加了就要有引用 |
+| 新 barrel `index.ts` | 0 個無人 import 的檔案（TD-18 已清空 5 個死 barrel） | 直接 import 目標檔 |
 | `console.log` | 專案用 `console.error` 於錯誤路徑 | 沿用錯誤路徑的 `console.error`，不要加 log |
 | > 888 行的新檔 | 7 個既有上帝檔 | 先拆模組 |
 | 新 `eslint-disable` | 0（TD-16 已清空，無 ESLint） | 修正依賴或用 ref 模式 |
