@@ -43,9 +43,14 @@ const SIZES = (argv.sizes ?? '1600x900').split(',').map((s) => {
 const OUT_ROOT = path.resolve(ROOT, argv.out ?? '.shots/verify');
 const SETTLE_MS = Number(argv.settle ?? 250);
 const SETTLE_MAX_MS = Number(argv['settle-max'] ?? 15000);
-const SETTLE_POLL_MS = 200;
-const CONCURRENCY = Math.max(1, Number(argv.concurrency ?? 4));
+const SETTLE_POLL_MS = 120;
+// 實測：8 反而比 5 慢（vite transform 與 8 個分頁搶 CPU），5 是最佳點
+// 實測：5→16.0s、7→15.4s、10→19.8s（分頁搶 CPU），7 是甜蜜點
+const CONCURRENCY = Math.max(1, Number(argv.concurrency ?? 7));
 const WITH_DOM = argv['no-dom'] !== 'true';
+// JPEG 比 PNG 快 3–5 倍、檔案小 4 倍；驗證看的是版面不是像素級精度
+const FORMAT = argv.format === 'png' ? 'png' : 'jpeg';
+const EXT = FORMAT === 'png' ? 'png' : 'jpg';
 // 截圖前要執行的頁面腳本（可多段，用 ;; 分隔）：用來打開 details／modal／切 tab
 // 複雜運算式（含 => 或引號）在 shell 裡很容易被吃掉，改用 --js-file 指定檔案
 const PRE_SCRIPT = (() => {
@@ -179,19 +184,38 @@ async function launchBrowser(browser) {
   return { child, ws, send, waitEvent, userDir };
 }
 
-async function captureScene(cdp, baseUrl, scene, size, file) {
-  const { send, waitEvent } = cdp;
+/** 開一個分頁當 worker：整條 lane 共用，之後只換 hash，不重新載入 */
+async function openWorker(cdp) {
+  const { send } = cdp;
   const { targetId } = await send('Target.createTarget', { url: 'about:blank' });
   const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });
+  await send('Page.enable', {}, sessionId);
+  return { targetId, sessionId, warm: false };
+}
+
+/** 切場景：第一張用 Page.navigate（冷啟），之後改 location.hash 由 App 的 dev 監聽接手 */
+async function switchScene(cdp, baseUrl, worker, scene, size) {
+  const { send, waitEvent } = cdp;
+  await send('Emulation.setDeviceMetricsOverride',
+    { width: size.w, height: size.h, deviceScaleFactor: 1, mobile: false }, worker.sessionId);
+
+  if (!worker.warm) {
+    const loaded = waitEvent('Page.loadEventFired', worker.sessionId);
+    await send('Page.navigate', { url: `${baseUrl}/?scene=${scene}` }, worker.sessionId);
+    await loaded;
+    worker.warm = true;
+  } else {
+    await send('Runtime.evaluate',
+      { expression: `location.hash = ${JSON.stringify(scene)}` }, worker.sessionId);
+  }
+}
+
+async function captureScene(cdp, baseUrl, worker, scene, size, file) {
+  const { send } = cdp;
+  const sessionId = worker.sessionId;
 
   try {
-    await send('Page.enable', {}, sessionId);
-    await send('Emulation.setDeviceMetricsOverride',
-      { width: size.w, height: size.h, deviceScaleFactor: 1, mobile: false }, sessionId);
-
-    const loaded = waitEvent('Page.loadEventFired', sessionId);
-    await send('Page.navigate', { url: `${baseUrl}/?scene=${scene}` }, sessionId);
-    await loaded;
+    await switchScene(cdp, baseUrl, worker, scene, size);
 
     // 場景是 React.lazy 載入的：loadEventFired 時 chunk 還沒到，
     // 固定 sleep 會拍到「載入中」的空畫面（且 DOM 仍非空，程式檢查抓不到）。
@@ -208,7 +232,7 @@ async function captureScene(cdp, baseUrl, scene, size, file) {
       stable = textLen === lastLen ? stable + 1 : 0;
       lastLen = textLen;
       // 骨架／載入中也是「穩定」的，所以必須等到畫面上真的出現文字（>120 字）才算就緒
-      if (stable >= 3 && textLen > 120) break;
+      if (stable >= 2 && textLen > 120) break;
       await sleep(SETTLE_POLL_MS);
     }
     await sleep(SETTLE_MS); // 穩定後再留一點時間給字型與動畫
@@ -221,8 +245,18 @@ async function captureScene(cdp, baseUrl, scene, size, file) {
       }
     }
 
-    const { data } = await send('Page.captureScreenshot', { format: 'png' }, sessionId);
-    writeFileSync(file, Buffer.from(data, 'base64'));
+    // 凍結動畫：避免截到一半的過場，也省掉持續重繪
+    await send('Runtime.evaluate', {
+      expression:
+        "(() => { const s = document.createElement('style'); s.textContent = '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition:none!important}'; document.head.appendChild(s); })()",
+    }, sessionId).catch(() => {});
+
+    const shot = await send(
+      'Page.captureScreenshot',
+      FORMAT === 'jpeg' ? { format: 'jpeg', quality: 88 } : { format: 'png' },
+      sessionId,
+    );
+    writeFileSync(file, Buffer.from(shot.data, 'base64'));
 
     let domStats = null;
     if (WITH_DOM) {
@@ -246,8 +280,9 @@ async function captureScene(cdp, baseUrl, scene, size, file) {
       domStats = JSON.parse(result.value);
     }
     return domStats;
-  } finally {
-    await send('Target.closeTarget', { targetId }).catch(() => {});
+  } catch {
+    // 單一場景失敗不拖垮整條 lane
+    return null;
   }
 }
 
@@ -311,9 +346,25 @@ async function renderSheet(cdp, outDir, items, cols = 3) {
   }
 }
 
-function pngSize(file) {
+/** 讀 PNG 或 JPEG 的實際像素尺寸（截圖格式可能是 jpeg，不能用 PNG 的固定偏移） */
+function imageSize(file) {
   const buf = readFileSync(file);
-  return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+  if (buf[0] === 0x89 && buf[1] === 0x50) return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+  if (buf[0] === 0xff && buf[1] === 0xd8) {
+    let i = 2;
+    while (i < buf.length - 9) {
+      if (buf[i] !== 0xff) { i++; continue; }
+      const marker = buf[i + 1];
+      // SOF0–SOF15（扣除 DHT/JPG/DAC）
+      if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+        return { h: buf.readUInt16BE(i + 5), w: buf.readUInt16BE(i + 7) };
+      }
+      const len = buf.readUInt16BE(i + 2);
+      if (len <= 0) break;
+      i += 2 + len;
+    }
+  }
+  return null;
 }
 
 async function waitForServer(url, timeoutMs = 30000) {
@@ -378,28 +429,56 @@ try {
   const jobs = scenes.flatMap((scene) => SIZES.map((size) => ({ scene, size })));
   const shotsStart = Date.now();
 
-  const results = await pool(jobs, CONCURRENCY, async ({ scene, size }) => {
-    const file = path.join(OUT_DIR, `${scene}-${size.key}.png`);
-    const dom = await captureScene(cdp, baseUrl, scene, size, file);
+  // 分 lane：一條 lane 一個分頁，第一張冷啟（約 4 秒），其餘用 hash 切場景（約 0.5 秒）
+  const lanes = Array.from({ length: Math.min(CONCURRENCY, jobs.length) }, () => []);
+  jobs.forEach((job, i) => lanes[i % lanes.length].push(job));
 
-    const png = existsSync(file) ? pngSize(file) : null;
-    const bytes = png ? readFileSync(file).length : 0;
-    const checks = {
-      screenshot: Boolean(png),
-      sizeMatches: Boolean(png && png.w === size.w && png.h === size.h),
-      notBlank: bytes > 20000,
-      ...(WITH_DOM && dom
-        ? {
-            textRich: dom.textLength > 120, // 頁面真的畫出文字（載入中的骨架文字很少）
-            noErrorOverlay: !dom.hasErrorOverlay,
-            noCrashText: !dom.crash,
-          }
-        : {}),
-    };
-    const pass = Object.values(checks).every(Boolean);
-    log(`${pass ? 'PASS' : 'FAIL'}  ${scene} ${size.key}`);
-    return { scene, size: size.key, file: path.relative(ROOT, file).replace(/\\/g, '/'), bytes, png, checks, pass };
-  });
+  const collected = [];
+  await Promise.all(
+    lanes.map(async (lane) => {
+      const worker = await openWorker(cdp);
+      try {
+        for (const { scene, size } of lane) {
+          const file = path.join(OUT_DIR, `${scene}-${size.key}.${EXT}`);
+          const dom = await captureScene(cdp, baseUrl, worker, scene, size, file);
+
+          const img = existsSync(file) ? imageSize(file) : null;
+          const bytes = img ? readFileSync(file).length : 0;
+          const checks = {
+            screenshot: Boolean(img),
+            sizeMatches: Boolean(img && img.w === size.w && img.h === size.h),
+            notBlank: bytes > 20000,
+            ...(WITH_DOM && dom
+              ? {
+                  textRich: dom.textLength > 120,
+                  noErrorOverlay: !dom.hasErrorOverlay,
+                  noCrashText: !dom.crash,
+                }
+              : {}),
+          };
+          const pass = Object.values(checks).every(Boolean);
+          log(`${pass ? 'PASS' : 'FAIL'}  ${scene} ${size.key}`);
+          collected.push({
+            scene,
+            size: size.key,
+            file: path.relative(ROOT, file).split(path.sep).join('/'),
+            bytes,
+            png: img,
+            checks,
+            pass,
+          });
+        }
+      } finally {
+        await cdp.send('Target.closeTarget', { targetId: worker.targetId }).catch(() => {});
+      }
+    }),
+  );
+
+  // 依原始 jobs 順序輸出，報表才穩定可 diff
+  const order = new Map(jobs.map((j, i) => [`${j.scene}|${j.size.key}`, i]));
+  const results = collected.sort(
+    (a, b) => (order.get(`${a.scene}|${a.size}`) ?? 0) - (order.get(`${b.scene}|${b.size}`) ?? 0),
+  );
 
   const shotsMs = Date.now() - shotsStart;
   const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
