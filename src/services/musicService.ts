@@ -142,3 +142,10 @@ export function stopMenuAlbumPreview(): void {
   lastScene = null;
   syncMusic(undefined, true);
 }
+
+/** 設定頁測試用：強制播放指定場景對應曲目 */
+export function previewMusicForScene(scene: GameScene): void {
+  engine.unlock();
+  const track = resolveMusicTrack(scene);
+  if (track) void engine.playTrack(track);
+}

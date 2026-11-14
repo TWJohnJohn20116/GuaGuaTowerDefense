@@ -25,3 +25,16 @@ export function getHiddenMapBrowseHint(mapId: string): string | null {
   if (!isHiddenCampaignMap(mapId)) return null;
   return HIDDEN_MAP_BROWSE_HINT[mapId];
 }
+
+export function getHiddenMapCampaignLevelId(mapId: string): string | null {
+  if (!isHiddenCampaignMap(mapId)) return null;
+  return HIDDEN_MAP_CAMPAIGN_LEVEL[mapId];
+}
+
+/** 驗證隱藏地圖是否已註冊至 PATHS */
+export function validateHiddenCampaignMaps(
+  paths: Record<string, unknown>,
+): { ok: boolean; missing: string[] } {
+  const missing = HIDDEN_CAMPAIGN_MAP_IDS.filter((id) => !paths[id]);
+  return { ok: missing.length === 0, missing: [...missing] };
+}

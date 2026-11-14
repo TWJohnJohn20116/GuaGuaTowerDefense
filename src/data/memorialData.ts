@@ -386,3 +386,11 @@ export const MEMORIAL_ERA_LABELS: Record<MemorialEra, string> = {
   past: '三十年前',
   present: '現今',
 };
+
+export function getMemorialById(id: string): MemorialEntry | undefined {
+  return MEMORIAL_ENTRIES.find((entry) => entry.id === id);
+}
+
+export function getMemorialsByOrigin(origin: MemorialOrigin): MemorialEntry[] {
+  return MEMORIAL_ENTRIES.filter((entry) => entry.origin === origin);
+}

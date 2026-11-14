@@ -93,3 +93,16 @@ export const drawTowerModel = (
     default: return drawBasicTowerNordic(params);
   }
 };
+
+// 簡化版：用於預覽
+export const drawTowerModelPreview = (
+  ctx: CanvasRenderingContext2D,
+  type: string,
+  cx: number, cy: number, radius: number,
+  color: string, highlight: string, rotation: number,
+): void => {
+  drawTowerModel(type, {
+    ctx, cx, cy, radius, rotation, color, highlight,
+    level: 1, recoil: 0, tileSize: radius * 2.86,
+  });
+};

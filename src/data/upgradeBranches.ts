@@ -547,6 +547,12 @@ const BASE_UPGRADE_BRANCHES: Omit<Record<TowerType, TowerUpgradeBranches>, 'stor
     },
   },
 };
+
+// 獲取指定塔的升級分支
+export const getTowerUpgradeBranches = (towerType: TowerType): TowerUpgradeBranches => {
+  return TOWER_UPGRADE_BRANCHES[towerType];
+};
+
 // 計算升級後的屬性加成
 export const getUpgradeBonus = (
   towerType: TowerType,

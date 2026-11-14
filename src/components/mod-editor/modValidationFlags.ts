@@ -37,3 +37,7 @@ export function validationRingClass(level: 'error' | 'warning' | null): string {
   if (level === 'warning') return 'border-l-2 border-l-[var(--hl-caution)]';
   return '';
 }
+
+export function hasValidationFlags(result: ModValidationResult): boolean {
+  return (result.flags?.length ?? 0) > 0;
+}

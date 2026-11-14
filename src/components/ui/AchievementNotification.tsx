@@ -95,3 +95,57 @@ export default function AchievementNotification() {
     </div>
   );
 }
+
+// 小型成就通知 (用於遊戲中)
+export function MiniAchievementNotification() {
+  const { notifications, dismissNotification } = useAchievementStore();
+  const [currentNotification, setCurrentNotification] = useState<string | null>(null);
+
+  useEffect(() => {
+    const undismissed = notifications.find(n => !n.dismissed && n.type === 'unlock');
+    if (undismissed && !currentNotification) {
+      setCurrentNotification(undismissed.id);
+      setTimeout(() => {
+        dismissNotification(undismissed.id);
+        setCurrentNotification(null);
+      }, 3000);
+    }
+  }, [notifications, currentNotification, dismissNotification]);
+
+  const notification = notifications.find(n => n.id === currentNotification);
+  const achievement = notification ? getAchievement(notification.achievementId) : null;
+
+  if (!achievement) return null;
+
+  const rarityConfig = RARITY_CONFIG[achievement.rarity];
+
+  return (
+    <AnimatePresence>
+      {notification && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 8 }}
+          transition={{ duration: 0.16 }}
+          className="fixed bottom-[60px] left-1/2 z-40 -translate-x-1/2"
+        >
+          <div
+            className="flex items-center gap-2.5 border border-[var(--hl-line)] border-l-2 bg-[var(--hl-deck)] px-3 py-1.5"
+            style={{ borderLeftColor: rarityConfig.color }}
+          >
+            <span className="text-[15px]">{achievement.icon}</span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <TrophyIcon className="h-3 w-3" style={{ color: rarityConfig.color }} />
+                <span className="hl-label" style={{ color: rarityConfig.color }}>成就解鎖</span>
+              </div>
+              <div className="mt-0.5 truncate text-[12px] font-semibold text-[var(--hl-ink)]">
+                {achievement.name}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}

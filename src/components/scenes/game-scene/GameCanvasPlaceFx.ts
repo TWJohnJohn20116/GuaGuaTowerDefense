@@ -296,3 +296,6 @@ export function easeOutBack(x: number): number {
   const c3 = c1 + 1;
   return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
 }
+
+// 不使用的型別防止 lint
+export type _PlaceFxTower = Tower;

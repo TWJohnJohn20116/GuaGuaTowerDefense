@@ -501,6 +501,13 @@ export interface Tile {
    */
   towerId: string | null;
 }
+
+// 游戏状态
+export type GameState = 
+  | 'menu' | 'pathSelection' | 'playing' | 'paused' 
+  | 'gameOver' | 'victory' | 'settings' | 'tutorial' 
+  | 'changelog' | 'encyclopedia' | 'editor';
+
 // 游戏场景
 export type GameScene =
   | 'mainMenu' | 'pathSelection' | 'talentTree' | 'game' | 'settings'
@@ -508,6 +515,7 @@ export type GameScene =
   | 'achievements' | 'skins' | 'shop' | 'statistics'
   | 'modEditor' | 'modManager' | 'mapEditor' | 'replay'
   | 'memorial' | 'gameOver' | 'victory' | 'dailyChallenge' | 'mutatorChallenge';
+
 
 // ===== Mod 系統 =====
 
@@ -650,3 +658,4 @@ export interface CampaignState {
   isCampaign?: boolean;
   campaignLevelId?: string;
 }
+

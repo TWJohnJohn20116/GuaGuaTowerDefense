@@ -152,6 +152,13 @@ export async function exportSettings(options: SettingsExportOptions = {}): Promi
     return { ok: false, reason: '匯出失敗，請稍後再試' };
   }
 }
+
+/** @deprecated 使用 exportSettings */
+export function exportSettingsToFile(): boolean {
+  void exportSettings({ saveToVault: true, download: true });
+  return true;
+}
+
 function normalizeLegacyPayload(raw: Record<string, unknown>): SettingsExportPayload | null {
   if (!isRecord(raw.settings) || !isRecord(raw.gamePrefs)) return null;
   const gamePrefs = raw.gamePrefs as unknown as SettingsExportGamePrefs;
