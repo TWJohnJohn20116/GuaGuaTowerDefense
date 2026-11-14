@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { type ReactNode, forwardRef } from 'react';
+import { type ReactNode, type MutableRefObject, forwardRef } from 'react';
 import { SCENE_GLASS } from '@/components/ui/SceneWorkshopLayout';
 
 export const WorkshopCard = forwardRef<HTMLDivElement | HTMLButtonElement, {
@@ -27,33 +27,22 @@ export const WorkshopCard = forwardRef<HTMLDivElement | HTMLButtonElement, {
   onClick,
   renderCustomContent,
 }, ref) => {
-  const Component = onClick ? motion.button : motion.div;
-  const clickProps = onClick ? { onClick } : {};
+  // motion.div 與 motion.button 要的 ref 型別不同，但這裡兩者共用同一個元件；
+  // 用具名回呼把 union 收斂成元素實際型別，避免用 any 轉型把整個 ref 的型別關掉。
+  const setRef = (el: HTMLElement | null) => {
+    const node = el as HTMLDivElement | HTMLButtonElement | null;
+    if (typeof ref === 'function') ref(node);
+    else if (ref) (ref as MutableRefObject<HTMLDivElement | HTMLButtonElement | null>).current = node;
+  };
 
-  if (renderCustomContent) {
-    return (
-      <Component
-        ref={ref as any}
-        className={className}
-        whileHover={onClick ? { scale: 0.995, y: -2 } : undefined}
-        whileTap={onClick ? { scale: 0.98 } : undefined}
-        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-        {...clickProps}
-      >
-        {renderCustomContent()}
-      </Component>
-    );
-  }
+  const whileHover = renderCustomContent && !onClick ? undefined : { scale: 0.995, y: -2 };
+  const whileTap = onClick ? { scale: 0.98 } : undefined;
+  const spring = { type: 'spring' as const, stiffness: 400, damping: 30 };
+  const customClass = className;
+  const cardClass = `group flex flex-col text-left ${SCENE_GLASS.workshopCard} ${onClick ? SCENE_GLASS.workshopCardHover : ''} ${fullWidth ? 'col-span-full' : ''} ${className}`;
 
-  return (
-    <Component
-      ref={ref as any}
-      className={`group flex flex-col text-left ${SCENE_GLASS.workshopCard} ${onClick ? SCENE_GLASS.workshopCardHover : ''} ${fullWidth ? 'col-span-full' : ''} ${className}`}
-      whileHover={{ scale: 0.995, y: -2 }}
-      whileTap={onClick ? { scale: 0.98 } : undefined}
-      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      {...clickProps}
-    >
+  const content = renderCustomContent ? renderCustomContent() : (
+    <>
       {cover && (
         <div className={`relative w-full ${coverHeight} overflow-hidden ${SCENE_GLASS.workshopCover}`}>
           {cover}
@@ -82,6 +71,33 @@ export const WorkshopCard = forwardRef<HTMLDivElement | HTMLButtonElement, {
           {children}
         </div>
       )}
-    </Component>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <motion.button
+        ref={setRef}
+        className={renderCustomContent ? customClass : cardClass}
+        whileHover={whileHover}
+        whileTap={whileTap}
+        transition={spring}
+        onClick={onClick}
+      >
+        {content}
+      </motion.button>
+    );
+  }
+
+  return (
+    <motion.div
+      ref={setRef}
+      className={renderCustomContent ? customClass : cardClass}
+      whileHover={whileHover}
+      whileTap={whileTap}
+      transition={spring}
+    >
+      {content}
+    </motion.div>
   );
 });
