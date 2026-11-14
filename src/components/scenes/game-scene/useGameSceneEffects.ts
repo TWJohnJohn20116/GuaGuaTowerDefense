@@ -660,7 +660,7 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
 
     animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animationFrameId);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // TD-17：deps 手動維護，逐一列出需要的 action（不要圖方便改成空陣列）
   }, [isPaused, isGameOver, waveActive, gameSpeed, selectedPath, currentWave, spawnEnemy, updateEnemies, updateTowers, updateProjectiles, updateSkills, updatePlayerSkills, takeDamage, runAutoBattleLogic]);
 
   // ===== 計算倒數顯示條件 =====

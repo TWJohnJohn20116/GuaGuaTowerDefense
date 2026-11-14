@@ -79,7 +79,7 @@ export default function GameOver() {
     if (tutorialStore.isActive) {
       tutorialStore.endTutorial({ awardGold: false });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // TD-17：只在掛載時跑一次，deps 刻意留空
   }, []);
 
   const totalKills = towers.reduce((sum, tower) => sum + tower.kills, 0);

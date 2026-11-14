@@ -269,7 +269,7 @@ const GameCanvasImpl = () => {
       // 繪製當下取最新塔清單（結構變更時本 effect 才會被觸發）
       towers: useGameStore.getState().towers,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // TD-17：deps 刻意只列實際會變的欄位，塔清單由 getState() 即時取
   }, [grid, hoveredTile, selectedTower, selectedTowerType, canAffordSelected, tileSize, offsetX, offsetY, getSkinVisuals, showTacticalView, tacticalScores, getTowerData, showTowerRange, showGrid, showPath, showHitboxes, showEnemyPath, multiSelectedTowerIds, towerLayoutKey]);
 
 

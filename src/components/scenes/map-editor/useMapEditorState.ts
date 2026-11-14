@@ -36,7 +36,7 @@ export function useMapEditorState() {
         prev.map((s) => (s.id === activeSegmentId ? { ...s, waypoints } : s))
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // TD-17：只跟著 waypoints 跑，activeSegmentId 刻意不列入
   }, [waypoints]);
 
   // 切換 active segment 時載入其 waypoints
@@ -45,7 +45,7 @@ export function useMapEditorState() {
       const seg = segments.find((s) => s.id === activeSegmentId);
       if (seg) setWaypoints([...seg.waypoints]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // TD-17：切換分段時才回填 waypoints，waypoints 刻意不列入 deps
   }, [activeSegmentId]);
 
   const addSegment = () => {

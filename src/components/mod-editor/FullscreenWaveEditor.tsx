@@ -81,7 +81,7 @@ export function FullscreenWaveEditor({
     if (focusedWaveIdx != null && focusedWaveIdx !== selectedWaveIdx) {
       setSelectedWaveIdx(focusedWaveIdx);
     }
-  }, [focusedWaveIdx]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [focusedWaveIdx]); // TD-17：deps 刻意只列 focusedWaveIdx
 
   const selectWave = (idx: number) => {
     setSelectedWaveIdx(idx);

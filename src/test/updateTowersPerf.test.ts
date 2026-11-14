@@ -85,7 +85,6 @@ describe('updateTowers 冷卻快路徑效能', () => {
     const cooldownMs = measure(8, false);
     const readyMs = measure(8, true);
 
-    // eslint-disable-next-line no-console
     console.log(
       `[updateTowers] 冷卻中 ${cooldownMs.toFixed(2)}ms/幀 · 可開火 ${readyMs.toFixed(2)}ms/幀 ` +
         `(${((readyMs / cooldownMs) || 0).toFixed(1)}×)`,

@@ -67,9 +67,7 @@ function drawDebugPath(
 
 // ===== 類型定義 =====
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GetTowerData = (type: string) => any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GetSkinVisuals = (type: TowerType) => any;
 
 export interface TacticalScore {
@@ -80,7 +78,6 @@ export interface TacticalScore {
 }
 
 export interface StaticLayerParams {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   grid: any[][];
   hoveredTile: { col: number; row: number } | null;
   selectedTower: Tower | null;
@@ -276,7 +273,6 @@ function drawRangeIndicators(
   tileSize: number,
   offsetX: number,
   offsetY: number,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   towers: Tower[],
   selectedTower: Tower | null,
   hoveredTile: { col: number; row: number } | null,
@@ -329,7 +325,6 @@ function drawRangeIndicators(
 // ===== 放置預覽範圍 =====
 function drawPlacementPreview(
   ctx: CanvasRenderingContext2D,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   grid: any[][],
   tileSize: number,
   offsetX: number,
@@ -379,7 +374,6 @@ function drawPlacementSynergyPreview(
   offsetY: number,
   selectedTowerType: TowerType | null,
   hoveredTile: { col: number; row: number } | null,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   grid: any[][],
   towers: Tower[],
 ): void {

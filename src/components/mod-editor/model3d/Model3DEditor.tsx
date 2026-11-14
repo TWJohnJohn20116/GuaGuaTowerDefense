@@ -249,7 +249,7 @@ export function Model3DEditor({ tower, onSave, onClose }: Model3DEditorProps) {
       if (renderer.domElement.parentElement === container) container.removeChild(renderer.domElement);
       sceneRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // TD-17：只在掛載時建立一次 3D 場景，deps 刻意留空
   }, []);
 
   const syncSelectionBox = useCallback(() => {

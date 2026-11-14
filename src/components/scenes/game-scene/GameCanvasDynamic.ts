@@ -101,7 +101,6 @@ function drawHitboxes(
 
 // ===== 型別定義 =====
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GetSkinVisuals = (type: TowerType) => any;
 type GetSkinModelSet = (type: TowerType) => string | undefined;
 
