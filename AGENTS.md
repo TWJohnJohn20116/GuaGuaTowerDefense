@@ -62,6 +62,7 @@
 | `src/types/` | 只有型別 | 執行期程式碼 |
 | `src/i18n/` | 語言檔、key→label 映射 | 手寫 `Translations` interface（型別由 `zh-TW` 推導） |
 | `src/test/` | 行為測試、`fixtures.ts` | 產品程式碼 |
+| `docs/research/` | AI 產出的研究報告、分析、決策紀錄（`YYYY-MM-DD-slug.md`） | 規範類文件（留在 `docs/` 根） |
 
 單檔上限 **888 行**（既有 `Icons.tsx` 2,182 行等是待償債，不要學）。
 
@@ -146,6 +147,30 @@ services → types（只能 import type 或由入口注入）
 - 大範圍改動 → 拆成多次 `edit`，每次一個語意單位，改完立刻驗證。
 - 需要整檔重寫 → 用 `write`（工具本身會顯示完整內容，可審查）。
 - 想寫 `node -e`、`Out-File`、`Set-Content`、`sed -i` 去改檔 → **停手**，改用 `edit`。
+
+### 4.8 產出檔案的位置（不准亂放）
+
+**規則：AI 產生的任何檔案，只能落在下表的位置；專案根目錄不得新增檔案。**
+
+| 產出類型 | 位置 | 命名 | 進版控 |
+|---|---|---|---|
+| 研究報告／改善計畫／分析 | `docs/research/` | `YYYY-MM-DD-<english-slug>.md` | ✅ |
+| 決策／重構紀錄 | `docs/research/` | 同上 | ✅ |
+| 截圖／預覽圖 | `.shots/` | `<主題>-<狀態>.png` | ❌（已 gitignore） |
+| 臨時腳本／除錯 dump／一次性輸出 | 系統 `%TEMP%` | 自由 | ❌ 絕不進 repo |
+| 測試程式碼 | `src/test/` | `<功能>.test.ts` | ✅ |
+| 正式程式碼 | 依 §3 目錄職責 | 依 §3 | ✅ |
+
+**硬性禁止**
+
+- ❌ 在專案根目錄新增 `.md` / `.txt` / `.json` / `.png`（例：`研究.md`、`output.json`、`temp.png`）。
+- ❌ 把報告或產出物放進 `src/`、`public/`、`scripts/`、`src-tauri/`。
+- ❌ 在 repo 內留 `test.js`、`probe.ts`、`tmp.md`、`*.dump` 這類一次性檔案——跑完就刪，或一開始就寫在 `%TEMP%`。
+- ❌ 建立本表與 §3 沒有定義的新目錄。
+
+**例外（唯一需要問的情況）**：真的需要新目錄或新型態檔案 → 先用提問工具問一次「要放哪」，拿到答案才建；其餘情況照上表放，**不用問**。
+
+**歷史檔案不搬**：`docs/` 根目錄現有的規範類文件（`SCENE_UI.md`、`2026-11-10-shishan-remediation.md` 等）維持原位，新產出一律進 `docs/research/`。
 
 ---
 
@@ -253,6 +278,7 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 | `架構圖.html` | **現況權威**：八層架構、主迴圈、42 項技術債（唯一架構文件，無 Markdown 版） |
 | `docs/SCENE_UI.md` | 場景共用 UI 與五種佈局規範（路徑敘述已過時，以此處程式碼為準） |
 | `docs/2026-11-10-shishan-remediation.md` | 過去重構的決策紀錄（為什麼 grid 只記 id、為什麼 i18n 型別要推導） |
+| `docs/research/` | AI 產出的研究／分析報告（`YYYY-MM-DD-slug.md`，見 §4.8） |
 | `CHANGELOG.md` | 版本演進紀錄 |
 | `UPDATING.md` | 更新與打包流程 |
 | `src-tauri/tauri.conf.json` | 視窗、打包、updater 公鑰（改這裡要同步簽章流程） |
