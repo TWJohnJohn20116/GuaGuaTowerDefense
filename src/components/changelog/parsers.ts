@@ -169,16 +169,16 @@ export const getChangeTypeIcon = (text: string): string => {
 export const getChangeTypeBadge = (title: string): { text: string; color: string } | null => {
   const lowerTitle = title.toLowerCase();
   if (lowerTitle.includes('新功能') || lowerTitle.includes('新增')) {
-    return { text: '新功能', color: 'bg-green-500/20 text-green-400' };
+    return { text: '新功能', color: 'bg-[var(--cn-mint-soft)] text-[var(--cn-mint-deep)]' };
   }
   if (lowerTitle.includes('修復') || lowerTitle.includes('bug')) {
-    return { text: '修復', color: 'bg-red-500/20 text-red-400' };
+    return { text: '修復', color: 'bg-[var(--cn-alert-soft)] text-[var(--cn-alert)]' };
   }
   if (lowerTitle.includes('優化') || lowerTitle.includes('改進')) {
-    return { text: '優化', color: 'bg-blue-500/20 text-blue-400' };
+    return { text: '優化', color: 'bg-[var(--cn-sky-soft)] text-[var(--cn-sky-deep)]' };
   }
   if (lowerTitle.includes('ui') || lowerTitle.includes('介面')) {
-    return { text: 'UI', color: 'bg-purple-500/20 text-purple-400' };
+    return { text: 'UI', color: 'bg-[var(--cn-grape-soft)] text-[var(--cn-grape-deep)]' };
   }
   return null;
 };
