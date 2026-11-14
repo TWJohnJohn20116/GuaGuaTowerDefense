@@ -532,7 +532,7 @@ export function GameScene3D() {
 
     // 每幀渲染 snapshot：純函式層產出「這一幀」的實體視覺欄位，2D 用同一份契約。
     // 緩衝只建立一次、逐幀原地寫入（每幀零配置，見 data/renderSnapshot.ts 的說明）。
-    const enemySnapshot = createRenderSnapshot();
+    const frameSnapshot = createRenderSnapshot();
 
     // 每幀同步 store → 場景
     const syncEntities = (dtSec: number) => {
@@ -541,13 +541,13 @@ export function GameScene3D() {
       const nowMs = Date.now();
 
       // --- 敵人 / 塔 / 投射物：一次投影成同一份每幀資料，三個實例池都吃它 ---
-      writeRenderSnapshot({ enemies, towers, projectiles }, enemySnapshot, nowMs);
-      enemyInstances.sync(enemySnapshot, toWorld, camera.quaternion, visualSettings.showHealthBars);
+      writeRenderSnapshot({ enemies, towers, projectiles }, frameSnapshot, nowMs);
+      enemyInstances.sync(frameSnapshot, toWorld, camera.quaternion, visualSettings.showHealthBars);
 
       // --- 塔（差異化模型；等級變化時重建以更新等級環）---
-      const towerFrames = enemySnapshot.towers;
+      const towerFrames = frameSnapshot.towers;
       const aliveTower = new Set<string>();
-      for (let ti = 0; ti < enemySnapshot.towerCount; ti++) {
+      for (let ti = 0; ti < frameSnapshot.towerCount; ti++) {
         const t = towerFrames[ti];
         aliveTower.add(t.id);
         let g = towerGroups.get(t.id);
@@ -595,10 +595,10 @@ export function GameScene3D() {
       }
 
       // --- 投射物（InstancedMesh 單 draw call）---
-      projectileInstances.sync(enemySnapshot, toWorld);
+      projectileInstances.sync(frameSnapshot, toWorld);
 
       // --- 塔血條（受傷才顯示，跟 2D 同一把 showHealthBars）---
-      towerHealthBars.sync(enemySnapshot, toWorld, camera.quaternion, visualSettings.showHealthBars);
+      towerHealthBars.sync(frameSnapshot, toWorld, camera.quaternion, visualSettings.showHealthBars);
     };
 
     // ===== 戰鬥特效（命中粒子 + 死亡碎片，消費 store 同一資料源）=====
