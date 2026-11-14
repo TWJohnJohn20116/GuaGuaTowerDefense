@@ -1,8 +1,8 @@
 /**
- * SceneShell — HARDLINE 場景殼
+ * SceneShell — CANDY POP 場景殼
  *
- * 全畫面底色 #06070A，細格線，沒有粒子、沒有光暈、沒有整頁換皮。
- * accent 參數保留給舊呼叫端；HARDLINE 只有一種強調色，因此不再改變配色。
+ * 奶油紙底 + 細點紋；標頭是一張厚卡，不是貼在視窗上緣的深色橫條。
+ * accent 參數保留給舊呼叫端（CANDY 用同一組色盤，不再逐場景換色）。
  */
 
 import type React from 'react';
@@ -16,7 +16,7 @@ export interface SceneShellProps {
   scrollable?: boolean;
   className?: string;
   showGrid?: boolean;
-  /** 相容參數；HARDLINE 不畫粒子 */
+  /** 相容參數；CANDY 不畫粒子 */
   showParticles?: boolean;
   particleCount?: number;
 }
@@ -31,16 +31,15 @@ export function SceneShell({
   void showParticles;
 
   return (
-    <div className={`relative h-full w-full overflow-hidden bg-[var(--hl-void)] text-[var(--hl-ink)] ${className}`}>
-      {/* 結構格：48px 細線，安靜但看得出來這是張面板 */}
+    <div className={`relative h-full w-full overflow-hidden bg-[var(--cn-paper)] text-[var(--cn-ink)] ${className}`}>
+      {/* 細點紋：淺色紙張的質感，不是格線 */}
       {showGrid && (
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
           style={{
-            backgroundImage:
-              'linear-gradient(to right, rgba(236,239,242,0.022) 1px, transparent 1px), linear-gradient(to bottom, rgba(236,239,242,0.022) 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
+            backgroundImage: 'radial-gradient(rgba(46,36,64,0.07) 1.2px, transparent 1.2px)',
+            backgroundSize: '22px 22px',
           }}
         />
       )}
@@ -48,7 +47,7 @@ export function SceneShell({
       {scrollable ? (
         <div className="relative z-10 h-full w-full overflow-y-auto">{children}</div>
       ) : (
-        <div className="relative z-10 h-full w-full">{children}</div>
+        <div className="relative z-10 h-full w-full p-3">{children}</div>
       )}
     </div>
   );
@@ -80,22 +79,20 @@ function SceneShellHeader({
 }: SceneShellHeaderProps) {
   return (
     <header
-      className={`sticky top-0 z-30 flex h-[52px] shrink-0 items-center gap-3 border-b border-[var(--hl-line)] bg-[var(--hl-void)] px-4 ${className}`}
+      className={`sticky top-0 z-30 mx-3 mt-3 flex h-[70px] shrink-0 items-center gap-3 rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] px-4 shadow-[0_5px_0_-1px_rgba(46,36,64,0.18)] ${className}`}
     >
       {showBack && <BackKey to={backTo} onClick={onBack} label={backLabel} />}
 
       {icon && (
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-ink-2)]">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border-[3px] border-[var(--cn-line)] bg-[var(--cn-sun)] text-[var(--cn-ink)]">
           {icon}
         </span>
       )}
 
-      <div className="flex min-w-0 flex-col justify-center">
-        <span className="truncate text-[15px] font-semibold leading-tight tracking-[-0.01em] text-[var(--hl-ink)]">
-          {title}
-        </span>
+      <div className="flex min-w-0 flex-col justify-center gap-0.5">
+        <span className="arc-title truncate text-[21px] leading-tight">{title}</span>
         {subtitle && (
-          <span className="truncate font-mono text-[9.5px] uppercase tracking-[0.14em] text-[var(--hl-ink-4)]">
+          <span className="truncate rounded-full bg-[var(--cn-sky-soft)] px-2 py-0.5 text-[10.5px] font-extrabold text-[var(--cn-sky-deep)]">
             {subtitle}
           </span>
         )}
@@ -114,8 +111,8 @@ interface SceneShellBodyProps {
 
 function SceneShellBody({ children, maxWidth = 'max-w-6xl', className = '' }: SceneShellBodyProps) {
   return (
-    <main className={`relative z-10 px-5 pb-12 pt-5 sm:px-7 ${className}`}>
-      <div className={`mx-auto ${maxWidth} flex flex-col gap-5`}>{children}</div>
+    <main className={`relative z-10 px-4 pb-12 pt-4 sm:px-6 ${className}`}>
+      <div className={`mx-auto ${maxWidth} flex flex-col gap-4`}>{children}</div>
     </main>
   );
 }
