@@ -4,6 +4,7 @@
 > 版本基準：v1.2.0 · Tauri 2 + React 18 + TypeScript + Vite + Zustand + Three.js
 > 程式碼 952 檔 / 164,918 行。**先讀完第 1、2、4 節再動手。**
 > **全程必須邊做邊說（§10）＋即時更新任務清單（§11）——只跑工具不出聲＝違規；多步任務一律用 `進度 k/N` 標示。**
+> **本機不得編譯／建置／執行測試，唯一驗證途徑是 GitHub Actions（§13.9）。**
 
 ---
 
@@ -12,8 +13,8 @@
 0. **邊做邊說＋進度編號**：每個回合都要讓使用者知道「現在在做什麼、為什麼、結果如何」；任務超過 2 步時，開場先給步驟清單，之後每次回報都用 `進度 k/N`（規則見 §10.2、§10.3）。
 1. **任務清單即時更新**：多步任務一律先建任務清單（本環境為 `todo_write`），狀態一變就立刻改，不要批次補登（規則見 §11）。
 2. 先確認任務屬於哪一類（§5 recipe），照著步驟改，不要自由發揮檔案位置。
-3. 動手前跑一次 `npm run check` 確認起點是綠的；不是綠的就先回報，不要順手修無關的紅燈。
-4. 改完必跑 §7 的驗證；沒跑完不要說「完成」。
+3. 動手前先確認起點狀態：`gh run list --workflow ci.yml --limit 3` 看 `main` 最近一次是不是 success。**不要**在本機跑 `npm run check`（§13.9 禁止）。
+4. 改完 push，讓 CI 驗（§7 的完成定義以 CI 結果為準）；**本機不編譯、不建置、不跑測試**（§13.9）。
 5. 只讀不確定的地方：`架構圖.html`（現況）> 程式碼 > `docs/`（多為歷史設計稿）。
 6. **每次改檔就 commit**：一個語意單位一個 commit，寧可多不要少（規則見 §12）。不要自行 `git init`、不要 `git push --force`，也**不要**新增 npm 依賴（先問）。
 
@@ -33,20 +34,23 @@
 
 ---
 
-## 2. 指令（唯一正確的執行方式）
+## 2. 指令（誰可以執行）
 
-| 目的 | 指令 | 備註 |
-|---|---|---|
-| 開發（瀏覽器） | `npm run dev` | 埠 1421，`?scene=game` 可直接跳場景（僅 DEV） |
-| 開發（桌面） | `npm run tauri dev` | 會先跑 `predev` 產生百科檔案清單 |
-| **提交前總檢查** | `npm run check` | = typecheck + i18n:check + test **（必跑）** |
-| 型別 | `npm run typecheck` | `tsc --noEmit`，0 error 是底線 |
-| 語言鍵對齊 | `npm run i18n:check` | 動到 i18n 必跑，CI 是 `--strict` |
-| 測試 | `npm run test` | Vitest + jsdom，測試檔在 `src/test/**/*.test.ts` |
-| 建置 | `npm run build` / `npm run build:check` | 後者先型別再建置 |
-| 打包 | `npm run tauri build` | NSIS，輸出 `src-tauri/target/release/bundle` |
-| 守門（技術債＋bundle 預算） | `npm run ci:guards` | CI 的第 4、8 道閘門，本機可先跑 |
-| 模擬整套 CI | `npm run check:full` | `check` + build + guards（約 2 分鐘） |
+**本機不得編譯／建置／執行測試（§13.9）**——下表「位置」欄標 ❌ 的，只能在 GitHub Actions 跑；代理端連 `npm run dev` 都不跑。
+
+| 目的 | 指令 | 位置 | 備註 |
+|---|---|---|---|
+| 開發（瀏覽器） | `npm run dev` | ❌ 使用者自己跑 | 埠 1421，`?scene=game` 可跳場景（僅 DEV） |
+| 開發（桌面） | `npm run tauri dev` | ❌ 使用者自己跑 | 會先跑 `predev` 產生百科檔案清單 |
+| 型別 | `npm run typecheck` | ❌ CI | `tsc --noEmit`，0 error 是底線 |
+| 測試 | `npm run test` | ❌ CI | Vitest + jsdom，測試檔在 `src/test/**/*.test.ts` |
+| 建置 | `npm run build` / `build:check` | ❌ CI | 後者先型別再建置 |
+| 打包 | `npm run tauri build` | ❌ CI（release.yml） | NSIS，輸出 `src-tauri/target/release/bundle` |
+| 總檢查 | `npm run check` / `check:full` | ❌ CI | 組合指令，本機禁止 |
+| 技術債棘輪 | `node scripts/ci/guards.mjs --debt` | ✅ 本機可（純讀檔） | 只讀原始碼計數，不編譯 |
+| 語言鍵對齊 | `npm run i18n:check` | ✅ 本機可（AST 解析） | 內部用 `ts.createSourceFile`，不編譯不執行 |
+| bundle 預算 | `node scripts/ci/guards.mjs --bundle` | ❌ CI | 需要 `dist/`，本機沒有 |
+| 看 CI 結果 | `gh run list` / `gh run watch` / `gh run view --log-failed` | ✅ 本機可 | 這就是本機的「編譯輸出」 |
 
 ---
 
@@ -140,7 +144,7 @@ services → types（只能 import type 或由入口注入）
 
 **唯一允許用腳本的三種情況**
 
-1. **產生衍生物**（不是編輯既有檔）：跑 `npm run build`、跑 `scripts/` 內既有產生器、跑格式化工具、跑測試。
+1. **產生衍生物**（不是編輯既有檔）：跑 `scripts/` 內既有產生器、跑格式化工具。**注意 §13.9：編譯、建置、測試已全面禁止**，`npm run build` 與 `npm run test` 不在允許之列。
 2. **唯讀分析**：grep、行數統計、死碼掃描、覆蓋率計算——只要不寫檔。暫存腳本請放 `%TEMP%`，不要留在 repo。
 3. **超過 20 檔的機械性改名**：必須先提出計畫並取得同意，優先走專案既有 codemod 流程（`scripts/legacy/i18n-codemods/`），而不是臨時寫一支新腳本。
 
@@ -213,12 +217,12 @@ services → types（只能 import type 或由入口注入）
 
 ### 5.6 調平衡數值
 塔 `towerData.ts` / `upgradeBranches.ts`；敵人 `enemyData.ts`；狀態倍率 `combatStatus.ts`；難度與經濟 `waveData.ts`（`DIFFICULTY_MODIFIERS` / `GAME_CONSTANTS`）。
-**改完必跑** `npm run test`——`damagePipeline`、`statusEffects`、`towerCombatIdentity` 會抓到被破壞的關係。
+**改完 push，讓 CI 跑測試**（§13.9 禁止本機執行）——`damagePipeline`、`statusEffects`、`towerCombatIdentity` 會抓到被破壞的關係。紅燈就 `gh run view <id> --log-failed` 讀那一步。
 
 ### 5.7 改 UI
 1. 先確認屬於五種佈局之一（Home / Page / Split / Battle / Overlay），用 `components/ui` 的 SceneShell 系列
 2. 樣式 token 用 `SCENE_TYPOGRAPHY` / `--hl-*`；不要自創顏色常數
-3. 改完看 `src/test/designTokens.test.ts` 是否紅（它是 class 契約）
+3. push 後看 CI 的 `designTokens.test.ts` 有沒有紅（它是 class 契約；§13.9 禁止本機跑測試）
 
 ---
 
@@ -243,12 +247,10 @@ services → types（只能 import type 或由入口注入）
 
 改動被視為完成，必須**全部**成立：
 
-1. `npm run check` 全綠（typecheck 0 error、i18n 通過、測試全過）。
-2. 沒有新增 `as any` / `: any` / `@ts-ignore` / 硬編碼中文 / 死 export。
-3. 動到戰鬥或渲染 → 手動驗證：
-   - `npm run dev` 開 `?scene=game`，建塔、跑 2 波、確認無 console 錯誤。
-   - 動到效能相關 → Dev 面板壓測 5,000 敵人 + 100 塔，看 `StressTestHud` 的 p95 與 `updateTowers` 階段耗時沒有退化。
-4. 動到打包相關 → `npm run build` 後看 `dist/assets/index-*.js` 沒有明顯變大（目前 1.33 MB）。
+1. **CI 綠**：`gh run watch <id> --exit-status` 得到 success，且 job 不是 `skipped`（§13.2）。typecheck 0 error、i18n 通過、710 個測試全過都由 CI 判定——**本機不得自己跑**（§13.9）。
+2. 沒有新增 `as any` / `: any` / `@ts-ignore` / 硬編碼中文 / 死 export（可用 `node scripts/ci/guards.mjs --debt` 唯讀自查，那是純讀檔）。
+3. 動到戰鬥或渲染 → 需要視覺驗證時**請使用者自己跑 `npm run dev`**（代理端不跑，§13.9）；效能相關改動要靠 Dev 面板的 p95 數據，請使用者提供。
+4. 動到打包相關 → 由 CI 的 `打包體積預算` 步驟判定（主 chunk 上限 1.18 MB），本機不跑 build。
 5. 回報時附：改了哪些檔、為什麼、跑了什麼指令、結果如何；**不要**只說「已修好」，也不要只在最後才一次補述（過程就要說）。多步任務全程都要標 `進度 k/N`，見 §10.3。
 6. 任務清單**全部 `completed`**（或明確標出哪幾項沒做與原因）；不得留著 `pending` / `in_progress` 就宣布完成，見 §11.5。
 7. **CI 綠才算完成**：push 後必須拿到 CI 結論（`gh run watch` 或下次 `gh run list`）。**低風險改動可以不阻塞等待**（見 §13.7），但宣告完成前不能是未知狀態，紅燈要回頭修。
@@ -336,13 +338,13 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 **範例（完整一輪）**
 
 ```
-共 4 步：1) 找根因 2) 改型別 3) 跑 check 4) 回報
+共 4 步：1) 找根因 2) 改型別 3) push 等 CI 4) 回報
 ▶ 進度 1/4：比對 19 處 as any 的根因
 ✅ 進度 1/4 完成：7 處是多餘斷言，可直接刪；2 處缺 union 成員
 ▶ 進度 2/4：開始改型別（types/game.ts + updateTowers.ts）
 ✅ 進度 2/4 完成：as any 19 → 0
-▶ 進度 3/4：跑 npm run check（約 100 秒）
-✅ 進度 3/4 完成：698 tests passed、exit 0
+▶ 進度 3/4：push 後等 CI（run 43552101919）
+✅ 進度 3/4 完成：CI 綠，710 個測試全過、型別 0 error
 ✅ 進度 4/4 完成：回報如下
 ```
 
@@ -410,7 +412,7 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 - **開場就建**：全部 `pending`，然後立刻把第一個設成 `in_progress`。
 - **項目要可驗證**：✅「移除 TowerShootPreview 的 5 處 as any」；❌「修型別」「處理一下」。
 - **項目數＝§10.3 的分母 N**：清單 5 項，口頭就是 `k/5`。
-- **一步 ≈ 一個可獨立驗證的結果**（跑一次 `tsc`、一次 `npm run test`、一次檔案改動）。
+- **一步 ≈ 一個可獨立驗證的結果**（一次檔案改動、一次 push、一次 CI 綠）。
 - 不要把同一件事拆成 5 項充數（例如「讀檔」「再讀檔」「存檔」）。
 
 ### 11.3 更新時機（最容易犯的錯）
@@ -478,7 +480,7 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 
 - 為什麼要改（問題或背景）
 - 改了什麼（重點，不是逐行翻譯 diff）
-- 驗證方式（跑了什麼指令、結果如何）
+- 驗證方式（push 後的 CI run／結論；**不要**寫「本機跑過 check」——§13.9 禁止）
 ```
 
 - **type**：`feat` / `fix` / `refactor` / `perf` / `docs` / `test` / `chore` / `ci` / `style`
@@ -557,9 +559,10 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 
 ### 13.6 刻意不採納（別人的規則與我們不適用）
 
+> 原本這裡第一條是「本機不得編譯／建置／執行測試，只能靠 CI」，2026-11-14 已由使用者拍板**採納**，移到 §13.9 成為絕對規則。
+
 | 規則 | 為什麼不抄 |
 |---|---|
-| 「本機不得編譯／建置／執行測試，只能靠 CI」 | 本專案 `npm run check` 約 80 秒、lock 與 CI 同版本，本機跑能省掉 push→等待→修的 round-trip。**但保留它的精神**：本機綠只是必要條件，CI 綠才是判準（13.2-5）。 |
 | 多目標 matrix、Gradle 快取、JDK toolchain、跨平台建置矩陣 | 本專案只有一條 JS 工具鏈（npm + vitest + vite），CI 雖然已拆成 3 個平行 job（§13.1）但沒有多平台矩陣需求；等真的需要再加，不要預先複雜化。 |
 | 產物（artifact）上傳與保留策略 | 只有 tag 觸發的 release 需要產物，現由 `tauri-action` 處理。 |
 
@@ -602,10 +605,62 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 **規則**
 
 - ❌ **不 auto-merge、不加 `dependabot-auto-merge` 之類的 workflow**。依賴升級會動 `package.json` / lock，屬 §13.7 的高風險改動。
-- ✅ npm 的 PR 要在 **Node 24（npm 11）** 下重生 `package-lock.json`，再用 `npm run check` 驗；用 npm 10 重生會讓 CI 判定 lock 不完整（§13.1）。
-- ✅ 收到 PR 就當成本機任務跑完：`npm ci` → `npm run check` → `npm run build` → `npm run ci:guards`，四關都過才合。
+- ✅ npm 的 PR 怎麼審：讀 diff 與 changelog → **讓 CI 跑**（Push 已由 Dependabot 完成，PR 會自動觸發 `pull_request`）→ 四道閘門（型別／i18n＋棘輪／測試／建置＋體積）全綠才合。**不要在合併前自己在本機跑 `npm ci`、`npm run check`（§13.9）。**
+- ⚠️ 若 PR 動到 `package-lock.json` 且 CI 紅在 `npm ci`（`Missing: esbuild@0.28.2` 這類），代表 lock 是在 **npm 10** 環境生的；處理方式是叫 Dependabot 重跑（在 PR 留言 `@dependabot recreate`）或請使用者用 Node 24 重生 lock 後推上去，**不要**在本機重生。
 - ❌ major 版本 PR 若 CI 紅，**在 PR 裡修**，不要合進 `main` 再修（會讓 `main` 有一段時間是紅的）。
 - ⏫ 安全警報（Dependabot alerts／`npm audit`）優先於一般更新；目前 `npm audit` 有 14 個（1 low / 6 moderate / 7 high）尚未處理。
 - ❌ 不要為了讓依賴 PR 變綠而放寬 guards、刪測試或跳過步驟（§13.3）。
 
 **為什麼 PR 一定會被檢查**：`ci.yml` 的 `pull_request` 觸發刻意不加 `paths` 過濾（§13.1），所以 Dependabot 開的 PR 不會靜默跳過 CI。
+
+### 13.9 絕對規則：本機不得編譯、建置或執行測試
+
+**唯一允許的驗證途徑是 GitHub Actions。** 在使用者這台 Windows 電腦上，不得執行任何會編譯、建置、打包或測試本專案的指令。**沒有「順手跑一下」的例外。**
+
+#### 禁止（一律不得在本機執行）
+
+| 類別 | 具體指令 |
+|---|---|
+| 型別編譯 | `npm run typecheck`、`npx tsc`、任何 `tsc --noEmit` |
+| 測試 | `npm run test`、`test:watch`、`test:coverage`、`npx vitest` |
+| 建置／打包 | `npm run build`、`build:check`、`npm run tauri build`、`npx vite build` |
+| 開發伺服器 | `npm run dev`、`npm run tauri dev`、`npx vite`（**Vite dev 會即時編譯 TS，一樣算**） |
+| 組合指令 | `npm run check`、`npm run check:full`、`npm run ci:guards`（`--bundle` 需要 `dist/`）、`npm run verify:isms`（走 `npx tsx`，會編譯） |
+| 環境調校 | 手動維護 `node_modules`、新增本機建置腳本、用 `npm ci` 之後自己跑任何上面那幾項 |
+
+#### 允許（本機只做唯讀與編輯）
+
+| 可以做 | 例子 |
+|---|---|
+| 讀取／搜尋／理解程式碼 | `read`、`grep`、`glob`、`git log`、`git diff` |
+| 編輯任何檔案 | 程式、文件、`package.json`、`.github/workflows/**` |
+| Git 操作 | `status`／`diff`／`log`／`add`／`commit`／`push`／`fetch`／`switch` |
+| 用 `gh` 觀察與觸發 CI | `gh run list`、`gh run watch`、`gh run view --log-failed`、`gh run download`、`gh workflow run` |
+| **唯讀靜態檢查**（不編譯、不執行專案程式） | `npm run i18n:check`（內部用 `ts.createSourceFile` 做 AST 比對）、`node scripts/ci/guards.mjs --debt`（純讀檔計數）、`python -c "import yaml…"` 驗 workflow 語法、`node -e` 讀 JSON |
+
+判斷標準只有一句：**這條指令會不會編譯或執行 `src/**` 的程式？** 會 → 不准跑；不會 → 可以跑。
+
+#### 沒有例外
+
+- 若認為某項改動非得在本機編譯才能確認 → **停下來問使用者**，不要自行執行。
+- 使用者若明確、逐次授權某一次本機執行，該次授權只適用那一次，不會改變本規則。
+- 「只是跑一下 typecheck 而已」也算違規：`tsc` 就是編譯器，只是不輸出檔案。
+
+#### 那要怎麼驗證改動？
+
+1. push 之後用 `gh run watch <id> --exit-status` 等結論（低風險改動可先做別的事，見 §13.7）。
+2. 紅燈時用 `gh run view <id> --log-failed` 讀**失敗那一步的 CI 日誌**——那就是本機編譯輸出的替代品。
+3. 需要視覺驗證（畫面、動畫、手感）時，**請使用者自己開 `npm run dev`**，代理端不跑。
+4. 回報時要分清「CI 已驗證」與「尚未驗證」（§10.8）。
+
+#### 為什麼要這麼嚴
+
+本專案的 `npm run check` 只要 80 秒，看起來很划算，但允許本機跑會產生三個實際問題：
+
+| 問題 | 實例 |
+|---|---|
+| 本機綠 ≠ CI 綠 | Node 20（npm 10）與 Node 24（npm 11）對 vitest 的嵌套 `vite` 解析不同，本機 `npm ci` 過、CI 卻 `Missing: esbuild@0.28.2` |
+| 用本機結果冒充結論 | 跑過 `npm run check` 就宣布「已通過」，但程式碼根本還沒 push、CI 從沒看過 |
+| 與 §13.7 衝突 | §13.7 允許 push 後不阻塞等待；若同時又允許本機跑，就會出現兩套「驗證」互相蓋過對方結論 |
+
+**CI 是唯一可信的驗證來源**：本機能編過不代表 CI 會過，反之亦然。
