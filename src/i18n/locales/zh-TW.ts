@@ -24,6 +24,10 @@ export const zhTW = {
   },
   
   mainMenu: {
+    localRecordTitle: '本機戰績',
+    localGames: '場次',
+    localWinRate: '勝率',
+    localBestWave: '最高波次',
     title: '瓜瓜塔防',
     subtitle: 'Tauri + React + TypeScript 版本',
     startGame: '開始遊戲',

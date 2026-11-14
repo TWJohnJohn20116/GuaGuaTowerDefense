@@ -160,7 +160,7 @@ export function MenuHomeGrid() {
 
       {/* 卡片牆 */}
       <div
-        className="grid min-h-0 flex-1 auto-rows-min grid-cols-2 content-start gap-3 overflow-y-auto p-1 xl:grid-cols-3"
+        className="grid min-h-0 flex-1 auto-rows-fr grid-cols-2 gap-3 overflow-y-auto p-1 xl:grid-cols-3"
         onKeyDown={handleKeyDown}
       >
         {HOME_ENTRY_SCENES.map((scene, i) => {

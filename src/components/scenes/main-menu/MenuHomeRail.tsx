@@ -5,6 +5,7 @@ import { useShopStore } from '@/store/shopStore';
 import { useTalentStore } from '@/store/talentStore';
 import { useAchievementStore } from '@/store/achievementStore';
 import { getCatalogAchievements } from '@/store/achievementStoreCheck';
+import { useStatsStore } from '@/store/statsStore';
 import { useTranslation } from '@/i18n';
 import { Btn, Dot } from '@/components/hl';
 
@@ -20,6 +21,9 @@ export function MenuHomeRail() {
   const coins = useShopStore((s) => s.coins);
   const talentPoints = useTalentStore((s) => s.talentPoints);
   const playerAchievements = useAchievementStore((s) => s.playerAchievements);
+
+  const globalStats = useStatsStore((s) => s.globalStats);
+  const personalBests = useStatsStore((s) => s.personalBests);
 
   const catalog = useMemo(() => getCatalogAchievements(), []);
   const catalogIds = useMemo(() => new Set(catalog.map((a) => a.id)), [catalog]);
@@ -83,6 +87,19 @@ export function MenuHomeRail() {
           />
         </div>
 
+        {/* 本機戰績：章節資料移除後填補中段，資料取自 statsStore */}
+        <div className="flex flex-col gap-3 border-t-[3px] border-[var(--cn-line-soft)] pt-4">
+          <span className="arc-label">{t.mainMenu.localRecordTitle}</span>
+          <div className="grid grid-cols-3 gap-2">
+            <MetricCell label={t.mainMenu.localGames} value={globalStats.totalGamesPlayed} />
+            <MetricCell
+              label={t.mainMenu.localWinRate}
+              value={`${Math.round(globalStats.winRate * 100)}%`}
+            />
+            <MetricCell label={t.mainMenu.localBestWave} value={personalBests.highestWave} />
+          </div>
+        </div>
+
         {/* 待辦（短螢幕時優先可見，快捷鍵其次） */}
         <div className="flex flex-col gap-1 border-t-[3px] border-[var(--cn-line-soft)] pt-2">
           {claimable > 0 && (
@@ -103,7 +120,7 @@ export function MenuHomeRail() {
         </div>
 
         {/* 快捷鍵 */}
-        <div className="flex flex-col gap-1.5 [@media(max-height:820px)]:hidden">
+        <div className="mt-auto flex flex-col gap-1.5 pt-2 [@media(max-height:820px)]:hidden">
           <span className="arc-label">shortcuts</span>
           <HintRow k="ENTER" v={t.mainMenu.startGame} />
           <HintRow k="↑ ↓" v="select module" />
