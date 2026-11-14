@@ -207,7 +207,7 @@ export function AudioDownloadPanel() {
             {a.refresh}
           </Btn>
           {stats.failed > 0 && (
-            <Btn size="sm" variant="danger" disabled={status === 'running'} onClick={handleRetry}>
+            <Btn size="sm" variant="line" disabled={status === 'running'} onClick={handleRetry}>
               {a.retryFailed}
             </Btn>
           )}

@@ -74,7 +74,7 @@ export function HudLayoutSection({ filter = '' }: HudLayoutSectionProps) {
           icon={<MonitorIcon className={glyph} />}
           badge={labels.badge}
           action={
-            <Btn variant="danger" size="sm" onClick={resetHudLayout} icon={<RefreshIcon className="h-3.5 w-3.5" />}>
+            <Btn variant="line" size="sm" onClick={resetHudLayout} icon={<RefreshIcon className="h-3.5 w-3.5" />}>
               {labels.reset}
             </Btn>
           }

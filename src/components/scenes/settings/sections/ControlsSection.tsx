@@ -79,7 +79,7 @@ export function ControlsSection({ filter = '', editingKey, onStartEditKey }: Con
           badge={t.settings.controls}
           count={filteredKeys.length}
           action={
-            <Btn variant="danger" size="sm" onClick={resetKeyBindings}>
+            <Btn variant="line" size="sm" onClick={resetKeyBindings}>
               {t.settings.resetDefaults}
             </Btn>
           }
