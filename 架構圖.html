@@ -471,10 +471,11 @@
     <a href="#services" data-k="服務 音效 音樂 api 更新 音訊"><span class="n">15</span>服務層</a>
     <a href="#cross" data-k="i18n 多語言 持久化 效能 護欄"><span class="n">16</span>跨層機制</a>
     <a href="#tauri" data-k="tauri rust 後端 權限 capabilities"><span class="n">17</span>Tauri 後端</a>
-    <a href="#build" data-k="建置 測試 ci 發布 更新 簽章 npm"><span class="n">18</span>建置與發布</a>
-    <a href="#deps" data-k="依賴 方向 規則 import"><span class="n">19</span>依賴規則</a>
-    <a href="#recipes" data-k="食譜 新增 塔 敵人 場景 語言 成就 平衡"><span class="n">20</span>實戰食譜</a>
-    <a href="#debt" data-k="技術債 清冊 死碼 重複 型別 any eslint 覆蓋率 資產 測試 debt roadmap"><span class="n">21</span>技術債清冊</a>
+    <a href="#build" data-k="建置 ci 發布 更新 簽章 npm"><span class="n">18</span>建置與發布</a>
+    <a href="#tests" data-k="測試 vitest 覆蓋率 e2e fixture 單元 檔數 族群 缺口"><span class="n">19</span>測試</a>
+    <a href="#deps" data-k="依賴 方向 規則 import"><span class="n">20</span>依賴規則</a>
+    <a href="#recipes" data-k="食譜 新增 塔 敵人 場景 語言 成就 平衡"><span class="n">21</span>實戰食譜</a>
+    <a href="#debt" data-k="技術債 清冊 死碼 重複 型別 any eslint 覆蓋率 資產 測試 debt roadmap"><span class="n">22</span>技術債清冊</a>
   </nav>
   <div class="side-foot">
     單檔 HTML · 無外部依賴<br>
@@ -533,7 +534,7 @@
 
     <div class="note">
       <b>怎麼用這份文件：</b>左側可搜尋章節。想看「遊戲怎麼跑」直接跳 <a href="#loop">08 主迴圈</a>；
-      想改東西跳 <a href="#recipes">20 實戰食譜</a>；想理解 UI 為什麼這樣長跳 <a href="#render">10 渲染層</a>。
+      想改東西跳 <a href="#recipes">21 實戰食譜</a>；想理解 UI 為什麼這樣長跳 <a href="#render">10 渲染層</a>。
     </div>
   </section>
 
@@ -1363,14 +1364,14 @@
 
   <!-- ==================== 18 建置 ==================== -->
   <section id="build">
-    <h2><span class="idx">18</span>建置、測試與發布</h2>
+    <h2><span class="idx">18</span>建置與發布</h2>
 
     <div class="chain">
       <div class="node" style="--c:var(--l0)"><b>開發</b><span>npm run dev（1421）→ tauri dev</span></div>
       <div class="ar">→</div>
       <div class="node" style="--c:var(--l1)"><b>品質閘門</b><span>typecheck → i18n:check → test → build</span></div>
       <div class="ar">→</div>
-      <div class="node" style="--c:var(--l2)"><b>CI</b><span>push / PR（ubuntu + node 20）</span></div>
+      <div class="node" style="--c:var(--l2)"><b>CI</b><span>push / PR（ubuntu + node 24）</span></div>
       <div class="ar">→</div>
       <div class="node" style="--c:var(--l3)"><b>Release</b><span>v* tag → tauri-action</span></div>
       <div class="ar">→</div>
@@ -1389,14 +1390,16 @@
         <tr><td><code>npm run i18n:check</code></td><td>語言檔鍵值對齊（嚴格模式）</td></tr>
         <tr><td><code>npm run test</code> / <code>test:coverage</code></td><td>Vitest（jsdom）</td></tr>
         <tr><td><code>npm run check</code></td><td>typecheck + i18n + test（提交前必跑）</td></tr>
+        <tr><td><code>npm run ci:guards</code></td><td>技術債棘輪 + bundle 預算（CI 用同一支腳本）</td></tr>
+        <tr><td><code>npm run check:full</code></td><td><code>check</code> + build + guards（本機模擬整套 CI）</td></tr>
         <tr><td><code>npm run verify:isms</code></td><td>遊玩風格定義完整性</td></tr>
         <tr><td><code>npm run tauri build</code></td><td>產出 NSIS 安裝檔</td></tr>
       </tbody>
     </table>
 
     <div class="grid g2">
-      <div class="card"><div class="ct">測試策略</div><div class="cd">160 個測試檔幾乎都是「行為斷言」（真的呼叫 store action、真的跑一幀迴圈），
-        不是讀原始碼比對字串。共用 fixture 在 <code>src/test/fixtures.ts</code>（<code>makeEnemy</code>／<code>makeTower</code>／<code>makeSkill</code>）。</div></div>
+      <div class="card"><div class="ct">品質閘門（細節見 <a href="#tests">19 測試</a>）</div><div class="cd">158 檔／698 測試只是第 5 道；
+        前四道（typecheck、i18n:check --strict、技術債棘輪）最快，壞了就不必浪費時間跑測試；建置後再比 bundle 預算 1.4 MB。</div></div>
       <div class="card"><div class="ct">發布簽章</div><div class="cd"><code>TAURI_SIGNING_PRIVATE_KEY</code>（私鑰在 <code>src-tauri/.tauri/guagua-td.key</code>，不進版控）
         與 <code>tauri.conf.json</code> 的公鑰成對；客戶端只接受此私鑰簽出的更新包。</div></div>
     </div>
@@ -1407,9 +1410,102 @@
       target 為 <code>chrome105</code>（Windows）／<code>safari13</code>；<code>@</code> 指向 <code>./src</code>。</p>
   </section>
 
-  <!-- ==================== 19 依賴 ==================== -->
+  <!-- ==================== 19 測試 ==================== -->
+  <section id="tests">
+    <h2><span class="idx">19</span>測試 <span class="tag">158 檔 · 698 測試 · 11,873 行 · 約 80 秒</span></h2>
+
+    <p class="lead">只有<b>一種</b>測試層級：行為測試（Vitest + jsdom）。沒有 e2e、沒有視覺回歸。
+      但每個「看起來對、實際炸」的地雷都有測試釘住——這比測試金字塔好看更重要。</p>
+
+    <div class="kpi">
+      <div class="good"><b>158</b><span>測試檔（<code>src/test/*.test.ts</code>）</span></div>
+      <div class="good"><b>698</b><span>測試案例</span></div>
+      <div><b>11,873</b><span>測試程式碼行數</span></div>
+      <div class="mid"><b>80<small>s</small></b><span>全跑一次（本機）</span></div>
+      <div class="bad"><b>0</b><span>e2e／視覺回歸</span></div>
+      <div class="bad"><b>0</b><span>coverage 門檻</span></div>
+    </div>
+
+    <h3>怎麼跑</h3>
+    <table>
+      <thead><tr><th>指令</th><th>做什麼</th><th>備註</th></tr></thead>
+      <tbody>
+        <tr><td><code>npm run test</code></td><td>Vitest 全跑一次</td><td>約 80 秒；CI 的實際閘門</td></tr>
+        <tr><td><code>npm run test:watch</code></td><td>監看模式</td><td>開發時用</td></tr>
+        <tr><td><code>npm run test:coverage</code></td><td>v8 覆蓋率</td><td>有 include/exclude，但沒有 thresholds（TD-05）</td></tr>
+        <tr><td><code>npm run check</code></td><td>typecheck + i18n:check + test</td><td>提交前必跑</td></tr>
+        <tr><td><code>npm run ci:guards</code></td><td>技術債棘輪 + bundle 預算</td><td>CI 的第 4、8 道閘門</td></tr>
+      </tbody>
+    </table>
+
+    <h3>測試族群分佈</h3>
+    <p class="small">以檔名互斥歸類；一個檔通常同時守住多個關注點，所以這只是「從哪裡找」的索引。</p>
+    <table>
+      <thead><tr><th>族群</th><th class="num">檔數</th><th>代表檔</th><th>守住什麼</th></tr></thead>
+      <tbody>
+        <tr><td>關卡與波次</td><td class="num">40</td><td><code>extremeMapTrioPack</code> <code>hardMapTrioPack2</code> <code>campaignRewards</code></td><td>39 張地圖可通關、章節獎勵與星星、每日挑戰交接</td></tr>
+        <tr><td>塔與升級</td><td class="num">35</td><td><code>towerData</code> <code>towerGridConsistency</code> <code>batchUpgradeHint</code></td><td>塔數值、格子↔塔一致性、升級與融合成本</td></tr>
+        <tr><td>資料與元遊戲</td><td class="num">20</td><td><code>achievementSort</code> <code>skillRange</code> <code>encyclopediaCounters</code></td><td>成就排序、技能範圍、百科計數</td></tr>
+        <tr><td>戰鬥核心</td><td class="num">16</td><td><code>damagePipeline</code> <code>combatStatus</code> <code>statusEffects</code></td><td>傷害公式、狀態疊加、異常狀態生命週期</td></tr>
+        <tr><td>UI 與設計契約</td><td class="num">9</td><td><code>designTokens</code> <code>gameEndSceneShell</code></td><td>class／token 契約、場景外殼一致性</td></tr>
+        <tr><td>效能與工具</td><td class="num">4</td><td><code>updateTowersPerf</code> <code>updateTowersCooldown</code> <code>spatialHash</code></td><td>每幀耗時、冷卻快路徑、空間索引</td></tr>
+        <tr><td>store 與狀態</td><td class="num">3</td><td><code>matchSessionReset</code> <code>gameSpeedPresets</code></td><td>開局／重開共用、速度預設</td></tr>
+        <tr><td>i18n 文案</td><td class="num">1</td><td><code>i18nLazyLoad</code></td><td>語言包延遲載入（鍵對齊靠 <code>npm run i18n:check</code>，不在 vitest）</td></tr>
+        <tr><td>未歸類（雜項）</td><td class="num">30</td><td><code>appVersion</code> <code>canvasStaticRedraw</code> <code>dialogueAdvance</code></td><td>版本字串、靜態層重繪時機、對話推進…</td></tr>
+      </tbody>
+    </table>
+
+    <h3>關鍵測試：釘住不變式的那幾支</h3>
+    <div class="grid g2">
+      <div class="card"><div class="ct">damagePipeline <span class="small">195 行</span></div>
+        <div class="cd">傷害計算順序（護甲 → 狀態倍率 → 暴擊）。<b>改平衡數值時的第一道防線</b>。</div></div>
+      <div class="card"><div class="ct">combatStatus <span class="small">661 行 · 最大</span></div>
+        <div class="cd">狀態疊加、覆蓋、上限與到期順序；它一紅通常代表 <code>combatStatus.ts</code> 被改壞。</div></div>
+      <div class="card"><div class="ct">statusEffects <span class="small">204 行</span></div>
+        <div class="cd">18 種狀態的套用／持續時間／移除，含免疫與相位互動。</div></div>
+      <div class="card"><div class="ct">towerGridConsistency <span class="small">282 行</span></div>
+        <div class="cd">雙向檢查 <code>Tile.towerId</code> ↔ <code>towers[]</code>，專門防「幽靈塔」（畫面有、點不到）。</div></div>
+      <div class="card"><div class="ct">designTokens</div>
+        <div class="cd">class 與 <code>--hl-*</code> token 的契約；改 UI 時它是規格書，不是樣式比對。</div></div>
+      <div class="card"><div class="ct">updateTowersCooldown / Perf</div>
+        <div class="cd">冷卻快路徑與每幀耗時不回歸——守住「4,500 敵人 18.3ms → 0.98ms」那條優化。</div></div>
+      <div class="card"><div class="ct">spatialHash / frameLoopGuard</div>
+        <div class="cd">空間索引正確性、單幀異常只掉一幀（不會整層停住）。</div></div>
+      <div class="card"><div class="ct">stressTest <span class="small">183 行</span></div>
+        <div class="cd">5,000 敵人 + 100 塔的批次路徑，確認壓測時不會退化成逐筆處理。</div></div>
+    </div>
+
+    <h3>寫測試的規矩</h3>
+    <ul>
+      <li>✅ <b>行為斷言</b>：真的呼叫 action、真的跑一幀；不是讀原始碼比對字串。</li>
+      <li>✅ fixture 一律用 <code>src/test/fixtures.ts</code> 的 <code>makeEnemy</code>／<code>makeTower</code>／<code>makeSkill</code>。</li>
+      <li>❌ 不要 <code>as Enemy</code> 硬轉；缺欄位就補 fixture。</li>
+      <li>❌ 不要用測試鎖「實作細節」（私有函式名、內部變數）——那只會讓重構變貴。</li>
+    </ul>
+
+    <div class="warn"><b>已知缺口（要補的地方）</b>
+      <ul>
+        <li><b>自動戰鬥 0 覆蓋</b>：<code>gameStoreAutoBattle.ts</code> 1,016 行 ＋ <code>gameStoreAutoBattlePlayerSkills.ts</code> 480 行，
+          158 個測試檔中<b>沒有任何一個</b>提到 <code>autoBattle</code>——「AI 永遠不升級」這種 bug 就是這樣活下來的。</li>
+        <li><b>沒有 coverage 門檻</b>（TD-05）：<code>vitest.config.ts</code> 只有 include／exclude，覆蓋率可以無聲下滑。</li>
+        <li><b>沒有 e2e</b>：開局 → 放塔 → 跑波 → 結算 這段只能手動驗證。</li>
+        <li><b>i18n 鍵對齊不在 vitest 內</b>：靠 <code>scripts/i18n-parity.mjs --strict</code>；CI 少跑那一步就等於沒檢查。</li>
+      </ul>
+    </div>
+
+    <h3>CI 上的執行順序</h3>
+    <div class="chips">
+      <span>npm ci</span><span>→ typecheck</span><span>→ i18n:check --strict</span><span>→ guards --debt</span><span>→ test（698）</span><span>→ build</span><span>→ guards --bundle</span>
+    </div>
+    <p class="small">前四道最快，壞了早點紅；<code>guards --bundle</code> 要等 build 產出 <code>dist/assets/index-*.js</code> 才能比預算（上限 1.4 MB，目前 1.33 MB）。</p>
+
+    <div class="note"><b>要加新測試：</b>在 <code>src/test/</code> 建 <code>&lt;功能&gt;.test.ts</code>，
+      fixture 從 <code>src/test/fixtures.ts</code> 拿；先跑 <code>npm run test</code> 確認，再跑 <code>npm run check</code>。</div>
+  </section>
+
+  <!-- ==================== 20 依賴 ==================== -->
   <section id="deps">
-    <h2><span class="idx">19</span>依賴方向規則</h2>
+    <h2><span class="idx">20</span>依賴方向規則</h2>
 
     <div class="stack">
       <div class="layer" style="--c:var(--l2)"><div class="lnum">A</div><div class="lbody">
@@ -1436,9 +1532,9 @@
     </ol>
   </section>
 
-  <!-- ==================== 20 食譜 ==================== -->
+  <!-- ==================== 21 食譜 ==================== -->
   <section id="recipes">
-    <h2><span class="idx">20</span>實戰食譜</h2>
+    <h2><span class="idx">21</span>實戰食譜</h2>
 
     <div class="grid g2">
       <div class="card">
@@ -1517,9 +1613,9 @@
     </div>
   </section>
 
-  <!-- ==================== 21 技術債 ==================== -->
+  <!-- ==================== 22 技術債 ==================== -->
   <section id="debt">
-    <h2><span class="idx">21</span>技術債清冊 <span class="tag">TD-01～TD-42 · 9 類 · 全專案掃描</span></h2>
+    <h2><span class="idx">22</span>技術債清冊 <span class="tag">TD-01～TD-42 · 9 類 · 全專案掃描</span></h2>
     <p class="lead">這一節不是「感覺哪裡髒」，而是用腳本掃出來的清單：每個數字都能重跑、每條都附檔案位置。
       依嚴重度分四級：<span class="sev p0">P0</span>沒有它就不能安全改動、
       <span class="sev p1">P1</span>每次改動都在付利息、
