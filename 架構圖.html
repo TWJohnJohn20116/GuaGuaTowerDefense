@@ -686,7 +686,8 @@
 ├── package.json                <span class="m"># dev / build / test / typecheck / i18n:check / tauri</span>
 ├── vite.config.ts              <span class="m"># 埠 1421、@ 別名、手動分塊</span>
 ├── vitest.config.ts            <span class="m"># jsdom + setup.ts</span>
-├── tailwind.config.js          <span class="m"># hl-* HARDLINE 色票</span>
+├── tailwind.config.js          <span class="m"># hl-* HARDLINE 色票（v4 由 @config 載入）</span>
+├── postcss.config.js           <span class="m"># 只有一份，外掛是 @tailwindcss/postcss</span>
 │
 ├── <span class="d">src/</span>
 │   ├── main.tsx                <span class="m"># React 入口；注入音效偏好 provider</span>
@@ -1100,6 +1101,7 @@
         <tr><td>HARDLINE</td><td><code>styles/hardline.css</code> + <code>components/hl/*</code></td><td><b>圓角只能 0</b>、不用陰影、不用漸層、強調色只有 <code>--hl-signal</code></td></tr>
         <tr><td>場景殼層</td><td><code>SceneShell</code> / <code>SceneWorkshopLayout</code></td><td>佈局只准 Home／Page／Split／Battle／Overlay</td></tr>
         <tr><td>字級 token</td><td><code>SceneTypography.ts</code></td><td><code>sectionTitle</code> / <code>microLabel</code> / <code>microMuted</code></td></tr>
+        <tr><td>Tailwind v4</td><td><code>postcss.config.js</code> → <code>styles/index.css</code> → <code>tailwind.config.js</code></td><td>postcss 設定<b>只能一份</b>（<code>.js</code> 優先於 <code>.mjs</code>）；<code>@config</code> 必須排在 <code>@import "tailwindcss"</code> <b>之後</b>；<code>@apply</code> 只能套工具類或 <code>@utility</code></td></tr>
       </tbody>
     </table>
     <p class="small">這些規則由 <code>src/test/designTokens.test.ts</code> 守著，改壞會紅。</p>

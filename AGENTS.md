@@ -179,6 +179,28 @@ services → types（只能 import type 或由入口注入）
 
 **歷史檔案不搬**：`docs/` 根目錄現有的規範類文件（`SCENE_UI.md`、`2026-11-10-shishan-remediation.md` 等）維持原位，新產出一律進 `docs/research/`。
 
+### 4.9 樣式：Tailwind v4（別用 v3 的寫法）
+
+工具鏈：`tailwindcss@4` ＋ `@tailwindcss/postcss`，設定只有 **`postcss.config.js`** 這一份。CSS 進入點是 `src/styles/index.css`，順序固定：
+
+```
+@import './hardline.css';      /* 先 hardline，維持既有的 base 層覆蓋方向 */
+@import "tailwindcss";
+@config "../../tailwind.config.js";   /* 必須在 @import 之後 */
+```
+
+| 規則 | 說明 |
+|---|---|
+| **postcss 設定只能一份** | `postcss.config.js` 與 `postcss.config.mjs` 曾同時存在，PostCSS 只讀 `.js`（搜尋順序 `.js` 在 `.mjs` 前），`.mjs` 那份等於死的。不要再新增第二份。 |
+| **`@config` 必須在 import 之後** | 放前面時 theme 預設值還沒註冊，`@apply font-semibold` 這種吃 theme 的工具類會直接爆 `Cannot apply unknown utility class`。 |
+| **`@apply` 只能套工具類或 `@utility`** | 不能 `@apply` 自己寫的 `.btn-game`。要共用基底就掛同一組選擇器（現行 `.btn-game, .btn-primary, …`），或把該類別改寫成 `@utility`。 |
+| **v4 改名，舊名不再產生 CSS** | `flex-shrink-*`→`shrink-*`、`shadow`→`shadow-sm`、`shadow-sm`→`shadow-xs`、`rounded`→`rounded-sm`、`rounded-sm`→`rounded-xs`、`outline-none`→`outline-hidden`、`ring`→`ring-3`、`bg-gradient-to-*`→`bg-linear-to-*`。**新程式碼一律寫新名**。 |
+| **`flex-shrink-0` 有相容層** | 專案仍有 88 處舊名，靠 `index.css` 的 `.flex-shrink-*` 規則撐著；那塊是待清償的相容層，不要再往裡面加東西。 |
+| **預設 `border-color` 變了** | v4 預設是 `currentColor`，已在相容層還原成 v3 的 `#e5e7eb`。新元件請顯式指定顏色（`border-[var(--hl-line)]`），不要依賴預設值。 |
+| **瀏覽器基線提高** | v4 產物用到 `@property` 與 `color-mix()`，需要 Safari 16.4+／Chrome 111+。`vite.config.ts` 的 `build.target` 仍是 `safari13`（瀏覽器版），舊瀏覽器會掉樣式——要相容就得先降級這些特性。 |
+
+**還沒做**：`tailwind.config.js` 的 token 仍走 `@config` 相容路徑，尚未搬進 CSS 的 `@theme`。搬遷時要一起處理：`hl-*`／`nordic-*` 色票、把 `borderRadius` 與 `boxShadow` 全部歸零的宣告、`mask-edges-x` 等自訂 utility。
+
 ---
 
 ## 5. 任務 recipe
