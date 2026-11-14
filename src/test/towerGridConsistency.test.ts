@@ -10,7 +10,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { useGameStore } from '@/store/gameStore';
 import { initializeGrid } from '@/store/gameStoreUtils';
-import { findGridTowerMismatches } from '@/store/gridTower';
+import { findGridTowerMismatches } from '@/test/contracts/gridTowerMismatches';
 import { DEFAULT_PATH, DIFFICULTY_MODIFIERS } from '@/data/gameData';
 import type { GridPosition, Tile, Tower } from '@/types/game';
 

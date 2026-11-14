@@ -14,7 +14,7 @@ import {
   SPLIT_MAIN_CLASS,
   SPLIT_SIDEBAR_CLASS,
   SPLIT_TABS_CLASS,
-} from '@/data/splitSceneChrome';
+} from '@/test/contracts/splitSceneChrome';
 
 const collectStringTokens = (source: Record<string, unknown>, prefix: string) => {
   const out: Array<[string, string]> = [];

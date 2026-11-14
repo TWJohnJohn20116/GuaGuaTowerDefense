@@ -16,30 +16,6 @@ export type Grid = Tile[][];
 export const towerIdAt = (grid: Grid, pos: { col: number; row: number }): string | null =>
   grid[pos.row]?.[pos.col]?.towerId ?? null;
 
-/** 某格是否被塔佔用 */
-export const hasTowerAt = (grid: Grid, pos: { col: number; row: number }): boolean =>
-  towerIdAt(grid, pos) !== null;
-
-/** 解析成塔物件（需要 towers 清單） */
-export const towerAt = (
-  grid: Grid,
-  towers: readonly Tower[],
-  pos: { col: number; row: number },
-): Tower | null => {
-  const id = towerIdAt(grid, pos);
-  if (!id) return null;
-  return towers.find((t) => t.id === id) ?? null;
-};
-
-/** 依位置建立索引：畫布渲染每幀要用，避免 O(格數 × 塔數) */
-export const towersByPosition = (towers: readonly Tower[]): Map<string, Tower> => {
-  const map = new Map<string, Tower>();
-  for (const tower of towers) {
-    map.set(`${tower.gridPos.col},${tower.gridPos.row}`, tower);
-  }
-  return map;
-};
-
 export const positionKey = (pos: { col: number; row: number }): string => `${pos.col},${pos.row}`;
 
 /**
@@ -108,40 +84,4 @@ export const syncGridTowerIds = (grid: Grid, towers: readonly Tower[]): Grid => 
   });
 
   return changed ? next : grid;
-};
-
-/**
- * 雙向一致性檢查（dev / 測試用）。
- * 回傳空陣列代表一致；否則每條字串是一個具體的不一致。
- */
-export const findGridTowerMismatches = (grid: Grid, towers: readonly Tower[]): string[] => {
-  const problems: string[] = [];
-  const byId = new Map(towers.map((t) => [t.id, t] as const));
-
-  for (const row of grid) {
-    for (const tile of row) {
-      if (!tile.towerId) continue;
-      const tower = byId.get(tile.towerId);
-      if (!tower) {
-        problems.push(`格子 (${tile.col},${tile.row}) 指向不存在的塔 ${tile.towerId}`);
-        continue;
-      }
-      if (tower.gridPos.col !== tile.col || tower.gridPos.row !== tile.row) {
-        problems.push(
-          `格子 (${tile.col},${tile.row}) 指向的塔 ${tower.id} 實際在 (${tower.gridPos.col},${tower.gridPos.row})`,
-        );
-      }
-    }
-  }
-
-  for (const tower of towers) {
-    const id = towerIdAt(grid, tower.gridPos);
-    if (id !== tower.id) {
-      problems.push(
-        `塔 ${tower.id} 位於 (${tower.gridPos.col},${tower.gridPos.row})，但該格登記的是 ${id ?? '空'}`,
-      );
-    }
-  }
-
-  return problems;
 };

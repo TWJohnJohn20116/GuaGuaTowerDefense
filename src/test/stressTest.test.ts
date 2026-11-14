@@ -19,7 +19,7 @@ import {
 } from '@/data/stressTest';
 import { DEFAULT_PATH, DIFFICULTY_MODIFIERS, PATHS } from '@/data/gameData';
 import { initializeGrid } from '@/store/gameStoreUtils';
-import { findGridTowerMismatches } from '@/store/gridTower';
+import { findGridTowerMismatches } from '@/test/contracts/gridTowerMismatches';
 import { useGameStore } from '@/store/gameStore';
 
 const setupMatch = () => {
