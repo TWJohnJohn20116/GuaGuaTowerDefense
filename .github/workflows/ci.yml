@@ -1,24 +1,43 @@
-# CI：型別 + i18n 對齊 + 單元測試 + 產線建置
+# CI：型別 + i18n 對齊 + 技術債棘輪 + 單元測試 + 產線建置 + bundle 預算
 #
 # 這個專案先前只有 tag 觸發的 release workflow：沒有型別檢查、沒有測試，
 # 於是 tsc 累積到 89 個錯誤、10 個測試長期紅著，而 generateId 未定義這種
 # 會在遊戲中直接打死幀迴圈的 bug 也能一路進到發佈版。這裡補上那道閘門。
+#
+# 2026-11-14 加強：
+#   - workflow_dispatch：可手動重跑
+#   - paths-ignore：純文件／截圖變更不浪費 CI 分鐘
+#   - 技術債棘輪（scripts/ci/guards.mjs）：as any / : any / eslint-disable 等只准降不准升
+#   - bundle 預算：主 chunk 超過 1.4 MB 直接紅燈（目前 1.33 MB，見 架構圖.html §21）
+#   - 失敗時上傳測試相關日誌，方便排查（不上傳 node_modules）
 
 name: CI
 
 on:
   push:
     branches: ['**']
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.shots/**'
   pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.shots/**'
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -33,14 +52,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # 先跑最快的閘門：型別與技術債計數，壞了就不必浪費時間跑測試
       - name: Type check
         run: npm run typecheck
 
-      - name: i18n parity
+      - name: i18n parity (strict)
         run: npm run i18n:check
+
+      - name: Debt ratchet
+        run: node scripts/ci/guards.mjs --debt
 
       - name: Unit tests
         run: npm run test
 
       - name: Production build
         run: npm run build
+
+      - name: Bundle budget
+        run: node scripts/ci/guards.mjs --bundle
