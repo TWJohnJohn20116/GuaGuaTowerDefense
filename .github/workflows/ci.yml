@@ -21,7 +21,9 @@
 
 name: 建置與測試
 
-run-name: 建置與測試 · ${{ github.event.head_commit.message || github.ref_name }}
+# 標題必須單行：用 head_commit.message 會把整段多行訊息塞進標題，run 清單會變得很難看。
+# 觸發方式用繁中標籤，commit 訊息本身在 run 頁面本來就會顯示。
+run-name: 建置與測試 · ${{ github.event_name == 'push' && '推送' || github.event_name == 'pull_request' && '合併請求' || '手動觸發' }} · ${{ github.ref_name }}
 
 on:
   push:
