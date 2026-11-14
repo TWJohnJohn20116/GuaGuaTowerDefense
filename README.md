@@ -2,6 +2,27 @@
 
 [![CI](https://github.com/TWJohnJohn20116/GuaGuaTowerDefense/actions/workflows/ci.yml/badge.svg)](https://github.com/TWJohnJohn20116/GuaGuaTowerDefense/actions/workflows/ci.yml)
 
+> ## 🤖 這個專案 100% 由 AI 撰寫
+>
+> 這是一個「AI 全權開發」的實驗：**程式碼、測試、文件、CI、commit 全部由 AI coding agent 產出**，
+> 人類只負責**提需求、做決策、驗收**。沒有任何一行程式、沒有一份文件是手寫的。
+>
+> | 產出物 | 規模 | 作者 |
+> |---|---|---|
+> | 遊戲程式 `src/**`（含測試） | 954 檔 TS/TSX · 178,537 行 | AI |
+> | 測試 `src/test/**` | 159 檔 · 710 測試 | AI |
+> | 架構文件 `架構圖.html` | 22 章 · 單檔 HTML | AI |
+> | AI 工作手冊 `AGENTS.md` | 12 節硬規則 | AI |
+> | CI／Release `.github/workflows/**` | 2 個 workflow | AI |
+> | 研究報告 `docs/research/**` | 缺陷分析與修復處方 | AI |
+> | 全部 commit message | Conventional Commits | AI |
+>
+> **怎麼約束一個 AI 寫出這個量還不爛掉**：讀 [`AGENTS.md`](./AGENTS.md)（依賴方向、禁 `any`、commit 節奏、檔案擺放規則）；
+> **專案實際長怎樣**：讀 [`架構圖.html`](./架構圖.html)（八層架構、主迴圈、測試章節、42 項技術債清單）。
+>
+> 想抓 AI 的錯？`npm run check` 是它自己訂的閘門（型別 + i18n + 710 測試 + 技術債棘輪 + bundle 預算），
+> CI 每次 push 都會重跑——紅燈就代表它這次沒做對。
+
 一個功能完備的現代化塔防遊戲，使用 Tauri 2 + React 18 + TypeScript 開發，採用北歐風格深色主題。
 
 ## 遊戲特色
