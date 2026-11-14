@@ -4,10 +4,7 @@ import { useGameStore } from '@/store/gameStore';
 import { useShopStore } from '@/store/shopStore';
 import { useTalentStore } from '@/store/talentStore';
 import { useAchievementStore } from '@/store/achievementStore';
-import { useDailyChallengeStore } from '@/store/dailyChallengeStore';
-import { useMutatorChallengeStore } from '@/store/mutatorChallengeStore';
 import { getCatalogAchievements } from '@/store/achievementStoreCheck';
-import { MUTATOR_CHALLENGES } from '@/data/mutatorChallengeData';
 import type { HomeEntryScene } from '@/data/mainMenuHome';
 import { HOME_ENTRY_SCENES } from '@/data/mainMenuHome';
 import { version as APP_VERSION } from '../../../../package.json';
@@ -15,15 +12,15 @@ import { useTranslation } from '@/i18n';
 import { MenuHomeCard } from './MenuHomeCard';
 import {
   TrophyIcon, PaletteIcon, ShopIcon, WrenchIcon,
-  BooksIcon, TreeIcon, FlowerIcon, ChartIcon,
-  FlameIcon, DangerIcon, OpenBookIcon, ClipboardIcon, GearIcon, PlayIcon,
+  BooksIcon, TreeIcon, ChartIcon,
+  OpenBookIcon, ClipboardIcon, GearIcon, PlayIcon,
 } from '@/components/ui/Icons';
 
 /**
- * 主選單 · 目錄（右欄）
+ * 主選單 · 入口牆
  *
- * 這是一張表，不是卡片牆：14 列固定節奏，一列一列往下掃。
- * ↑↓ 換列、Enter 進入，滑鼠與鍵盤共用同一組焦點樣式。
+ * 12 個模組排成卡片牆（2 / 3 欄），一張卡就是一個入口。
+ * 方向鍵在牆上移動、Enter 進入；滑鼠與鍵盤共用同一組焦點樣式。
  */
 export function MenuHomeGrid() {
   const { t } = useTranslation();
@@ -31,9 +28,6 @@ export function MenuHomeGrid() {
   const coins = useShopStore((s) => s.coins);
   const talentPoints = useTalentStore((s) => s.talentPoints);
   const playerAchievements = useAchievementStore((s) => s.playerAchievements);
-  const todayChallenge = useDailyChallengeStore((s) => s.todayChallenge);
-  const currentStreak = useDailyChallengeStore((s) => s.currentStreak);
-  const mutatorCompleted = useMutatorChallengeStore((s) => s.totalCompleted);
   const [focus, setFocus] = useState(0);
 
   const catalog = useMemo(() => getCatalogAchievements(), []);
@@ -45,12 +39,6 @@ export function MenuHomeGrid() {
     (a) => catalogIds.has(a.id) && a.status === 'completed',
   ).length;
 
-  const dailySub = todayChallenge?.completed
-    ? t.dailyChallenge.completedTag
-    : currentStreak > 0
-      ? t.mainMenu.bento.streakPendingWith.replace('{count}', String(currentStreak))
-      : t.mainMenu.bento.streakPending;
-
   const rows: Record<
     HomeEntryScene,
     {
@@ -58,44 +46,33 @@ export function MenuHomeGrid() {
       sub: string;
       icon: React.ReactNode;
       tag?: string;
-      tone?: 'signal' | 'vital' | 'caution';
+      tone?: 'signal' | 'vital' | 'caution' | 'ink';
     }
   > = {
-    dailyChallenge: {
-      label: t.dailyChallenge.title,
-      sub: dailySub,
-      icon: <FlameIcon className="h-4 w-4" />,
-      tag: todayChallenge?.completed ? 'done' : 'today',
-      tone: todayChallenge?.completed ? 'vital' : 'caution',
-    },
-    mutatorChallenge: {
-      label: t.mutatorChallenge.title,
-      sub: t.mainMenu.bento.mutatorProgress
-        .replace('{done}', String(mutatorCompleted))
-        .replace('{total}', String(MUTATOR_CHALLENGES.length)),
-      icon: <DangerIcon className="h-4 w-4" />,
-    },
     shop: {
       label: t.mainMenu.shop,
       sub: `${t.mainMenu.coinsUnit} ${coins.toLocaleString()}`,
-      icon: <ShopIcon className="h-4 w-4" />,
+      icon: <ShopIcon className="h-6 w-6" />,
+      tone: 'caution',
     },
     talentTree: {
       label: t.mainMenu.talentTree,
       sub: `${talentPoints} ${t.mainMenu.points}`,
-      icon: <TreeIcon className="h-4 w-4" />,
+      icon: <TreeIcon className="h-6 w-6" />,
       tag: talentPoints > 0 ? 'ready' : undefined,
       tone: 'signal',
     },
     encyclopedia: {
       label: t.mainMenu.encyclopedia,
       sub: t.mainMenu.encyclopediaDesc,
-      icon: <BooksIcon className="h-4 w-4" />,
+      icon: <BooksIcon className="h-6 w-6" />,
+      tone: 'ink',
     },
     skins: {
       label: t.mainMenu.skins,
       sub: t.mainMenu.skinsDesc,
-      icon: <PaletteIcon className="h-4 w-4" />,
+      icon: <PaletteIcon className="h-6 w-6" />,
+      tone: 'ink',
     },
     achievements: {
       label: t.mainMenu.achievements,
@@ -103,44 +80,45 @@ export function MenuHomeGrid() {
         claimableCount > 0
           ? t.mainMenu.bento.claimableCount.replace('{count}', String(claimableCount))
           : `${unlockedCount}/${catalog.length}`,
-      icon: <TrophyIcon className="h-4 w-4" />,
+      icon: <TrophyIcon className="h-6 w-6" />,
       tag: claimableCount > 0 ? 'claim' : undefined,
-      tone: 'signal',
+      tone: claimableCount > 0 ? 'signal' : 'caution',
     },
     statistics: {
       label: t.encyclopedia.statsOverview,
       sub: t.encyclopedia.statsOverviewDesc,
-      icon: <ChartIcon className="h-4 w-4" />,
+      icon: <ChartIcon className="h-6 w-6" />,
+      tone: 'ink',
     },
     workshop: {
       label: t.mainMenu.workshop,
       sub: t.mainMenu.workshopDesc,
-      icon: <WrenchIcon className="h-4 w-4" />,
+      icon: <WrenchIcon className="h-6 w-6" />,
+      tone: 'ink',
     },
     replay: {
       label: t.replay.title,
       sub: t.mainMenu.bento.replaySub,
-      icon: <PlayIcon className="h-4 w-4" />,
-    },
-    memorial: {
-      label: t.memorial.title,
-      sub: t.mainMenu.bento.memorialSub,
-      icon: <FlowerIcon className="h-4 w-4" />,
+      icon: <PlayIcon className="h-6 w-6" />,
+      tone: 'ink',
     },
     tutorial: {
       label: t.mainMenu.tutorial,
       sub: t.mainMenu.encyclopediaDesc,
-      icon: <OpenBookIcon className="h-4 w-4" />,
+      icon: <OpenBookIcon className="h-6 w-6" />,
+      tone: 'ink',
     },
     changelog: {
       label: t.mainMenu.changelog,
       sub: APP_VERSION,
-      icon: <ClipboardIcon className="h-4 w-4" />,
+      icon: <ClipboardIcon className="h-6 w-6" />,
+      tone: 'ink',
     },
     settings: {
       label: t.mainMenu.settings,
       sub: t.settings.general,
-      icon: <GearIcon className="h-4 w-4" />,
+      icon: <GearIcon className="h-6 w-6" />,
+      tone: 'ink',
     },
   };
 
@@ -154,10 +132,10 @@ export function MenuHomeGrid() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
       e.preventDefault();
       moveFocus(focus + 1);
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
       e.preventDefault();
       moveFocus(focus - 1);
     } else if (e.key === 'Home') {
@@ -170,21 +148,21 @@ export function MenuHomeGrid() {
   };
 
   return (
-    <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--hl-void)]">
-      {/* 表頭 */}
-      <div className="flex h-10 shrink-0 items-center gap-3 border-b border-[var(--hl-line)] px-4">
-        <span className="hl-label">index</span>
-        <span className="h-px flex-1 bg-[var(--hl-line)]" />
-        <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--hl-ink-4)]">
-          ↑↓ select · enter open
-        </span>
-        <span className="font-mono text-[10px] tabular-nums text-[var(--hl-ink-4)]">
-          {String(HOME_ENTRY_SCENES.length).padStart(2, '0')} entries
+    <main className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 p-4">
+      {/* 標頭 */}
+      <div className="flex shrink-0 items-center gap-3 px-1">
+        <span className="arc-title text-[18px]">選單</span>
+        <span className="h-[3px] flex-1 rounded-full bg-[var(--cn-line-soft)]" />
+        <span className="rounded-full bg-[var(--cn-card-2)] px-2.5 py-0.5 text-[11px] font-extrabold text-[var(--cn-ink-3)]">
+          {String(HOME_ENTRY_SCENES.length)} 個入口
         </span>
       </div>
 
-      {/* 目錄列 */}
-      <div className="min-h-0 flex-1 overflow-y-auto" onKeyDown={handleKeyDown}>
+      {/* 卡片牆 */}
+      <div
+        className="grid min-h-0 flex-1 auto-rows-min grid-cols-2 content-start gap-3 overflow-y-auto p-1 xl:grid-cols-3"
+        onKeyDown={handleKeyDown}
+      >
         {HOME_ENTRY_SCENES.map((scene, i) => {
           const row = rows[scene];
           return (
