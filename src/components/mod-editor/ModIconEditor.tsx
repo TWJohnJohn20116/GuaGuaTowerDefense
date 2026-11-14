@@ -116,6 +116,29 @@ export function ModIconEditor({
     });
   }, [canRedo, history]);
 
+  // useCallback + [icons]：keydown 監聽器靠這份識別才不會抓到舊的圖層清單（TD-17）。
+  // 必須宣告在監聽器之前——deps 陣列在 render 期間就會求值，晚宣告會踩 TDZ。
+  const duplicateLayer = useCallback((id: string) => {
+    if (icons.length >= 15) return; // increase max limit to 15
+    const iconToCopy = icons.find(i => i.id === id);
+    if (!iconToCopy) return;
+    
+    const newId = `icon-${Date.now()}-${Math.random()}`;
+    const maxZ = icons.length > 0 ? Math.max(...icons.map(i => i.zIndex)) : -1;
+    
+    setIcons(prev => [
+      ...prev,
+      {
+        ...iconToCopy,
+        id: newId,
+        x: iconToCopy.x + 10,
+        y: iconToCopy.y + 10,
+        zIndex: maxZ + 1
+      }
+    ]);
+    setSelectedIconId(newId);
+  }, [icons]);
+
   // \u9375\u76e4\u5feb\u6377\u9375: Del/Backspace=\u522a\u9664\u9078\u4e2d, Ctrl+Z=undo, Ctrl+Y/Ctrl+Shift+Z=redo, Ctrl+D=\u8907\u88fd, \u7bad\u982d=\u79fb\u52d5(shift+\u7bad\u982d=10px)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -196,28 +219,6 @@ export function ModIconEditor({
       icon.id === id ? { ...icon, ...updates } : icon
     ));
   };
-
-  // useCallback + [icons]：keydown 監聽器要靠這份識別才不會抓到舊的圖層清單（TD-17）
-  const duplicateLayer = useCallback((id: string) => {
-    if (icons.length >= 15) return; // increase max limit to 15
-    const iconToCopy = icons.find(i => i.id === id);
-    if (!iconToCopy) return;
-    
-    const newId = `icon-${Date.now()}-${Math.random()}`;
-    const maxZ = icons.length > 0 ? Math.max(...icons.map(i => i.zIndex)) : -1;
-    
-    setIcons(prev => [
-      ...prev,
-      {
-        ...iconToCopy,
-        id: newId,
-        x: iconToCopy.x + 10,
-        y: iconToCopy.y + 10,
-        zIndex: maxZ + 1
-      }
-    ]);
-    setSelectedIconId(newId);
-  }, [icons]);
 
   const clearCanvas = () => {
     setIcons([]);
