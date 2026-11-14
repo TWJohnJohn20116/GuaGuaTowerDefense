@@ -11,8 +11,9 @@
  */
 
 import * as THREE from 'three';
-import type { Projectile, ImpactParticle } from '@/types/game';
+import type { ImpactParticle } from '@/types/game';
 import type { RenderSnapshot } from '@/data/renderSnapshot';
+import { healthBarColorHex } from '@/data/healthBarColor';
 
 const MAX_ENEMIES = 512;
 const MAX_PROJECTILES = 1024;
@@ -20,13 +21,6 @@ const MAX_PARTICLES = 1024;
 
 const HP_BAR_W = 0.66;
 const HP_BAR_H = 0.07;
-
-/** 血量顏色：綠 → 黃 → 紅 */
-const hpColorOf = (ratio: number): number => {
-  if (ratio > 0.55) return 0x4ade80;
-  if (ratio > 0.25) return 0xfacc15;
-  return 0xef4444;
-};
 
 const ZERO_SCALE = new THREE.Matrix4().makeScale(0, 0, 0);
 
@@ -150,7 +144,7 @@ export function createEnemyInstances(scene: THREE.Scene): EnemyInstances {
         dummy.translateZ(0.01);
         dummy.updateMatrix();
         hpFg.setMatrixAt(i, dummy.matrix);
-        hpFg.setColorAt(i, tmpColor.setHex(hpColorOf(hpRatio)));
+        hpFg.setColorAt(i, tmpColor.setHex(healthBarColorHex(hpRatio)));
       } else {
         hpBg.setMatrixAt(i, ZERO_SCALE);
         hpFg.setMatrixAt(i, ZERO_SCALE);
@@ -182,7 +176,7 @@ export function createEnemyInstances(scene: THREE.Scene): EnemyInstances {
 // ===================== 投射物實例池 =====================
 
 interface ProjectileInstances {
-  sync: (projectiles: Projectile[], toWorld: (c: number, r: number) => [number, number]) => void;
+  sync: (snapshot: RenderSnapshot, toWorld: (c: number, r: number) => [number, number]) => void;
   dispose: () => void;
 }
 
@@ -197,10 +191,11 @@ export function createProjectileInstances(scene: THREE.Scene): ProjectileInstanc
   const dummy = new THREE.Object3D();
   const tmpColor = new THREE.Color();
 
-  const sync: ProjectileInstances['sync'] = (projectiles, toWorld) => {
-    const n = Math.min(projectiles.length, MAX_PROJECTILES);
+  const sync: ProjectileInstances['sync'] = (snapshot, toWorld) => {
+    const frames = snapshot.projectiles;
+    const n = Math.min(snapshot.projectileCount, MAX_PROJECTILES);
     for (let i = 0; i < n; i++) {
-      const p = projectiles[i];
+      const p = frames[i];
       const [wx, wz] = toWorld(p.x, p.y);
       dummy.position.set(wx, 0.55, wz);
       dummy.quaternion.identity();

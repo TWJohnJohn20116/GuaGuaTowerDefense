@@ -1,4 +1,4 @@
-import type { Enemy, EnemyType, StatusEffect } from '@/types/game';
+import type { Enemy, EnemyType, Projectile, StatusEffect, Tower, TowerType } from '@/types/game';
 import { getEnemyPhaseFade, getEnemyStealthFade } from '@/data/enemyVisibility';
 import { isJammerSuppressed } from '@/data/jammerAura';
 import { ENEMY_DATA } from '@/data/gameData';
@@ -12,7 +12,7 @@ import { ENEMY_DATA } from '@/data/gameData';
  * 為什麼是「寫入既有緩衝」而不是每幀回傳新物件：
  * 每幀路徑新增物件配置是 §6 的效能地雷（4,500 敵人的壓測場景）。
  * 這裡的 `writeRenderSnapshot` 只寫入呼叫端持有的 `RenderSnapshot`，
- * 穩定狀態下零配置；只有敵人數超過既有容量時才擴充 slot。
+ * 穩定狀態下零配置；只有實體數超過既有容量時才擴充 slot。
  *
  * 純度約定：
  *  - 不 import store / React / 任何有副作用模組（只 import types 與 data 層純函式）
@@ -57,6 +57,41 @@ interface EnemyRenderFrame {
   abilitySuppressed: boolean;
 }
 
+/** 單一投射物在「這一幀」的視覺欄位（3D 只用 x/y/size/color，2D 另需軌跡與形狀）。 */
+export interface ProjectileRenderFrame {
+  id: string;
+  x: number;
+  y: number;
+  targetX: number;
+  targetY: number;
+  size: number;
+  color: string;
+  towerType: TowerType;
+  isInstant: boolean;
+  createdAt?: number;
+  rotation?: number;
+  hitEffect?: Projectile['hitEffect'];
+  trailPoints?: { x: number; y: number; alpha: number }[];
+}
+
+/** 單一塔在「這一幀」的視覺欄位；塔模型 / 血條 / 協同連線 / 攻擊閃光都吃這份。 */
+export interface TowerRenderFrame {
+  id: string;
+  type: TowerType;
+  /** 直接沿用塔自身的 gridPos 參照（不複製、不配置），協同連線與 toWorld 都吃這個形狀 */
+  gridPos: { col: number; row: number };
+  level: number;
+  rotation: number;
+  health: number;
+  maxHealth: number;
+  healthRatio: number;
+  placedAt?: number;
+  lastAttackTime?: number;
+  lastUpgradeTime?: number;
+  locked: boolean;
+  fusedFrom?: [TowerType, TowerType];
+}
+
 export interface RenderSnapshot {
   /** 每次寫入 +1；除錯 / 測試用來確認 2D、3D 吃到同一幀 */
   frameId: number;
@@ -65,7 +100,14 @@ export interface RenderSnapshot {
   enemyCount: number;
   /** slot 會被重複使用，只有 [0, enemyCount) 是這一幀的有效資料 */
   enemies: EnemyRenderFrame[];
+  projectileCount: number;
+  projectiles: ProjectileRenderFrame[];
+  towerCount: number;
+  towers: TowerRenderFrame[];
 }
+
+/** 塔模型的等級縮放（3D 模型與塔血條高度共用同一條公式） */
+export const towerLevelScale = (level: number): number => 1 + (level - 1) * 0.09;
 
 /** 狀態色調優先序（高 → 低）：2D 環與 3D instance 顏色都依這張表 */
 const STATUS_TINTS: { type: string; color: number; mix: number }[] = [
@@ -107,13 +149,44 @@ const createEmptyEnemyFrame = (): EnemyRenderFrame => ({
   abilitySuppressed: false,
 });
 
+const createEmptyProjectileFrame = (): ProjectileRenderFrame => ({
+  id: '',
+  x: 0,
+  y: 0,
+  targetX: 0,
+  targetY: 0,
+  size: 0,
+  color: '#ffffff',
+  towerType: 'basic',
+  isInstant: false,
+  createdAt: undefined,
+  rotation: undefined,
+  hitEffect: undefined,
+  trailPoints: undefined,
+});
+
+const EMPTY_GRID_POS = { col: 0, row: 0 };
+
+const createEmptyTowerFrame = (): TowerRenderFrame => ({
+  id: '',
+  type: 'basic',
+  gridPos: EMPTY_GRID_POS,
+  level: 1,
+  rotation: 0,
+  health: 0,
+  maxHealth: 0,
+  healthRatio: 0,
+  placedAt: undefined,
+  lastAttackTime: undefined,
+  lastUpgradeTime: undefined,
+  locked: false,
+  fusedFrom: undefined,
+});
+
 /** 只擴充、不縮減；容量成長時才配置新 slot */
-const ensureEnemyCapacity = (snapshot: RenderSnapshot, required: number): void => {
-  const frames = snapshot.enemies;
-  let capacity = frames.length;
-  while (capacity < required) {
-    frames.push(createEmptyEnemyFrame());
-    capacity += 1;
+const ensureCapacity = <T>(slots: T[], required: number, create: () => T): void => {
+  while (slots.length < required) {
+    slots.push(create());
   }
 };
 
@@ -133,30 +206,38 @@ const pickStatusTint = (effects: readonly StatusEffect[], frame: EnemyRenderFram
 };
 
 /** 建立可重複使用的 snapshot 緩衝（每個渲染器一份，存活於元件 / effect 生命週期） */
-export const createRenderSnapshot = (capacity = 256): RenderSnapshot => {
+export const createRenderSnapshot = (enemyCapacity = 256): RenderSnapshot => {
   const snapshot: RenderSnapshot = {
     frameId: 0,
     timeMs: 0,
     enemyCount: 0,
     enemies: [],
+    projectileCount: 0,
+    projectiles: [],
+    towerCount: 0,
+    towers: [],
   };
-  ensureEnemyCapacity(snapshot, capacity);
+  ensureCapacity(snapshot.enemies, enemyCapacity, createEmptyEnemyFrame);
   return snapshot;
 };
 
 /**
  * 把世界狀態投影成這一幀的渲染資料。
- * @param source 只要求有 enemies 陣列（store state、replay、測試 fixture 都適用）
+ * @param source 只要求有 enemies / towers / projectiles 陣列（store state、replay、測試 fixture 都適用）
  * @param out 呼叫端持有的緩衝；回傳同一個物件（方便串接）
  */
 export const writeRenderSnapshot = (
-  source: { enemies: readonly Enemy[] },
+  source: {
+    enemies: readonly Enemy[];
+    towers?: readonly Tower[];
+    projectiles?: readonly Projectile[];
+  },
   out: RenderSnapshot,
   nowMs: number,
 ): RenderSnapshot => {
   const enemies = source.enemies;
   const count = enemies.length;
-  ensureEnemyCapacity(out, count);
+  ensureCapacity(out.enemies, count, createEmptyEnemyFrame);
 
   for (let i = 0; i < count; i++) {
     const enemy = enemies[i];
@@ -190,8 +271,54 @@ export const writeRenderSnapshot = (
     frame.abilitySuppressed = isJammerSuppressed(enemy, nowMs);
     pickStatusTint(enemy.effects, frame);
   }
-
   out.enemyCount = count;
+
+  const projectiles = source.projectiles ?? [];
+  const projectileCount = projectiles.length;
+  ensureCapacity(out.projectiles, projectileCount, createEmptyProjectileFrame);
+
+  for (let i = 0; i < projectileCount; i++) {
+    const projectile = projectiles[i];
+    const frame = out.projectiles[i];
+    frame.id = projectile.id;
+    frame.x = projectile.x;
+    frame.y = projectile.y;
+    frame.targetX = projectile.targetX;
+    frame.targetY = projectile.targetY;
+    frame.size = projectile.size;
+    frame.color = projectile.color;
+    frame.towerType = projectile.towerType;
+    frame.isInstant = projectile.isInstant === true;
+    frame.createdAt = projectile.createdAt;
+    frame.rotation = projectile.rotation;
+    frame.hitEffect = projectile.hitEffect;
+    frame.trailPoints = projectile.trailPoints;
+  }
+  out.projectileCount = projectileCount;
+
+  const towers = source.towers ?? [];
+  const towerCount = towers.length;
+  ensureCapacity(out.towers, towerCount, createEmptyTowerFrame);
+
+  for (let i = 0; i < towerCount; i++) {
+    const tower = towers[i];
+    const frame = out.towers[i];
+    frame.id = tower.id;
+    frame.type = tower.type;
+    frame.gridPos = tower.gridPos;
+    frame.level = tower.level;
+    frame.rotation = tower.rotation;
+    frame.health = tower.health;
+    frame.maxHealth = tower.maxHealth;
+    frame.healthRatio = tower.maxHealth > 0 ? clamp01(tower.health / tower.maxHealth) : 0;
+    frame.placedAt = tower.placedAt;
+    frame.lastAttackTime = tower.lastAttackTime;
+    frame.lastUpgradeTime = tower.lastUpgradeTime;
+    frame.locked = tower.locked === true;
+    frame.fusedFrom = tower.fusedFrom;
+  }
+  out.towerCount = towerCount;
+
   out.timeMs = nowMs;
   out.frameId += 1;
   return out;

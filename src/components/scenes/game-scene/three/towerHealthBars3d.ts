@@ -2,7 +2,9 @@
  * 3D 塔血條：受傷的塔在模型上方顯示 billboard 條，跟 2D 同一套顯示規則。
  */
 import * as THREE from 'three';
-import type { Tower } from '@/types/game';
+import type { RenderSnapshot } from '@/data/renderSnapshot';
+import { towerLevelScale } from '@/data/renderSnapshot';
+import { healthBarColorHex } from '@/data/healthBarColor';
 import { shouldShowTowerHealthBar } from '@/data/towerHealthBarVisibility';
 
 const MAX_TOWERS = 192;
@@ -10,15 +12,9 @@ const BAR_W = 0.66;
 const BAR_H = 0.07;
 const ZERO_SCALE = new THREE.Matrix4().makeScale(0, 0, 0);
 
-const hpColorOf = (ratio: number): number => {
-  if (ratio > 0.55) return 0x4ade80;
-  if (ratio > 0.25) return 0xfacc15;
-  return 0xef4444;
-};
-
 interface TowerHealthBars3D {
   sync: (
-    towers: Tower[],
+    snapshot: RenderSnapshot,
     toWorld: (c: number, r: number) => [number, number],
     cameraQuat: THREE.Quaternion,
     showHealthBars: boolean,
@@ -50,19 +46,19 @@ export function createTowerHealthBars3D(scene: THREE.Scene): TowerHealthBars3D {
   const dummy = new THREE.Object3D();
   const tmpColor = new THREE.Color();
 
-  const sync: TowerHealthBars3D['sync'] = (towers, toWorld, cameraQuat, showHealthBars) => {
-    const n = Math.min(towers.length, MAX_TOWERS);
+  const sync: TowerHealthBars3D['sync'] = (snapshot, toWorld, cameraQuat, showHealthBars) => {
+    const frames = snapshot.towers;
+    const n = Math.min(snapshot.towerCount, MAX_TOWERS);
     for (let i = 0; i < n; i++) {
-      const t = towers[i];
+      const t = frames[i];
       if (!shouldShowTowerHealthBar(t.health, t.maxHealth, showHealthBars)) {
         hpBg.setMatrixAt(i, ZERO_SCALE);
         hpFg.setMatrixAt(i, ZERO_SCALE);
         continue;
       }
       const [wx, wz] = toWorld(t.gridPos.col, t.gridPos.row);
-      const hpRatio = Math.max(0, Math.min(1, t.health / t.maxHealth));
-      const levelScale = 1 + (t.level - 1) * 0.09;
-      const barY = 0.12 + 0.78 * levelScale;
+      const hpRatio = t.healthRatio;
+      const barY = 0.12 + 0.78 * towerLevelScale(t.level);
 
       dummy.position.set(wx, barY, wz);
       dummy.quaternion.copy(cameraQuat);
@@ -77,7 +73,7 @@ export function createTowerHealthBars3D(scene: THREE.Scene): TowerHealthBars3D {
       dummy.translateZ(0.01);
       dummy.updateMatrix();
       hpFg.setMatrixAt(i, dummy.matrix);
-      hpFg.setColorAt(i, tmpColor.setHex(hpColorOf(hpRatio)));
+      hpFg.setColorAt(i, tmpColor.setHex(healthBarColorHex(hpRatio)));
     }
     hpBg.count = n;
     hpFg.count = n;

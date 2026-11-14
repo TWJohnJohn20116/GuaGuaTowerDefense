@@ -34,7 +34,7 @@ import {
   resolveWalkZoomDelta,
 } from '@/data/cameraControlSpeeds';
 import { resolveDisplayedTileType, shouldShowEnemyPathFx } from '@/data/enemyPathVisibility';
-import { createRenderSnapshot, writeRenderSnapshot } from '@/data/renderSnapshot';
+import { createRenderSnapshot, towerLevelScale, writeRenderSnapshot } from '@/data/renderSnapshot';
 import { createWalkers3D, createPlayerWalker, type Walkers3D, type PlayerWalker } from './walker3d';
 import { buildTowerModel, disposeTowerModel } from './towerModels3d';
 import { createAttackLights3D } from './attackLights3d';
@@ -538,14 +538,17 @@ export function GameScene3D() {
     const syncEntities = (dtSec: number) => {
       const { enemies, towers, projectiles } = useGameStore.getState();
       const visualSettings = useSettingsStore.getState().visual;
+      const nowMs = Date.now();
 
-      // --- 敵人 + 血條（InstancedMesh 單 draw call；血條受設定開關控制）---
-      writeRenderSnapshot({ enemies }, enemySnapshot, Date.now());
+      // --- 敵人 / 塔 / 投射物：一次投影成同一份每幀資料，三個實例池都吃它 ---
+      writeRenderSnapshot({ enemies, towers, projectiles }, enemySnapshot, nowMs);
       enemyInstances.sync(enemySnapshot, toWorld, camera.quaternion, visualSettings.showHealthBars);
 
       // --- 塔（差異化模型；等級變化時重建以更新等級環）---
+      const towerFrames = enemySnapshot.towers;
       const aliveTower = new Set<string>();
-      for (const t of towers) {
+      for (let ti = 0; ti < enemySnapshot.towerCount; ti++) {
+        const t = towerFrames[ti];
         aliveTower.add(t.id);
         let g = towerGroups.get(t.id);
         // 等級變化 → 重建模型（模型本體隨等級進化）
@@ -575,9 +578,9 @@ export function GameScene3D() {
           towerGroups.set(t.id, g);
         }
         // 砲塔朝向（2D rotation → 3D Y 軸；canvas 角度順時針，3D 逆時針取負）
-        g.rotation.y = -(t.rotation ?? 0);
+        g.rotation.y = -t.rotation;
         // 等級越高越高大：高度全幅增長，XZ 不放大以確保不超出 0.94 地塊（模型基礎半徑 ≤ 0.47）
-        const levelScale = 1 + (t.level - 1) * 0.09;
+        const levelScale = towerLevelScale(t.level);
         g.scale.set(1, levelScale, 1);
         // 持續旋轉部件（風塔葉片 / 雷射懸浮環 / 冰晶）
         const spinPart = g.userData.spinPart as THREE.Object3D | undefined;
@@ -592,10 +595,10 @@ export function GameScene3D() {
       }
 
       // --- 投射物（InstancedMesh 單 draw call）---
-      projectileInstances.sync(projectiles, toWorld);
+      projectileInstances.sync(enemySnapshot, toWorld);
 
       // --- 塔血條（受傷才顯示，跟 2D 同一把 showHealthBars）---
-      towerHealthBars.sync(towers, toWorld, camera.quaternion, visualSettings.showHealthBars);
+      towerHealthBars.sync(enemySnapshot, toWorld, camera.quaternion, visualSettings.showHealthBars);
     };
 
     // ===== 戰鬥特效（命中粒子 + 死亡碎片，消費 store 同一資料源）=====

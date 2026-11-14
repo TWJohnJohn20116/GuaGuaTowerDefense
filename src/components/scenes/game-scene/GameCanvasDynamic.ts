@@ -24,6 +24,7 @@ import { createStatusRingBatch } from './GameCanvasStatusRings';
 import { getSynergyModsForTower, listActiveSynergyLinks, toTowerRef } from '@/data/towerSynergyData';
 import { collectJammerAurasCached, isTowerJammed, type JammerAura } from '@/data/jammerAura';
 import { getMoneyAuraRange } from '@/data/moneyAura';
+import { healthBarColorCss } from '@/data/healthBarColor';
 import { shouldShowTowerHealthBar } from '@/data/towerHealthBarVisibility';
 
 // ===== 除錯資訊繪製 =====
@@ -181,9 +182,9 @@ export function renderDynamicLayer(
   // 擊中粒子
   drawImpactParticles(ctx, now, tileSize, offsetX, offsetY, impactParticles);
 
-  // 第四層: 塔模型 (放在火焰特效之後讓塔覆蓋特效底部)
-  drawSynergyLinks(ctx, now, tileSize, offsetX, offsetY, towers);
-  drawTowers(ctx, now, tileSize, offsetX, offsetY, towers, getSkinVisuals, getSkinModelSet, collectJammerAurasCached(enemies, ENEMY_DATA, now));
+  // 第四層: 塔模型 (放在火焰特效之後讓塔覆蓋特效底部；塔身/血條/協同連線都吃 snapshot)
+  drawSynergyLinks(ctx, now, tileSize, offsetX, offsetY, snapshot);
+  drawTowers(ctx, now, tileSize, offsetX, offsetY, snapshot, getSkinVisuals, getSkinModelSet, collectJammerAurasCached(enemies, ENEMY_DATA, now));
 
   // 第五層: 敵人 (使用統一敵人模型；資料來自渲染 snapshot)
   drawEnemies(ctx, now, tileSize, offsetX, offsetY, snapshot, showHealthBars);
@@ -192,13 +193,13 @@ export function renderDynamicLayer(
   drawDeathAnimations(ctx, now, tileSize, offsetX, offsetY, deathAnimations);
 
   // 第七層: 子彈 (北歐極簡幾何風重設計; 實作於 projectileRenderNordic.ts)
-  drawProjectilesNordic(ctx, now, tileSize, offsetX, offsetY, projectiles, getSkinVisuals);
+  drawProjectilesNordic(ctx, now, tileSize, offsetX, offsetY, snapshot, getSkinVisuals);
 
   // 傷害文字
   drawDamageTexts(ctx, now, tileSize, offsetX, offsetY, damageTexts);
 
   // 第八層: 塔血條
-  drawTowerHealthBars(ctx, tileSize, offsetX, offsetY, towers, showHealthBars);
+  drawTowerHealthBars(ctx, tileSize, offsetX, offsetY, snapshot, showHealthBars);
 
   // 第九層: 主動技能動畫 (放在最上層, 讓技能特效覆蓋一切)
   drawPlayerSkillAnimations(
@@ -221,11 +222,13 @@ function drawTowerHealthBars(
   tileSize: number,
   offsetX: number,
   offsetY: number,
-  towers: Tower[],
+  snapshot: RenderSnapshot,
   showHealthBars: boolean,
 ): void {
-  towers.forEach(tower => {
-    if (!shouldShowTowerHealthBar(tower.health, tower.maxHealth, showHealthBars)) return;
+  const frames = snapshot.towers;
+  for (let i = 0; i < snapshot.towerCount; i++) {
+    const tower = frames[i];
+    if (!shouldShowTowerHealthBar(tower.health, tower.maxHealth, showHealthBars)) continue;
     const tx = offsetX + tower.gridPos.col * tileSize;
     const ty = offsetY + tower.gridPos.row * tileSize;
     const barWidth = tileSize * 0.8;
@@ -236,10 +239,9 @@ function drawTowerHealthBars(
     ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
     ctx.fillRect(barX, barY, barWidth, barHeight);
 
-    const healthPercent = Math.max(0, tower.health / tower.maxHealth);
     ctx.fillStyle = '#00ff00';
-    ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight);
-  });
+    ctx.fillRect(barX, barY, barWidth * tower.healthRatio, barHeight);
+  }
 }
 
 // ===== 傷害文字 / 金錢文字 =====
@@ -326,12 +328,16 @@ function drawSynergyLinks(
   tileSize: number,
   offsetX: number,
   offsetY: number,
-  towers: Tower[],
+  snapshot: RenderSnapshot,
 ): void {
-  const refs = towers.map(toTowerRef);
+  const frames = snapshot.towers;
+  const refs = frames.slice(0, snapshot.towerCount).map(toTowerRef);
   const links = listActiveSynergyLinks(refs);
   if (links.length === 0) return;
-  const byId = new Map(towers.map((tower) => [tower.id, tower]));
+  const byId = new Map<string, { gridPos: { col: number; row: number } }>();
+  for (let i = 0; i < snapshot.towerCount; i++) {
+    byId.set(frames[i].id, frames[i]);
+  }
   const pulse = 0.45 + 0.55 * Math.sin(now / 280);
   ctx.save();
   ctx.strokeStyle = `rgba(56, 189, 248, ${0.35 + pulse * 0.3})`;
@@ -356,13 +362,15 @@ function drawTowers(
   tileSize: number,
   offsetX: number,
   offsetY: number,
-  towers: Tower[],
+  snapshot: RenderSnapshot,
   getSkinVisuals: GetSkinVisuals,
   getSkinModelSet?: GetSkinModelSet,
   jammerAuras: JammerAura[] = [],
 ): void {
-  const synergyRefs = towers.map(toTowerRef);
-  towers.forEach((tower) => {
+  const towerFrames = snapshot.towers;
+  const synergyRefs = towerFrames.slice(0, snapshot.towerCount).map(toTowerRef);
+  for (let towerIndex = 0; towerIndex < snapshot.towerCount; towerIndex++) {
+    const tower = towerFrames[towerIndex];
     const x = offsetX + tower.gridPos.col * tileSize;
     const y = offsetY + tower.gridPos.row * tileSize;
     const modVisuals = getTowerVisuals(tower.type);
@@ -571,7 +579,7 @@ function drawTowers(
     }
 
     ctx.restore();
-  });
+  }
 }
 
 // ===== 繪製敵人 =====
@@ -800,7 +808,7 @@ function drawEnemies(
     ctx.fillRect(x - barWidth / 2 - 1, barY - 1, barWidth + 2, barHeight + 2);
 
     const healthPercent = enemy.healthRatio;
-    ctx.fillStyle = healthPercent > 0.5 ? '#4ade80' : healthPercent > 0.25 ? '#facc15' : '#ef4444';
+    ctx.fillStyle = healthBarColorCss(healthPercent);
     ctx.fillRect(x - barWidth / 2, barY, barWidth * healthPercent, barHeight);
 
     // 護盾條（血條上方的藍色細條）
