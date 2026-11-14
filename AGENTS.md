@@ -251,7 +251,7 @@ services → types（只能 import type 或由入口注入）
 4. 動到打包相關 → `npm run build` 後看 `dist/assets/index-*.js` 沒有明顯變大（目前 1.33 MB）。
 5. 回報時附：改了哪些檔、為什麼、跑了什麼指令、結果如何；**不要**只說「已修好」，也不要只在最後才一次補述（過程就要說）。多步任務全程都要標 `進度 k/N`，見 §10.3。
 6. 任務清單**全部 `completed`**（或明確標出哪幾項沒做與原因）；不得留著 `pending` / `in_progress` 就宣布完成，見 §11.5。
-7. **CI 綠才算完成**：push 後用 `gh run watch <id> --exit-status` 確認 success，並確認 job 不是 `skipped`。本機 `npm run check` 綠只是必要條件（見 §13.2）。
+7. **CI 綠才算完成**：push 後必須拿到 CI 結論（`gh run watch` 或下次 `gh run list`）。**低風險改動可以不阻塞等待**（見 §13.7），但宣告完成前不能是未知狀態，紅燈要回頭修。
 
 ---
 
@@ -560,3 +560,29 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 | 「本機不得編譯／建置／執行測試，只能靠 CI」 | 本專案 `npm run check` 約 80 秒、lock 與 CI 同版本，本機跑能省掉 push→等待→修的 round-trip。**但保留它的精神**：本機綠只是必要條件，CI 綠才是判準（13.2-5）。 |
 | 多目標 matrix、Gradle 快取、JDK toolchain、`CI 總結` 彙總 job | 本專案只有一個 job、一支 JS 工具鏈，沒有這些結構；等真的需要再加，不要預先複雜化。 |
 | 產物（artifact）上傳與保留策略 | 只有 tag 觸發的 release 需要產物，現由 `tauri-action` 處理。 |
+
+### 13.7 低風險改動不必等 CI（繼續往下做）
+
+**使用者要求：判斷風險不大就不要卡在 CI 前面**——等待的時間應該拿去寫下一個東西，而不是盯著進度條。
+
+| 低風險 → push 後直接繼續 | 高風險 → 必須等綠再往下 |
+|---|---|
+| 文件／註解／README／`AGENTS.md` | 戰鬥數值、演算法、狀態機、AI 決策 |
+| 純新增測試、強化既有測試的斷言 | 改 `gameStoreTypes.ts` 契約、slice 拆分 |
+| CSS class／樣式 token／純字串／i18n 文案 | 改 `vite.config.ts`、`package.json`、lock、新增依賴 |
+| 純函式 + 它的測試（例：`towerCost.ts`） | `.github/workflows/**`、`scripts/ci/**`、bundle 預算臨界 |
+| 生成物更新、格式化、`docs/research/` 報告 | 動到存檔格式／persist 欄位（舊檔會壞） |
+
+**操作方式**
+
+1. push 後用**背景工作**盯 CI（`run_in_background` 跑 `gh run watch <id> --exit-status`），不要在前景阻塞。
+2. 立刻做下一件事；每個回合開始時順手 `gh run list --limit 1` 看結果，不要輪詢、不要 sleep 等。
+3. 宣告整個任務完成前若拿到紅燈 → **立刻回頭修**，不准忽略、不准當成「後面再說」。
+4. 回報時照 §10.8 標清楚：`CI 未確認（run <id>）` / `CI 進行中（run <id>）` / `CI 成功`。**跳過等待是一回事，把未知講成通過是另一回事。**
+5. 判斷為低風險時要**說一句理由**（例：「只改註解，低風險，繼續下一項」），不能默默跳過。
+
+**例外（一定要等）**
+
+- 正在修的就是 CI 紅的那一條。
+- 準備發版／打 tag／動 release workflow。
+- 連續兩次 push 都被同一類錯誤打紅（代表判斷失準，停下來重新評估）。
