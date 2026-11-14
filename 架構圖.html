@@ -1395,27 +1395,31 @@
       Dependabot 的 PR 走 <code>pull_request</code> 事件，而我們刻意沒給 PR 加路徑過濾，所以依賴 PR 一定會被檢查。</p>
 
     <h3>常用指令</h3>
+    <p class="small"><b>本機只做唯讀檢查；編譯、建置、測試一律由 CI 執行</b>（<code>AGENTS.md</code> §13.9）。
+      「位置」欄標 <b>CI</b> 的指令不得在使用者電腦上跑，紅燈就 <code>gh run view --log-failed</code> 讀那一步。</p>
     <table>
-      <thead><tr><th>指令</th><th>作用</th></tr></thead>
+      <thead><tr><th>指令</th><th>作用</th><th>位置</th></tr></thead>
       <tbody>
-        <tr><td><code>npm run dev</code></td><td>Vite 開發伺服器（1421）</td></tr>
-        <tr><td><code>npm run tauri dev</code></td><td>桌面開發模式（先跑 predev 生成清單）</td></tr>
-        <tr><td><code>npm run build</code></td><td>prebuild + vite build</td></tr>
-        <tr><td><code>npm run build:check</code></td><td>先型別檢查再建置</td></tr>
-        <tr><td><code>npm run typecheck</code></td><td><code>tsc --noEmit</code></td></tr>
-        <tr><td><code>npm run i18n:check</code></td><td>語言檔鍵值對齊（嚴格模式）</td></tr>
-        <tr><td><code>npm run test</code> / <code>test:coverage</code></td><td>Vitest（jsdom）</td></tr>
-        <tr><td><code>npm run check</code></td><td>typecheck + i18n + test（提交前必跑）</td></tr>
-        <tr><td><code>npm run ci:guards</code></td><td>技術債棘輪 + bundle 預算（CI 用同一支腳本）</td></tr>
-        <tr><td><code>npm run check:full</code></td><td><code>check</code> + build + guards（本機模擬整套 CI）</td></tr>
-        <tr><td><code>npm run verify:isms</code></td><td>遊玩風格定義完整性</td></tr>
-        <tr><td><code>npm run tauri build</code></td><td>產出 NSIS 安裝檔</td></tr>
+        <tr><td><code>npm run dev</code></td><td>Vite 開發伺服器（1421）</td><td>使用者</td></tr>
+        <tr><td><code>npm run tauri dev</code></td><td>桌面開發模式（先跑 predev 生成清單）</td><td>使用者</td></tr>
+        <tr><td><code>npm run typecheck</code></td><td><code>tsc --noEmit</code></td><td>CI</td></tr>
+        <tr><td><code>npm run i18n:check</code></td><td>語言檔鍵值對齊（嚴格模式；純 AST 解析）</td><td>本機可</td></tr>
+        <tr><td><code>npm run test</code> / <code>test:coverage</code></td><td>Vitest（jsdom）</td><td>CI</td></tr>
+        <tr><td><code>npm run build</code></td><td>prebuild + vite build</td><td>CI</td></tr>
+        <tr><td><code>npm run build:check</code></td><td>先型別檢查再建置</td><td>CI</td></tr>
+        <tr><td><code>npm run check</code></td><td>typecheck + i18n + test</td><td>CI</td></tr>
+        <tr><td><code>npm run ci:guards</code></td><td>技術債棘輪 + bundle 預算（CI 用同一支腳本）</td><td>CI</td></tr>
+        <tr><td><code>node scripts/ci/guards.mjs --debt</code></td><td>只跑技術債棘輪（純讀檔計數）</td><td>本機可</td></tr>
+        <tr><td><code>npm run check:full</code></td><td><code>check</code> + build + guards</td><td>CI</td></tr>
+        <tr><td><code>npm run verify:isms</code></td><td>遊玩風格定義完整性（走 <code>tsx</code>，會編譯）</td><td>CI</td></tr>
+        <tr><td><code>npm run tauri build</code></td><td>產出 NSIS 安裝檔</td><td>CI（release）</td></tr>
+        <tr><td><code>gh run list</code> / <code>gh run watch</code></td><td>看 CI 結論、等 CI</td><td>本機可</td></tr>
       </tbody>
     </table>
 
     <div class="grid g2">
       <div class="card"><div class="ct">品質閘門（細節見 <a href="#tests">19 測試</a>）</div><div class="cd">159 檔／710 測試只是第 5 道；
-        前四道（typecheck、i18n:check --strict、技術債棘輪）最快，壞了就不必浪費時間跑測試；建置後再比 bundle 預算 1.4 MB。</div></div>
+        前四道（typecheck、i18n:check --strict、技術債棘輪）最快，壞了就不必浪費時間跑測試；建置後再比 bundle 預算 1.18 MB。</div></div>
       <div class="card"><div class="ct">發布簽章</div><div class="cd"><code>TAURI_SIGNING_PRIVATE_KEY</code>（私鑰在 <code>src-tauri/.tauri/guagua-td.key</code>，不進版控）
         與 <code>tauri.conf.json</code> 的公鑰成對；客戶端只接受此私鑰簽出的更新包。</div></div>
     </div>
@@ -1437,20 +1441,22 @@
       <div class="good"><b>159</b><span>測試檔（<code>src/test/*.test.ts</code>）</span></div>
       <div class="good"><b>710</b><span>測試案例</span></div>
       <div><b>12,083</b><span>測試程式碼行數</span></div>
-      <div class="mid"><b>80<small>s</small></b><span>全跑一次（本機）</span></div>
+      <div class="mid"><b>80<small>s</small></b><span>全跑一次（單進程）；CI 拆 3 片後 30–43 秒/片</span></div>
       <div class="bad"><b>0</b><span>e2e／視覺回歸</span></div>
       <div class="bad"><b>0</b><span>coverage 門檻</span></div>
     </div>
 
     <h3>怎麼跑</h3>
+    <p class="small">下表全部<b>由 CI 執行</b>；本機不得編譯或跑測試（<code>AGENTS.md</code> §13.9）。
+      CI 用 <code>--shard=k/3</code> 拆成 3 個平行 job，總牆鐘時間約 50 秒。</p>
     <table>
       <thead><tr><th>指令</th><th>做什麼</th><th>備註</th></tr></thead>
       <tbody>
-        <tr><td><code>npm run test</code></td><td>Vitest 全跑一次</td><td>約 80 秒；CI 的實際閘門</td></tr>
-        <tr><td><code>npm run test:watch</code></td><td>監看模式</td><td>開發時用</td></tr>
+        <tr><td><code>npm run test</code></td><td>Vitest 全跑一次</td><td>單進程約 80 秒；CI 才是實際閘門（拆 3 片後 30–43 秒/片）</td></tr>
+        <tr><td><code>npm run test:watch</code></td><td>監看模式</td><td>本機不得執行（會編譯並跑測試）</td></tr>
         <tr><td><code>npm run test:coverage</code></td><td>v8 覆蓋率</td><td>有 include/exclude，但沒有 thresholds（TD-05）</td></tr>
-        <tr><td><code>npm run check</code></td><td>typecheck + i18n:check + test</td><td>提交前必跑</td></tr>
-        <tr><td><code>npm run ci:guards</code></td><td>技術債棘輪 + bundle 預算</td><td>CI 的第 4、8 道閘門</td></tr>
+        <tr><td><code>npm run check</code></td><td>typecheck + i18n:check + test</td><td>CI 專用；本機不得執行</td></tr>
+        <tr><td><code>npm run ci:guards</code></td><td>技術債棘輪 + bundle 預算</td><td>CI 的第 4、8 道閘門；本機只可跑 <code>--debt</code></td></tr>
       </tbody>
     </table>
 
