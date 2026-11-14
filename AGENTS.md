@@ -731,11 +731,62 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 
 19 個場景約 20 秒（單一瀏覽器實例 + CDP，見工具檔頭說明）。
 
-#### 必做三步
+#### 必做六步（少一步就算沒驗證）
 
-1. **跑工具**：`node scripts/visual-check.mjs`。
-2. **看圖**：用看圖能力打開 `contact-sheet.png`（不是只看 log）。
-3. **逐格判斷**：空白／載入中／文字讀不到／元素重疊／間距失衡／色彩刺眼。有問題就修，修完重跑。
+**1. 全場景基準掃描**（約 20 秒）
+
+```bash
+node scripts/visual-check.mjs
+```
+
+**2. 逐格看總表，一個都不能跳**
+
+用看圖能力打開 `contact-sheet.png`。**每一個格子都要給判定**，不能只看「有沒有東西」。
+判定只允許兩種：`OK` 或 `問題：<具體描述>`。寫「看起來正常」不算。
+
+**3. 可疑場景單獨放大**（全尺寸 PNG）
+
+```bash
+node scripts/visual-check.mjs --scenes=<場景> --concurrency=1
+```
+
+再 `read_image` 打開該張 PNG。總表是縮圖，字級／對齊／截斷只有原尺寸看得出來。
+
+**4. 開狀態再拍一次**（這是「詳細」的關鍵）
+
+預設截圖只拍到初始狀態。需要看展開／彈窗／選中時，用 `--js` 先在頁面內操作：
+
+```bash
+# 簡單運算式可以用 --js
+node scripts/visual-check.mjs --scenes=report --js="window.scrollTo(0,600)"
+
+# 含 => 或引號的腳本請寫成檔案，用 --js-file（不然會被 shell 吃掉，實測 exit 0 卻零輸出）
+cat > /tmp/pre-expand.js <<'JS'
+document.querySelectorAll('details').forEach((d) => { d.open = true; });
+JS
+node scripts/visual-check.mjs --scenes=pathSelection --js-file=/tmp/pre-expand.js
+
+# 開 Modal（用 aria-label 找按鈕）
+cat > /tmp/pre-modal.js <<'JS'
+document.querySelector('[aria-label="查看詳細"]')?.click();
+JS
+node scripts/visual-check.mjs --scenes=gameOver --js-file=/tmp/pre-modal.js
+
+# 多段操作用 ;; 分隔
+node scripts/visual-check.mjs --scenes=settings --js-file=/tmp/pre-tab.js   # 檔案內用 ;; 串接多段
+```
+
+**5. 多尺寸**（至少桌機 + 窄版）
+
+```bash
+node scripts/visual-check.mjs --sizes=1600x900,1280x800,390x844
+```
+
+有響應式斷點的版面（Split / Battle）一定要看窄版，否則重疊與溢出抓不到。
+
+**6. 修完重跑，直到每一格都 OK**
+
+修一處 → 重跑一次（20 秒），不要累積多處才驗。
 
 #### 產出位置
 
@@ -752,6 +803,23 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 截圖存在、尺寸與要求相符、檔案 > 20KB、可讀文字 > 120 字、無 Vite 錯誤覆蓋層、無 JS 崩潰字樣、`#root` 存在。
 
 **它抓不到**：對比度不足、元素互相遮擋、留白失衡、字級不對、顏色刺眼。**那些只能看圖。**
+
+#### 每個場景必看的 12 項（看圖時的檢查表）
+
+| # | 檢查 | 不合格的樣子 |
+|---|---|---|
+| 1 | 有沒有停在載入中／空白 | 畫面只有「載入中…」或一片奶油色 |
+| 2 | 標題層級 | 主標題與區塊標題同字級，看不出主次 |
+| 3 | 主行動鍵 | 開始／確認鍵不在視線內、被推到捲動區底部 |
+| 4 | 卡片邊界 | 圓角不一致（12/14/16 混用）、有的有邊框有的沒有 |
+| 5 | 間距節奏 | 區塊間距 12 / 16 / 24 混雜，看起來「散」或「擠」 |
+| 6 | 文字截斷 | `truncate` 把關鍵字切掉、或多行溢出壓到下一列 |
+| 7 | 元素重疊 | 通知／DEV 按鈕／收合把手蓋住內容或按鍵 |
+| 8 | 對比度 | 小字看不清（§13.10 對比度表） |
+| 9 | 空狀態 | 沒資料時一片空白，沒有說明或引導 |
+| 10 | 溢出 | 出現橫向滾動條、內容被切邊 |
+| 11 | 互動態 | hover／focus／選中沒有視覺差異（用 `--js` 觸發） |
+| 12 | 窄版 | 1280 或 390 下欄位擠壓、按鈕換行錯位 |
 
 #### 文字對比度（硬要求）
 
@@ -770,4 +838,17 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 
 - 成就通知固定右下，在戰鬥畫面會蓋住塔塢面板、在選圖會蓋住「自訂」難度卡。
 - `game` 場景頂部 HUD 條在截圖中偏薄，需單獨放大確認是圖層還是高度問題。
+- `talentTree` 未解鎖節點的低對比是設計（0 點時全暗），不是 bug。
+
+#### 回報格式（貼進回覆，不可只寫「看過了」）
+
+```
+| 場景 | 尺寸 | 判定 | 問題／備註 |
+|---|---|---|---|
+| mainMenu | 1600x900 | OK | — |
+| pathSelection | 1600x900 | 問題 | 難度摘要顯示英文 normal → 已修 ggXX |
+| game | 1600x900 | 問題 | 成就通知遮住塔塢面板 → 待修 |
+```
+
+19 個場景就要 19 列。**少列一行視為沒驗證。**
 
