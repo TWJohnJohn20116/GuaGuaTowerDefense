@@ -1,6 +1,8 @@
 /**
  * 設定 - 一般設定區段（語言、顯示、3D 品質、遊戲行為）
- * HARDLINE：全部走 Deck 區段 + 統一行高設定列；控件方角、1px 線、訊號色。
+ *
+ * 每個子區段都是 SectionGroup 卡；列的控制項由呼叫端決定（開關／選項群）。
+ * 3D 品質段的三個標籤走 i18n（原本是硬編碼中文）。
  */
 
 import type React from 'react';
@@ -60,6 +62,11 @@ export function GeneralSection({ filter = '' }: GeneralSectionProps) {
 
   const shadowQualities = ['off', 'low', 'medium', 'high'] as const;
   const particleDensities = ['low', 'medium', 'high'] as const;
+  const r3d = t.settings.rendering3d;
+  const qualityLabel = (q: 'off' | 'low' | 'medium' | 'high') =>
+    q === 'off' ? r3d.off : q === 'low' ? r3d.low : q === 'medium' ? r3d.medium : r3d.high;
+  const showRendering =
+    match(r3d.title) || match(r3d.bloom) || match(r3d.shadow) || match(r3d.particle);
 
   return (
     <div className="flex flex-col gap-7">
@@ -105,10 +112,10 @@ export function GeneralSection({ filter = '' }: GeneralSectionProps) {
       )}
 
       {/* ===== 3D 渲染品質 ===== */}
-      {(match('3d') || match('bloom') || match('光暈') || match('陰影') || match('粒子') || match('渲染')) && (
+      {showRendering && (
         <SectionGroup
-          title="3D 渲染品質"
-          description="控制 3D 視圖的視覺效果品質與效能"
+          title={r3d.title}
+          description={r3d.desc}
           icon={<SparklesIcon className="h-3.5 w-3.5" />}
           badge={t.settings.general}
           count={3}
@@ -116,14 +123,14 @@ export function GeneralSection({ filter = '' }: GeneralSectionProps) {
         >
           <SettingRow
             icon={<SparklesIcon className="h-3.5 w-3.5" />}
-            label="Bloom 光暈"
-            description="讓發光物件散發柔和光暈（塔、技能、投射物）"
+            label={r3d.bloom}
+            description={r3d.bloomDesc}
             control={<ToggleSwitch enabled={visual.bloomEnabled} onToggle={() => toggleVisual('bloomEnabled')} />}
           />
           <SettingRow
             icon={<WaveIcon className="h-3.5 w-3.5" />}
-            label="陰影品質"
-            description="影響 3D 視圖中的即時陰影精細度"
+            label={r3d.shadow}
+            description={r3d.shadowDesc}
             control={
               <div className="flex gap-1">
                 {shadowQualities.map((q) => (
@@ -133,7 +140,7 @@ export function GeneralSection({ filter = '' }: GeneralSectionProps) {
                     onClick={() => setVisualValue('shadowQuality', q)}
                     className="flex-none px-2.5"
                   >
-                    {q === 'off' ? '關閉' : q === 'low' ? '低' : q === 'medium' ? '中' : '高'}
+                    {qualityLabel(q)}
                   </SettingsChoiceButton>
                 ))}
               </div>
@@ -141,8 +148,8 @@ export function GeneralSection({ filter = '' }: GeneralSectionProps) {
           />
           <SettingRow
             icon={<ExplosionIcon className="h-3.5 w-3.5" />}
-            label="粒子密度"
-            description="GPU 粒子特效數量（死亡爆炸、命中火花等）"
+            label={r3d.particle}
+            description={r3d.particleDesc}
             control={
               <div className="flex gap-1">
                 {particleDensities.map((d) => (
@@ -152,7 +159,7 @@ export function GeneralSection({ filter = '' }: GeneralSectionProps) {
                     onClick={() => setVisualValue('particleDensity', d)}
                     className="flex-none px-2.5"
                   >
-                    {d === 'low' ? '低' : d === 'medium' ? '中' : '高'}
+                    {qualityLabel(d)}
                   </SettingsChoiceButton>
                 ))}
               </div>
