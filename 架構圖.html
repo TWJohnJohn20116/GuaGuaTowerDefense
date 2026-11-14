@@ -1669,12 +1669,13 @@
     <p class="lead"><b>編號規則：</b>每一項都有固定編號 <span class="tid">TD-01</span>～<span class="tid">TD-42</span>，
       字母前綴代表分類（A 流程與版控、B 架構分層、C 型別、D 死碼重複、E 效能打包、F 可觀測性、G 資料 i18n、H 資產、I 測試）。
       commit、PR、issue、回報請直接寫 <code>TD-13</code>，不要只寫「那個 as any 的債」。</p>
-    <p class="lead"><b>還債進度：</b><span class="sev done">2 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
+    <p class="lead"><b>還債進度：</b><span class="sev done">3 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
       <span class="tid">TD-01</span> 已建立版本控制（branch <code>main</code>、基準 commit <code>1f347c7</code>、1,177 檔納入）；
       <span class="tid">TD-09</span> 場景清單三份真相收斂成一份（<code>SceneName = GameScene</code>，Dev 面板選單改由 <code>Record&lt;GameScene, string&gt;</code> 產生，補回漏掉的 10 個場景）；
+      <span class="tid">TD-10</span> 刪掉從未被載入的 <code>data/gameData/index.ts</code>（同名 barrel 只剩檔案版一個入口，並清掉 3 處路徑字串與 10 語系的死文案）；
       <span class="tid">TD-07</span> 七個上帝檔案減為六個（<code>Icons.tsx</code> 已拆）；
       <span class="tid">TD-20</span> <code>Icons.tsx</code> 2,426 行 → 8 個分區模組 + 12 行門面，主 chunk 1,165,958 → <b>1,154,208 bytes</b>；
-      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 37 項待處理。</p>
+      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 36 項待處理。</p>
 
     <div class="kpi">
       <div class="good"><b>0</b><span>TODO / FIXME / @ts-ignore</span></div>
@@ -1766,10 +1767,12 @@
             並補上 10 個 <code>scene*</code> 文案鍵。</td>
         </tr>
         <tr>
-          <td><span class="tid">TD-10</span><span class="sev p2">P2</span><b>B4 兩個同名 barrel</b></td>
+          <td><span class="tid">TD-10</span><span class="sev done">✓ 已還 · P2</span><b>B4 兩個同名 barrel</b></td>
           <td><code>data/gameData.ts</code>（實際解析到的）與 <code>data/gameData/index.ts</code>（沒有任何模組 import，只出現在百科檔案清單的字串裡）</td>
-          <td>兩份 export 清單會漂移；新人不知道該改哪個。</td>
-          <td>刪掉 <code>index.ts</code>，或把檔案版內容併入 <code>index.ts</code> 只留一個入口</td>
+          <td>兩份 export 清單會漂移；新人不知道該改哪個。目錄版還多一行 <code>export * from '../campaignData'</code>，
+            是活檔沒有的匯出面，所以連「兩份一樣」都不成立。</td>
+          <td>已還：刪掉 <code>index.ts</code>（模組解析永遠先命中 <code>gameData.ts</code>，331 bytes 從未被載入），
+            並清掉三處指向它的路徑字串；順帶移除只為它存在的 <code>gameDataIndex</code> 文案鍵（10 語系）。</td>
         </tr>
         <tr>
           <td><span class="tid">TD-11</span><span class="sev p3">P3</span><b>B5 測試專用 API 留在正式碼</b></td>
@@ -1835,9 +1838,9 @@
       <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
       <tbody>
         <tr>
-          <td><span class="tid">TD-18</span><span class="sev p2">P2</span><b>D1 8 個檔案沒有任何 import</b></td>
-          <td>合計 169 行：<code>replay/ReplayListCard.tsx</code>(94)、<code>components/scenes/index.ts</code>、<code>scenes/tutorial/index.ts</code>、
-            <code>game/index.ts</code>、<code>scenes/statistics/index.ts</code>、<code>utils/index.ts</code>、<code>data/splitSceneChrome.ts</code>、<code>data/gameData/index.ts</code></td>
+          <td><span class="tid">TD-18</span><span class="sev p2">P2</span><b>D1 7 個檔案沒有任何 import</b></td>
+          <td>合計 160 行：<code>replay/ReplayListCard.tsx</code>(94)、<code>components/scenes/index.ts</code>、<code>scenes/tutorial/index.ts</code>、
+            <code>game/index.ts</code>、<code>scenes/statistics/index.ts</code>、<code>utils/index.ts</code>、<code>data/splitSceneChrome.ts</code></td>
           <td>死元件與死 barrel 混在樹裡，搜尋結果被污染。</td>
           <td>刪（<code>splitSceneChrome</code> 先移到測試契約）</td>
         </tr>
@@ -2044,7 +2047,7 @@
       <tbody>
         <tr>
           <td><b>階段 0</b><br><span class="small">先建立安全網</span></td>
-          <td><b>TD-01</b> git init ✓、<b>TD-02</b> 移除 Cargo.lock ignore、<b>TD-04</b> 生成物移出 src、<b>TD-05</b> 覆蓋率門檻、<b>TD-09</b> SceneName 別名 ✓、<b>TD-10</b> 刪死 barrel、<b>TD-12</b> 刪空目錄、<b>TD-18</b> 刪 8 個死檔</td>
+          <td><b>TD-01</b> git init ✓、<b>TD-02</b> 移除 Cargo.lock ignore、<b>TD-04</b> 生成物移出 src、<b>TD-05</b> 覆蓋率門檻、<b>TD-09</b> SceneName 別名 ✓、<b>TD-10</b> 刪死 barrel ✓、<b>TD-12</b> 刪空目錄、<b>TD-18</b> 刪 7 個死檔</td>
           <td>半天</td>
           <td>低。純刪除／移動，跑 <code>npm run check</code> 即可</td>
         </tr>

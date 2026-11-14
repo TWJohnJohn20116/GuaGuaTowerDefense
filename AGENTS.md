@@ -89,7 +89,7 @@ services → types（只能 import type 或由入口注入）
 - ❌ `services/` 不得 import `store/`（要偏好就用 `setAudioPrefsProvider` 這類注入）
 - ❌ `types/` 不得有執行期程式碼
 - ✅ store 之間的反向依賴用 `await import('./achievementStore')` 延遲載入
-- ❌ 不要再新增 `index.ts` barrel（專案內已有 8 個無人 import 的檔案，其中 6 個是 barrel）
+- ❌ 不要再新增 `index.ts` barrel（專案內已有 7 個無人 import 的檔案，其中 5 個是 barrel）
 
 ### 4.2 狀態與資料結構
 
@@ -261,7 +261,7 @@ services → types（只能 import type 或由入口注入）
 | 在 `data/` 放 React 元素 | 主 chunk 肥、node 測試不能跑 | icon 用字串 key |
 | 手改 `srcFileManifest.json` | 下次 build 被覆寫 | 改 `scripts/generate-src-file-manifest.mjs` |
 | 改 `PATHS` 結構但沒跑 `initializeGrid` | 格子與地圖不一致 | 走 `startGame` 流程 |
-| 依賴「檔名同目錄」解析 | `data/gameData.ts` 蓋過 `data/gameData/index.ts` | 明確指定要改的那一個（index 版是死的） |
+| 依賴「檔名同目錄」解析 | 同名檔案與目錄並存時，`x.ts` 一定蓋過 `x/index.ts`（TD-10 已經清掉唯一實例，但別再造一個） | 不要在目錄旁再放同名檔案；非放不可就明確寫出要哪一個 |
 | 相信 `docs/superpowers/*` | 多為歷史設計稿，與現況有落差 | 以程式碼與 `架構圖.html` 為準 |
 
 ---
@@ -289,8 +289,8 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 |---|---|---|
 | `as any` / `: any` | 19 / 13 | 補型別（尤其 `TowerData` 的 Mod 欄位） |
 | 硬編碼中文（可見字串） | 445 條 | `t(` + `locales/zh-TW.ts` |
-| 零引用 export / 死檔 | 136 / 8 | 不確定就先不加；加了就要有引用 |
-| 新 barrel `index.ts` | 已有 8 個無人 import 的檔案（6 個是 barrel） | 直接 import 目標檔 |
+| 零引用 export / 死檔 | 136 / 7 | 不確定就先不加；加了就要有引用 |
+| 新 barrel `index.ts` | 已有 7 個無人 import 的檔案（5 個是 barrel） | 直接 import 目標檔 |
 | `console.log` | 專案用 `console.error` 於錯誤路徑 | 沿用錯誤路徑的 `console.error`，不要加 log |
 | > 888 行的新檔 | 7 個既有上帝檔 | 先拆模組 |
 | 新 `eslint-disable` | 17 個（無 ESLint） | 修正依賴或用 ref 模式 |
@@ -586,7 +586,7 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 
 | 規則 | 為什麼不抄 |
 |---|---|
-| 多目標 matrix、Gradle 快取、JDK toolchain、跨平台建置矩陣 | 本專案只有一條 JS 工具鏈（npm + vitest + vite），CI 雖然已拆成 3 個平行 job（§13.1）但沒有多平台矩陣需求；等真的需要再加，不要預先複雜化。 |
+| 多目標 matrix、Gradle 快取、JDK toolchain、跨平台建置矩陣 | 本專案只有一條 JS 工具鏈（npm + vitest + vite），CI 雖然已拆成多個平行 job（§13.1）但沒有多平台矩陣需求；等真的需要再加，不要預先複雜化。 |
 | 產物（artifact）上傳與保留策略 | 只有 tag 觸發的 release 需要產物，現由 `tauri-action` 處理。 |
 
 ### 13.7 低風險改動不必等 CI（繼續往下做）
