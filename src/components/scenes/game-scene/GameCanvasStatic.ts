@@ -6,7 +6,7 @@
  */
 
 import { drawGrid, drawTileHover } from '@/components/game/PathRenderer';
-import type { TowerType, Tower } from '@/types/game';
+import type { TowerType, Tower, Tile } from '@/types/game';
 import { previewPlacementSynergies, toTowerRef } from '@/data/towerSynergyData';
 import { getTowerStatBonus } from '@/data/towerCombatStats';
 
@@ -78,7 +78,7 @@ export interface TacticalScore {
 }
 
 export interface StaticLayerParams {
-  grid: any[][];
+  grid: Tile[][];
   hoveredTile: { col: number; row: number } | null;
   selectedTower: Tower | null;
   selectedTowerType: TowerType | null;
@@ -325,7 +325,7 @@ function drawRangeIndicators(
 // ===== 放置預覽範圍 =====
 function drawPlacementPreview(
   ctx: CanvasRenderingContext2D,
-  grid: any[][],
+  grid: Tile[][],
   tileSize: number,
   offsetX: number,
   offsetY: number,
@@ -374,7 +374,7 @@ function drawPlacementSynergyPreview(
   offsetY: number,
   selectedTowerType: TowerType | null,
   hoveredTile: { col: number; row: number } | null,
-  grid: any[][],
+  grid: Tile[][],
   towers: Tower[],
 ): void {
   if (!selectedTowerType || !hoveredTile) return;

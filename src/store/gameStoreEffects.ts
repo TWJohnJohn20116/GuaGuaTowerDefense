@@ -1,5 +1,5 @@
 import type { GameStore } from './gameStoreTypes';
-import type { Enemy, DeathShard } from '@/types/game';
+import type { Enemy, DeathShard, DamageText, ImpactParticle, DeathAnimation } from '@/types/game';
 import { ENEMY_DATA } from '@/data/gameData';
 import { getEnemyVisuals } from './gameStoreUtils';
 
@@ -99,9 +99,9 @@ const buildDeathShards = (
  * 這裡改為 push 到 buffer，updateVisualEffects（每幀調用一次）統一 flush，
  * 將「N 次 set」降為「1 次 set」，大幅降低 store 通知與 React reconciler 工作量。
  */
-const damageTextsBuffer: any[] = [];
-const particlesBuffer: any[] = [];
-const deathAnimsBuffer: any[] = [];
+const damageTextsBuffer: DamageText[] = [];
+const particlesBuffer: ImpactParticle[] = [];
+const deathAnimsBuffer: DeathAnimation[] = [];
 let shakeBuffer = 0;
 
 export const createEffectActions = (get: GetState, set: SetState) => ({
@@ -213,7 +213,7 @@ export const createEffectActions = (get: GetState, set: SetState) => ({
 
     // 2. 傷害文字：filter + 漂浮 + 合併 buffer
     const hasNewTexts = damageTextsBuffer.length > 0;
-    const updatedTexts: any[] = [];
+    const updatedTexts: DamageText[] = [];
     for (let i = 0; i < damageTexts.length; i++) {
       const t = damageTexts[i];
       if (now - t.startTime < t.duration) {
@@ -229,7 +229,7 @@ export const createEffectActions = (get: GetState, set: SetState) => ({
 
     // 3. 粒子：filter + 物理 + 合併 buffer
     const hasNewParticles = particlesBuffer.length > 0;
-    const updatedParticles: any[] = [];
+    const updatedParticles: ImpactParticle[] = [];
     for (let i = 0; i < impactParticles.length; i++) {
       const p = impactParticles[i];
       const pNow = now - p.startTime;
@@ -252,7 +252,7 @@ export const createEffectActions = (get: GetState, set: SetState) => ({
 
     // 4. 死亡動畫：filter + 合併 buffer
     const hasNewDeaths = deathAnimsBuffer.length > 0;
-    const updatedDeathAnims: any[] = [];
+    const updatedDeathAnims: DeathAnimation[] = [];
     for (let i = 0; i < deathAnimations.length; i++) {
       const d = deathAnimations[i];
       if (now - d.startTime < d.duration) updatedDeathAnims.push(d);

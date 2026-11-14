@@ -13,7 +13,7 @@ import { applyFrostSilenceToJammer } from '@/data/jammerAura';
 import { applyBallistaRoot, applyCannonStun, applyFrostbite, applyLaserExposed, applyLightningWeakness, applyMachineSilence, applyShotgunBleed, applySniperMark, applyWindFear, getAntiAirMult, getBleedHuntMult, getExecuteMult, getFearHuntMult, getFocusFireMult, getFreezeHuntMult, getLaserHuntMult, getPinnedMult, getSilenceHuntMult, getStunCrushMult, getToxinHuntMult, getTowerHitDamageOpts, getWeaknessHuntMult } from '@/data/combatStatus';
 
 // 單顆投射物在本幀更新時的共享上下文（每幀建立一次，傳給各處理函式）
-// addDamage / checkKill 為外層閉包，確保 anyEnemyTookDamage 與統計 Map 仍由 createUpdateProjectiles 持有
+// addDamage / checkKill 為外層閉包，確保 someEnemyTookDamage 與統計 Map 仍由 createUpdateProjectiles 持有
 interface ProjStepCtx {
   get: GetState;
   now: number;
@@ -481,10 +481,10 @@ export const createUpdateProjectiles =
     const towerKillsMap = new Map<string, number>();
 
     // 用於記錄本幀是否有任何敵人受到任何傷害（包含直接命中、範圍、連鎖等）
-    let anyEnemyTookDamage = false;
+    let someEnemyTookDamage = false;
 
     const addDamage = (towerId: string, damage: number) => {
-      if (damage > 0) anyEnemyTookDamage = true;
+      if (damage > 0) someEnemyTookDamage = true;
       towerDamageMap.set(towerId, (towerDamageMap.get(towerId) || 0) + damage);
     };
 
@@ -535,7 +535,7 @@ export const createUpdateProjectiles =
         });
 
     // 教學模式：只要有敵人受到傷害就降速為 1 倍（同步呼叫）
-    if (anyEnemyTookDamage || loopFlags.hasNewProjectilesThisFrame || loopFlags.enemyInRange) {
+    if (someEnemyTookDamage || loopFlags.hasNewProjectilesThisFrame || loopFlags.enemyInRange) {
       const state = get();
       if (state.gameSpeed > 1) {
         const tutorialState = useTutorialStore.getState();
@@ -575,10 +575,10 @@ export const createUpdateProjectiles =
     }
 
     // enemies 僅在本幀確有敵人受傷時才寫回新陣列；無命中時沿用原引用以省去重複 re-render。
-    // 不變量：所有 updatedEnemies 的修改都先經過 addDamage(正值)，故 anyEnemyTookDamage 等價於敵人陣列已變動。
+    // 不變量：所有 updatedEnemies 的修改都先經過 addDamage(正值)，故 someEnemyTookDamage 等價於敵人陣列已變動。
     set({
       projectiles: updatedProjectiles,
-      enemies: anyEnemyTookDamage ? updatedEnemies : enemies,
+      enemies: someEnemyTookDamage ? updatedEnemies : enemies,
       towers: updatedTowers,
       selectedTower: updatedSelectedTower,
     });
