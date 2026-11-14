@@ -13,7 +13,7 @@ import { PATHS, DIFFICULTY_MODIFIERS } from '@/data/gameData';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { GameDifficulty, DifficultyModifiers } from '@/types/game';
 import { SceneShell } from '@/components/ui/SceneShell';
-import { Btn, Chip, TopBar, Rail } from '@/components/hl';
+import { Chip, TopBar, Rail } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 import { findPlayableWaveSet } from '@/utils/waveSets';
 import { isPathSelectionTypingTarget, resolvePathSelectionEscape } from '@/data/pathSelectionBack';
@@ -181,14 +181,6 @@ export default function PathSelection() {
                   <span className="tabular-nums opacity-70">{chip.count}</span>
                 </Chip>
               ))}
-              <Btn
-                variant="signal"
-                size="md"
-                disabled={!selectedPath}
-                onClick={() => handleStartGame()}
-              >
-                {t.pathSelection.startBattle}
-              </Btn>
             </div>
           }
         />

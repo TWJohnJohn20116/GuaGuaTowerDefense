@@ -25,6 +25,7 @@ export const zhTW = {
   
   mainMenu: {
     localRecordTitle: '本機戰績',
+    advancedSettings: '進階設定',
     localGames: '場次',
     localWinRate: '勝率',
     localBestWave: '最高波次',

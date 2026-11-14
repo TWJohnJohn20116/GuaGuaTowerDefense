@@ -1,14 +1,16 @@
 /**
- * 戰前簡報 · 主入口（CANDY）
+ * 戰前簡報（CANDY · 主機式關卡選擇）
  *
- * 版面是「一疊卡片」：Hero → 難度 → 戰場參數 → 遊戲模式 → 出擊列。
- * 每個區塊都是一張獨立白卡，區段標題在卡內，不靠細線分隔。
+ * 只有兩張卡：
+ *   1. 地圖卡：大預覽 + 名稱 + 說明 + 四格數據
+ *   2. 作戰卡：難度列 → 進階設定（預設收合：戰場參數／模式／自訂滑桿）→ 出擊列
+ * 目標是「一屏看完、一鍵出擊」，參數不打擾人。
  */
 
 import type { Dispatch, SetStateAction } from 'react';
 import type { GameDifficulty, DifficultyModifiers } from '@/types/game';
 import { useTranslation } from '@/i18n';
-import { Deck, Segments } from '@/components/hl';
+import { Btn, Deck, Segments, StatCell } from '@/components/hl';
 import { SectionHeader, BriefingHero, EmptyBriefing, Badge } from './BriefingShared';
 import { calculatePathStats } from './utils';
 import { DifficultyRow, StatsGrid, CustomSliders, ModePanel, DIFFICULTY_META } from './briefing';
@@ -42,6 +44,7 @@ export function MapBriefing({
   customModifiers,
   setCustomModifiers,
   mod,
+  onStart,
   customWaveSetId,
   setCustomWaveSetId,
 }: MapBriefingProps) {
@@ -65,7 +68,7 @@ export function MapBriefing({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="mx-auto min-h-0 w-full max-w-[1180px] flex-1 space-y-3 overflow-y-auto pb-3">
+      <div className="mx-auto flex min-h-0 w-full max-w-[1220px] flex-1 flex-col gap-3 overflow-y-auto p-3">
         <BriefingHero
           path={selectedMap.path}
           eyebrow={c.missionObjective}
@@ -80,59 +83,86 @@ export function MapBriefing({
           stats={[
             { label: t.pathSelection.pathLengthLabel, value: stats.length },
             { label: t.pathSelection.turnCountLabel, value: stats.turns },
-            { label: c.sectionDifficulty, value: getPathDifficultyLabel(selectedMap.difficulty, t) },
             { label: c.expectedReward, value: rewardCoins, unit: 'coins' },
           ]}
         />
 
-        <Deck className="mx-3 p-4">
-          <SectionHeader
-            title={c.sectionDifficulty}
-            right={
-              <span className="flex items-center gap-2">
-                <span className="font-mono text-[11px] font-extrabold tabular-nums text-[var(--cn-ink-3)]">
-                  {diffMeta.stars > 0 ? `${diffMeta.stars}/5` : '—'}
+        <Deck className="overflow-hidden">
+          {/* 難度列 */}
+          <div className="p-4">
+            <SectionHeader
+              title={c.sectionDifficulty}
+              right={
+                <span className="flex items-center gap-2">
+                  <span className="font-mono text-[11px] font-extrabold tabular-nums text-[var(--cn-ink-3)]">
+                    {diffMeta.stars > 0 ? `${diffMeta.stars}/5` : '—'}
+                  </span>
+                  <Segments total={5} filled={diffMeta.stars} size="sm" tone={diffMeta.tone} />
                 </span>
-                <Segments total={5} filled={diffMeta.stars} size="sm" tone={diffMeta.tone} />
-              </span>
-            }
-          />
-          <DifficultyRow selected={selectedDifficulty} onChange={setSelectedDifficulty} />
+              }
+            />
+            <DifficultyRow selected={selectedDifficulty} onChange={setSelectedDifficulty} />
+          </div>
 
-          <div className="mt-4 border-t-[3px] border-[var(--cn-line-soft)] pt-3">
-            <div className="mb-2 text-[11px] font-extrabold tracking-[0.06em] text-[var(--cn-ink-3)]">
-              {c.sectionBattleParams}
+          {/* 進階設定：預設收合 */}
+          <details className="group border-t-[3px] border-[var(--cn-line-soft)]">
+            <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-[13px] font-extrabold text-[var(--cn-ink-2)] transition-colors hover:text-[var(--cn-ink)] [&::-webkit-details-marker]:hidden">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full border-[3px] border-[var(--cn-line-soft)] text-[11px] leading-none transition-transform group-open:rotate-90">
+                ▸
+              </span>
+              {t.mainMenu.advancedSettings}
+              <span className="ml-auto text-[11px] font-bold text-[var(--cn-ink-4)]">
+                {t.pathSelection.sectionBattleParams} · {t.pathSelection.sectionGameMode}
+              </span>
+            </summary>
+
+            <div className="flex flex-col gap-4 px-4 pb-4">
+              <div>
+                <div className="mb-2 text-[11px] font-extrabold tracking-[0.06em] text-[var(--cn-ink-3)]">
+                  {c.sectionBattleParams}
+                </div>
+                <StatsGrid mod={mod} />
+              </div>
+
+              <div>
+                <div className="mb-2 text-[11px] font-extrabold tracking-[0.06em] text-[var(--cn-ink-3)]">
+                  {c.sectionGameMode}
+                </div>
+                <ModePanel
+                  endlessMode={endlessMode}
+                  setEndlessMode={setEndlessMode}
+                  selectedWaves={selectedWaves}
+                  setSelectedWaves={setSelectedWaves}
+                  customWaveSetId={customWaveSetId}
+                  setCustomWaveSetId={setCustomWaveSetId}
+                />
+              </div>
+
+              {selectedDifficulty === 'custom' && (
+                <CustomSliders custom={customModifiers} setCustom={setCustomModifiers} />
+              )}
             </div>
-            <StatsGrid mod={mod} />
+          </details>
+
+          {/* 出擊列 */}
+          <div className="flex items-center justify-between gap-3 border-t-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] px-4 py-3">
+            <StatCell
+              label={c.expectedReward}
+              value={rewardCoins}
+              unit="coins"
+              tone="signal"
+            />
+            <div className="flex items-center gap-2">
+              <span className="text-[11.5px] font-bold text-[var(--cn-ink-3)]">
+                {endlessMode ? '∞' : `${selectedWaves}`} · {getPathDifficultyLabel(selectedDifficulty, t)}
+              </span>
+              <Btn variant="signal" size="lg" onClick={onStart}>
+                {t.pathSelection.startBattle}
+              </Btn>
+            </div>
           </div>
         </Deck>
-
-        {selectedDifficulty === 'custom' && (
-          <Deck className="mx-3 p-4">
-            <CustomSliders custom={customModifiers} setCustom={setCustomModifiers} />
-          </Deck>
-        )}
-
-        <Deck className="mx-3 p-4">
-          <SectionHeader
-            title={c.sectionGameMode}
-            right={
-              <span className="rounded-full bg-[var(--cn-card-2)] px-2.5 py-0.5 text-[11px] font-extrabold tabular-nums text-[var(--cn-ink-2)]">
-                {endlessMode ? '∞' : selectedWaves}
-              </span>
-            }
-          />
-          <ModePanel
-            endlessMode={endlessMode}
-            setEndlessMode={setEndlessMode}
-            selectedWaves={selectedWaves}
-            setSelectedWaves={setSelectedWaves}
-            customWaveSetId={customWaveSetId}
-            setCustomWaveSetId={setCustomWaveSetId}
-          />
-        </Deck>
       </div>
-
     </div>
   );
 }
