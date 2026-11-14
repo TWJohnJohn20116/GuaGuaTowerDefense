@@ -4,8 +4,7 @@
  * 全部走 hl-row 結構：密集列、1px 分隔線、數值一律 mono tabular。
  */
 import type { GameRecord } from '@/store/statsStore';
-import { useTranslation } from '@/i18n';
-import { Deck, SegHead, Num, Dot } from '@/components/hl';
+import { useTranslation } from '@/i18n';import { Num, Dot } from '@/components/hl';
 import { getStatsGameModeLabel } from '@/store/statsGameMode';
 import {
   formatGameRecordDifficulty,

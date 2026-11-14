@@ -1,7 +1,4 @@
-/**
- * Mod 驗證 · 項目高亮輔助
- */
-import type { ModValidationFlag, ModValidationResult } from '@/types/game';
+import type { ModValidationFlag } from '@/types/game';
 import type { ContentTab } from '@/components/scenes/mod-editor-scene/ModEditorContentPanel';
 
 export function getItemValidationLevel(

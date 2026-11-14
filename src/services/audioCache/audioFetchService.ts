@@ -22,8 +22,6 @@ import {
   type AudioDownloadItemState,
 } from '@/store/audioDownloadStore';
 
-type PrefetchStatus = 'idle' | 'running' | 'done' | 'partial';
-
 const inflight = new Map<string, Promise<unknown>>();
 const sfxBlobUrls = new Map<SoundId, string>();
 

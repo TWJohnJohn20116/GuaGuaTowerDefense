@@ -1,5 +1,4 @@
-// 塔放置與出售動畫 - 從 GameCanvasDynamic 抽出以保持單一檔案 ≤ 888 行
-import type { GridPosition, Tower } from '@/types/game';
+import type { GridPosition } from '@/types/game';
 
 interface SellAnim {
   id: string;

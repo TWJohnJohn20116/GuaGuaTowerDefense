@@ -3,13 +3,6 @@ const HIDDEN_CAMPAIGN_MAP_IDS = ['spiral', 'river', 'fortress'] as const;
 
 type HiddenCampaignMapId = (typeof HIDDEN_CAMPAIGN_MAP_IDS)[number];
 
-/** 隱藏地圖 ↔ 戰役關卡對應 */
-const HIDDEN_MAP_CAMPAIGN_LEVEL: Record<HiddenCampaignMapId, string> = {
-  spiral: 'ch9_lv3',
-  river: 'ch9_lv4',
-  fortress: 'ch9_lv5',
-};
-
 /** 進階模式列表說明 */
 const HIDDEN_MAP_BROWSE_HINT: Record<HiddenCampaignMapId, string> = {
   spiral: '戰役 9-3「螺旋迷陣」通關後解鎖劇情體驗',

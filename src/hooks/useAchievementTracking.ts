@@ -1,11 +1,4 @@
-/**
- * 成就追蹤 Hook
- * Achievement Tracking Hook
- * 
- * 這個 Hook 用於在遊戲組件中追蹤成就進度
- */
-
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { useAchievementStore } from '@/store/achievementStore';
 import { GAME_CONSTANTS } from '@/data/gameData';

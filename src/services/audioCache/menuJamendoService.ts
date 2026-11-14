@@ -1,11 +1,4 @@
-/**
- * 主選單專輯 — Jamendo 下載與快取
- */
-import {
-  getMenuAlbumById,
-  isRemoteMenuAlbum,
-  type MenuMusicAlbum,
-} from '@/services/music/menuAlbumCatalog';
+import { getMenuAlbumById, isRemoteMenuAlbum } from '@/services/music/menuAlbumCatalog';
 import {
   countCachedMenuAlbumTracks,
   readMenuAlbumMeta,

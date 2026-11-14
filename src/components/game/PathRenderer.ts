@@ -1,5 +1,4 @@
-// 路徑渲染器 - 極簡風 (無縫拼接、完美圓角、均勻網格)
-import type { Tile, GridPosition } from '@/types/game';
+import type { Tile } from '@/types/game';
 
 // 判斷格子是否為路徑類型
 const isPathLike = (grid: Tile[][], row: number, col: number): boolean => {

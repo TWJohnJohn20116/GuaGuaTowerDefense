@@ -82,20 +82,6 @@ export function getTowerEffectIcon(id: TowerEffectId, className = 'h-3 w-3') {
   }
 }
 
-type TowerEffectLabelKey =
-  | 'splashLabel' | 'slowLabel' | 'poisonLabel' | 'chainLabel'
-  | 'laserLabel' | 'flameLabel' | 'windLabel' | 'moneyLabel';
-
-const EFFECT_LABEL_KEY: Record<TowerEffectId, TowerEffectLabelKey> = {
-  splash: 'splashLabel',
-  slow: 'slowLabel',
-  poison: 'poisonLabel',
-  chain: 'chainLabel',
-  laser: 'laserLabel',
-  flame: 'flameLabel',
-  wind: 'windLabel',
-  money: 'moneyLabel',
-};
 type TowerEffectShortKey =
   | 'fxShortSplash' | 'fxShortSlow' | 'fxShortPoison' | 'fxShortChain'
   | 'fxShortLaser' | 'fxShortFlame' | 'fxShortWind' | 'fxShortMoney';

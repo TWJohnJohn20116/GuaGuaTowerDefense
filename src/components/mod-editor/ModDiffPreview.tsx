@@ -1,8 +1,7 @@
 /**
  * Mod 草稿 vs 已安裝版本差異對比
  */
-import { useMemo } from 'react';
-import type { Mod, CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData } from '@/types/game';
+import { useMemo } from 'react';import type { Mod } from '@/types/game';
 import { DocumentIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
