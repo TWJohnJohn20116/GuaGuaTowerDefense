@@ -11,6 +11,7 @@ import { drawEnemyModel } from '@/utils/enemyRenderer';
 import { initializeGrid } from '@/store/gameStoreUtils';
 import { useSettingsStore } from '@/store/settingsStore';
 import { shouldDrawReplayEnemyHealthBar } from '@/data/replayCanvasDisplay';
+import { healthBarColorCss } from '@/data/healthBarColor';
 import { createFrameLoopGuard } from '@/utils/frameLoopGuard';
 import type { ReplaySnapshot, ReplayEvent } from '@/store/replayStore';
 import { buildRenderFrame } from './replayPlayback';
@@ -128,7 +129,7 @@ export function ReplayCanvas({
           const barY = ey - radius - barH - 2;
           ctx.fillStyle = '#1a1d24';
           ctx.fillRect(ex - barW / 2, barY, barW, barH);
-          ctx.fillStyle = e.hp > 0.5 ? '#22c55e' : e.hp > 0.25 ? '#fbbf24' : '#ef4444';
+          ctx.fillStyle = healthBarColorCss(e.hp);
           ctx.fillRect(ex - barW / 2, barY, barW * e.hp, barH);
         }
         if (e.alpha < 1) ctx.globalAlpha = 1;
