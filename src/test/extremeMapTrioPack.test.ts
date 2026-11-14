@@ -4,71 +4,38 @@
 
 import { describe, it, expect } from 'vitest';
 import { ENEMY_DATA, PATHS } from '@/data/gameData';
-import { MUTATOR_CHALLENGES } from '@/data/mutatorChallengeData';
-import { DAILY_CHALLENGE_TEMPLATES } from '@/data/dailyChallengeData';
 import { ALL_ACHIEVEMENTS, getInitialStatistics } from '@/data/achievementData';
 import { checkCondition } from '@/store/achievementStoreCheck';
 import { OFFICIAL_WAVE_SETS, findPlayableWaveSet } from '@/utils/waveSets';
-import { resolveMutatorStartConfig } from '@/utils/mutatorStart';
-import { evaluateDailyCondition, type GameOutcomeForChallenge } from '@/store/dailyChallengeStore';
 import { PATHS_BY_DIFFICULTY } from '@/data/gameData/pathData';
-
-function blankOutcome(overrides: Partial<GameOutcomeForChallenge> = {}): GameOutcomeForChallenge {
-  return {
-    won: false,
-    noDamage: false,
-    fullHp: false,
-    playTimeSeconds: 0,
-    moneySpent: 0,
-    moneyEarned: 0,
-    enemiesKilled: 0,
-    enemiesKilledByType: {},
-    bossesKilled: 0,
-    towersPlaced: 0,
-    towersPlacedByType: {},
-    towersReachedMaxLevel: 0,
-    perfectWaves: 0,
-    endless: false,
-    endlessWave: 0,
-    difficulty: 'normal',
-    towersFused: 0,
-    ...overrides,
-  };
-}
 
 const PACKS = [
   {
     waveSetId: 'official_tank_push',
     waveName: '坦克壓境',
     enemy: 'tank' as const,
-    mutatorId: 'mc_tank_clover',
     mapId: 'clover',
     mapName: '四葉',
     mapAchId: 'map_clover',
     waveAchId: 'wave_tank_push',
-    dailyId: 'dc_tank_push',
   },
   {
     waveSetId: 'official_shadow_run',
     waveName: '影行突襲',
     enemy: 'stealth' as const,
-    mutatorId: 'mc_shadow_gauntlet',
     mapId: 'gauntlet',
     mapName: '甬道',
     mapAchId: 'map_gauntlet',
     waveAchId: 'wave_shadow_run',
-    dailyId: 'dc_shadow_run',
   },
   {
     waveSetId: 'official_guard_fan',
     waveName: '護航扇面',
     enemy: 'escort' as const,
-    mutatorId: 'mc_guard_delta',
     mapId: 'delta',
     mapName: '三角洲',
     mapAchId: 'map_delta',
     waveAchId: 'wave_guard_fan',
-    dailyId: 'dc_guard_fan',
   },
 ] as const;
 
@@ -123,21 +90,6 @@ describe('extreme map trio packs', () => {
     }
   });
 
-  it('locks each set onto its new map with unique mutators', () => {
-    const ids = MUTATOR_CHALLENGES.map((c) => c.id);
-    expect(new Set(ids).size).toBe(ids.length);
-
-    for (const pack of PACKS) {
-      const challenge = MUTATOR_CHALLENGES.find((c) => c.id === pack.mutatorId);
-      expect(challenge, pack.mutatorId).toBeDefined();
-      expect(challenge!.mapId).toBe(pack.mapId);
-      expect(challenge!.customWaveSetId).toBe(pack.waveSetId);
-      const start = resolveMutatorStartConfig(challenge!);
-      expect(start.customWaveSetId).toBe(pack.waveSetId);
-      expect(start.maxWaves).toBe(findPlayableWaveSet(pack.waveSetId)!.waves.length);
-    }
-  });
-
   it('unlocks map and wave-set achievements', () => {
     for (const pack of PACKS) {
       const mapAch = ALL_ACHIEVEMENTS.find((a) => a.id === pack.mapAchId);
@@ -161,18 +113,4 @@ describe('extreme map trio packs', () => {
     }
   });
 
-  it('adds daily templates that only count the matching wave set', () => {
-    const ids = DAILY_CHALLENGE_TEMPLATES.map((t) => t.id);
-    expect(new Set(ids).size).toBe(ids.length);
-
-    for (const pack of PACKS) {
-      const template = DAILY_CHALLENGE_TEMPLATES.find((t) => t.id === pack.dailyId);
-      expect(template, pack.dailyId).toBeDefined();
-      expect(template!.conditions.some((c) => c.type === 'win_wave_set' && c.waveSetId === pack.waveSetId)).toBe(true);
-
-      const cond = { type: 'win_wave_set' as const, target: 1, waveSetId: pack.waveSetId, label: pack.waveName };
-      expect(evaluateDailyCondition(cond, blankOutcome({ won: true, customWaveSetId: pack.waveSetId }))).toBe(1);
-      expect(evaluateDailyCondition(cond, blankOutcome({ won: true, customWaveSetId: 'official_air_blink' }))).toBe(0);
-    }
-  });
 });

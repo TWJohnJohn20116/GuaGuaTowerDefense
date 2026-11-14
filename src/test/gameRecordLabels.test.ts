@@ -4,13 +4,13 @@ import { describe, expect, it } from 'vitest';
 import {
   formatGameRecordDifficulty,
   formatGameRecordMap,
-  gameDifficultyLabelsFromDetail,
+  gameDifficultyLabelsFromGameCopy,
 } from '@/data/gameRecordLabels';
 import { filterGameHistory } from '@/components/scenes/statistics/statsHistoryFilters';
 import { zhTW } from '@/i18n/locales/zh-TW';
 import type { GameRecord } from '@/store/statsStore';
 
-const labels = gameDifficultyLabelsFromDetail(zhTW.mutatorChallenge.detail);
+const labels = gameDifficultyLabelsFromGameCopy(zhTW.game);
 
 function stub(partial: Partial<GameRecord> & Pick<GameRecord, 'mapId' | 'difficulty'>): GameRecord {
   return {

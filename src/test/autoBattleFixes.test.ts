@@ -45,7 +45,6 @@ const resetMatch = (towerCostMult = 1) => {
     currentWave: 3,
     selectedTowerType: 'basic',
     selectedTower: null,
-    mutatorRules: null,
     difficultyModifiers: { ...DIFFICULTY_MODIFIERS.normal, towerCostMult },
     placementHistory: [],
     placementHistoryIndex: -1,

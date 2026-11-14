@@ -1,11 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { gameDifficultyLabelsFromDetail } from '@/data/gameRecordLabels';
+import { gameDifficultyLabelsFromGameCopy } from '@/data/gameRecordLabels';
 import { replayMatchesSearch } from '@/data/replayBrowseSearch';
 import { zhTW } from '@/i18n/locales/zh-TW';
 
-const labels = gameDifficultyLabelsFromDetail(zhTW.mutatorChallenge.detail);
+const labels = gameDifficultyLabelsFromGameCopy(zhTW.game);
 
 const sample = {
   name: '第 8 波防守',
@@ -36,6 +36,6 @@ describe('replay browse search', () => {
       'utf8',
     );
     expect(src).toMatch(/replayMatchesSearch/);
-    expect(src).toMatch(/gameDifficultyLabelsFromDetail/);
+    expect(src).toMatch(/gameDifficultyLabelsFromGameCopy/);
   });
 });

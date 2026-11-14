@@ -20,8 +20,6 @@ describe('main menu Home layout', () => {
     expect(HOME_RAIL_CLASS).toMatch(/w-\[320px\]/);
     expect(HOME_GRID_CLASS).toMatch(/grid-cols-3/);
     expect(HOME_ENTRY_SCENES).toEqual([
-      'dailyChallenge',
-      'mutatorChallenge',
       'shop',
       'talentTree',
       'encyclopedia',
@@ -30,7 +28,6 @@ describe('main menu Home layout', () => {
       'statistics',
       'workshop',
       'replay',
-      'memorial',
       'tutorial',
       'changelog',
       'settings',

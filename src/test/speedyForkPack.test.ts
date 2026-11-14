@@ -3,41 +3,13 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { ENEMY_DATA, PATHS } from '@/data/gameData';
-import { MUTATOR_CHALLENGES } from '@/data/mutatorChallengeData';
-import { DAILY_CHALLENGE_TEMPLATES } from '@/data/dailyChallengeData';
+import { ENEMY_DATA } from '@/data/gameData';
 import { ALL_ACHIEVEMENTS, getInitialStatistics } from '@/data/achievementData';
 import { checkCondition } from '@/store/achievementStoreCheck';
 import { OFFICIAL_WAVE_SETS, findPlayableWaveSet } from '@/utils/waveSets';
-import { resolveMutatorStartConfig } from '@/utils/mutatorStart';
-import { evaluateDailyCondition, type GameOutcomeForChallenge } from '@/store/dailyChallengeStore';
 
 const WAVE_SET_ID = 'official_speedy_rush';
-const MUTATOR_ID = 'mc_speedy_fork';
 const MAP_ID = 'y_fork';
-
-function blankOutcome(overrides: Partial<GameOutcomeForChallenge> = {}): GameOutcomeForChallenge {
-  return {
-    won: false,
-    noDamage: false,
-    fullHp: false,
-    playTimeSeconds: 0,
-    moneySpent: 0,
-    moneyEarned: 0,
-    enemiesKilled: 0,
-    enemiesKilledByType: {},
-    bossesKilled: 0,
-    towersPlaced: 0,
-    towersPlacedByType: {},
-    towersReachedMaxLevel: 0,
-    perfectWaves: 0,
-    endless: false,
-    endlessWave: 0,
-    difficulty: 'normal',
-    towersFused: 0,
-    ...overrides,
-  };
-}
 
 describe('speedy rush wave set', () => {
   it('registers an official speedy-heavy set', () => {
@@ -60,20 +32,7 @@ describe('speedy rush wave set', () => {
   });
 });
 
-describe('speedy fork mutator and achievements', () => {
-  it('locks the speedy set onto y-fork', () => {
-    const ids = MUTATOR_CHALLENGES.map((c) => c.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    const challenge = MUTATOR_CHALLENGES.find((c) => c.id === MUTATOR_ID);
-    expect(challenge).toBeDefined();
-    expect(challenge!.mapId).toBe(MAP_ID);
-    expect(challenge!.customWaveSetId).toBe(WAVE_SET_ID);
-    expect(PATHS[MAP_ID]).toBeDefined();
-    expect(PATHS[MAP_ID].name).toBe('Y型分叉');
-    const start = resolveMutatorStartConfig(challenge!);
-    expect(start.customWaveSetId).toBe(WAVE_SET_ID);
-    expect(start.maxWaves).toBe(findPlayableWaveSet(WAVE_SET_ID)!.waves.length);
-  });
+describe('speedy fork achievements', () => {
 
   it('unlocks y-fork map and speedy-rush wave achievements', () => {
     const mapAch = ALL_ACHIEVEMENTS.find((a) => a.id === 'map_y_fork');
@@ -97,18 +56,3 @@ describe('speedy fork mutator and achievements', () => {
   });
 });
 
-describe('daily speedy rush', () => {
-  it('adds a speedy-rush daily template', () => {
-    const ids = DAILY_CHALLENGE_TEMPLATES.map((t) => t.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    const template = DAILY_CHALLENGE_TEMPLATES.find((t) => t.id === 'dc_speedy_rush');
-    expect(template).toBeDefined();
-    expect(template!.conditions.some((c) => c.type === 'win_wave_set' && c.waveSetId === WAVE_SET_ID)).toBe(true);
-  });
-
-  it('counts a win only when the matching wave set was used', () => {
-    const cond = { type: 'win_wave_set' as const, target: 1, waveSetId: WAVE_SET_ID, label: '極速衝鋒通關' };
-    expect(evaluateDailyCondition(cond, blankOutcome({ won: true, customWaveSetId: WAVE_SET_ID }))).toBe(1);
-    expect(evaluateDailyCondition(cond, blankOutcome({ won: true, customWaveSetId: 'official_spawner_nest' }))).toBe(0);
-  });
-});

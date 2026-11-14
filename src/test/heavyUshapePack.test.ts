@@ -3,41 +3,13 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { ENEMY_DATA, PATHS } from '@/data/gameData';
-import { MUTATOR_CHALLENGES } from '@/data/mutatorChallengeData';
-import { DAILY_CHALLENGE_TEMPLATES } from '@/data/dailyChallengeData';
+import { ENEMY_DATA } from '@/data/gameData';
 import { ALL_ACHIEVEMENTS, getInitialStatistics } from '@/data/achievementData';
 import { checkCondition } from '@/store/achievementStoreCheck';
 import { OFFICIAL_WAVE_SETS, findPlayableWaveSet } from '@/utils/waveSets';
-import { resolveMutatorStartConfig } from '@/utils/mutatorStart';
-import { evaluateDailyCondition, type GameOutcomeForChallenge } from '@/store/dailyChallengeStore';
 
 const WAVE_SET_ID = 'official_heavy_march';
-const MUTATOR_ID = 'mc_heavy_ushape';
 const MAP_ID = 'u_shape';
-
-function blankOutcome(overrides: Partial<GameOutcomeForChallenge> = {}): GameOutcomeForChallenge {
-  return {
-    won: false,
-    noDamage: false,
-    fullHp: false,
-    playTimeSeconds: 0,
-    moneySpent: 0,
-    moneyEarned: 0,
-    enemiesKilled: 0,
-    enemiesKilledByType: {},
-    bossesKilled: 0,
-    towersPlaced: 0,
-    towersPlacedByType: {},
-    towersReachedMaxLevel: 0,
-    perfectWaves: 0,
-    endless: false,
-    endlessWave: 0,
-    difficulty: 'normal',
-    towersFused: 0,
-    ...overrides,
-  };
-}
 
 describe('heavy march wave set', () => {
   it('registers an official tank-and-heavy set', () => {
@@ -62,20 +34,7 @@ describe('heavy march wave set', () => {
   });
 });
 
-describe('heavy u-shape mutator and achievements', () => {
-  it('locks the heavy set onto u-shape', () => {
-    const ids = MUTATOR_CHALLENGES.map((c) => c.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    const challenge = MUTATOR_CHALLENGES.find((c) => c.id === MUTATOR_ID);
-    expect(challenge).toBeDefined();
-    expect(challenge!.mapId).toBe(MAP_ID);
-    expect(challenge!.customWaveSetId).toBe(WAVE_SET_ID);
-    expect(PATHS[MAP_ID]).toBeDefined();
-    expect(PATHS[MAP_ID].name).toBe('U形');
-    const start = resolveMutatorStartConfig(challenge!);
-    expect(start.customWaveSetId).toBe(WAVE_SET_ID);
-    expect(start.maxWaves).toBe(findPlayableWaveSet(WAVE_SET_ID)!.waves.length);
-  });
+describe('heavy u-shape achievements', () => {
 
   it('unlocks u-shape map and heavy-march wave achievements', () => {
     const mapAch = ALL_ACHIEVEMENTS.find((a) => a.id === 'map_u_shape');
@@ -99,18 +58,3 @@ describe('heavy u-shape mutator and achievements', () => {
   });
 });
 
-describe('daily heavy march', () => {
-  it('adds a heavy-march daily template', () => {
-    const ids = DAILY_CHALLENGE_TEMPLATES.map((t) => t.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    const template = DAILY_CHALLENGE_TEMPLATES.find((t) => t.id === 'dc_heavy_march');
-    expect(template).toBeDefined();
-    expect(template!.conditions.some((c) => c.type === 'win_wave_set' && c.waveSetId === WAVE_SET_ID)).toBe(true);
-  });
-
-  it('counts a win only when the matching wave set was used', () => {
-    const cond = { type: 'win_wave_set' as const, target: 1, waveSetId: WAVE_SET_ID, label: '重裝碾壓通關' };
-    expect(evaluateDailyCondition(cond, blankOutcome({ won: true, customWaveSetId: WAVE_SET_ID }))).toBe(1);
-    expect(evaluateDailyCondition(cond, blankOutcome({ won: true, customWaveSetId: 'official_speedy_rush' }))).toBe(0);
-  });
-});

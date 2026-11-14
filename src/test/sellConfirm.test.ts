@@ -33,17 +33,8 @@ describe('sell confirmation', () => {
     });
   });
 
-  it('blocks locked or no-sell mutator towers', () => {
+  it('blocks locked towers', () => {
     expect(resolveSellIntent({ confirmSell: true, locked: true })).toBe('blocked');
-    expect(resolveSellIntent({ confirmSell: false, sellingDisabled: true })).toBe('blocked');
-    expect(requestSellTower({
-      towerId: 't1',
-      name: '基礎塔',
-      cost: 100,
-      confirmSell: true,
-      sellingDisabled: true,
-    })).toBe('blocked');
-    expect(useSellConfirmStore.getState().pending).toBeNull();
   });
 
   it('refunds half the tower cost, rounded down', () => {

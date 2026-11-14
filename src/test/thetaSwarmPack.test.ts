@@ -5,16 +5,13 @@
 import { describe, it, expect } from 'vitest';
 import { ENEMY_DATA, PATHS } from '@/data/gameData';
 import { GAME_CONSTANTS } from '@/data/gameData/waveData';
-import { MUTATOR_CHALLENGES } from '@/data/mutatorChallengeData';
 import { ALL_ACHIEVEMENTS, getInitialStatistics } from '@/data/achievementData';
 import { checkCondition } from '@/store/achievementStoreCheck';
 import { OFFICIAL_WAVE_SETS, findPlayableWaveSet } from '@/utils/waveSets';
-import { resolveMutatorStartConfig } from '@/utils/mutatorStart';
 import type { PathConfig } from '@/types/game';
 
 const MAP_ID = 'theta';
 const WAVE_SET_ID = 'official_swarm_siege';
-const MUTATOR_ID = 'mc_swarm_theta';
 
 function collectPoints(path: PathConfig) {
   const points = [...path.waypoints];
@@ -75,19 +72,7 @@ describe('swarm siege wave set', () => {
   });
 });
 
-describe('theta swarm mutator and achievements', () => {
-  it('starts the swarm set on the theta map', () => {
-    const ids = MUTATOR_CHALLENGES.map((c) => c.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    const challenge = MUTATOR_CHALLENGES.find((c) => c.id === MUTATOR_ID);
-    expect(challenge).toBeDefined();
-    expect(challenge!.mapId).toBe(MAP_ID);
-    expect(challenge!.customWaveSetId).toBe(WAVE_SET_ID);
-    expect(PATHS[challenge!.mapId]).toBeDefined();
-    const start = resolveMutatorStartConfig(challenge!);
-    expect(start.customWaveSetId).toBe(WAVE_SET_ID);
-    expect(start.maxWaves).toBe(findPlayableWaveSet(WAVE_SET_ID)!.waves.length);
-  });
+describe('theta swarm achievements', () => {
 
   it('unlocks map and wave-set achievements', () => {
     const mapAch = ALL_ACHIEVEMENTS.find((a) => a.id === 'map_theta');

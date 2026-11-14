@@ -5,16 +5,12 @@
 import { describe, it, expect } from 'vitest';
 import { PATHS } from '@/data/gameData';
 import { GAME_CONSTANTS } from '@/data/gameData/waveData';
-import { MUTATOR_CHALLENGES } from '@/data/mutatorChallengeData';
 import { ALL_ACHIEVEMENTS, getInitialStatistics } from '@/data/achievementData';
 import { checkCondition } from '@/store/achievementStoreCheck';
-import { findPlayableWaveSet } from '@/utils/waveSets';
-import { resolveMutatorStartConfig } from '@/utils/mutatorStart';
 import type { PathConfig } from '@/types/game';
 
 const MAP_ID = 'pinwheel';
 const WAVE_SET_ID = 'official_swarm_siege';
-const MUTATOR_ID = 'mc_swarm_pinwheel';
 
 function collectPoints(path: PathConfig) {
   const points = [...path.waypoints];
@@ -56,19 +52,7 @@ describe('pinwheel map', () => {
   });
 });
 
-describe('pinwheel swarm mutator and achievement', () => {
-  it('locks swarm siege onto pinwheel', () => {
-    const ids = MUTATOR_CHALLENGES.map((c) => c.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    const challenge = MUTATOR_CHALLENGES.find((c) => c.id === MUTATOR_ID);
-    expect(challenge).toBeDefined();
-    expect(challenge!.mapId).toBe(MAP_ID);
-    expect(challenge!.customWaveSetId).toBe(WAVE_SET_ID);
-    expect(PATHS[MAP_ID]).toBeDefined();
-    const start = resolveMutatorStartConfig(challenge!);
-    expect(start.customWaveSetId).toBe(WAVE_SET_ID);
-    expect(start.maxWaves).toBe(findPlayableWaveSet(WAVE_SET_ID)!.waves.length);
-  });
+describe('pinwheel swarm achievement', () => {
 
   it('unlocks the pinwheel map achievement', () => {
     const mapAch = ALL_ACHIEVEMENTS.find((a) => a.id === 'map_pinwheel');

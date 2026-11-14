@@ -19,7 +19,7 @@ describe('replay restart args', () => {
     });
   });
 
-  it('restores campaign id, mutator, and custom wave set instead of the raw map', () => {
+  it('restores campaign id and custom wave set instead of the raw map', () => {
     expect(resolveReplayRestartArgs({
       mapId: 'straight',
       startPathName: 'ch1_lv2',
@@ -29,14 +29,12 @@ describe('replay restart args', () => {
       isVictory: false,
       finalWave: 4,
       customWaveSetId: 'mod-waves',
-      mutator: { id: 'no-sell', rules: { sellingDisabled: true } },
     })).toEqual({
       pathName: 'ch1_lv2',
       difficulty: 'normal',
       endless: false,
       maxWaves: 10,
       customWaveSetId: 'mod-waves',
-      mutator: { id: 'no-sell', rules: { sellingDisabled: true } },
     });
   });
 

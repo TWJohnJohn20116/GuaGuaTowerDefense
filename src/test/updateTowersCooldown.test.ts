@@ -31,7 +31,6 @@ const setup = (towers: Tower[], enemies: Enemy[]) => {
     money: 1000,
     currentWave: 1,
     difficultyModifiers: DIFFICULTY_MODIFIERS.normal,
-    mutatorRules: null,
     activeProtocol: null,
   });
 };

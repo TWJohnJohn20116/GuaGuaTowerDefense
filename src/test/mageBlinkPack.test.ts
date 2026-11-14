@@ -3,41 +3,13 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { ENEMY_DATA, PATHS } from '@/data/gameData';
-import { MUTATOR_CHALLENGES } from '@/data/mutatorChallengeData';
-import { DAILY_CHALLENGE_TEMPLATES } from '@/data/dailyChallengeData';
+import { ENEMY_DATA } from '@/data/gameData';
 import { ALL_ACHIEVEMENTS, getInitialStatistics } from '@/data/achievementData';
 import { checkCondition } from '@/store/achievementStoreCheck';
 import { OFFICIAL_WAVE_SETS, findPlayableWaveSet } from '@/utils/waveSets';
-import { resolveMutatorStartConfig } from '@/utils/mutatorStart';
-import { evaluateDailyCondition, type GameOutcomeForChallenge } from '@/store/dailyChallengeStore';
 
 const WAVE_SET_ID = 'official_mage_blink';
-const MUTATOR_ID = 'mc_mage_river';
 const MAP_ID = 'river';
-
-function blankOutcome(overrides: Partial<GameOutcomeForChallenge> = {}): GameOutcomeForChallenge {
-  return {
-    won: false,
-    noDamage: false,
-    fullHp: false,
-    playTimeSeconds: 0,
-    moneySpent: 0,
-    moneyEarned: 0,
-    enemiesKilled: 0,
-    enemiesKilledByType: {},
-    bossesKilled: 0,
-    towersPlaced: 0,
-    towersPlacedByType: {},
-    towersReachedMaxLevel: 0,
-    perfectWaves: 0,
-    endless: false,
-    endlessWave: 0,
-    difficulty: 'normal',
-    towersFused: 0,
-    ...overrides,
-  };
-}
 
 describe('mage blink wave set', () => {
   it('registers an official mage-heavy set', () => {
@@ -60,19 +32,7 @@ describe('mage blink wave set', () => {
   });
 });
 
-describe('mage river mutator and achievements', () => {
-  it('locks the mage set onto river', () => {
-    const ids = MUTATOR_CHALLENGES.map((c) => c.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    const challenge = MUTATOR_CHALLENGES.find((c) => c.id === MUTATOR_ID);
-    expect(challenge).toBeDefined();
-    expect(challenge!.mapId).toBe(MAP_ID);
-    expect(challenge!.customWaveSetId).toBe(WAVE_SET_ID);
-    expect(PATHS[MAP_ID]).toBeDefined();
-    const start = resolveMutatorStartConfig(challenge!);
-    expect(start.customWaveSetId).toBe(WAVE_SET_ID);
-    expect(start.maxWaves).toBe(findPlayableWaveSet(WAVE_SET_ID)!.waves.length);
-  });
+describe('mage river achievements', () => {
 
   it('unlocks river map and mage-blink wave achievements', () => {
     const mapAch = ALL_ACHIEVEMENTS.find((a) => a.id === 'map_river');
@@ -96,18 +56,3 @@ describe('mage river mutator and achievements', () => {
   });
 });
 
-describe('daily mage blink', () => {
-  it('adds a mage-blink daily template', () => {
-    const ids = DAILY_CHALLENGE_TEMPLATES.map((t) => t.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    const template = DAILY_CHALLENGE_TEMPLATES.find((t) => t.id === 'dc_mage_blink');
-    expect(template).toBeDefined();
-    expect(template!.conditions.some((c) => c.type === 'win_wave_set' && c.waveSetId === WAVE_SET_ID)).toBe(true);
-  });
-
-  it('counts a win only when the matching wave set was used', () => {
-    const cond = { type: 'win_wave_set' as const, target: 1, waveSetId: WAVE_SET_ID, label: '閃現突襲通關' };
-    expect(evaluateDailyCondition(cond, blankOutcome({ won: true, customWaveSetId: WAVE_SET_ID }))).toBe(1);
-    expect(evaluateDailyCondition(cond, blankOutcome({ won: true, customWaveSetId: 'official_saboteur_raid' }))).toBe(0);
-  });
-});

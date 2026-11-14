@@ -36,7 +36,6 @@ const setupMatch = () => {
     selectedTowerType: 'basic',
     selectedTower: null,
     multiSelectedTowerIds: [],
-    mutatorRules: null,
     difficultyModifiers: DIFFICULTY_MODIFIERS.normal,
     waveActive: false,
     isGameOver: false,

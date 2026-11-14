@@ -5,18 +5,13 @@
 import { describe, it, expect } from 'vitest';
 import { ENEMY_DATA, PATHS } from '@/data/gameData';
 import { GAME_CONSTANTS } from '@/data/gameData/waveData';
-import { MUTATOR_CHALLENGES } from '@/data/mutatorChallengeData';
-import { DAILY_CHALLENGE_TEMPLATES } from '@/data/dailyChallengeData';
 import { ALL_ACHIEVEMENTS, getInitialStatistics } from '@/data/achievementData';
 import { checkCondition } from '@/store/achievementStoreCheck';
 import { OFFICIAL_WAVE_SETS, findPlayableWaveSet } from '@/utils/waveSets';
-import { resolveMutatorStartConfig } from '@/utils/mutatorStart';
-import { evaluateDailyCondition, type GameOutcomeForChallenge } from '@/store/dailyChallengeStore';
 import type { PathConfig } from '@/types/game';
 
 const MAP_ID = 'pincer';
 const WAVE_SET_ID = 'official_iron_phalanx';
-const MUTATOR_ID = 'mc_iron_pincer';
 
 const ARMORED_TYPES = new Set(['armored', 'heavy', 'tank', 'shield']);
 
@@ -26,29 +21,6 @@ function collectPoints(path: PathConfig) {
     points.push(...seg.waypoints);
   }
   return points;
-}
-
-function blankOutcome(overrides: Partial<GameOutcomeForChallenge> = {}): GameOutcomeForChallenge {
-  return {
-    won: false,
-    noDamage: false,
-    fullHp: false,
-    playTimeSeconds: 0,
-    moneySpent: 0,
-    moneyEarned: 0,
-    enemiesKilled: 0,
-    enemiesKilledByType: {},
-    bossesKilled: 0,
-    towersPlaced: 0,
-    towersPlacedByType: {},
-    towersReachedMaxLevel: 0,
-    perfectWaves: 0,
-    endless: false,
-    endlessWave: 0,
-    difficulty: 'normal',
-    towersFused: 0,
-    ...overrides,
-  };
 }
 
 describe('pincer map', () => {
@@ -108,19 +80,7 @@ describe('iron phalanx wave set', () => {
   });
 });
 
-describe('iron pincer mutator and achievements', () => {
-  it('locks the iron set onto pincer', () => {
-    const ids = MUTATOR_CHALLENGES.map((c) => c.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    const challenge = MUTATOR_CHALLENGES.find((c) => c.id === MUTATOR_ID);
-    expect(challenge).toBeDefined();
-    expect(challenge!.mapId).toBe(MAP_ID);
-    expect(challenge!.customWaveSetId).toBe(WAVE_SET_ID);
-    expect(PATHS[MAP_ID]).toBeDefined();
-    const start = resolveMutatorStartConfig(challenge!);
-    expect(start.customWaveSetId).toBe(WAVE_SET_ID);
-    expect(start.maxWaves).toBe(findPlayableWaveSet(WAVE_SET_ID)!.waves.length);
-  });
+describe('iron pincer achievements', () => {
 
   it('unlocks pincer map and iron-phalanx wave achievements', () => {
     const mapAch = ALL_ACHIEVEMENTS.find((a) => a.id === 'map_pincer');
@@ -144,18 +104,3 @@ describe('iron pincer mutator and achievements', () => {
   });
 });
 
-describe('daily iron phalanx', () => {
-  it('adds an iron-phalanx daily template', () => {
-    const ids = DAILY_CHALLENGE_TEMPLATES.map((t) => t.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    const template = DAILY_CHALLENGE_TEMPLATES.find((t) => t.id === 'dc_iron_phalanx');
-    expect(template).toBeDefined();
-    expect(template!.conditions.some((c) => c.type === 'win_wave_set' && c.waveSetId === WAVE_SET_ID)).toBe(true);
-  });
-
-  it('counts a win only when the matching wave set was used', () => {
-    const cond = { type: 'win_wave_set' as const, target: 1, waveSetId: WAVE_SET_ID, label: '鐵壁方陣通關' };
-    expect(evaluateDailyCondition(cond, blankOutcome({ won: true, customWaveSetId: WAVE_SET_ID }))).toBe(1);
-    expect(evaluateDailyCondition(cond, blankOutcome({ won: true, customWaveSetId: 'official_jammer_field' }))).toBe(0);
-  });
-});

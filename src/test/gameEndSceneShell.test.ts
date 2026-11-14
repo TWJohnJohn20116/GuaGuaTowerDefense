@@ -12,7 +12,7 @@ describe('game end SceneShell return', () => {
   it('Victory returns a success SceneShell after the Enter hotkey effect', () => {
     const src = readFileSync(resolve(__dirname, '../components/scenes/Victory.tsx'), 'utf8');
     expect(src).toMatch(
-      /\}, \[canContinueCampaign, nextLevelId, nextLevelData, gameDifficulty, resetGame, startGame, setScene\]\);\s*return \(/,
+      /\}, \[resetGame, setScene\]\);\s*return \(/,
     );
     expect(src).toMatch(/<SceneShell accent="success"/);
   });

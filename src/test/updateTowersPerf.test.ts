@@ -53,7 +53,6 @@ const buildScene = (): { enemies: Enemy[]; towers: Tower[] } => {
     money: 100000,
     currentWave: 1,
     difficultyModifiers: DIFFICULTY_MODIFIERS.normal,
-    mutatorRules: null,
     activeProtocol: null,
   });
 
