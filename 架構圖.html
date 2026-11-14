@@ -1534,7 +1534,7 @@
     </table>
     <p class="small">整條 CI 實測 wall clock：單一 job 序列 <b>1m31s</b> → 平行 3 片 <b>53s</b>（-42%）。
       關鍵路徑是「靜態檢查與建置」（typecheck 14s + build 8s + 固定開銷約 16s）與測試第 1 片。
-      <code>guards --bundle</code> 要等 build 產出 <code>dist/assets/index-*.js</code> 才能比預算（上限 1.18 MB，目前 1.17 MB，見 <a href="#debt">22 技術債</a> 的 TD-24）。</p>
+      <code>guards --bundle</code> 要等 build 產出 <code>dist/assets/index-*.js</code> 才能比預算（上限 1.18 MB，目前 1.15 MB，見 <a href="#debt">22 技術債</a> 的 TD-24）。</p>
 
     <div class="note"><b>要加新測試：</b>在 <code>src/test/</code> 建 <code>&lt;功能&gt;.test.ts</code>，
       fixture 從 <code>src/test/fixtures.ts</code> 拿；先跑 <code>npm run test</code> 確認，再跑 <code>npm run check</code>。</div>
@@ -1661,9 +1661,11 @@
     <p class="lead"><b>編號規則：</b>每一項都有固定編號 <span class="tid">TD-01</span>～<span class="tid">TD-42</span>，
       字母前綴代表分類（A 流程與版控、B 架構分層、C 型別、D 死碼重複、E 效能打包、F 可觀測性、G 資料 i18n、H 資產、I 測試）。
       commit、PR、issue、回報請直接寫 <code>TD-13</code>，不要只寫「那個 as any 的債」。</p>
-    <p class="lead"><b>還債進度：</b><span class="sev done">1 / 42 已還</span> <span class="sev p1">1 項部分償還 · TD-24</span>
+    <p class="lead"><b>還債進度：</b><span class="sev done">1 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
       <span class="tid">TD-01</span> 已建立版本控制（branch <code>main</code>、基準 commit <code>1f347c7</code>、1,177 檔納入）；
-      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,165,958 bytes</b>（-12.5%，CI 預算同步收緊至 1,180,000）；其餘 40 項待處理。</p>
+      <span class="tid">TD-07</span> 七個上帝檔案減為六個（<code>Icons.tsx</code> 已拆）；
+      <span class="tid">TD-20</span> <code>Icons.tsx</code> 2,426 行 → 8 個分區模組 + 12 行門面，主 chunk 1,165,958 → <b>1,154,208 bytes</b>；
+      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 38 項待處理。</p>
 
     <div class="kpi">
       <div class="good"><b>0</b><span>TODO / FIXME / @ts-ignore</span></div>
@@ -1732,11 +1734,12 @@
       <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
       <tbody>
         <tr>
-          <td><span class="tid">TD-07</span><span class="sev p1">P1</span><b>B1 七個「上帝檔案」</b></td>
-          <td><code>Icons.tsx</code> 2,182 行／237 個 icon；<code>gameStoreAutoBattle.ts</code> 1,016；<code>achievementStore.ts</code> 981；
-            <code>LivePreview.tsx</code> 969；<code>GameScene3D.tsx</code> 850；<code>ModIconEditor.tsx</code> 849；<code>enemyRenderer.ts</code> 828</td>
+          <td><span class="tid">TD-07</span><span class="sev p1">◐ 部分償還 · P1</span><b>B1 六個「上帝檔案」</b></td>
+          <td><code>gameStoreAutoBattle.ts</code> 1,016；<code>achievementStore.ts</code> 981；
+            <code>LivePreview.tsx</code> 969；<code>GameScene3D.tsx</code> 850；<code>ModIconEditor.tsx</code> 849；<code>enemyRenderer.ts</code> 828。
+            第七個 <code>Icons.tsx</code>（2,426 行）已於 TD-20 拆成 8 個模組，最大 563 行</td>
           <td>單檔改動風險高；review 看不到全貌；合併衝突永遠在同一檔。</td>
-          <td>Icons 按分類拆檔；AI 拆「策略評估／執行／日誌」；3D 拆「場景建構／狀態同步／互動」</td>
+          <td>AI 拆「策略評估／執行／日誌」；3D 拆「場景建構／狀態同步／互動」</td>
         </tr>
         <tr>
           <td><span class="tid">TD-08</span><span class="sev p1">P1</span><b>B2 資料層依賴 React</b></td>
@@ -1764,9 +1767,9 @@
           <td>移到 <code>src/test/contracts/</code>，或標 <code>@internal</code></td>
         </tr>
         <tr>
-          <td><span class="tid">TD-12</span><span class="sev p3">P3</span><b>B6 五個空目錄</b></td>
-          <td><code>components/game/overlays</code>、<code>scenes/achievement-gallery</code>、<code>components/ui/Icons</code>、<code>data/achievementData</code>、<code>data/skinData</code></td>
-          <td>誤導（以為裡面有東西）；<code>Icons</code> 目錄與 <code>Icons.tsx</code> 檔案並存尤其容易搞混。</td>
+          <td><span class="tid">TD-12</span><span class="sev p3">P3</span><b>B6 四個空目錄</b></td>
+          <td><code>components/game/overlays</code>、<code>scenes/achievement-gallery</code>、<code>data/achievementData</code>、<code>data/skinData</code>（原本還有 <code>components/ui/Icons</code>，TD-20 拆檔時直接改建為 <code>icons/</code> 使用）</td>
+          <td>誤導（以為裡面有東西）；git 追蹤不到空目錄，只有本機看得到，換一台機器就消失。</td>
           <td>直接刪除</td>
         </tr>
       </tbody>
@@ -1834,10 +1837,10 @@
           <td>一次清一批，先從 <code>animations.ts</code> 下手（幾乎整檔可刪）</td>
         </tr>
         <tr>
-          <td><span class="tid">TD-20</span><span class="sev p2">P2</span><b>D3 <code>Icons.tsx</code> 237 個 icon，72 個零引用</b></td>
-          <td><code>components/ui/Icons.tsx</code>（2,182 行）</td>
-          <td>主 chunk 白背幾百 KB 的 SVG path；也讓「哪些 icon 真的在用」無法回答。</td>
-          <td>與 B2 一起做：icon 改 key + 只保留被引用的，或改成按需 chunk</td>
+          <td><span class="tid">TD-20</span><span class="sev p1">◐ 部分償還 · P2</span><b>D3 <code>Icons.tsx</code> 237 個 icon 全擠在單檔</b></td>
+          <td>已拆成 <code>components/ui/icons/</code> 8 個模組：<code>base</code> 25 行、<code>ui-basic</code> 188、<code>gameplay</code> 330、<code>overlays</code> 450、<code>theme-svg</code> 113、<code>achievements</code> 563、<code>achievements-extra</code> 545、<code>theme-icon</code> 232；<code>Icons.tsx</code> 只剩 12 行門面</td>
+          <td>原本 2,426 行單檔（§3 上限 888 的 2.7 倍），任何用到 icon 的模組都一起吃整包。附帶發現：72 個「零外部引用」<b>沒有一個是真死碼</b>——全被 <code>ThemeIcon</code> 的 emoji 對照表或 <code>data/achievements/*</code> 引用，混在單檔裡看不出來。</td>
+          <td>剩「按需 chunk」：成就 icon 仍由 <code>data/achievements/*</code> 在模組層 <code>React.createElement</code> 靜態帶進主 chunk。拆檔本身只省 11,750 bytes（1,165,958 → 1,154,208），真正的體積要等 icon 改字串 key + 延遲註冊</td>
         </tr>
         <tr>
           <td><span class="tid">TD-21</span><span class="sev p1">P1</span><b>D4 地圖編輯器雙實作</b></td>
@@ -1867,16 +1870,17 @@
       <thead><tr><th>項目</th><th>證據</th><th>影響</th><th>建議</th></tr></thead>
       <tbody>
         <tr>
-          <td><span class="tid">TD-24</span><span class="sev p1">◐ 部分償還 · P1</span><b>E1 主 chunk 1.17 MB（目標 &lt; 0.9 MB）</b></td>
-          <td><code>dist/assets/index-*.js</code> <b>1,333,086 → 1,165,958 bytes</b>（-12.5%）。
-            已做的兩刀：<code>DevPanel</code>、<code>MainMenu</code> 改 <code>lazy()</code>，並移除 <code>App.tsx</code> 對
-            <code>@/components/ui</code> barrel 的匯入（barrel 會把整個 UI 目錄拉進 entry）。<br>
-            剩餘大頭（entry 模組實測）：<code>Icons.tsx</code> 132 KB、成就資料 9 檔約 157 KB、
-            <code>zh-TW.ts</code> 137 KB、<code>gameStore*</code>＋<code>gameLoop/*</code> 約 150 KB、skins 約 53 KB。</td>
-          <td>首次啟動要解析 1.17 MB JS（原 1.33 MB）。i18n 其他語言與 3D／場景已是 lazy chunk。</td>
-          <td>下一步（依可行性排序）：<b>TD-20</b> Icons 依類別拆檔（-132 KB）、成就資料改 lazy registry（-157 KB）；
+          <td><span class="tid">TD-24</span><span class="sev p1">◐ 部分償還 · P1</span><b>E1 主 chunk 1.15 MB（目標 &lt; 0.9 MB）</b></td>
+          <td><code>dist/assets/index-*.js</code> <b>1,333,086 → 1,154,208 bytes</b>（-13.4%）。
+            已做的三刀：<code>DevPanel</code>、<code>MainMenu</code> 改 <code>lazy()</code>，並移除 <code>App.tsx</code> 對
+            <code>@/components/ui</code> barrel 的匯入（barrel 會把整個 UI 目錄拉進 entry）；
+            <code>Icons.tsx</code> 拆成 8 個模組（TD-20，但只 -11,750 bytes——成就 icon 仍被靜態引用，拆檔救不到體積）。<br>
+            剩餘大頭（entry 模組實測）：成就資料 9 檔約 157 KB、<code>zh-TW.ts</code> 137 KB、
+            <code>gameStore*</code>＋<code>gameLoop/*</code> 約 150 KB、icon 群約 130 KB、skins 約 53 KB。</td>
+          <td>首次啟動要解析 1.15 MB JS（原 1.33 MB）。i18n 其他語言與 3D／場景已是 lazy chunk。</td>
+          <td>下一步（依可行性排序）：<b>成就資料改 lazy registry（-157 KB）</b>——先決條件是 icon 改成字串 key，否則 lazy 檔照樣把 icon 群整包帶進來；
             <code>zh-TW</code> 需先重構 i18n（710 個測試同步使用 <code>t</code>，不能單純 lazy）；skins 卡在 <code>skinStore</code> 的同步 API。
-            閘門已收緊：<code>guards.mjs</code> 的 <code>BUNDLE_BUDGET_BYTES = 1,180,000</code>，只准降。</td>
+            閘門：<code>guards.mjs</code> 的 <code>BUNDLE_BUDGET_BYTES = 1,180,000</code>（實測 1,154,208，剩 25,792 bytes 緩衝），只准降。</td>
         </tr>
         <tr>
           <td><span class="tid">TD-25</span><span class="sev p2">P2</span><b>E2 每幀熱路徑仍配置物件</b></td>

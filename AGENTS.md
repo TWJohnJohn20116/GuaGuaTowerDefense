@@ -70,7 +70,8 @@
 | `src/test/` | 行為測試、`fixtures.ts` | 產品程式碼 |
 | `docs/research/` | AI 產出的研究報告、分析、決策紀錄（`YYYY-MM-DD-slug.md`） | 規範類文件（留在 `docs/` 根） |
 
-單檔上限 **888 行**（既有 `Icons.tsx` 2,182 行等是待償債，不要學）。
+單檔上限 **888 行**（既有 `gameStoreAutoBattle.ts` 1,016 行等是待償債，不要學）。
+新 icon 一律放進 `src/components/ui/icons/` 的對應分區檔（`ui-basic`／`gameplay`／`overlays`／`theme-svg`／`achievements`／`achievements-extra`／`theme-icon`），不要把 `Icons.tsx` 這支 12 行門面撐胖（TD-20）。
 
 ---
 
