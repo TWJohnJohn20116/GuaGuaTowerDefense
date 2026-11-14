@@ -119,9 +119,20 @@
 
   /* ===== 版面 ===== */
   .side{
-    position:fixed;inset:0 auto 0 0;width:270px;padding:20px 14px 24px;
+    position:fixed;inset:0 auto 0 0;width:270px;padding:0;
     background:var(--side-bg);border-right:1px solid var(--border);
     backdrop-filter:blur(8px);overflow-y:auto;z-index:20;
+  }
+  /* 置頂區：品牌 + 搜尋 + 主題切換（捲動時固定，只有目錄清單會滾） */
+  .side-top{
+    position:sticky;top:0;z-index:5;
+    padding:20px 14px 10px;
+    background:var(--side-bg);
+    backdrop-filter:blur(8px);
+  }
+  .side-top:after{
+    content:"";position:absolute;left:0;right:0;bottom:-10px;height:10px;
+    background:linear-gradient(var(--side-bg),transparent);pointer-events:none;
   }
   .brand{padding:0 8px 14px;border-bottom:1px solid var(--border);margin-bottom:14px}
   .brand .t{font-size:17px;font-weight:700;letter-spacing:.04em;color:var(--text-strong)}
@@ -148,7 +159,7 @@
   }
   .themebar button:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
 
-  #toc{display:flex;flex-direction:column;gap:2px}
+  #toc{display:flex;flex-direction:column;gap:2px;padding:0 14px}
   #toc a{
     display:flex;align-items:baseline;gap:8px;padding:6px 8px;border-radius:7px;
     color:var(--muted);font-size:13.5px;border-left:2px solid transparent;text-decoration:none;
@@ -156,7 +167,7 @@
   #toc a .n{font-family:var(--mono);font-size:11px;color:var(--dim);min-width:16px}
   #toc a:hover{background:var(--surface);color:var(--text);text-decoration:none}
   #toc a.on{background:var(--toc-on-bg);color:var(--text-strong);border-left-color:var(--primary)}
-  .side-foot{margin-top:18px;padding:12px 8px 0;border-top:1px solid var(--border);
+  .side-foot{margin:18px 14px 24px;padding:12px 8px 0;border-top:1px solid var(--border);
     font-size:11.5px;color:var(--dim);line-height:1.7}
 
   main{margin-left:270px;padding:40px 40px 120px;max-width:1180px}
@@ -369,8 +380,11 @@
   #top.show{display:block}
 
   @media (max-width:1000px){
-    .side{position:static;width:auto;border-right:none;border-bottom:1px solid var(--border)}
-    #toc{flex-direction:row;flex-wrap:wrap;gap:4px}
+    .side{position:static;width:auto;padding:16px 14px;border-right:none;border-bottom:1px solid var(--border)}
+    .side-top{position:static;padding:0 0 10px;background:none;backdrop-filter:none}
+    .side-top:after{display:none}
+    #toc{flex-direction:row;flex-wrap:wrap;gap:4px;padding:0}
+    .side-foot{margin:18px 0 0}
     #toc a{border-left:none;border:1px solid var(--border);font-size:12.5px}
     #toc a.on{border-color:var(--primary)}
     main{margin-left:0;padding:22px 18px 80px;max-width:none}
@@ -426,16 +440,18 @@
 <body>
 
 <aside class="side">
-  <div class="brand">
-    <div class="t">瓜瓜塔防 · 架構圖</div>
-    <div class="s">guagua-tower-defense</div>
-    <span class="v">v1.2.0 · Tauri 2</span>
-  </div>
-  <input id="q" type="search" placeholder="搜尋章節（例：迴圈 / store / Mod）" autocomplete="off">
-  <div class="themebar" role="group" aria-label="主題切換">
-    <button type="button" data-t="auto" aria-pressed="false">自動</button>
-    <button type="button" data-t="light" aria-pressed="false">淺色</button>
-    <button type="button" data-t="dark" aria-pressed="false">深色</button>
+  <div class="side-top">
+    <div class="brand">
+      <div class="t">瓜瓜塔防 · 架構圖</div>
+      <div class="s">guagua-tower-defense</div>
+      <span class="v">v1.2.0 · Tauri 2</span>
+    </div>
+    <input id="q" type="search" placeholder="搜尋章節（例：迴圈 / store / Mod）" autocomplete="off">
+    <div class="themebar" role="group" aria-label="主題切換">
+      <button type="button" data-t="auto" aria-pressed="false">自動</button>
+      <button type="button" data-t="light" aria-pressed="false">淺色</button>
+      <button type="button" data-t="dark" aria-pressed="false">深色</button>
+    </div>
   </div>
   <nav id="toc">
     <a href="#overview" data-k="總覽 一句話 三個事實 引擎 rust"><span class="n">01</span>一眼看懂</a>
