@@ -196,8 +196,8 @@ export function MapBriefing({
       </div>
 
       {/* 出擊列 */}
-      <footer className="arc-panel flex shrink-0 flex-col gap-2.5 px-3 py-2.5 lg:flex-row lg:items-center">
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+      <footer className="arc-panel flex shrink-0 flex-wrap items-center gap-2.5 px-3 py-2.5">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 overflow-hidden">
           <span className="arc-label shrink-0">{c.deploySummary}</span>
           <SummaryChip label={c.mapLabel} value={selectedMap.name} />
           <SummaryChip label={t.pathSelection.difficultyLabel} value={diffLabel} tone="reach" />

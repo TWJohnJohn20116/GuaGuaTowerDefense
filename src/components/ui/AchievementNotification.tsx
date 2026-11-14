@@ -32,7 +32,7 @@ export default function AchievementNotification() {
   }, [notifications, dismissNotification]);
 
   return (
-    <div className="pointer-events-none fixed bottom-3 right-3 z-50 flex w-[286px] flex-col gap-1.5">
+    <div className="pointer-events-none fixed left-1/2 top-[84px] z-50 flex w-[286px] -translate-x-1/2 flex-col gap-1.5">
       <AnimatePresence>
         {notifications
           .filter(n => visibleNotifications.includes(n.id) && n.type === 'unlock')
