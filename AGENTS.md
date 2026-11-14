@@ -45,6 +45,8 @@
 | 測試 | `npm run test` | Vitest + jsdom，測試檔在 `src/test/**/*.test.ts` |
 | 建置 | `npm run build` / `npm run build:check` | 後者先型別再建置 |
 | 打包 | `npm run tauri build` | NSIS，輸出 `src-tauri/target/release/bundle` |
+| 守門（技術債＋bundle 預算） | `npm run ci:guards` | CI 的第 4、8 道閘門，本機可先跑 |
+| 模擬整套 CI | `npm run check:full` | `check` + build + guards（約 2 分鐘） |
 
 ---
 
@@ -249,6 +251,7 @@ services → types（只能 import type 或由入口注入）
 4. 動到打包相關 → `npm run build` 後看 `dist/assets/index-*.js` 沒有明顯變大（目前 1.33 MB）。
 5. 回報時附：改了哪些檔、為什麼、跑了什麼指令、結果如何；**不要**只說「已修好」，也不要只在最後才一次補述（過程就要說）。多步任務全程都要標 `進度 k/N`，見 §10.3。
 6. 任務清單**全部 `completed`**（或明確標出哪幾項沒做與原因）；不得留著 `pending` / `in_progress` 就宣布完成，見 §11.5。
+7. **CI 綠才算完成**：push 後用 `gh run watch <id> --exit-status` 確認 success，並確認 job 不是 `skipped`。本機 `npm run check` 綠只是必要條件（見 §13.2）。
 
 ---
 
@@ -376,8 +379,15 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 - 一次只做一件任務；不要「順手」重構相鄰檔案。
 - 用最小差異編輯（`edit`），不要整檔重寫；**嚴禁用腳本改檔**（見 §4.7）。
 - 不確定需求時**問一個具體問題**，不要用猜的做大範圍改動。
-- 不要自行建立 commit／push／安裝依賴／改 CI 設定。
+- commit／push 依 §12 的節奏（改完就 commit、請求結束就 push）；CI／workflow 的改動依 §13。
+- 不要自行新增 npm 依賴（先問）。
 - 發現新技術債：記錄並回報，不要默默擴大戰線。
+
+### 10.8 回報的品質
+
+- **講結論，不要複述原始輸出**：工具吐 300 行 log，你要說「紅在 `npm ci`：lock 缺 esbuild 0.28.2」，不是把 log 貼出來。
+- **未經 CI 驗證就要明說**：還在 commit 沒 push → 寫「尚未推送」；推了還沒跑完 → 寫「CI 進行中（run <id>）」；**不要**把本機綠講成「已通過」。
+- **委派出去的任務也要出聲**：交給 subagent 的指令必須要求它回報進度與結論，不能讓它安靜跑完才一次吐結果；回報時要說明哪部分是子代理做的。
 
 ---
 
@@ -494,3 +504,59 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 1. `git status` 乾淨——沒有忘了加入的檔案。
 2. `git log --oneline -6` 讀起來像一串可理解的歷史，而不是一個大雜燴。
 3. 該 push 的已經 push。
+
+---
+
+## 13. CI 與 GitHub 規則
+
+> 這一節的規則來自實際踩坑（含另一個專案的 CI 事故紀錄）。**違反它們的症狀都很安靜**：CI 看起來綠、其實什麼都沒驗證。
+
+### 13.1 觸發條件與執行環境
+
+| 項目 | 規則 | 為什麼 |
+|---|---|---|
+| `push` | 可加 `paths-ignore`（`**/*.md`、`docs/**`、`.shots/**`） | 純文件／截圖變更不燒 CI 分鐘 |
+| `pull_request` | **不可**加 `paths` / `paths-ignore` | 某個 PR 因路徑被過濾而沒觸發時，未來的必要檢查會永遠停在 waiting，那個 PR 無法合併 |
+| `runs-on` | 固定版本（`ubuntu-24.04`），不用 `ubuntu-latest` | `latest` 會在某天默默換 Ubuntu（2026-10-19 起遷 26），同一個 commit 的行為就變了 |
+| Node 版本 | 固定主版本（目前 24），且必須與 `package-lock.json` 的產生環境一致 | npm 10 與 npm 11 對 vitest 的嵌套 `vite` 解析不同，會讓 `npm ci` 誤判「lock 不完整」（實際發生過：`Missing: esbuild@0.28.2`） |
+
+### 13.2 改 workflow 後的驗證（不准用「看起來沒問題」結案）
+
+1. 本機先驗語法：`python -c "import yaml;yaml.safe_load(open('.github/workflows/ci.yml',encoding='utf-8'))"`。
+2. push 後 `gh run list --limit 1` 確認**真的有 run 產生**——workflow 語法錯時，run 名稱會變成檔案路徑、`jobs` 數為 0。
+3. `gh run watch <id> --exit-status` 等到結束；失敗用 `gh run view <id> --log-failed` 看**失敗那一步**。
+4. `gh run view <id> --json jobs` 確認 job 的 `conclusion` 不是 `skipped`：名稱打錯／matrix 寫錯會靜默略過，而整體仍顯示 success。
+5. **本機綠 ≠ 已通過**：沒 push 的寫「尚未推送」、push 了還沒跑完的寫「CI 進行中（run <id>）」（見 §10.8）。
+
+### 13.3 不准為了讓 CI 變綠而做的四件事
+
+- ❌ 刪測試、`describe.skip` 掉紅的測試 → 修程式或修測試的假設。
+- ❌ 放寬守門（`scripts/ci/guards.mjs` 的 `BASELINE`、`BUNDLE_BUDGET_BYTES`、`i18n:check --strict`）→ 先修造成超標的東西。
+- ❌ 在 `on:` 加 `paths-ignore` 讓 CI 乾脆不跑。
+- ❌ 加 `continue-on-error` 把紅燈染綠。
+
+**要修的是程式碼，不是閘門。**（與 §8「技術債只准降」同一條精神）
+
+### 13.4 常見坑
+
+- GitHub 運算式**沒有** `replace`／`trim` 這類字串函式，只有 `contains`、`startsWith`、`endsWith`、`format`、`join`、`toJSON`、`fromJSON`、`hashFiles` 與狀態函式。要字串處理就丟到 `run:` 用 bash／node。
+- job 層 `if:` 讓 job 被略過 → 依賴它的彙總 job 會卡在 waiting；要略過就略過 **step**，job 本身仍要回報成功。
+- 不要為了量測反覆觸發 workflow：把改動批次處理，一次執行驗證多項。
+- `gh` 指令一律加 `-R TWJohnJohn20116/GuaGuaTowerDefense`（或先 `gh repo set-default`），不要依賴 cwd 推斷遠端。
+- Windows 上用 PowerShell 寫 JSON／設定給 API 時，用 `[System.IO.File]::WriteAllText($p,$s,[System.Text.UTF8Encoding]::new($false))`：`Set-Content -Encoding utf8` 會寫 BOM，GitHub API 會回 `400 Problems parsing JSON`。
+
+### 13.5 憑證出問題時
+
+若 push 出現 `could not read Username for 'https://github.com'`，用**單次命令**借用已登入的 `gh`，不要改全域 git 設定：
+
+```bash
+git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push -u origin main
+```
+
+### 13.6 刻意不採納（別人的規則與我們不適用）
+
+| 規則 | 為什麼不抄 |
+|---|---|
+| 「本機不得編譯／建置／執行測試，只能靠 CI」 | 本專案 `npm run check` 約 80 秒、lock 與 CI 同版本，本機跑能省掉 push→等待→修的 round-trip。**但保留它的精神**：本機綠只是必要條件，CI 綠才是判準（13.2-5）。 |
+| 多目標 matrix、Gradle 快取、JDK toolchain、`CI 總結` 彙總 job | 本專案只有一個 job、一支 JS 工具鏈，沒有這些結構；等真的需要再加，不要預先複雜化。 |
+| 產物（artifact）上傳與保留策略 | 只有 tag 觸發的 release 需要產物，現由 `tauri-action` 處理。 |
