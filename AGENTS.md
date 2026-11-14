@@ -736,7 +736,24 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 
 19 個場景約 20–22 秒（單一瀏覽器實例 + CDP，見工具檔頭說明）；`--full-page`／`--dpr=2` 會多花時間。
 
-工具由四支選配模組組成：`scripts/visual-audit.mjs`（頁內稽核表達式）、`scripts/visual-pixel.mjs`（像素統計）、`scripts/visual-sheet.mjs`（總表分組排版）、`scripts/visual-shots.mjs`（截圖與稽核動作）。缺檔會自動降級回舊的七項檢查。
+工具由六支模組組成：`scripts/visual-audit.mjs`（頁內稽核表達式）、`scripts/visual-pixel.mjs`（像素統計）、`scripts/visual-sheet.mjs`（總表分組排版）、`scripts/visual-shots.mjs`（截圖與稽核動作）、`scripts/visual-diff.mjs`（像素比對）、`scripts/visual-baseline.mjs`（基準線與報告演化）。前四支缺檔會降級，後兩支只在 `--diff`／`--baseline`／`--compare-last` 時才需要。
+
+#### 視覺回歸（改完 UI 想確認「沒有波及其他地方」）
+
+| 目的 | 指令 |
+|---|---|
+| 建立基準線（存到 `.shots/baseline/`） | `node scripts/visual-check.mjs --baseline` |
+| 與基準線比對（超標直接判 FAIL） | `node scripts/visual-check.mjs --diff` |
+| 每通道容差 0–255（預設 16，JPEG 有損要留容差） | `--tolerance=24` |
+| 變化比例門檻（預設 0.5%） | `--diff-limit=1.5` |
+| 塗掉動態區域再比 | `--mask=canvas` 或 `--mask='.timer,.toast'` |
+| 失敗幀自動重試一次 | `--retry=1` |
+| 只留最近 N 輪結果 | `--keep=5` |
+| 與上一輪比較（產出 `compare.json`） | `--compare-last` |
+
+產出兩樣東西：`<scene>-<size>.diff.png`（灰階底＋差異染紅，紅在哪就是哪裡變了）與 `compare.json`（新增失敗／修好／新警告／位元組漂移／耗時變化）。**diff 只在「有基準線」時才比**，第一次跑 `--diff` 不會誤判成回歸。
+
+**不要用虛擬時間凍結 canvas**：實測 `Emulation.setVirtualTimePolicy` 在 headless 下不回響，會讓 `captureScreenshot` 永遠等不到畫框、整輪卡住。戰鬥場景請用 `--mask=canvas` 把戰區塗掉，只比 HUD 與面板（實測 1600x900 會遮掉 208,640 / 230,400 px）。
 
 #### 必做六步（少一步就算沒驗證）
 
@@ -823,7 +840,11 @@ node scripts/visual-check.mjs --sizes=1600x900,390x844 --dpr=2 --concurrency=3
 - `*.png` — 每個場景的原尺寸截圖
 - `contact-sheet.png` — **驗證要看的就是這張**
 - `index.html` — 逐張放大 + 檢查項明細
-- `report.json` — 給程式讀，含 `timing`（server / 截圖分段）
+- `report.json` — 給程式讀，含 `timing`（server / 截圖分段）與 `diff`（差異統計）
+- `*.diff.png` — 有 `--diff` 時的差異圖（灰階＋紅）
+- `compare.json` — 有 `--compare-last` 時與上一輪的差異
+
+`.shots/baseline/` 是基準線圖檔（`--baseline` 寫入、`--diff` 讀取），跟 `.shots/` 一起不進版控。
 
 全部在 `.shots/`，**不進版控**（§4.8）。
 
@@ -841,6 +862,7 @@ node scripts/visual-check.mjs --sizes=1600x900,390x844 --dpr=2 --concurrency=3
 | `occlusion` | 頁內稽核 | 關鍵元素被非祖先、非版面容器（面積小於半個視口）的元素蓋住，附覆蓋率 |
 | `console` | CDP 事件 | warning 級 console 與 `[更新檢查]` 這類環境錯誤 |
 | `external` | CDP 事件 | 非本站資源失敗（音樂 API、CDN）——不影響版面，只有本站資源才算失敗 |
+| `diff` | 像素比對 | 與基準線差異超過 `--diff-limit`；`diffOk` 為 false 時該幀直接 FAIL |
 
 每格在總表上標「N 警告」並用黃框；`report.json` 內含 `audit`（明細前 40 條）與 `stats`（像素統計）。
 
