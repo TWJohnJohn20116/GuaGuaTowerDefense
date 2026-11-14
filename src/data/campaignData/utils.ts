@@ -47,6 +47,12 @@ export function getNextLevelId(currentLevelId: string): string | undefined {
   return allLevels[idx + 1].id;
 }
 
+export function isLastLevelOfChapter(levelId: string): boolean {
+  const chapter = findChapterByLevelId(levelId);
+  if (!chapter) return false;
+  return chapter.levels[chapter.levels.length - 1]?.id === levelId;
+}
+
 function isChapterCompleted(
   chapter: CampaignChapter,
   completedLevels: readonly string[],

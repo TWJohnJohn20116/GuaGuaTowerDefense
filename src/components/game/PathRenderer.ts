@@ -454,3 +454,69 @@ export const drawTileHover = (
   ctx.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
 };
 
+/**
+ * 繪製動態路徑流動效果 (能量粒子或箭頭沿著路徑移動)
+ */
+export const drawPathFlow = (
+  ctx: CanvasRenderingContext2D,
+  waypoints: GridPosition[],
+  tileSize: number,
+  offsetX: number,
+  offsetY: number,
+  time: number
+) => {
+  if (!waypoints || waypoints.length < 2) return;
+
+  ctx.save();
+  // 使用 source-atop 或 lighter 來讓特效疊加在路徑上
+  ctx.globalCompositeOperation = 'lighter';
+  
+  const pathLength = waypoints.length;
+  // 決定流動的粒子數量，根據路徑長度
+  const particleCount = Math.floor(pathLength * 1.5);
+  const speed = 0.0015; // 移動速度
+  
+  // 計算總進度 0~1 之間循環
+  const progressOffset = (time * speed) % 1;
+
+  for (let i = 0; i < particleCount; i++) {
+    // 每個粒子在路徑上的相對進度 (0~1)
+    let p = (i / particleCount + progressOffset) % 1;
+    
+    // 將 0~1 的進度映射到 waypoints 陣列的索引上
+    // 注意：waypoints 有 N 個點，所以有 N-1 段線段
+    const exactIndex = p * (pathLength - 1);
+    const index = Math.floor(exactIndex);
+    const nextIndex = Math.min(index + 1, pathLength - 1);
+    const segmentProgress = exactIndex - index;
+    
+    const p1 = waypoints[index];
+    const p2 = waypoints[nextIndex];
+    
+    if (!p1 || !p2) continue;
+    
+    // 計算當前粒子的精確座標
+    const x = offsetX + (p1.col + (p2.col - p1.col) * segmentProgress) * tileSize + tileSize / 2;
+    const y = offsetY + (p1.row + (p2.row - p1.row) * segmentProgress) * tileSize + tileSize / 2;
+    
+    // 繪製發光粒子
+    const radius = tileSize * 0.08;
+    
+    // 粒子的透明度可以根據位置做點變化（例如起點和終點淡出）
+    const alpha = Math.sin(p * Math.PI) * 0.6; // 頭尾透明，中間明顯
+    
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(130, 255, 180, ${alpha})`;
+    ctx.fill();
+    
+    // 加上較大的微弱光暈
+    ctx.beginPath();
+    ctx.arc(x, y, radius * 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(130, 255, 180, ${alpha * 0.3})`;
+    ctx.fill();
+  }
+  
+  ctx.restore();
+};
+

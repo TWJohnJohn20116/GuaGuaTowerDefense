@@ -141,3 +141,33 @@ export function ModDiffPreview({ draft, baseline, className = '' }: ModDiffPrevi
     </Deck>
   );
 }
+
+export function buildModFromDraft(
+  meta: { id: string; name: string; description: string; version: string; author: string; type: Mod['metadata']['type']; icon: string },
+  content: { towers: CustomTowerData[]; enemies: CustomEnemyData[]; maps: CustomMapData[]; waves: CustomWaveData[] },
+  customTag: string,
+): Mod {
+  return {
+    metadata: {
+      id: meta.id,
+      name: meta.name,
+      version: meta.version,
+      author: meta.author,
+      description: meta.description,
+      type: meta.type,
+      icon: meta.icon,
+      gameVersion: '2.3.0',
+      tags: [customTag],
+      createdAt: new Date().toISOString().split('T')[0],
+      updatedAt: new Date().toISOString().split('T')[0],
+    },
+    content: {
+      towers: content.towers.length ? content.towers : undefined,
+      enemies: content.enemies.length ? content.enemies : undefined,
+      maps: content.maps.length ? content.maps : undefined,
+      waves: content.waves.length ? content.waves : undefined,
+    },
+    enabled: false,
+    loadOrder: 999,
+  };
+}

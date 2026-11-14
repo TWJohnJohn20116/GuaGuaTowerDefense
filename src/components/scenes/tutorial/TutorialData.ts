@@ -240,3 +240,39 @@ const MOD_CREATION_TUTORIAL: TutorialStep[] = [
     icon: '💾',
   },
 ];
+
+// 所有教學分類
+export const TUTORIAL_CATEGORIES: TutorialCategory[] = [
+  {
+    id: 'basics',
+    name: '遊戲基礎',
+    icon: '📖',
+    description: '學習遊戲的基本玩法和操作',
+    color: 'blue',
+    steps: GAME_BASICS_TUTORIAL,
+  },
+  {
+    id: 'towers',
+    name: '防禦塔詳解',
+    icon: '🏰',
+    description: '了解每種防禦塔的特性和使用技巧',
+    color: 'green',
+    steps: TOWER_TUTORIAL,
+  },
+  {
+    id: 'advanced',
+    name: '進階策略',
+    icon: '🎓',
+    description: '進階技巧讓你成為塔防大師',
+    color: 'purple',
+    steps: ADVANCED_TUTORIAL,
+  },
+  {
+    id: 'modding',
+    name: '模組製作',
+    icon: '🛠️',
+    description: '學習如何創建自己的遊戲內容',
+    color: 'orange',
+    steps: MOD_CREATION_TUTORIAL,
+  },
+];

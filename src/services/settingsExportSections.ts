@@ -59,6 +59,10 @@ export function countSelectedSections(selection: SettingsExportSelection): numbe
   return ALL_SETTINGS_EXPORT_SECTIONS.filter((s) => selection[s]).length;
 }
 
+export function hasAnySelected(selection: SettingsExportSelection): boolean {
+  return countSelectedSections(selection) > 0;
+}
+
 /** 依備份內容建立匯入勾選（僅 payload 內含區段預設勾選） */
 export function createImportSelectionFromPayload(
   payload: { sections: SettingsExportSection[] } | null | undefined,

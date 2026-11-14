@@ -105,6 +105,14 @@ export function resolveFileDescription(
 }
 
 /** @deprecated 使用 resolveFileDescription */
+export function getFileMetaExtraDescription(
+  enc: Translations['encyclopedia'],
+  path: string,
+  fallback: string,
+): string {
+  return resolveFileDescription(enc, path, fallback);
+}
+
 /** 替換模板中的 {name}、{hp} 等佔位符 */
 export function fillTemplate(template: string, vars: Record<string, string | number>): string {
   return template.replace(/\{(\w+)\}/g, (_, k: string) => String(vars[k] ?? ''));

@@ -92,3 +92,4 @@ export function getAbilityDef(
 }
 
 /** @deprecated 請改用 getEnemyGameAbilities(t.modEditorExt) */
+export const ENEMY_GAME_ABILITIES: EnemyAbilityDef[] = [];

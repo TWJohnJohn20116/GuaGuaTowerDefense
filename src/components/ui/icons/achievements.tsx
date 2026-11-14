@@ -337,6 +337,17 @@ export const MusicNotesIcon2 = (p: IconProps) => (
 );
 
 /** 🎮 遊戲 — 預設色：text-[var(--hl-reach)] */
+export const GameControllerIcon = (p: IconProps) => (
+  <svg {...s(p)}>
+    <rect x="2" y="6" width="20" height="12" rx="2" fill="currentColor" fillOpacity="0.15" />
+    <rect x="2" y="6" width="20" height="12" rx="2" />
+    <circle cx="6" cy="10" r="1" fill="currentColor" />
+    <circle cx="8" cy="14" r="1" fill="currentColor" />
+    <circle cx="16" cy="14" r="1" fill="currentColor" />
+    <path d="M15 8h2M16 7v2" />
+  </svg>
+);
+
 /** 🗡️ 匕首 — 預設色：text-slate-400 */
 export const DaggerIcon = (p: IconProps) => (
   <svg {...s(p)}>

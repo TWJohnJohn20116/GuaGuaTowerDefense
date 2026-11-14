@@ -108,6 +108,8 @@ function resolveSection(line?: number): string | undefined {
 }
 
 /** 圖示庫可篩選的來源檔案 */
+export const ICON_SOURCE_FILES = [ICONS_SOURCE_FILE] as const;
+
 /** CoinIcon → Coin Icon */
 function toDisplayName(exportName: string): string {
   const base = exportName.replace(/Icon\d*$/, '');
@@ -169,6 +171,10 @@ export const ICON_LIBRARY_SCOPE = {
   totalInRegistry: ALL_GAME_ICONS.length,
   totalInSource: ICONS_TSX_EXPORT_TOTAL,
 };
+
+export function getIconById(id: string): GameIconEntry | undefined {
+  return ALL_GAME_ICONS.find((icon) => icon.id === id);
+}
 
 export function filterGameIcons(opts: {
   search?: string;
