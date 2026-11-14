@@ -1,0 +1,609 @@
+/* ============================================================================
+   CANDY POP — 明亮、厚實、圓潤的遊戲介面
+   ----------------------------------------------------------------------------
+   與前兩版的差別不是色票，是「形狀邏輯」：
+     1. 淺色紙底 + 白色卡片；介面離開深色，遊戲才像遊戲而不是終端機。
+     2. 圓角 22px 是常態；完全沒有 clip-path 切角。
+     3. 深度用「貼紙式硬投影」（0 6px 0 墨色），不是發光也不是內陰影。
+     4. 邊框 2–3px 粗墨線，所有元件都有清楚的輪廓。
+     5. 強調色是糖果色（珊瑚／薄荷／天空／鵝黃／葡萄／玫瑰），禁止霓虹發光。
+
+   載入在 index.css 最前，透過變數別名讓既有 arc-* 用法直接吃到新外觀。
+   ========================================================================= */
+
+:root {
+  /* 紙與卡片 */
+  --cn-paper: #fff8ef;
+  --cn-paper-2: #ffeede;
+  --cn-card: #ffffff;
+  --cn-card-2: #fff4e6;
+
+  /* 墨與字 */
+  --cn-ink: #2e2440;
+  --cn-ink-2: #6b5e86;
+  --cn-ink-3: #9a8db0;
+  --cn-ink-4: #bcb0cf;
+
+  /* 線：粗、實、墨色 */
+  --cn-line: #2e2440;
+  --cn-line-soft: #e8ddf3;
+  --cn-line-mid: #cdbfe0;
+
+  /* 糖果色 */
+  --cn-coral: #ff6b4a;
+  --cn-coral-deep: #d2401f;
+  --cn-coral-soft: #ffe3db;
+  --cn-mint: #23c98b;
+  --cn-mint-deep: #0e8f5f;
+  --cn-mint-soft: #d8f8ec;
+  --cn-sky: #3da5ff;
+  --cn-sky-deep: #1b72c4;
+  --cn-sky-soft: #dceeff;
+  --cn-sun: #ffd93d;
+  --cn-sun-deep: #c99f00;
+  --cn-sun-soft: #fff4c9;
+  --cn-grape: #9b6bff;
+  --cn-grape-deep: #6a3ad4;
+  --cn-grape-soft: #ece3ff;
+  --cn-rose: #ff7bc5;
+  --cn-alert: #ff4d6d;
+  --cn-alert-deep: #c41f42;
+  --cn-alert-soft: #ffe0e7;
+
+  /* 幾何 */
+  --cn-r-lg: 22px;
+  --cn-r-md: 16px;
+  --cn-r-sm: 12px;
+  --cn-r-pill: 999px;
+  --cn-bw: 2px;
+  --cn-bw-strong: 3px;
+
+  /* 深度：貼紙硬投影 */
+  --cn-pop: 0 6px 0 var(--cn-line);
+  --cn-pop-sm: 0 4px 0 var(--cn-line);
+  --cn-pop-soft: 0 8px 0 -2px rgba(46, 36, 64, 0.16);
+  --cn-soft: 0 16px 32px -16px rgba(46, 36, 64, 0.4);
+
+  /* 動態：彈、脆 */
+  --cn-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --cn-ease-out: cubic-bezier(0.22, 0.9, 0.3, 1);
+  --cn-t-fast: 90ms;
+  --cn-t: 160ms;
+  --cn-t-slow: 260ms;
+
+  /* 字 */
+  --cn-font: 'Noto Sans TC', 'Segoe UI', 'Microsoft JhengHei', system-ui, sans-serif;
+  --cn-mono: 'JetBrains Mono', 'Cascadia Mono', 'Consolas', ui-monospace, monospace;
+}
+
+/* --------------------------------------------------------------------------
+   變數別名：讓 343 個檔既有的 var(--arc-*) / var(--hl-*) 直接落到 CANDY。
+   逐檔改完後可刪。
+   -------------------------------------------------------------------------- */
+:root {
+  --arc-void: var(--cn-paper);
+  --arc-void-2: var(--cn-paper-2);
+  --arc-deck: var(--cn-card);
+  --arc-deck-2: var(--cn-card-2);
+  --arc-deck-3: var(--cn-paper-2);
+  --arc-line: var(--cn-line-soft);
+  --arc-line-strong: var(--cn-line-mid);
+  --arc-line-hot: var(--cn-ink-3);
+  --arc-ink: var(--cn-ink);
+  --arc-ink-2: var(--cn-ink-2);
+  --arc-ink-3: var(--cn-ink-3);
+  --arc-ink-4: var(--cn-ink-4);
+  --arc-gold: var(--cn-coral);
+  --arc-gold-2: var(--cn-coral-deep);
+  --arc-gold-ink: #ffffff;
+  --arc-gold-veil: var(--cn-coral-soft);
+  --arc-gold-edge: var(--cn-coral);
+  --arc-cyan: var(--cn-sky);
+  --arc-cyan-dim: var(--cn-sky-deep);
+  --arc-cyan-edge: var(--cn-sky);
+  --arc-cyan-veil: var(--cn-sky-soft);
+  --arc-alert: var(--cn-alert);
+  --arc-vital: var(--cn-mint);
+  --arc-caution: var(--cn-sun-deep);
+  --arc-reach: var(--cn-grape);
+  --arc-cut: 0px;
+  --arc-bevel: 5px;
+  --arc-ease: var(--cn-ease);
+  --arc-ease-out: var(--cn-ease-out);
+  --arc-t-fast: var(--cn-t-fast);
+  --arc-t: var(--cn-t);
+  --arc-t-slow: var(--cn-t-slow);
+  --arc-sans: var(--cn-font);
+  --arc-mono: var(--cn-mono);
+}
+
+/* ------------------------------------------------------------------ base */
+
+@layer base {
+  html,
+  body,
+  #root {
+    background: var(--cn-paper);
+    color: var(--cn-ink);
+    font-family: var(--cn-font);
+  }
+
+  /* 奶油紙底：大顆柔色斑 + 細點紋，沒有網格也沒有掃描線 */
+  body {
+    background-image:
+      radial-gradient(38rem 30rem at 8% 0%, rgba(255, 107, 74, 0.13), transparent 62%),
+      radial-gradient(34rem 28rem at 96% 6%, rgba(155, 107, 255, 0.12), transparent 60%),
+      radial-gradient(44rem 34rem at 52% 108%, rgba(61, 165, 255, 0.12), transparent 64%),
+      radial-gradient(rgba(46, 36, 64, 0.055) 1.2px, transparent 1.2px);
+    background-size: auto, auto, auto, 22px 22px;
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: var(--cn-sun);
+    color: var(--cn-ink);
+  }
+
+  :focus-visible {
+    outline: var(--cn-bw-strong) solid var(--cn-sky);
+    outline-offset: 3px;
+    border-radius: var(--cn-r-sm);
+  }
+
+  ::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--cn-paper-2);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--cn-line-mid);
+    border: 3px solid var(--cn-paper-2);
+    border-radius: var(--cn-r-pill);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--cn-ink-3);
+  }
+
+  input[type='number'],
+  .arc-num,
+  .hl-num {
+    font-family: var(--cn-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ------------------------------------------------------------- primitives */
+
+@layer components {
+  /* ------------------------------ 卡片 ------------------------------- */
+
+  .arc-panel,
+  .hl-deck {
+    position: relative;
+    background: var(--cn-card);
+    border: var(--cn-bw) solid var(--cn-line);
+    border-radius: var(--cn-r-lg);
+    box-shadow: var(--cn-pop-soft);
+    clip-path: none;
+  }
+
+  .arc-panel--flat,
+  .hl-deck-flat {
+    background: var(--cn-card);
+    border: var(--cn-bw) solid var(--cn-line-soft);
+    border-radius: var(--cn-r-md);
+    box-shadow: none;
+    clip-path: none;
+  }
+
+  .arc-panel--sunken {
+    background: var(--cn-card-2);
+    border: var(--cn-bw) solid var(--cn-line-mid);
+    border-radius: var(--cn-r-sm);
+    box-shadow: inset 0 3px 0 rgba(46, 36, 64, 0.06);
+    clip-path: none;
+  }
+
+  .arc-panel--active {
+    background: var(--cn-coral-soft);
+    border-color: var(--cn-coral);
+    box-shadow:
+      var(--cn-pop-sm),
+      0 0 0 4px rgba(255, 107, 74, 0.18);
+    clip-path: none;
+  }
+
+  /* 角落括號在 CANDY 不需要，保留選擇器但隱藏 */
+  .arc-bracket::before,
+  .arc-bracket::after {
+    content: none;
+  }
+
+  /* 標題橫幅：改成糖果標籤，不是斜切 */
+  .arc-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.85rem;
+    background: var(--cn-sky-soft);
+    border: var(--cn-bw) solid var(--cn-sky);
+    border-radius: var(--cn-r-pill);
+    clip-path: none;
+  }
+
+  /* ------------------------------- 字 -------------------------------- */
+
+  .arc-label,
+  .hl-label {
+    font-family: var(--cn-font);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: none;
+    color: var(--cn-ink-3);
+  }
+
+  .arc-title,
+  .hl-sub {
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    color: var(--cn-ink);
+    text-shadow: none;
+  }
+
+  .arc-display,
+  .hl-display {
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--cn-ink);
+    -webkit-text-stroke: 0;
+    text-shadow: none;
+  }
+
+  .arc-micro,
+  .hl-micro {
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--cn-ink-3);
+  }
+
+  .arc-num,
+  .hl-num {
+    font-size: 17px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--cn-ink);
+    text-shadow: none;
+  }
+
+  /* ----------------------------- 按鈕 ------------------------------- */
+
+  .arc-btn,
+  .btn-game,
+  .btn-primary,
+  .btn-success,
+  .btn-danger,
+  .btn-accent,
+  .hl-btn-cut {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2.75rem;
+    padding: 0 1.25rem;
+    font-family: var(--cn-font);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--cn-ink);
+    background: var(--cn-card);
+    border: var(--cn-bw-strong) solid var(--cn-line);
+    border-radius: var(--cn-r-md);
+    clip-path: none;
+    box-shadow: var(--cn-pop-sm);
+    transform: translateY(0);
+    transition:
+      transform var(--cn-t-fast) var(--cn-ease-out),
+      box-shadow var(--cn-t-fast) var(--cn-ease-out),
+      background-color var(--cn-t) var(--cn-ease-out);
+  }
+
+  .arc-btn:hover:not(:disabled),
+  .btn-game:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--cn-line);
+  }
+
+  /* 按下去：整顆下沉，貼紙投影消失 */
+  .arc-btn:active:not(:disabled),
+  .btn-game:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--cn-line);
+  }
+
+  .arc-btn:disabled,
+  .btn-game:disabled {
+    opacity: 0.45;
+    box-shadow: none;
+    cursor: not-allowed;
+    filter: saturate(0.5);
+  }
+
+  .arc-btn--gold,
+  .btn-primary {
+    background: var(--cn-coral);
+    border-color: var(--cn-line);
+    color: #fff;
+    box-shadow: 0 4px 0 var(--cn-coral-deep);
+  }
+  .arc-btn--gold:hover:not(:disabled),
+  .btn-primary:hover:not(:disabled) {
+    background: #ff7d60;
+    box-shadow: 0 6px 0 var(--cn-coral-deep);
+  }
+  .arc-btn--gold:active:not(:disabled),
+  .btn-primary:active:not(:disabled) {
+    box-shadow: 0 0 0 var(--cn-coral-deep);
+  }
+
+  .arc-btn--cyan {
+    background: var(--cn-sky);
+    color: #fff;
+    box-shadow: 0 4px 0 var(--cn-sky-deep);
+  }
+
+  .arc-btn--accent2 {
+    background: var(--cn-grape);
+    color: #fff;
+    box-shadow: 0 4px 0 var(--cn-grape-deep);
+  }
+
+  .arc-btn--ghost {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--cn-ink-2);
+  }
+  .arc-btn--ghost:hover:not(:disabled) {
+    background: var(--cn-card-2);
+    border-color: var(--cn-line-soft);
+    color: var(--cn-ink);
+    transform: none;
+    box-shadow: none;
+  }
+  .arc-btn--ghost:active:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .arc-btn--danger,
+  .btn-danger {
+    background: var(--cn-alert);
+    color: #fff;
+    box-shadow: 0 4px 0 var(--cn-alert-deep);
+  }
+  .arc-btn--danger:active:not(:disabled),
+  .btn-danger:active:not(:disabled) {
+    box-shadow: 0 0 0 var(--cn-alert-deep);
+  }
+
+  .btn-success {
+    background: var(--cn-mint);
+    color: #fff;
+    box-shadow: 0 4px 0 var(--cn-mint-deep);
+  }
+
+  .btn-accent {
+    background: var(--cn-sun);
+    color: var(--cn-ink);
+    box-shadow: 0 4px 0 var(--cn-sun-deep);
+  }
+
+  /* ------------------------------ chip ------------------------------- */
+
+  .arc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    height: 2rem;
+    padding: 0 0.9rem;
+    font-family: var(--cn-font);
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--cn-ink-2);
+    background: var(--cn-card);
+    border: var(--cn-bw) solid var(--cn-line-soft);
+    border-radius: var(--cn-r-pill);
+    clip-path: none;
+    transition:
+      background-color var(--cn-t) var(--cn-ease-out),
+      border-color var(--cn-t) var(--cn-ease-out),
+      color var(--cn-t) var(--cn-ease-out);
+  }
+  .arc-chip:hover {
+    border-color: var(--cn-line-mid);
+    color: var(--cn-ink);
+  }
+  .arc-chip[data-active='true'],
+  .arc-chip.is-active {
+    background: var(--cn-sun-soft);
+    border-color: var(--cn-line);
+    color: var(--cn-ink);
+  }
+
+  /* ----------------------------- switch ------------------------------ */
+
+  .arc-switch,
+  .hl-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 52px;
+    height: 30px;
+    border: var(--cn-bw-strong) solid var(--cn-line);
+    border-radius: var(--cn-r-pill);
+    background: var(--cn-card-2);
+    box-shadow: inset 0 3px 0 rgba(46, 36, 64, 0.07);
+    transition: background-color var(--cn-t) var(--cn-ease-out);
+  }
+  .arc-switch::after,
+  .hl-switch::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--cn-card);
+    border: var(--cn-bw) solid var(--cn-line);
+    transition: transform var(--cn-t) var(--cn-ease);
+  }
+  .arc-switch[data-on='true'],
+  .hl-switch[data-on='true'] {
+    background: var(--cn-mint);
+  }
+  .arc-switch[data-on='true']::after,
+  .hl-switch[data-on='true']::after {
+    transform: translateX(22px);
+  }
+
+  /* ------------------------------ 輸入框 ----------------------------- */
+
+  .arc-field,
+  .hl-input {
+    width: 100%;
+    height: 2.75rem;
+    padding: 0 0.9rem;
+    font-family: var(--cn-font);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cn-ink);
+    background: var(--cn-card);
+    border: var(--cn-bw) solid var(--cn-line-mid);
+    border-radius: var(--cn-r-sm);
+    box-shadow: inset 0 3px 0 rgba(46, 36, 64, 0.06);
+    transition:
+      border-color var(--cn-t) var(--cn-ease-out),
+      box-shadow var(--cn-t) var(--cn-ease-out);
+  }
+  .arc-field::placeholder {
+    color: var(--cn-ink-4);
+    font-weight: 600;
+  }
+  .arc-field:focus {
+    outline: none;
+    border-color: var(--cn-sky);
+    box-shadow: 0 0 0 4px rgba(61, 165, 255, 0.2);
+  }
+
+  /* ------------------------------ 分隔線 ----------------------------- */
+
+  .arc-divider {
+    height: var(--cn-bw);
+    width: 100%;
+    border: 0;
+    border-radius: var(--cn-r-pill);
+    background: var(--cn-line-soft);
+  }
+
+  /* ------------------------------ 清單列 ----------------------------- */
+
+  .arc-row,
+  .arc-index-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: var(--cn-bw) solid var(--cn-line-soft);
+    padding: 0.7rem 0.85rem;
+  }
+  .arc-row:last-child,
+  .arc-index-row:last-child {
+    border-bottom: 0;
+  }
+  .arc-row-hover {
+    transition: background-color var(--cn-t) var(--cn-ease-out);
+  }
+  .arc-row-hover:hover {
+    background: var(--cn-card-2);
+  }
+  .arc-index-num {
+    width: 24px;
+    flex-shrink: 0;
+    font-family: var(--cn-mono);
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--cn-ink-4);
+  }
+
+  /* 背景圖樣 */
+  .arc-grid-bg,
+  .hl-grid-bg {
+    background-image:
+      linear-gradient(rgba(46, 36, 64, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(46, 36, 64, 0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .arc-dots-bg,
+  .hl-dots-bg {
+    background-image: radial-gradient(rgba(46, 36, 64, 0.1) 1.2px, transparent 1.2px);
+    background-size: 20px 20px;
+  }
+  .arc-scanline::after,
+  .hl-scanlines::after {
+    content: none;
+  }
+
+  /* 舊切角類：CANDY 一律不用切角 */
+  .arc-cut-tl,
+  .arc-cut-br,
+  .arc-cut-sm,
+  .hl-cut-tl,
+  .hl-cut-br {
+    clip-path: none;
+  }
+}
+
+/* ------------------------------------------------------------- keyframes */
+
+@keyframes cn-pop-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cn-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+@layer utilities {
+  .arc-pop,
+  .hl-enter,
+  .hl-wipe,
+  .hl-tick {
+    animation: cn-pop-in var(--cn-t-slow) var(--cn-ease) both;
+  }
+  .arc-pulse,
+  .arc-breathe {
+    animation: cn-wiggle 1.6s var(--cn-ease-out) infinite;
+  }
+  .arc-glow-gold,
+  .arc-glow-cyan,
+  .arc-ring,
+  .arc-ring-2 {
+    box-shadow: var(--cn-pop-soft);
+  }
+}
