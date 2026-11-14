@@ -112,17 +112,17 @@ export function FileLibraryPanel({ onOpenTab, focusFilePath, onFocusConsumed }: 
               size="sm"
             />
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium text-[var(--hl-ink-2)]">
-            <FolderIcon className="h-3.5 w-3.5 text-[var(--hl-caution)]" />
+          <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium text-[var(--arc-ink-2)]">
+            <FolderIcon className="h-3.5 w-3.5 text-[var(--arc-caution)]" />
             <span>{SRC_FILE_STATS.root}</span>
-            <span className="text-[var(--hl-ink-4)]">|</span>
+            <span className="text-[var(--arc-ink-4)]">|</span>
             <span>{e.fileLibTotalFiles.replace('{count}', String(ALL_ENCYCLOPEDIA_FILES.length))}</span>
-            <span className="text-[var(--hl-ink-4)]">|</span>
+            <span className="text-[var(--arc-ink-4)]">|</span>
             <span>{e.fileLibTotalLines.replace('{count}', formatLineCount(SRC_FILE_STATS.totalLines))}</span>
             {overLimitCount > 0 && (
               <>
-                <span className="text-[var(--hl-ink-4)]">|</span>
-                <span className="text-[var(--hl-alarm)]">{e.fileLibOverLimitFiles.replace('{count}', String(overLimitCount))}</span>
+                <span className="text-[var(--arc-ink-4)]">|</span>
+                <span className="text-[var(--arc-alert)]">{e.fileLibOverLimitFiles.replace('{count}', String(overLimitCount))}</span>
               </>
             )}
           </div>

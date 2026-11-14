@@ -14,11 +14,11 @@ export function StatsShortcut() {
 
   return (
     <Deck notch className="flex w-full max-w-2xl flex-col items-center gap-4 p-6 text-center">
-      <span className="flex h-12 w-12 items-center justify-center border border-[var(--hl-line)] text-[var(--hl-reach)]">
+      <span className="flex h-12 w-12 items-center justify-center border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-reach)]">
         <ChartIcon className="h-5 w-5" />
       </span>
-      <h2 className="hl-title">{e.statsOverview}</h2>
-      <p className="hl-micro max-w-md">{e.statsOverviewDesc}</p>
+      <h2 className="arc-title">{e.statsOverview}</h2>
+      <p className="arc-micro max-w-md">{e.statsOverviewDesc}</p>
       <Btn
         variant="signal"
         size="md"

@@ -77,9 +77,9 @@ export function EncyclopediaSidebar({ activeTab, onChange }: EncyclopediaSidebar
         return (
           <div key={group.key} className="flex flex-col">
             <div className="flex items-center gap-2 px-3 pb-1 pt-3">
-              <GroupIcon className="h-2.5 w-2.5 shrink-0 text-[var(--hl-ink-4)]" />
-              <span className="hl-label whitespace-nowrap">{group.label}</span>
-              <span className="h-px flex-1 bg-[var(--hl-line)]" />
+              <GroupIcon className="h-2.5 w-2.5 shrink-0 text-[var(--arc-ink-4)]" />
+              <span className="arc-label whitespace-nowrap">{group.label}</span>
+              <span className="h-px flex-1 bg-[var(--arc-line)]" />
             </div>
 
             {group.tabs.map((tab) => {

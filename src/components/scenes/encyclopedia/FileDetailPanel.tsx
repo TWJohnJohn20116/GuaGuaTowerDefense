@@ -50,7 +50,7 @@ export function FileDetailPanel({ file, onOpenTab, onOpenFile }: FileDetailPanel
   if (!file) {
     return (
       <DetailEmptyState
-        icon={<FolderIcon className="h-7 w-7 text-[var(--hl-ink-3)]" />}
+        icon={<FolderIcon className="h-7 w-7 text-[var(--arc-ink-3)]" />}
         message={<>{e.fileDetailSelectHintLine1}<br />{e.fileDetailSelectHintLine2}</>}
       />
     );
@@ -65,21 +65,21 @@ export function FileDetailPanel({ file, onOpenTab, onOpenFile }: FileDetailPanel
       className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto pr-1 scrollbar-thin  scrollbar-track-transparent"
     >
       <DetailSurface className="relative flex h-36 shrink-0 items-center justify-center overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[var(--hl-deck-2)]   " />
-        <DocumentIcon className="relative z-10 h-16 w-16 text-[var(--hl-caution)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[var(--arc-deck-2)]   " />
+        <DocumentIcon className="relative z-10 h-16 w-16 text-[var(--arc-caution)]" />
       </DetailSurface>
 
       <div className="space-y-1">
-        <h3 className="text-base font-semibold tracking-wide text-[var(--hl-ink)]">{file.name}</h3>
-        <p className="font-mono text-[11px] leading-relaxed text-[var(--hl-ink-2)]">{file.path}</p>
+        <h3 className="arc-title text-base font-semibold tracking-wide text-[var(--arc-ink)]">{file.name}</h3>
+        <p className="font-mono text-[11px] leading-relaxed text-[var(--arc-ink-2)]">{file.path}</p>
       </div>
 
       {isOverLineLimit(file.lineCount) && (
-        <DetailBlock className="flex items-start gap-2 border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-3.5 py-3">
-          <WarningIcon className="mt-0.5 h-4 w-4 shrink-0 text-[var(--hl-alarm)]" />
+        <DetailBlock className="flex items-start gap-2 border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)] px-3.5 py-3">
+          <WarningIcon className="mt-0.5 h-4 w-4 shrink-0 text-[var(--arc-alert)]" />
           <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-alarm)]">{e.fileDetailOverLimitTitle}</p>
-            <p className="mt-1 text-[10px] font-medium leading-relaxed text-[var(--hl-alarm)]">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-alert)]">{e.fileDetailOverLimitTitle}</p>
+            <p className="mt-1 text-[10px] font-medium leading-relaxed text-[var(--arc-alert)]">
               {overLineLimitLabel(file.lineCount)}{e.fileDetailOverLimitSuggest.replace('{max}', String(MAX_SOURCE_FILE_LINES))}
             </p>
           </div>
@@ -87,20 +87,20 @@ export function FileDetailPanel({ file, onOpenTab, onOpenFile }: FileDetailPanel
       )}
 
       <DetailBlock className="p-3.5">
-        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">{e.fileDetailFolder}</p>
-        <p className="font-mono text-xs text-[var(--hl-ink-2)]">{file.folder}</p>
+        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">{e.fileDetailFolder}</p>
+        <p className="font-mono text-xs text-[var(--arc-ink-2)]">{file.folder}</p>
       </DetailBlock>
 
       <DetailBlock className="p-3.5">
-        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">{e.fileDetailCategory}</p>
+        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">{e.fileDetailCategory}</p>
         <SceneFilterChip active accent="amber" onClick={() => {}} disabled size="sm" className="pointer-events-none normal-case tracking-[0.08em]">
           {getFileCategoryLabel(e, file.category)}
         </SceneFilterChip>
       </DetailBlock>
 
       <DetailBlock className="p-3.5">
-        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">{e.fileDetailDescription}</p>
-        <p className="text-xs font-medium leading-relaxed text-[var(--hl-ink-2)]">
+        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">{e.fileDetailDescription}</p>
+        <p className="text-xs font-medium leading-relaxed text-[var(--arc-ink-2)]">
           {resolveFileDescription(e, file.path, '') ||
             getInferredFileDescription(e, file.category, file.folder, file.format)}
         </p>
@@ -108,20 +108,20 @@ export function FileDetailPanel({ file, onOpenTab, onOpenFile }: FileDetailPanel
 
       <div className="grid grid-cols-2 gap-2">
         <DetailBlock className="p-3.5">
-          <p className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">{e.fileDetailFormat}</p>
-          <p className="text-sm font-semibold uppercase text-[var(--hl-ink)]">{file.format}</p>
+          <p className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">{e.fileDetailFormat}</p>
+          <p className="text-sm font-semibold uppercase text-[var(--arc-ink)]">{file.format}</p>
         </DetailBlock>
         <DetailBlock className="p-3.5">
-          <p className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">{e.fileDetailLineCount}</p>
-          <p className={`font-mono text-sm font-semibold ${isOverLineLimit(file.lineCount) ? 'text-[var(--hl-alarm)]' : 'text-[var(--hl-reach)]'}`}>
+          <p className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">{e.fileDetailLineCount}</p>
+          <p className={`font-mono text-sm font-semibold ${isOverLineLimit(file.lineCount) ? 'text-[var(--arc-alert)]' : 'text-[var(--arc-reach)]'}`}>
             {formatLineCount(file.lineCount)}
           </p>
         </DetailBlock>
       </div>
 
       <DetailBlock className="p-3.5">
-        <p className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">{e.fileDetailExtension}</p>
-        <p className="font-mono text-sm font-semibold text-[var(--hl-ink-2)]">{file.extension || '—'}</p>
+        <p className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">{e.fileDetailExtension}</p>
+        <p className="font-mono text-sm font-semibold text-[var(--arc-ink-2)]">{file.extension || '—'}</p>
       </DetailBlock>
 
       <FileRelationLinks

@@ -19,7 +19,7 @@ export function EncyclopediaWaveModLink({ appearance, className = '' }: Encyclop
 
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
-      <span className="inline-flex items-center gap-1  border border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--hl-reach)]">
+      <span className="inline-flex items-center gap-1  arc-chip px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--arc-reach)]">
         <WaveIcon className="h-3 w-3" />
         {e.editWaveInModEditor.replace('{n}', String(appearance.waveNumber))}
         {appearance.waveSetName ? ` · ${appearance.waveSetName}` : ''}

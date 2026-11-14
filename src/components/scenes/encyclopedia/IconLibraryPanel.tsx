@@ -96,13 +96,13 @@ export function IconLibraryPanel({ onOpenFile }: IconLibraryPanelProps) {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--hl-ink-3)]">
+          <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--arc-ink-3)]">
             {e.iconLibTotalCount.replace('{count}', String(filtered.length))}
           </div>
-          <span className="border border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-vital)]">
+          <span className="arc-chip px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-vital)]">
             {e.iconLibEmbeddedBadge}
           </span>
-          <span className="text-[10px] font-medium text-[var(--hl-ink-4)]">
+          <span className="text-[10px] font-medium text-[var(--arc-ink-4)]">
             {e.iconLibScopeHint.replace('{count}', String(ICON_LIBRARY_SCOPE.totalInRegistry))}
           </span>
         </div>
@@ -113,7 +113,7 @@ export function IconLibraryPanel({ onOpenFile }: IconLibraryPanelProps) {
           <SceneBrowseGridScroll>
             {filtered.length === 0 ? (
               <SceneBrowseEmptyState
-                icon={<SparklesIcon className="h-10 w-10 text-[var(--hl-ink-4)]" />}
+                icon={<SparklesIcon className="h-10 w-10 text-[var(--arc-ink-4)]" />}
                 message={e.iconLibNoResults}
                 actionLabel={e.iconLibClearFilter}
                 onAction={() => {
@@ -171,14 +171,14 @@ function IconCard({
         minHeight={108}
       >
         <div className="flex flex-1 flex-col items-center justify-center gap-2 px-2 py-3">
-          <div className="flex h-10 w-10 items-center justify-center  border border-[var(--hl-line)] bg-[var(--hl-deck-2)]">
+          <div className="flex h-10 w-10 items-center justify-center  arc-chip">
             <IconCmp
               className={`h-6 w-6 transition-colors ${
-                selected ? 'text-[var(--hl-reach)]' : 'text-[var(--hl-ink-2)] group-hover:text-[var(--hl-ink)]'
+                selected ? 'text-[var(--arc-reach)]' : 'text-[var(--arc-ink-2)] group-hover:text-[var(--arc-ink)]'
               }`}
             />
           </div>
-          <span className="line-clamp-2 w-full text-center text-[10px] font-bold leading-tight text-[var(--hl-ink-3)] group-hover:text-[var(--hl-ink)]">
+          <span className="line-clamp-2 w-full text-center text-[10px] font-bold leading-tight text-[var(--arc-ink-3)] group-hover:text-[var(--arc-ink)]">
             {icon.displayName}
           </span>
         </div>

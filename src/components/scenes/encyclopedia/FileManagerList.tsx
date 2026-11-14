@@ -26,9 +26,9 @@ import {
 import { getBreadcrumb, type FileManagerRow } from './srcFolderTree';
 
 const LIST_COLS =
-  'grid w-full grid-cols-[minmax(0,1fr)_72px_64px_minmax(0,1fr)] gap-2 border-b border-[var(--hl-line)] px-4 py-2.5 text-left transition-colors';
+  'grid w-full grid-cols-[minmax(0,1fr)_72px_64px_minmax(0,1fr)] gap-2 border-b border-[var(--cn-line-soft)] px-4 py-2.5 text-left transition-colors';
 const HEADER_COLS =
-  'grid grid-cols-[minmax(0,1fr)_72px_64px_minmax(0,1fr)] gap-2 border-b border-[var(--hl-line)] bg-[var(--hl-void-2)] px-4 py-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]';
+  'grid grid-cols-[minmax(0,1fr)_72px_64px_minmax(0,1fr)] gap-2 border-b border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] px-4 py-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]';
 
 export type { FileManagerRow };
 
@@ -88,22 +88,22 @@ export function FileManagerList({
   return (
     <div className={`flex min-h-0 min-w-0 flex-1 flex-col ${SCENE_GLASS.listShell}`}>
       {/* 位址列 / 麵包屑 */}
-      <div className="flex flex-wrap items-center gap-1 border-b border-[var(--hl-line)] px-4 py-2.5">
+      <div className="flex flex-wrap items-center gap-1 border-b border-[var(--cn-line-soft)] px-4 py-2.5">
         {mode === 'search' ? (
-          <span className="text-[11px] font-semibold text-[var(--hl-ink-2)]">
+          <span className="text-[11px] font-semibold text-[var(--arc-ink-2)]">
             {e.fileListSearchResult.replace('{term}', searchTerm ?? '')}
           </span>
         ) : (
           crumbs.map((crumb, i) => (
             <span key={crumb.path} className="flex items-center gap-1">
-              {i > 0 && <ChevronRightIcon className="h-3 w-3 text-[var(--hl-ink-3)]" />}
+              {i > 0 && <ChevronRightIcon className="h-3 w-3 text-[var(--arc-ink-3)]" />}
               <button
                 type="button"
                 onClick={() => onNavigate(crumb.path)}
                 className={` px-1.5 py-0.5 text-[11px] font-semibold transition-colors ${
                   crumb.path === currentPath
-                    ? 'bg-[var(--hl-deck-2)] text-[var(--hl-caution)]'
-                    : 'text-[var(--hl-ink-3)] hover:bg-[var(--hl-deck-2)] hover:text-[var(--hl-ink)]'
+                    ? 'bg-[var(--arc-deck-2)] text-[var(--arc-caution)]'
+                    : 'text-[var(--arc-ink-3)] hover:bg-[var(--arc-deck-2)] hover:text-[var(--arc-ink)]'
                 }`}
               >
                 {crumb.label}
@@ -158,7 +158,7 @@ export function FileManagerList({
         {sortedRows.length === 0 ? (
           <SceneBrowseEmptyState
             variant="inline"
-            icon={<FolderIcon className="h-8 w-8 text-[var(--hl-ink-4)]" />}
+            icon={<FolderIcon className="h-8 w-8 text-[var(--arc-ink-4)]" />}
             message={e.fileListEmptyFolder}
           />
         ) : (
@@ -177,12 +177,12 @@ export function FileManagerList({
         )}
       </div>
 
-      <div className="border-t border-[var(--hl-line)] px-4 py-2 text-[10px] font-medium text-[var(--hl-ink-4)]">
+      <div className="border-t border-[var(--cn-line-soft)] px-4 py-2 text-[10px] font-medium text-[var(--arc-ink-4)]">
         {e.fileListItemCount.replace('{count}', String(sortedRows.length))}
         {fileLineSum(sortedRows) > 0 && (
-          <span className="text-[var(--hl-ink-3)]">{e.fileListLineSum.replace('{count}', formatLineCount(fileLineSum(sortedRows)))}</span>
+          <span className="text-[var(--arc-ink-3)]">{e.fileListLineSum.replace('{count}', formatLineCount(fileLineSum(sortedRows)))}</span>
         )}
-        <span className="text-[var(--hl-ink-4)]">{e.fileListKeyboardHint}</span>
+        <span className="text-[var(--arc-ink-4)]">{e.fileListKeyboardHint}</span>
       </div>
     </div>
   );
@@ -207,7 +207,7 @@ function FileManagerRowItem({
 }) {
   const { t } = useTranslation();
   const e = t.encyclopedia;
-  const focusRing = focused ? 'outline outline-1 -outline-offset-1 outline-[var(--hl-signal)]' : '';
+  const focusRing = focused ? 'outline outline-1 -outline-offset-1 outline-[var(--arc-gold)]' : '';
 
   if (row.kind === 'parent') {
     return (
@@ -216,15 +216,15 @@ function FileManagerRowItem({
         data-focus-index={index}
         onFocus={onFocusRow}
         onClick={() => onNavigate(row.path)}
-        className={`${LIST_COLS} hover:bg-[var(--hl-deck-2)] ${focusRing}`}
+        className={`${LIST_COLS} hover:bg-[var(--arc-deck-2)] ${focusRing}`}
       >
         <span className="flex min-w-0 items-center gap-2">
-          <FolderIcon className="h-4 w-4 shrink-0 text-[var(--hl-ink-4)]" />
-          <span className="truncate text-[12px] font-medium text-[var(--hl-ink-3)]">..</span>
+          <FolderIcon className="h-4 w-4 shrink-0 text-[var(--arc-ink-4)]" />
+          <span className="truncate text-[12px] font-medium text-[var(--arc-ink-3)]">..</span>
         </span>
-        <span className="text-[10px] text-[var(--hl-ink-4)]">{e.fileListParentFolder}</span>
-        <span className="text-right text-[10px] text-[var(--hl-ink-4)]">—</span>
-        <span className="hidden truncate font-mono text-[10px] text-[var(--hl-ink-3)] sm:block">{row.label}</span>
+        <span className="text-[10px] text-[var(--arc-ink-4)]">{e.fileListParentFolder}</span>
+        <span className="text-right text-[10px] text-[var(--arc-ink-4)]">—</span>
+        <span className="hidden truncate font-mono text-[10px] text-[var(--arc-ink-3)] sm:block">{row.label}</span>
       </button>
     );
   }
@@ -238,15 +238,15 @@ function FileManagerRowItem({
         onFocus={onFocusRow}
         onDoubleClick={() => onNavigate(row.path)}
         onClick={() => onNavigate(row.path)}
-        className={`${LIST_COLS} hover:bg-[var(--hl-deck-2)] ${focusRing}`}
+        className={`${LIST_COLS} hover:bg-[var(--arc-deck-2)] ${focusRing}`}
       >
         <span className="flex min-w-0 items-center gap-2">
-          <FolderIcon className="h-4 w-4 shrink-0 text-[var(--hl-caution)]" />
-          <span className="truncate text-[12px] font-semibold text-[var(--hl-ink)]">{row.label}</span>
+          <FolderIcon className="h-4 w-4 shrink-0 text-[var(--arc-caution)]" />
+          <span className="truncate text-[12px] font-semibold text-[var(--arc-ink)]">{row.label}</span>
         </span>
-        <span className="text-[10px] font-medium text-[var(--hl-ink-2)]">{e.fileListFolderLabel}</span>
-        <span className="text-right font-mono text-[10px] text-[var(--hl-ink-4)]">{formatLineCount(lineTotal)}</span>
-        <span className="hidden truncate font-mono text-[10px] text-[var(--hl-ink-4)] sm:block">{row.path}</span>
+        <span className="text-[10px] font-medium text-[var(--arc-ink-2)]">{e.fileListFolderLabel}</span>
+        <span className="text-right font-mono text-[10px] text-[var(--arc-ink-4)]">{formatLineCount(lineTotal)}</span>
+        <span className="hidden truncate font-mono text-[10px] text-[var(--arc-ink-4)] sm:block">{row.path}</span>
       </button>
     );
   }
@@ -260,29 +260,29 @@ function FileManagerRowItem({
       onFocus={onFocusRow}
       onClick={() => onSelectFile(file.id)}
       className={`${LIST_COLS} ${focusRing} ${
-        selected ? 'bg-[var(--hl-deck-2)] text-[var(--hl-caution)]' : 'hover:bg-[var(--hl-deck-2)]'
+        selected ? 'bg-[var(--arc-deck-2)] text-[var(--arc-caution)]' : 'hover:bg-[var(--arc-deck-2)]'
       }`}
     >
       <span className="flex min-w-0 items-center gap-2">
-        <DocumentIcon className={`h-4 w-4 shrink-0 ${selected ? 'text-[var(--hl-caution)]' : 'text-[var(--hl-ink-3)]'}`} />
-        <span className="truncate text-[12px] font-medium text-[var(--hl-ink)]">{file.name}</span>
+        <DocumentIcon className={`h-4 w-4 shrink-0 ${selected ? 'text-[var(--arc-caution)]' : 'text-[var(--arc-ink-3)]'}`} />
+        <span className="truncate text-[12px] font-medium text-[var(--arc-ink)]">{file.name}</span>
         {overLimit && (
-          <span className="shrink-0  border border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-1 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-alarm)]">
+          <span className="shrink-0  arc-chip px-1 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-alert)]">
             {e.fileListOverLimitBadge}
           </span>
         )}
       </span>
-      <span className="truncate text-[10px] font-mono text-[var(--hl-ink-2)]">{file.extension || file.format}</span>
+      <span className="truncate text-[10px] font-mono text-[var(--arc-ink-2)]">{file.extension || file.format}</span>
       <span className={`text-right font-mono text-[10px] ${
         overLimit
-          ? 'font-bold text-[var(--hl-alarm)]'
+          ? 'font-bold text-[var(--arc-alert)]'
           : selected
-            ? 'text-[var(--hl-caution)]'
-            : 'text-[var(--hl-ink-3)]'
+            ? 'text-[var(--arc-caution)]'
+            : 'text-[var(--arc-ink-3)]'
       }`}>
         {formatLineCount(file.lineCount)}
       </span>
-      <span className="hidden truncate font-mono text-[10px] text-[var(--hl-ink-4)] sm:block">{file.path}</span>
+      <span className="hidden truncate font-mono text-[10px] text-[var(--arc-ink-4)] sm:block">{file.path}</span>
     </button>
   );
 }
@@ -314,8 +314,8 @@ function SortHeaderButton({
     <button
       type="button"
       onClick={() => onSort(column)}
-      className={`flex items-center gap-0.5 transition-colors hover:text-[var(--hl-ink-2)] ${align} ${
-        active ? 'text-[var(--hl-caution)]' : ''
+      className={`flex items-center gap-0.5 transition-colors hover:text-[var(--arc-ink-2)] ${align} ${
+        active ? 'text-[var(--arc-caution)]' : ''
       } ${className}`}
       aria-label={sortAriaTemplate.replace('{label}', label)}
       aria-pressed={active}

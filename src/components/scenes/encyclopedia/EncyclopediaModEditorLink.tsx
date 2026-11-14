@@ -4,6 +4,7 @@
 import { useModStore, type ModEditorFocusTab } from '@/store/modStore';
 import { useGameStore } from '@/store/gameStore';
 import { PaletteIcon } from '@/components/ui/Icons';
+import { Btn } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 
 interface EncyclopediaModEditorLinkProps {
@@ -32,18 +33,19 @@ export function EncyclopediaModEditorLink({
   if (!mod) return null;
 
   return (
-    <button
-      type="button"
+    <Btn
+      variant="ghost"
+      size="sm"
       onClick={() => {
         setModEditorFocus({ tab: contentTab, itemId });
         setEditingMod(mod);
         setWorkshopTab('modEditor');
         setScene('workshop');
       }}
-      className={`inline-flex items-center gap-1.5  border border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--hl-reach)] transition-colors hover:bg-[var(--hl-deck-2)] ${className}`}
+      className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--arc-reach)] ${className}`}
     >
       <PaletteIcon className="h-3 w-3" />
       {e.editInModEditor}
-    </button>
+    </Btn>
   );
 }

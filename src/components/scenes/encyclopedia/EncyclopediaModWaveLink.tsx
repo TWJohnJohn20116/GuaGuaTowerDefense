@@ -4,6 +4,7 @@
 import { useModStore } from '@/store/modStore';
 import { useGameStore } from '@/store/gameStore';
 import { WaterWaveIcon } from '@/components/ui/Icons';
+import { Btn } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 
 interface EncyclopediaModWaveLinkProps {
@@ -26,18 +27,19 @@ export function EncyclopediaModWaveLink({ modId, waveSetId, className = '' }: En
   if (!mod?.content.waves?.length) return null;
 
   return (
-    <button
-      type="button"
+    <Btn
+      variant="ghost"
+      size="sm"
       onClick={() => {
         setModEditorFocus({ tab: 'waves', itemId: waveSetId });
         setEditingMod(mod);
         setWorkshopTab('modEditor');
         setScene('workshop');
       }}
-      className={`inline-flex items-center gap-1.5  border border-[var(--hl-line)] bg-[var(--hl-deck-2)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--hl-reach)] transition-colors hover:bg-[var(--hl-deck-2)] ${className}`}
+      className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--arc-reach)] ${className}`}
     >
       <WaterWaveIcon className="h-3 w-3" />
       {m.ecLinkWaves}
-    </button>
+    </Btn>
   );
 }

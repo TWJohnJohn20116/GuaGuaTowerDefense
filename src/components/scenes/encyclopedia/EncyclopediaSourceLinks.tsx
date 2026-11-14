@@ -27,7 +27,7 @@ export function EncyclopediaSourceLinks({ tab, itemId, onOpenFile }: Encyclopedi
 
   return (
     <DetailBlock className="p-3.5">
-      <p className="mb-2.5 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">
+      <p className="mb-2.5 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">
         {e.sourceLinksTitle}
       </p>
       <div className="flex flex-col gap-1.5">
@@ -40,15 +40,15 @@ export function EncyclopediaSourceLinks({ tab, itemId, onOpenFile }: Encyclopedi
             onClick={() => onOpenFile(file.path)}
             className="flex w-full items-center gap-2 px-3 py-2 text-left normal-case tracking-normal"
           >
-            <DocumentIcon className="h-3.5 w-3.5 shrink-0 text-[var(--hl-reach)]" />
+            <DocumentIcon className="h-3.5 w-3.5 shrink-0 text-[var(--arc-reach)]" />
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[11px] font-semibold text-[var(--hl-ink)]">{file.name}</span>
-              <span className="block truncate font-mono text-[10px] text-[var(--hl-ink-4)]">{file.path}</span>
+              <span className="block truncate text-[11px] font-semibold text-[var(--arc-ink)]">{file.name}</span>
+              <span className="block truncate font-mono text-[10px] text-[var(--arc-ink-4)]">{file.path}</span>
             </span>
           </SceneFilterChip>
         ))}
       </div>
-      <p className="mt-2 text-[10px] font-medium text-[var(--hl-ink-4)]">
+      <p className="mt-2 text-[10px] font-medium text-[var(--arc-ink-4)]">
         {e.sourceLinksHint}
       </p>
     </DetailBlock>
@@ -78,9 +78,9 @@ export function FileRelationLinks({
 
   return (
     <DetailBlock className="p-3.5">
-      <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">{title}</p>
+      <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">{title}</p>
       {visible.length === 0 ? (
-        <p className="text-[10px] font-medium text-[var(--hl-ink-4)]">{hint}</p>
+        <p className="text-[10px] font-medium text-[var(--arc-ink-4)]">{hint}</p>
       ) : (
         <div className="flex flex-col gap-1">
           {visible.map((filePath) => {
@@ -92,15 +92,15 @@ export function FileRelationLinks({
                 type="button"
                 onClick={() => onOpenFile?.(filePath)}
                 disabled={!onOpenFile}
-                className="flex items-center gap-1.5  px-2 py-1.5 text-left transition-colors hover:bg-[var(--hl-deck-2)] disabled:cursor-default disabled:hover:bg-transparent"
+                className="flex items-center gap-1.5  px-2 py-1.5 text-left transition-colors hover:bg-[var(--arc-deck-2)] disabled:cursor-default disabled:hover:bg-transparent"
               >
-                <FolderIcon className="h-3 w-3 shrink-0 text-[var(--hl-ink-4)]" />
-                <span className="truncate font-mono text-[10px] text-[var(--hl-ink-3)]">{label}</span>
+                <FolderIcon className="h-3 w-3 shrink-0 text-[var(--arc-ink-4)]" />
+                <span className="truncate font-mono text-[10px] text-[var(--arc-ink-3)]">{label}</span>
               </button>
             );
           })}
           {overflow > 0 && (
-            <p className="px-2 text-[10px] font-medium text-[var(--hl-ink-4)]">另有 {overflow} 個檔案…</p>
+            <p className="px-2 text-[10px] font-medium text-[var(--arc-ink-4)]">另有 {overflow} 個檔案…</p>
           )}
         </div>
       )}

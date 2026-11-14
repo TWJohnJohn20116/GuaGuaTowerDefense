@@ -1,5 +1,5 @@
 /**
- * 圖示庫 · 右欄詳情面板（對齊 ShopDetailPanel / MemorialDetailPanel）
+ * 圖示庫 · 右欄詳情面板（對齊 ShopDetailPanel）
  */
 
 import { useMemo } from 'react';
@@ -22,18 +22,18 @@ export function IconDetailPanel({ icon, onOpenFile }: IconDetailPanelProps) {
   const e = t.encyclopedia;
 
   const previewColors = useMemo(() => [
-    { label: e.iconSwatchWhite, className: 'text-[var(--hl-ink)]' },
-    { label: e.iconSwatchAmber, className: 'text-[var(--hl-caution)]' },
-    { label: e.iconSwatchBlue, className: 'text-[var(--hl-reach)]' },
-    { label: e.iconSwatchEmerald, className: 'text-[var(--hl-vital)]' },
-    { label: e.iconSwatchRose, className: 'text-[var(--hl-alarm)]' },
-    { label: e.iconSwatchPurple, className: 'text-[var(--hl-reach)]' },
+    { label: e.iconSwatchWhite, className: 'text-[var(--arc-ink)]' },
+    { label: e.iconSwatchAmber, className: 'text-[var(--arc-caution)]' },
+    { label: e.iconSwatchBlue, className: 'text-[var(--arc-reach)]' },
+    { label: e.iconSwatchEmerald, className: 'text-[var(--arc-vital)]' },
+    { label: e.iconSwatchRose, className: 'text-[var(--arc-alert)]' },
+    { label: e.iconSwatchPurple, className: 'text-[var(--arc-reach)]' },
   ], [e]);
 
   if (!icon) {
     return (
       <DetailEmptyState
-        icon={<SparklesIcon className="h-7 w-7 text-[var(--hl-ink-3)]" />}
+        icon={<SparklesIcon className="h-7 w-7 text-[var(--arc-ink-3)]" />}
         message={<>{e.iconDetailSelectHintLine1}<br />{e.iconDetailSelectHintLine2}</>}
       />
     );
@@ -51,17 +51,17 @@ export function IconDetailPanel({ icon, onOpenFile }: IconDetailPanelProps) {
       className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto pr-1 scrollbar-thin  scrollbar-track-transparent"
     >
       <DetailSurface className="relative flex h-44 shrink-0 items-center justify-center overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[var(--hl-deck-2)]   " />
-        <IconCmp className="relative z-10 h-20 w-20 shrink-0 text-[var(--hl-ink)] drop-" />
+        <div className="pointer-events-none absolute inset-0 bg-[var(--arc-deck-2)]   " />
+        <IconCmp className="relative z-10 h-20 w-20 shrink-0 text-[var(--arc-ink)] drop-" />
       </DetailSurface>
 
       <div className="space-y-1">
-        <h3 className="text-base font-semibold tracking-wide text-[var(--hl-ink)]">{icon.displayName}</h3>
-        <p className="font-mono text-[11px] text-[var(--hl-ink-2)]">{icon.exportName}</p>
+        <h3 className="arc-title text-base font-semibold tracking-wide text-[var(--arc-ink)]">{icon.displayName}</h3>
+        <p className="font-mono text-[11px] text-[var(--arc-ink-2)]">{icon.exportName}</p>
       </div>
 
       <DetailBlock className="p-3.5">
-        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">{e.fileDetailFormat}</p>
+        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">{e.fileDetailFormat}</p>
         <div className="flex flex-wrap items-center gap-2">
           <SceneFilterChip active accent="emerald" onClick={() => {}} disabled size="sm" className="pointer-events-none normal-case tracking-[0.08em]">
             <span className="inline-flex items-center gap-1.5">
@@ -69,49 +69,49 @@ export function IconDetailPanel({ icon, onOpenFile }: IconDetailPanelProps) {
               {e.iconDetailInlineSvg}
             </span>
           </SceneFilterChip>
-          <span className="text-[10px] text-[var(--hl-ink-2)]">{e.iconDetailViewBoxHint}</span>
+          <span className="text-[10px] text-[var(--arc-ink-2)]">{e.iconDetailViewBoxHint}</span>
         </div>
       </DetailBlock>
 
       <DetailBlock className="p-3.5">
-        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">{e.fileDetailCategory}</p>
+        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">{e.fileDetailCategory}</p>
         <SceneFilterChip active accent="sky" onClick={() => {}} disabled size="sm" className="pointer-events-none normal-case tracking-[0.08em]">
           {getIconCategoryLabel(e, icon.category)}
         </SceneFilterChip>
       </DetailBlock>
 
       <DetailBlock className="p-3.5">
-        <p className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">{e.iconDetailSwatches}</p>
+        <p className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">{e.iconDetailSwatches}</p>
         <div className="grid grid-cols-3 gap-2">
           {previewColors.map(({ label, className }) => (
             <DetailCell key={label} className="flex flex-col items-center gap-2">
               <IconCmp className={`h-7 w-7 shrink-0 ${className}`} />
-              <span className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-2)]">{label}</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-2)]">{label}</span>
             </DetailCell>
           ))}
         </div>
       </DetailBlock>
 
       <DetailBlock className="p-3.5">
-        <p className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">{e.iconDetailSizes}</p>
+        <p className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">{e.iconDetailSizes}</p>
         <DetailCell className="flex items-end justify-around gap-2 px-3 py-4">
-          <IconCmp className="h-4 w-4 shrink-0 text-[var(--hl-ink-2)]" />
-          <IconCmp className="h-6 w-6 shrink-0 text-[var(--hl-ink-2)]" />
-          <IconCmp className="h-8 w-8 shrink-0 text-[var(--hl-ink)]" />
-          <IconCmp className="h-12 w-12 shrink-0 text-[var(--hl-ink)]" />
+          <IconCmp className="h-4 w-4 shrink-0 text-[var(--arc-ink-2)]" />
+          <IconCmp className="h-6 w-6 shrink-0 text-[var(--arc-ink-2)]" />
+          <IconCmp className="h-8 w-8 shrink-0 text-[var(--arc-ink)]" />
+          <IconCmp className="h-12 w-12 shrink-0 text-[var(--arc-ink)]" />
         </DetailCell>
       </DetailBlock>
 
       <DetailBlock className="mt-auto p-3.5">
-        <p className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--hl-ink-4)]">{e.iconDetailSourceFile}</p>
-        <p className="font-mono text-xs font-medium text-[var(--hl-ink-2)]">
+        <p className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--arc-ink-4)]">{e.iconDetailSourceFile}</p>
+        <p className="font-mono text-xs font-medium text-[var(--arc-ink-2)]">
           {icon.sourceFile}
           {icon.sourceLine ? `:${icon.sourceLine}` : ''}
         </p>
         {icon.sourceSection && (
-          <p className="mt-1.5 text-[10px] text-[var(--hl-ink-2)]">{e.iconDetailSourceSection.replace('{section}', icon.sourceSection)}</p>
+          <p className="mt-1.5 text-[10px] text-[var(--arc-ink-2)]">{e.iconDetailSourceSection.replace('{section}', icon.sourceSection)}</p>
         )}
-        <p className="mt-1.5 text-[10px] leading-relaxed text-[var(--hl-ink-4)]">
+        <p className="mt-1.5 text-[10px] leading-relaxed text-[var(--arc-ink-4)]">
           {e.iconDetailScopeNote.replace('{count}', String(ICON_LIBRARY_SCOPE.totalInRegistry))}
         </p>
         {onOpenFile && (
