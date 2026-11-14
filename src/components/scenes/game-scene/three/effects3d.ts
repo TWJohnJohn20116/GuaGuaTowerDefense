@@ -9,6 +9,7 @@
 
 import * as THREE from 'three';
 import type { DeathAnimation, DamageText } from '@/types/game';
+import { fxFade, fxProgress } from '@/data/fxProgress';
 
 // 與 2D GameCanvas 同步的動畫時長
 export const UPGRADE_FX_DURATION = 1500;
@@ -123,9 +124,10 @@ export function createEffects3D(scene: THREE.Scene): Effects3D {
         deathFxMap.set(d.id, fx);
       }
 
-      // 按 elapsed 純函式計算每個碎片的位置與淡出
-      const t = Math.min((now - d.startTime) / 1000, d.duration / 1000);
-      const fade = Math.max(0, 1 - (now - d.startTime) / d.duration);
+      // 按 elapsed 純函式計算每個碎片的位置與淡出（進度語意與 2D 共用 data/fxProgress）
+      const deathProgress = fxProgress(d.startTime, d.duration, now);
+      const t = deathProgress * (d.duration / 1000);
+      const fade = fxFade(d.startTime, d.duration, now);
       for (let i = 0; i < fx.group.children.length; i++) {
         const mesh = fx.group.children[i] as THREE.Mesh;
         const shard = d.shards[i];
@@ -168,7 +170,7 @@ export function createEffects3D(scene: THREE.Scene): Effects3D {
         textSprites.set(t.id, sprite);
       }
       const elapsed = now - t.startTime;
-      const progress = Math.min(1, elapsed / t.duration);
+      const progress = fxProgress(t.startTime, t.duration, now);
       // store 的 y 每幀向上飄（格座標 -0.001/ms），這裡補償回初始位置改用世界高度上升
       const z0 = t.y + 0.001 * elapsed;
       const [wx, wz] = toWorld(t.x, z0);
@@ -219,11 +221,11 @@ export function createEffects3D(scene: THREE.Scene): Effects3D {
     };
 
     for (const u of upgrades) {
-      const progress = Math.min(1, (now - u.startTime) / UPGRADE_FX_DURATION);
+      const progress = fxProgress(u.startTime, UPGRADE_FX_DURATION, now);
       syncRing(u.id, u.gridPos, u.towerColor || '#f59e0b', progress, true, u.isMaxLevel ? 2.6 : 1.8);
     }
     for (const s of sells) {
-      const progress = Math.min(1, (now - s.startTime) / SELL_FX_DURATION);
+      const progress = fxProgress(s.startTime, SELL_FX_DURATION, now);
       syncRing(s.id, s.gridPos, '#ef4444', progress, false, 1.4);
     }
 

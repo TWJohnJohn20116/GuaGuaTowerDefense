@@ -15,7 +15,9 @@
 
 import * as THREE from 'three';
 import type { PlayerSkillAnimation } from '@/store/gameStoreTypes';
-import type { Tower } from '@/types/game';
+import type { RenderSnapshot } from '@/data/renderSnapshot';
+import { enemyFrameById } from '@/data/renderSnapshot';
+import { fxProgress } from '@/data/fxProgress';
 import { getTowerData } from '@/store/gameStoreUtils';
 
 const ADD = THREE.AdditiveBlending;
@@ -33,7 +35,7 @@ interface SkillFx3D {
     toWorld: (c: number, r: number) => [number, number],
     now: number,
   ) => void;
-  syncFlames: (towers: Tower[], toWorld: (c: number, r: number) => [number, number], now: number) => void;
+  syncFlames: (snapshot: RenderSnapshot, toWorld: (c: number, r: number) => [number, number], now: number) => void;
   dispose: () => void;
 }
 
@@ -310,7 +312,7 @@ export function createSkillFx3D(scene: THREE.Scene): SkillFx3D {
         entry = buildSkillGroup(anim, toWorld);
         fxMap.set(anim.id, entry);
       }
-      const progress = Math.min(1, (now - anim.startTime) / anim.duration);
+      const progress = fxProgress(anim.startTime, anim.duration, now);
       updateSkillGroup(entry, progress, now);
     }
     for (const [id, entry] of fxMap) {
@@ -326,11 +328,16 @@ export function createSkillFx3D(scene: THREE.Scene): SkillFx3D {
   const coneGeoOuter = new THREE.ConeGeometry(0.3, 1, 12, 1, true);
   const coneGeoInner = new THREE.ConeGeometry(0.16, 1, 10, 1, true);
 
-  const syncFlames: SkillFx3D['syncFlames'] = (towers, toWorld, now) => {
+  const syncFlames: SkillFx3D['syncFlames'] = (snapshot, toWorld, now) => {
     const alive = new Set<string>();
-    for (const t of towers) {
+    const frames = snapshot.towers;
+    for (let i = 0; i < snapshot.towerCount; i++) {
+      const t = frames[i];
       const data = getTowerData(t.type);
-      if (!data?.flameEffect || !t.target) continue;
+      if (!data?.flameEffect || !t.targetId) continue;
+      // 與 2D 同一條解析路徑：契約的 targetId → 敵人 frame
+      const target = enemyFrameById(snapshot, t.targetId);
+      if (!target || target.health <= 0) continue;
       alive.add(t.id);
 
       let fx = flameMap.get(t.id);
@@ -346,7 +353,7 @@ export function createSkillFx3D(scene: THREE.Scene): SkillFx3D {
       }
 
       const [tx, tz] = toWorld(t.gridPos.col, t.gridPos.row);
-      const [ex, ez] = toWorld(t.target.x, t.target.y);
+      const [ex, ez] = toWorld(target.x, target.y);
       const dx = ex - tx;
       const dz = ez - tz;
       const len = Math.max(0.5, Math.sqrt(dx * dx + dz * dz));

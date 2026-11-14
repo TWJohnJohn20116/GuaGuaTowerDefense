@@ -35,6 +35,7 @@ import {
 } from '@/data/cameraControlSpeeds';
 import { resolveDisplayedTileType, shouldShowEnemyPathFx } from '@/data/enemyPathVisibility';
 import { createRenderSnapshot, towerLevelScale, writeRenderSnapshot } from '@/data/renderSnapshot';
+import { createFrameLoopGuard } from '@/utils/frameLoopGuard';
 import { createWalkers3D, createPlayerWalker, type Walkers3D, type PlayerWalker } from './walker3d';
 import { buildTowerModel, disposeTowerModel } from './towerModels3d';
 import { createAttackLights3D } from './attackLights3d';
@@ -635,7 +636,8 @@ export function GameScene3D() {
     let rafId = 0;
     const shakeOffset = new THREE.Vector3();
     let lastFrameTime = performance.now();
-    const loop = () => {
+    const frameGuard = createFrameLoopGuard({ label: '3d-scene' });
+    const drawFrame = () => {
       const frameNow = performance.now();
       const dtSec = Math.min(0.1, (frameNow - lastFrameTime) / 1000);
       lastFrameTime = frameNow;
@@ -756,7 +758,7 @@ export function GameScene3D() {
 
       // 玩家技能演出 + 火焰塔噴射束
       skillFx.syncSkills(state.playerSkillAnimations, toWorld, now);
-      skillFx.syncFlames(state.towers, toWorld, now);
+      skillFx.syncFlames(frameSnapshot, toWorld, now);
 
       interaction.update(now);
 
@@ -777,6 +779,11 @@ export function GameScene3D() {
       } else {
         composer.render();
       }
+    };
+
+    // 單幀異常只掉一幀：guard 接住並節流上報，避免整個 3D 場景安靜停住（§4.5）
+    const loop = () => {
+      frameGuard.run(drawFrame);
       rafId = requestAnimationFrame(loop);
     };
     rafId = requestAnimationFrame(loop);
