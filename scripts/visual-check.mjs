@@ -23,6 +23,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createShots } from './visual-shots.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -62,9 +63,53 @@ const PRE_SCRIPT = (() => {
   return raw.split(';;').map((s) => s.trim()).filter(Boolean);
 })();
 const REUSE_SERVER = argv.server ?? null;
+// 裝置像素比：Retina/2x 下的模糊與 1px 邊框問題只有 dpr=2 才看得出來
+const DPR = Math.max(1, Math.min(3, Number(argv.dpr ?? 1)));
+// 整頁長圖：抓「主行動鍵被推到摺疊線以下」這類只有長圖看得到的版面問題
+const FULL_PAGE = argv['full-page'] === 'true';
+// 局部特寫：--clip=<selector> 只拍某個 Modal／卡片，總表縮圖看不出圓角與邊界
+const CLIP_SELECTOR = argv.clip ?? null;
+// 警告升級：CI 用。預設 warnings 只記錄不判 FAIL，避免第一次跑就一片紅
+const STRICT = argv.strict === 'true';
+const WITH_AUDIT = argv['no-audit'] !== 'true';
 
 const log = (...a) => console.log('[visual-check]', ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// 截圖與稽核的五個動作抽在 visual-shots.mjs：主檔要守住 §3 的 888 行上限
+const shots = createShots({ FORMAT, DPR, sleep });
+const truncate = (s, n) => (s.length > n ? `${s.slice(0, n)}…` : s);
+
+// CDP 的 console 參數是 RemoteObject：字串在 value，其他型別只有 description
+function remoteArgText(a) {
+  if (!a) return '';
+  if (a.type === 'string') return String(a.value ?? '');
+  return String(a.description ?? a.value ?? '');
+}
+
+// 只過濾明確的雜訊來源；不要用寬鬆規則，否則會把真錯誤一起吃掉
+const CONSOLE_NOISE = ['[vite]', 'Download the React DevTools', 'React DevTools']
+function isIgnorableConsole(text) {
+  const head = text.slice(0, 120);
+  return CONSOLE_NOISE.some((s) => head.includes(s));
+}
+
+/**
+ * 字型就緒 + 兩帧：中文字型沒載完就截圖，拍到的是 fallback 字重，
+ * 字級與對比度判斷會全部失真（固定 sleep 250ms 擋不住）。
+ */
+async function waitFontsAndFrames(cdp, sessionId) {
+  await cdp
+    .send(
+      'Runtime.evaluate',
+      {
+        expression:
+          '(async () => { try { await document.fonts.ready; } catch (e) {} await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); return true; })()',
+        awaitPromise: true,
+      },
+      sessionId,
+    )
+    .catch(() => {});
+}
 
 /* --------------------------------------------------------------- helpers */
 
@@ -143,6 +188,8 @@ async function launchBrowser(browser) {
   let seq = 0;
   const pending = new Map();
   const waiters = new Map();
+  // 持久監聽：waiters 是一次性的，console／網路錯誤要跨整個 lane 持續收
+  const persistent = new Map();
 
   ws.addEventListener('message', (ev) => {
     const msg = JSON.parse(ev.data);
@@ -159,6 +206,8 @@ async function launchBrowser(browser) {
       waiters.delete(key);
       waiter(msg.params);
     }
+    const hs = persistent.get(key);
+    if (hs) for (const h of [...hs]) h(msg.params);
   });
 
   const send = (method, params = {}, sessionId) =>
@@ -181,7 +230,14 @@ async function launchBrowser(browser) {
       });
     });
 
-  return { child, ws, send, waitEvent, userDir };
+  const on = (sessionId, method, handler) => {
+    const key = `${sessionId ?? ''}:${method}`;
+    if (!persistent.has(key)) persistent.set(key, new Set());
+    persistent.get(key).add(handler);
+    return () => persistent.get(key)?.delete(handler);
+  };
+
+  return { child, ws, send, waitEvent, on, userDir };
 }
 
 /** 開一個分頁當 worker：整條 lane 共用，之後只換 hash，不重新載入 */
@@ -190,14 +246,56 @@ async function openWorker(cdp) {
   const { targetId } = await send('Target.createTarget', { url: 'about:blank' });
   const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });
   await send('Page.enable', {}, sessionId);
-  return { targetId, sessionId, warm: false };
+  await send('Runtime.enable', {}, sessionId);
+  await send('Log.enable', {}, sessionId);
+  await send('Network.enable', {}, sessionId);
+
+  // 用 CDP 事件取代正則嗅探 innerHTML：正則抓不到 React warning、chunk 404、CSP 拒絕
+  const events = [];
+  // loadingFailed 只給 requestId，沒有 URL；要自己建表才查得出是哪個資源掛了
+  const reqUrls = new Map();
+  cdp.on(sessionId, 'Network.requestWillBeSent', (p) => {
+    if (p.requestId && p.request?.url) reqUrls.set(p.requestId, p.request.url);
+  });
+  cdp.on(sessionId, 'Runtime.consoleAPICalled', (p) => {
+    if (p.type !== 'error' && p.type !== 'warning' && p.type !== 'assert') return;
+    const text = (p.args ?? '').map(remoteArgText).join(' ').trim();
+    if (!text || text === '%c' || isIgnorableConsole(text)) return;
+    // dev 環境的更新檢查會撞 GitHub API 限流（403），那是環境不是畫面問題：降成警告
+    const level = text.includes('[更新檢查]') ? 'update' : p.type === 'assert' ? 'error' : p.type;
+    events.push({ kind: 'console', level, text: truncate(text, 400) });
+  });
+  cdp.on(sessionId, 'Log.entryAdded', (p) => {
+    const e = p.entry ?? {};
+    if (e.level !== 'error' && e.level !== 'warning') return;
+    const text = String(e.text ?? '').trim();
+    const url = String(e.url ?? '');
+    if (!text || isIgnorableConsole(text)) return;
+    // favicon 在 dev 幾乎必然 404，報它只會訓練使用者忽略紅字
+    if (/\/favicon\.ico(\?|$)/.test(url)) return;
+    events.push({ kind: 'log', level: e.level, source: e.source ?? '', text: truncate(text, 400), url });
+  });
+  cdp.on(sessionId, 'Network.loadingFailed', (p) => {
+    // ERR_ABORTED 是 hash 切場景與主動取消造成的正常現象，不算錯誤
+    if (p.errorText === 'net::ERR_ABORTED') return;
+    const url = reqUrls.get(p.requestId) ?? '';
+    if (/\/favicon\.ico(\?|$)/.test(url)) return;
+    events.push({
+      kind: 'network',
+      level: 'error',
+      text: `${p.type ?? 'resource'} ${p.errorText ?? 'failed'}`,
+      url,
+    });
+  });
+
+  return { targetId, sessionId, warm: false, events };
 }
 
 /** 切場景：第一張用 Page.navigate（冷啟），之後改 location.hash 由 App 的 dev 監聽接手 */
 async function switchScene(cdp, baseUrl, worker, scene, size) {
   const { send, waitEvent } = cdp;
   await send('Emulation.setDeviceMetricsOverride',
-    { width: size.w, height: size.h, deviceScaleFactor: 1, mobile: false }, worker.sessionId);
+    { width: size.w, height: size.h, deviceScaleFactor: DPR, mobile: false }, worker.sessionId);
 
   if (!worker.warm) {
     const loaded = waitEvent('Page.loadEventFired', worker.sessionId);
@@ -213,6 +311,7 @@ async function switchScene(cdp, baseUrl, worker, scene, size) {
 async function captureScene(cdp, baseUrl, worker, scene, size, file) {
   const { send } = cdp;
   const sessionId = worker.sessionId;
+  worker.events.length = 0; // 每個場景只收自己的錯誤，避免跨場景污染
 
   try {
     await switchScene(cdp, baseUrl, worker, scene, size);
@@ -236,6 +335,7 @@ async function captureScene(cdp, baseUrl, worker, scene, size, file) {
       await sleep(SETTLE_POLL_MS);
     }
     await sleep(SETTLE_MS); // 穩定後再留一點時間給字型與動畫
+    await waitFontsAndFrames(cdp, sessionId); // 字型沒就緒就截圖，字級與對比度判斷會失真
 
     // 需要拍「開啟後」的狀態時，先在頁面內執行腳本（例如點開 details、modal）
     if (PRE_SCRIPT.length) {
@@ -245,18 +345,51 @@ async function captureScene(cdp, baseUrl, worker, scene, size, file) {
       }
     }
 
+    // 稽核放在 PRE_SCRIPT 之後：要檢查的是使用者真正看到的狀態（modal／展開後）
+    const audit = WITH_AUDIT ? await shots.runAudit(cdp, sessionId) : null;
+
     // 凍結動畫：避免截到一半的過場，也省掉持續重繪
     await send('Runtime.evaluate', {
       expression:
         "(() => { const s = document.createElement('style'); s.textContent = '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition:none!important}'; document.head.appendChild(s); })()",
     }, sessionId).catch(() => {});
 
-    const shot = await send(
-      'Page.captureScreenshot',
-      FORMAT === 'jpeg' ? { format: 'jpeg', quality: 88 } : { format: 'png' },
-      sessionId,
-    );
-    writeFileSync(file, Buffer.from(shot.data, 'base64'));
+    // 動畫已凍結：視口截圖與像素統計都吃同一張 dataURL，不必另外解碼檔案
+    const shotData = await shots.captureViewport(cdp, sessionId);
+    writeFileSync(file, Buffer.from(shotData, 'base64'));
+    const stats = await shots.samplePixels(cdp, sessionId, shotData);
+
+    // 額外幀（長圖／局部）也在凍結狀態下拍，否則會比主幀先抖動
+    const extras = [];
+    const stem = file.replace(/\.[a-z]+$/i, '');
+    if (FULL_PAGE) {
+      const fullFile = `${stem}.full.${EXT}`;
+      const full = await shots.captureFullPage(cdp, sessionId, fullFile).catch((e) => ({ error: String(e?.message ?? e) }));
+      if (full.error) extras.push({ scene, size: size.key, kind: 'full', error: full.error });
+      else
+        extras.push({
+          scene,
+          size: size.key,
+          kind: 'full',
+          file: path.relative(ROOT, fullFile).split(path.sep).join('/'),
+          bytes: existsSync(fullFile) ? readFileSync(fullFile).length : 0,
+          height: full.height,
+        });
+    }
+    if (CLIP_SELECTOR) {
+      const clipFile = `${stem}.clip.${EXT}`;
+      const clip = await shots.captureClip(cdp, sessionId, CLIP_SELECTOR, clipFile);
+      if (clip.error) extras.push({ scene, size: size.key, kind: 'clip', error: clip.error });
+      else
+        extras.push({
+          scene,
+          size: size.key,
+          kind: 'clip',
+          file: path.relative(ROOT, clipFile).split(path.sep).join('/'),
+          bytes: existsSync(clipFile) ? readFileSync(clipFile).length : 0,
+          rect: clip.rect,
+        });
+    }
 
     let domStats = null;
     if (WITH_DOM) {
@@ -279,12 +412,18 @@ async function captureScene(cdp, baseUrl, worker, scene, size, file) {
       );
       domStats = JSON.parse(result.value);
     }
-    return domStats;
-  } catch {
-    // 單一場景失敗不拖垮整條 lane
-    return null;
+    return { domStats, audit, stats, extras, events: [...worker.events] };
+  } catch (error) {
+    // 單一場景失敗不拖垮整條 lane；原因一定要留下，否則 report 只有 FAIL，查不出為什麼
+    return { error: String(error?.message ?? error), events: [...worker.events] };
   }
 }
+
+
+
+
+
+
 
 /**
  * 把對照表本身截成一張總表圖。
@@ -293,18 +432,49 @@ async function captureScene(cdp, baseUrl, worker, scene, size, file) {
  * 19 張分開看太慢，一頁 3 欄拼成一張最快。
  */
 async function renderSheet(cdp, outDir, items, cols = 3) {
-  const rows = Math.ceil(items.length / cols);
-  const width = 1860;
-  const rowHeight = 372;
-  const height = rows * rowHeight + 72;
+  // 總表按尺寸分組：390x844 與 1600x900 混排時，窄版會被 object-fit 縮成一小塊，
+  // 檢查表第 12 項（窄版擠壓）在總表上根本看不出來。
+  // 排版模組用動態 import：缺檔時退回單組固定行高，不影響截圖流程。
+  let planSheetFn = null;
+  try {
+    ({ planSheet: planSheetFn } = await import('./visual-sheet.mjs'));
+  } catch {
+    planSheetFn = null;
+  }
+  const plan = planSheetFn
+    ? planSheetFn(items)
+    : {
+        width: 1860,
+        height: Math.ceil(items.length / cols) * 372 + 72,
+        groups: [
+          {
+            size: items[0]?.size ?? '',
+            items,
+            cols,
+            imgH: 330,
+            rowHeight: 372,
+            rows: Math.ceil(items.length / cols),
+            height: Math.ceil(items.length / cols) * 372 + 56,
+          },
+        ],
+      };
 
-  const cells = items
-    .map(
-      (r) => `<figure class="${r.pass ? 'ok' : 'bad'}">
-        <img src="${path.basename(r.file)}" />
-        <figcaption>${r.scene} · ${r.size}${r.pass ? '' : ' · FAIL'}</figcaption>
+  const width = plan.width;
+  const height = plan.height;
+
+  const sections = plan.groups
+    .map((g) => {
+      const cells = g.items
+        .map(
+          (r) => `<figure class="${r.pass ? (r.warnings?.length ? 'warn' : 'ok') : 'bad'}">
+        <img src="${path.basename(r.file)}" style="height:${g.imgH}px" />
+        <figcaption>${r.scene}${r.pass ? '' : ' · FAIL'}${r.warnings?.length ? ` · ${r.warnings.length} 警告` : ''}</figcaption>
       </figure>`,
-    )
+        )
+        .join('');
+      return `<section><h2>${g.size} · ${g.items.length} 幀</h2>
+<div class="grid" style="grid-template-columns:repeat(${g.cols},1fr)">${cells}</div></section>`;
+    })
     .join('');
 
   const html = `<!doctype html><meta charset="utf-8">
@@ -312,15 +482,18 @@ async function renderSheet(cdp, outDir, items, cols = 3) {
   *{box-sizing:border-box}
   body{margin:0;padding:12px;background:#12121a;font:12px/1.4 system-ui,"Noto Sans TC"}
   header{color:#9aa;margin:0 0 10px 4px}
-  .grid{display:grid;grid-template-columns:repeat(${cols},1fr);gap:10px}
+  h2{color:#c8c8d8;font-size:13px;margin:12px 0 6px 4px;font-weight:600}
+  .grid{display:grid;gap:10px}
   figure{margin:0;background:#1c1c26;border:2px solid #2b4a3a;border-radius:8px;overflow:hidden}
+  figure.warn{border-color:#7a6b2b}
   figure.bad{border-color:#7a2b3a}
-  img{display:block;width:100%;height:330px;object-fit:contain;background:#0c0c12}
+  img{display:block;width:100%;object-fit:contain;background:#0c0c12}
   figcaption{padding:4px 8px;color:#e6e6f0;font-weight:600}
+  figure.warn figcaption{color:#f7c871}
   figure.bad figcaption{color:#f87171}
 </style>
-<header>視覺驗證總表 · ${items.length} 幀</header>
-<div class="grid">${cells}</div>`;
+<header>視覺驗證總表 · ${items.length} 幀 · ${plan.groups.length} 種尺寸</header>
+${sections}`;
 
   const sheetHtml = path.join(outDir, 'sheet.html');
   writeFileSync(sheetHtml, html);
@@ -330,14 +503,25 @@ async function renderSheet(cdp, outDir, items, cols = 3) {
   const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });
   try {
     await send('Page.enable', {}, sessionId);
+    // 視口先給一個夠高的工作區；真正截圖高度用內容尺寸算，避免最後一組被切掉
     await send('Emulation.setDeviceMetricsOverride',
-      { width, height, deviceScaleFactor: 1, mobile: false }, sessionId);
+      { width, height: Math.min(height, 4000), deviceScaleFactor: 1, mobile: false }, sessionId);
     const fileUrl = 'file:///' + sheetHtml.replace(/\\\\/g, '/');
     const loaded = waitEvent('Page.loadEventFired', sessionId);
     await send('Page.navigate', { url: fileUrl }, sessionId);
     await loaded;
     await sleep(400);
-    const { data } = await send('Page.captureScreenshot', { format: 'png' }, sessionId);
+    const metrics = await send('Page.getLayoutMetrics', {}, sessionId);
+    const cs = metrics.cssContentSize ?? metrics.contentSize;
+    const { data } = await send(
+      'Page.captureScreenshot',
+      {
+        format: 'png',
+        captureBeyondViewport: true,
+        clip: { x: 0, y: 0, width: Math.ceil(cs.width), height: Math.ceil(cs.height), scale: 1 },
+      },
+      sessionId,
+    );
     const out = path.join(outDir, 'contact-sheet.png');
     writeFileSync(out, Buffer.from(data, 'base64'));
     return out;
@@ -440,14 +624,35 @@ try {
       try {
         for (const { scene, size } of lane) {
           const file = path.join(OUT_DIR, `${scene}-${size.key}.${EXT}`);
-          const dom = await captureScene(cdp, baseUrl, worker, scene, size, file);
+          const frame = (await captureScene(cdp, baseUrl, worker, scene, size, file)) ?? {};
+          const { domStats: dom = null, audit = null, stats = null, extras = [], events = [], error = '' } = frame;
+
+          // 外部服務（音樂 API、CDN）掛掉不影響本頁版面，算警告不算失敗；
+          // 只有本站資源與 console error 才是硬失敗
+          const origin = new URL(baseUrl).origin;
+          const isLocal = (u) => {
+            try {
+              return new URL(u).origin === origin;
+            } catch {
+              return false;
+            }
+          };
+          const hardErrors = events.filter((e) => {
+            if (e.kind === 'console') return e.level === 'error';
+            return isLocal(e.url);
+          });
+          const externalErrors = events.filter(
+            (e) => (e.kind === 'log' || e.kind === 'network') && !isLocal(e.url),
+          );
 
           const img = existsSync(file) ? imageSize(file) : null;
           const bytes = img ? readFileSync(file).length : 0;
+          // dpr=2 時圖是 CSS 尺寸的兩倍，尺寸比對要按比例放大，否則整排誤判 FAIL
           const checks = {
             screenshot: Boolean(img),
-            sizeMatches: Boolean(img && img.w === size.w && img.h === size.h),
-            notBlank: bytes > 20000,
+            sizeMatches: Boolean(img && img.w === size.w * DPR && img.h === size.h * DPR),
+            // 像素判空優於位元組門檻：純色頁 PNG 只有幾 KB，會被 >20000 誤殺
+            notBlankPixel: stats ? !stats.isBlank : bytes > 20000,
             ...(WITH_DOM && dom
               ? {
                   textRich: dom.textLength > 120,
@@ -455,9 +660,28 @@ try {
                   noCrashText: !dom.crash,
                 }
               : {}),
+            noRuntimeErrors: hardErrors.length === 0,
           };
-          const pass = Object.values(checks).every(Boolean);
-          log(`${pass ? 'PASS' : 'FAIL'}  ${scene} ${size.key}`);
+
+          // 稽核結果是「警告級」：專案本來就有刻意的 truncate 與低對比設計，
+          // 一律判 FAIL 會讓工具永遠紅、失去訊號。要當閘門請加 --strict。
+          const warnings = [];
+          if (audit?.error) warnings.push({ kind: 'audit', count: 1, items: [{ text: `稽核失敗：${audit.error}` }] });
+          for (const kind of ['contrast', 'truncated', 'overflow', 'occlusion']) {
+            const items = audit?.[kind];
+            if (items?.length) warnings.push({ kind, count: items.length, items: items.slice(0, 12) });
+          }
+          const consoleWarn = events.filter((e) => e.kind === 'console' && e.level !== 'error');
+          if (externalErrors.length) warnings.push({ kind: 'external', count: externalErrors.length, items: externalErrors.slice(0, 12) });
+          if (consoleWarn.length) warnings.push({ kind: 'console', count: consoleWarn.length, items: consoleWarn.slice(0, 12) });
+
+          const pass = Object.values(checks).every(Boolean) && (!STRICT || warnings.length === 0);
+          const badge = pass ? (warnings.length ? 'PASS!' : 'PASS') : 'FAIL';
+          log(
+            `${badge}  ${scene} ${size.key}` +
+              (warnings.length ? `  (${warnings.map((w) => `${w.kind}:${w.count}`).join(' ')})` : '') +
+              (error ? `  ✗ ${error}` : ''),
+          );
           collected.push({
             scene,
             size: size.key,
@@ -465,6 +689,12 @@ try {
             bytes,
             png: img,
             checks,
+            warnings,
+            stats,
+            audit,
+            extras,
+            events,
+            error,
             pass,
           });
         }
@@ -484,6 +714,27 @@ try {
   const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
   const passed = results.filter((r) => r.pass).length;
 
+  // report.json 是給程式讀的：稽核明細裁到 40 條，避免一個場景幾百筆把檔案撐爆
+  const reportResults = results.map((r) => ({
+    ...r,
+    events: r.events.slice(0, 20),
+    audit: r.audit
+      ? {
+          counts: r.audit.counts ?? null,
+          skipped: r.audit.skipped ?? null,
+          error: r.audit.error ?? null,
+          contrast: (r.audit.contrast ?? []).slice(0, 40),
+          truncated: (r.audit.truncated ?? []).slice(0, 40),
+          overflow: (r.audit.overflow ?? []).slice(0, 40),
+          occlusion: (r.audit.occlusion ?? []).slice(0, 40),
+        }
+      : null,
+  }));
+  const warnTotals = results.reduce((acc, r) => {
+    for (const w of r.warnings) acc[w.kind] = (acc[w.kind] ?? 0) + w.count;
+    return acc;
+  }, {});
+
   writeFileSync(
     path.join(OUT_DIR, 'report.json'),
     JSON.stringify(
@@ -492,9 +743,13 @@ try {
         baseUrl,
         scenes,
         sizes: SIZES.map((s) => s.key),
+        dpr: DPR,
+        fullPage: FULL_PAGE,
+        clip: CLIP_SELECTOR,
+        strict: STRICT,
         timing: { serverMs, shotsMs, totalSeconds: Number(elapsed) },
-        summary: { total: results.length, passed, failed: results.length - passed },
-        results,
+        summary: { total: results.length, passed, failed: results.length - passed, warnings: warnTotals },
+        results: reportResults,
       },
       null,
       2,
@@ -511,6 +766,8 @@ try {
         <ul>${Object.entries(r.checks)
           .map(([k, v]) => `<li class="${v ? 'y' : 'n'}">${v ? '✓' : '✗'} ${k}</li>`)
           .join('')}</ul>
+        ${r.warnings.length ? `<ul>${r.warnings.map((w) => `<li class="n">! ${w.kind} × ${w.count}</li>`).join('')}</ul>` : ''}
+        ${r.error ? `<p class="err">✗ ${r.error}</p>` : ''}
       </figcaption>
     </figure>`,
     )
@@ -531,6 +788,7 @@ try {
   figure.ok .tag{color:#4ade80} figure.bad .tag{color:#f87171}
   ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;font-size:11px}
   li.y{color:#4ade80} li.n{color:#f87171}
+  .err{color:#f87171;margin:0;font-size:12px}
 </style>
 <h1>視覺驗證 · ${stamp}</h1>
 <div class="summary">${passed}/${results.length} 通過 · ${scenes.length} 場景 × ${SIZES.length} 尺寸 · 總 ${elapsed}s（server ${(serverMs / 1000).toFixed(1)}s / 截圖 ${(shotsMs / 1000).toFixed(1)}s）· ${baseUrl}</div>
