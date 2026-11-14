@@ -64,18 +64,6 @@ const FILE_CATEGORY_LABELS: Record<SrcFileCategory, string> = {
   other: '其他',
 };
 
-export const FILE_CATEGORY_ORDER: SrcFileCategory[] = [
-  'components',
-  'data',
-  'store',
-  'hooks',
-  'types',
-  'services',
-  'i18n',
-  'root',
-  'other',
-];
-
 function inferFormat(ext: string): SrcFileFormat {
   switch (ext) {
     case 'ts': return 'typescript';

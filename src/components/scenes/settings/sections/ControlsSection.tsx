@@ -20,7 +20,7 @@ import {
   PauseIcon, LightningIcon, WaveIcon, CoinIcon, UpArrowIcon,
 } from '@/components/ui/Icons';
 
-export interface KeyBindingItem {
+interface KeyBindingItem {
   action: KeyAction;
   label: string;
   icon: React.ReactNode;

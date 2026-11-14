@@ -90,6 +90,3 @@ export function getAbilityDef(
   if (!abilityId) return undefined;
   return getEnemyGameAbilities(m).find((a) => a.id === abilityId);
 }
-
-/** @deprecated 請改用 getEnemyGameAbilities(t.modEditorExt) */
-export const ENEMY_GAME_ABILITIES: EnemyAbilityDef[] = [];

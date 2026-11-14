@@ -8,7 +8,7 @@ import {
 } from './tutorialDismiss';
 import type { TutorialPart } from './tutorialDismiss';
 
-export interface TutorialStep {
+interface TutorialStep {
   id: string;
   title: string;
   content: string;
