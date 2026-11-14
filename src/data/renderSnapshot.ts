@@ -75,7 +75,7 @@ export interface ProjectileRenderFrame {
 }
 
 /** 單一塔在「這一幀」的視覺欄位；塔模型 / 血條 / 協同連線 / 攻擊閃光都吃這份。 */
-export interface TowerRenderFrame {
+interface TowerRenderFrame {
   id: string;
   type: TowerType;
   /** 直接沿用塔自身的 gridPos 參照（不複製、不配置），協同連線與 toWorld 都吃這個形狀 */
@@ -122,6 +122,9 @@ const STATUS_TINTS: { type: string; color: number; mix: number }[] = [
 ];
 
 const clamp01 = (value: number): number => (value < 0 ? 0 : value > 1 ? 1 : value);
+
+/** 未提供來源陣列時的共用空陣列（避免每幀配置 []） */
+const NO_ITEMS: readonly never[] = [];
 
 const createEmptyEnemyFrame = (): EnemyRenderFrame => ({
   id: '',
@@ -273,7 +276,7 @@ export const writeRenderSnapshot = (
   }
   out.enemyCount = count;
 
-  const projectiles = source.projectiles ?? [];
+  const projectiles = source.projectiles ?? NO_ITEMS;
   const projectileCount = projectiles.length;
   ensureCapacity(out.projectiles, projectileCount, createEmptyProjectileFrame);
 
@@ -296,7 +299,7 @@ export const writeRenderSnapshot = (
   }
   out.projectileCount = projectileCount;
 
-  const towers = source.towers ?? [];
+  const towers = source.towers ?? NO_ITEMS;
   const towerCount = towers.length;
   ensureCapacity(out.towers, towerCount, createEmptyTowerFrame);
 

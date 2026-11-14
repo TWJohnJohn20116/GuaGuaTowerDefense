@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { renderDynamicLayer } from '@/components/scenes/game-scene/GameCanvasDynamic';
-import { createRenderSnapshot } from '@/data/renderSnapshot';
+import { createRenderSnapshot, writeRenderSnapshot } from '@/data/renderSnapshot';
 import { NORDIC_DARK } from '@/components/game/towerModels/nordicShared';
 import type { Tower } from '@/types/game';
 
@@ -92,10 +92,14 @@ const emptyLayer = {
 describe('2D dynamic layer tower drawing', () => {
   it('finishes a frame with a basic tower instead of crashing before drawTowers', () => {
     const { ctx, fills } = stubCtx();
+    const tower = basicTower();
+    // 塔身現在由 snapshot 驅動：先投影一幀，再把同一份資料交給圖層
+    const snapshot = writeRenderSnapshot({ enemies: [], towers: [tower] }, createRenderSnapshot(), 0);
     expect(() =>
       renderDynamicLayer(ctx, 400, 300, {
         ...emptyLayer,
-        towers: [basicTower()],
+        snapshot,
+        towers: [tower],
       }),
     ).not.toThrow();
     expect(fills).toContain(NORDIC_DARK);
