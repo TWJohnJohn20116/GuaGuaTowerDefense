@@ -24,7 +24,7 @@ import { GAME_CONSTANTS, PATHS } from '@/data/gameData';
 import { getTowerData, getTowerVisuals } from '@/store/gameStoreUtils';
 import { EnemyTooltip } from '@/components/game/EnemyTooltip';
 import { calculateTacticalScores } from '@/components/game/TacticalUtils';
-import { createEffects3D, UPGRADE_FX_DURATION, SELL_FX_DURATION } from './effects3d';
+import { createEffects3D } from './effects3d';
 import { createInteraction3D } from './interaction3d';
 import { createSkillFx3D } from './skillFx3d';
 import { createEnvironment3D } from './environment3d';
@@ -749,12 +749,8 @@ export function GameScene3D() {
       }
 
       // 升級/出售動畫：渲染 + 過期清理（2D 視圖時由 GameCanvas 負責，3D 視圖在此接手）
-      const activeUpgrades = state.upgradeAnimations.filter((a) => now - a.startTime < UPGRADE_FX_DURATION);
-      const activeSells = state.sellAnimations.filter((a) => now - a.startTime < SELL_FX_DURATION);
-      if (activeUpgrades.length !== state.upgradeAnimations.length || activeSells.length !== state.sellAnimations.length) {
-        useGameStore.setState({ upgradeAnimations: activeUpgrades, sellAnimations: activeSells });
-      }
-      effects.syncTowerFx(activeUpgrades, activeSells, toWorld, now);
+      // 升級/出售的過期清理已搬回 store（updateVisualEffects），這裡只負責畫
+      effects.syncTowerFx(state.upgradeAnimations, state.sellAnimations, toWorld, now);
 
       // 玩家技能演出 + 火焰塔噴射束
       skillFx.syncSkills(state.playerSkillAnimations, toWorld, now);

@@ -189,10 +189,6 @@ const GameCanvasImpl = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const UPGRADE_DURATION = 1500;
-    const SELL_DURATION = 600;
-    const FUSION_DURATION = 1400;
-
     // 渲染 snapshot 緩衝：與 3D 視圖共用同一份純函式契約，只建立一次、逐幀原地寫入
     const snapshot = createRenderSnapshot();
     const frameGuard = createFrameLoopGuard({ label: '2d-canvas' });
@@ -214,21 +210,15 @@ const GameCanvasImpl = () => {
       const state = useGameStore.getState();
       // 這一幀的實體視覺資料：寫一次，2D 圖層與（切到 3D 時）3D 實例池吃同一份契約
       writeRenderSnapshot(state, snapshot, Date.now());
-      
-      // 更新動畫狀態
-      const activeUpgrade = state.upgradeAnimations.filter(a => Date.now() - a.startTime < UPGRADE_DURATION);
-      const activeSell = state.sellAnimations.filter(a => Date.now() - a.startTime < SELL_DURATION);
-      const activeFusion = state.fusionAnimations.filter(a => Date.now() - a.startTime < FUSION_DURATION);
-      const changed = activeUpgrade.length !== state.upgradeAnimations.length || activeSell.length !== state.sellAnimations.length || activeFusion.length !== state.fusionAnimations.length;
-      if (changed) {
-        useGameStore.setState({ upgradeAnimations: activeUpgrade, sellAnimations: activeSell, fusionAnimations: activeFusion });
-      }
+
+      // 升級 / 出售 / 融合的過期清理已搬回 store（updateVisualEffects 是唯一擁有者），
+      // 繪製層只負責畫；避免 2D 與 3D 互相清掉對方還沒播完的動畫。
 
       // 渲染動態層
       renderDynamicLayer(ctx, canvas.width, canvas.height, {
         snapshot,
-        upgradeAnimations: activeUpgrade,
-        sellAnimations: activeSell,
+        upgradeAnimations: state.upgradeAnimations,
+        sellAnimations: state.sellAnimations,
         playerSkillAnimations: state.playerSkillAnimations,
         towers: state.towers,
         enemies: state.enemies,

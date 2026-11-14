@@ -1,6 +1,7 @@
 import type { GameStore } from './gameStoreTypes';
 import type { Enemy, DeathShard, DamageText, ImpactParticle, DeathAnimation } from '@/types/game';
 import { ENEMY_DATA } from '@/data/gameData';
+import { pruneFusionAnimations, pruneSellAnimations, pruneUpgradeAnimations } from '@/data/fxLifetime';
 import { getEnemyVisuals } from './gameStoreUtils';
 
 type GetState = () => GameStore;
@@ -198,7 +199,10 @@ export const createEffectActions = (get: GetState, set: SetState) => ({
   },
 
   updateVisualEffects: (deltaTime: number) => {
-    const { damageTexts, impactParticles, deathAnimations, shakeIntensity } = get();
+    const {
+      damageTexts, impactParticles, deathAnimations, shakeIntensity,
+      upgradeAnimations, sellAnimations, fusionAnimations,
+    } = get();
     const now = Date.now();
 
     // 1. 計算下一幀震動強度（含累積的 shakeBuffer）
@@ -264,11 +268,23 @@ export const createEffectActions = (get: GetState, set: SetState) => ({
       deathAnimsBuffer.length = 0;
     }
 
-    set({
+    // 5. 塔位特效（升級 / 出售 / 融合）：唯一擁有者是 store。
+    //    繪製層過去各自 filter + setState，2D 與 3D 會互相清掉對方還沒畫完的動畫。
+    //    prune* 在「沒有任何項目過期」時回傳原陣列，所以這裡不會每幀製造新陣列。
+    const prunedUpgrade = pruneUpgradeAnimations(upgradeAnimations, now);
+    const prunedSell = pruneSellAnimations(sellAnimations, now);
+    const prunedFusion = pruneFusionAnimations(fusionAnimations, now);
+
+    const patch: Partial<GameStore> = {
       damageTexts: updatedTexts,
       impactParticles: updatedParticles,
       deathAnimations: updatedDeathAnims,
       shakeIntensity: nextShake,
-    });
+    };
+    // 三條塔位特效全存活時 prune* 回傳同一參照 → 不寫回，避免無謂的 store 通知
+    if (prunedUpgrade !== upgradeAnimations) patch.upgradeAnimations = prunedUpgrade;
+    if (prunedSell !== sellAnimations) patch.sellAnimations = prunedSell;
+    if (prunedFusion !== fusionAnimations) patch.fusionAnimations = prunedFusion;
+    set(patch);
   },
 });

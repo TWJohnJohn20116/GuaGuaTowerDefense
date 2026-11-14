@@ -10,10 +10,7 @@
 import * as THREE from 'three';
 import type { DeathAnimation, DamageText } from '@/types/game';
 import { fxFade, fxProgress } from '@/data/fxProgress';
-
-// 與 2D GameCanvas 同步的動畫時長
-export const UPGRADE_FX_DURATION = 1500;
-export const SELL_FX_DURATION = 600;
+import { FX_DURATIONS } from '@/data/fxLifetime';
 
 type UpgradeAnim = { id: string; gridPos: { col: number; row: number }; towerColor: string; startTime: number; isMaxLevel?: boolean };
 type SellAnim = { id: string; gridPos: { col: number; row: number }; towerColor: string; startTime: number };
@@ -221,11 +218,11 @@ export function createEffects3D(scene: THREE.Scene): Effects3D {
     };
 
     for (const u of upgrades) {
-      const progress = fxProgress(u.startTime, UPGRADE_FX_DURATION, now);
+      const progress = fxProgress(u.startTime, FX_DURATIONS.upgrade, now);
       syncRing(u.id, u.gridPos, u.towerColor || '#f59e0b', progress, true, u.isMaxLevel ? 2.6 : 1.8);
     }
     for (const s of sells) {
-      const progress = fxProgress(s.startTime, SELL_FX_DURATION, now);
+      const progress = fxProgress(s.startTime, FX_DURATIONS.sell, now);
       syncRing(s.id, s.gridPos, '#ef4444', progress, false, 1.4);
     }
 
