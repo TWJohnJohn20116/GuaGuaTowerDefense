@@ -344,7 +344,9 @@ async function captureScene(cdp, baseUrl, worker, scene, size, file) {
     // 用「可讀文字長度」判斷就緒：載入中的骨架 HTML 很長但幾乎沒有文字
     const rootLenExpr =
       'JSON.stringify({ text: (document.body.innerText || "").trim().length, html: document.getElementById("root")?.innerHTML.length ?? 0 })';
-    const deadline = Date.now() + SETTLE_MAX_MS;
+    // 穩定耗時本身就是指標：某個場景突然變慢，通常代表它多了重繪或載入了大資源
+    const settleStart = Date.now();
+    const deadline = settleStart + SETTLE_MAX_MS;
     let lastLen = -1;
     let stable = 0;
     while (Date.now() < deadline) {
@@ -356,6 +358,7 @@ async function captureScene(cdp, baseUrl, worker, scene, size, file) {
       if (stable >= 2 && textLen > 120) break;
       await sleep(SETTLE_POLL_MS);
     }
+    const settleMs = Date.now() - settleStart;
     await sleep(SETTLE_MS); // 穩定後再留一點時間給字型與動畫
     await waitFontsAndFrames(cdp, sessionId); // 字型沒就緒就截圖，字級與對比度判斷會失真
 
@@ -438,7 +441,7 @@ async function captureScene(cdp, baseUrl, worker, scene, size, file) {
       domStats = JSON.parse(result.value);
     }
     // shotData 只給 baseline 與 diff 用，不進 report（否則 19 幀會讓 JSON 多出好幾 MB）
-    return { domStats, audit, stats, extras, shotData, maskRects, events: [...worker.events] };
+    return { domStats, audit, stats, extras, shotData, maskRects, settleMs, events: [...worker.events] };
   } catch (error) {
     // 單一場景失敗不拖垮整條 lane；原因一定要留下，否則 report 只有 FAIL，查不出為什麼
     return { error: String(error?.message ?? error), events: [...worker.events] };
@@ -635,7 +638,7 @@ try {
             await sleep(600);
             frame = (await captureScene(cdp, baseUrl, worker, scene, size, file)) ?? {};
           }
-          const { domStats: dom = null, audit = null, stats = null, extras = [], shotData = '', maskRects = [], events = [], error = '' } = frame;
+          const { domStats: dom = null, audit = null, stats = null, extras = [], shotData = '', maskRects = [], settleMs = 0, events = [], error = '' } = frame;
 
           // 外部服務（音樂 API、CDN）掛掉不影響本頁版面，算警告不算失敗；
           // 只有本站資源與 console error 才是硬失敗
@@ -723,6 +726,7 @@ try {
             checks,
             warnings,
             stats,
+            settleMs,
             audit,
             extras,
             events,
