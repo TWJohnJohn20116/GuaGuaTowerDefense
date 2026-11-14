@@ -23,8 +23,10 @@ const DIST_ASSETS = path.join(ROOT, 'dist', 'assets');
 
 /** 2026-11-14 實測基準。只能往下調。 */
 const BASELINE = {
-  'as any': 19,
-  ': any': 14,
+  // TD-13 已把 19 處 as any 與 14 處 : any 全部清掉，基準歸零後新增會直接打紅。
+  // 注意：計數是純字串比對，連註解與字串內容也算，所以 src 內不要寫出這兩個字串本身。
+  'as any': 0,
+  ': any': 0,
   '@ts-ignore': 0,
   '@ts-expect-error': 0,
   'eslint-disable': 0,
