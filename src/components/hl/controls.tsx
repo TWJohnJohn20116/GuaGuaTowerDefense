@@ -118,49 +118,6 @@ export function Chip({
   );
 }
 
-/* -------------------------------------------------------------- IndexRow */
-
-/**
- * 索引列：主選單與所有清單的統一列型。
- * 左邊 mono 編號（01、02…），中間標題 + 副文，右邊狀態。
- */
-function IndexRow({
-  index,
-  title,
-  desc,
-  right,
-  disabled = false,
-  onClick,
-}: {
-  index: string | number;
-  title: React.ReactNode;
-  desc?: React.ReactNode;
-  right?: React.ReactNode;
-  disabled?: boolean;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      onMouseEnter={() => playUiHover()}
-      className="group grid w-full grid-cols-[38px_1fr_auto] items-center gap-3 border-b border-[var(--hl-line)] px-2 py-3 text-left transition-colors duration-150 last:border-b-0 hover:bg-[var(--hl-deck-2)] disabled:pointer-events-none disabled:opacity-30"
-    >
-      <span className="font-mono text-[10px] tracking-wider text-[var(--hl-ink-4)] group-hover:text-[var(--hl-signal)]">
-        {String(index).padStart(2, '0')}
-      </span>
-      <span className="min-w-0">
-        <span className="block truncate text-[13.5px] font-medium text-[var(--hl-ink)]">{title}</span>
-        {desc && <span className="mt-0.5 block truncate text-[11px] text-[var(--hl-ink-3)]">{desc}</span>}
-      </span>
-      <span className="flex items-center gap-2 text-[var(--hl-ink-3)] group-hover:text-[var(--hl-ink-2)]">
-        {right}
-      </span>
-    </button>
-  );
-}
-
 /* --------------------------------------------------------------- Toggle */
 
 export function Toggle({
