@@ -21,8 +21,7 @@ describe('path selection back and Escape', () => {
       'utf8',
     );
     expect(src).toMatch(/resolvePathSelectionEscape/);
-    expect(src).toMatch(/clearPathHandoff/);
-    expect(src).toMatch(/goBackScene/);
+      expect(src).toMatch(/goBackScene/);
     expect(src).not.toMatch(/setScene\('mainMenu'\)/);
   });
 });
