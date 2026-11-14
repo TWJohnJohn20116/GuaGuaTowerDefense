@@ -1398,7 +1398,7 @@
     </table>
 
     <div class="grid g2">
-      <div class="card"><div class="ct">品質閘門（細節見 <a href="#tests">19 測試</a>）</div><div class="cd">159 檔／709 測試只是第 5 道；
+      <div class="card"><div class="ct">品質閘門（細節見 <a href="#tests">19 測試</a>）</div><div class="cd">159 檔／710 測試只是第 5 道；
         前四道（typecheck、i18n:check --strict、技術債棘輪）最快，壞了就不必浪費時間跑測試；建置後再比 bundle 預算 1.4 MB。</div></div>
       <div class="card"><div class="ct">發布簽章</div><div class="cd"><code>TAURI_SIGNING_PRIVATE_KEY</code>（私鑰在 <code>src-tauri/.tauri/guagua-td.key</code>，不進版控）
         與 <code>tauri.conf.json</code> 的公鑰成對；客戶端只接受此私鑰簽出的更新包。</div></div>
@@ -1412,15 +1412,15 @@
 
   <!-- ==================== 19 測試 ==================== -->
   <section id="tests">
-    <h2><span class="idx">19</span>測試 <span class="tag">159 檔 · 709 測試 · 12,051 行 · 約 80 秒</span></h2>
+    <h2><span class="idx">19</span>測試 <span class="tag">159 檔 · 710 測試 · 12,083 行 · 約 80 秒</span></h2>
 
     <p class="lead">只有<b>一種</b>測試層級：行為測試（Vitest + jsdom）。沒有 e2e、沒有視覺回歸。
       但每個「看起來對、實際炸」的地雷都有測試釘住——這比測試金字塔好看更重要。</p>
 
     <div class="kpi">
       <div class="good"><b>159</b><span>測試檔（<code>src/test/*.test.ts</code>）</span></div>
-      <div class="good"><b>709</b><span>測試案例</span></div>
-      <div><b>12,051</b><span>測試程式碼行數</span></div>
+      <div class="good"><b>710</b><span>測試案例</span></div>
+      <div><b>12,083</b><span>測試程式碼行數</span></div>
       <div class="mid"><b>80<small>s</small></b><span>全跑一次（本機）</span></div>
       <div class="bad"><b>0</b><span>e2e／視覺回歸</span></div>
       <div class="bad"><b>0</b><span>coverage 門檻</span></div>
@@ -1486,7 +1486,7 @@
     <div class="warn"><b>已知缺口（要補的地方）</b>
       <ul>
         <li><b>自動戰鬥覆蓋仍然薄</b>：<code>gameStoreAutoBattle.ts</code> 1,016 行 ＋ <code>gameStoreAutoBattlePlayerSkills.ts</code> 480 行，
-          目前只有 <code>autoBattleFixes.test.ts</code>（11 例）釘住 B1–B3 這三個 bug；決策評分、賣塔、技能時機仍無測試——
+          目前只有 <code>autoBattleFixes.test.ts</code>（12 例）釘住 B1–B3 這三個 bug；決策評分、賣塔、技能時機仍無測試——
           「AI 永遠不升級」就是這樣活過兩個版本的。</li>
         <li><b>沒有 coverage 門檻</b>（TD-05）：<code>vitest.config.ts</code> 只有 include／exclude，覆蓋率可以無聲下滑。</li>
         <li><b>沒有 e2e</b>：開局 → 放塔 → 跑波 → 結算 這段只能手動驗證。</li>
@@ -1496,7 +1496,7 @@
 
     <h3>CI 上的執行順序</h3>
     <div class="chips">
-      <span>npm ci</span><span>→ typecheck</span><span>→ i18n:check --strict</span><span>→ guards --debt</span><span>→ test（709）</span><span>→ build</span><span>→ guards --bundle</span>
+      <span>npm ci</span><span>→ typecheck</span><span>→ i18n:check --strict</span><span>→ guards --debt</span><span>→ test（710）</span><span>→ build</span><span>→ guards --bundle</span>
     </div>
     <p class="small">前四道最快，壞了早點紅；<code>guards --bundle</code> 要等 build 產出 <code>dist/assets/index-*.js</code> 才能比預算（上限 1.4 MB，目前 1.33 MB）。</p>
 

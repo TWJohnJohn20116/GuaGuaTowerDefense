@@ -4,7 +4,7 @@
 > 方法：靜態閱讀 + 一支臨時探測測試（`canBatchUpgradeTower` 語意，跑完即刪）
 > 範圍：`src/store/gameStoreAutoBattle.ts`(1,016) + `gameStoreAutoBattlePlayerSkills.ts`(480) + 相關 UI
 > **修復狀態（2026-11-14）**：**B1、B2、B3 已修**（`c9ed6cd` 費用算式共用、`075c8f4` B1+B2、`bcdbfaa` B3 開關），
-> 回歸測試 `src/test/autoBattleFixes.test.ts`（11 例）；**B4–B7 仍未處理**。
+> 回歸測試 `src/test/autoBattleFixes.test.ts`（12 例，含「跑一輪決策後塔真的升到 Lv2」的行為級驗證）；**B4–B7 仍未處理**。
 
 ---
 
