@@ -611,6 +611,7 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 - ❌ major 版本 PR 若 CI 紅，**在 PR 裡修**，不要合進 `main` 再修（會讓 `main` 有一段時間是紅的）。
 - ⏫ 安全警報（Dependabot alerts／`npm audit`）優先於一般更新；目前 `npm audit` 有 14 個（1 low / 6 moderate / 7 high）尚未處理。
 - ❌ 不要為了讓依賴 PR 變綠而放寬 guards、刪測試或跳過步驟（§13.3）。
+- 🏷️ `labels` 指定的標籤**必須先在 repo 存在**，否則 Dependabot 會在 PR 留「The following labels could not be found」警告（PR 照樣會開，但清單難篩）。目前已有 `dependencies`／`npm`／`github-actions`／`rust` 四個。
 
 **為什麼 PR 一定會被檢查**：`ci.yml` 的 `pull_request` 觸發刻意不加 `paths` 過濾（§13.1），所以 Dependabot 開的 PR 不會靜默跳過 CI。
 
