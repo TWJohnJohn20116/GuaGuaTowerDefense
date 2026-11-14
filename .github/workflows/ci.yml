@@ -212,14 +212,14 @@ jobs:
             echo "| 靜態檢查與建置 | 型別、語言鍵、技術債棘輪、產線建置、體積預算 | $(chinese_result "$STATIC_RESULT") |"
             echo "| 單元測試 | 159 個測試檔分 ${TEST_SHARDS} 片平行跑 | $(chinese_result "$TEST_RESULT") |"
             echo ""
-            echo "- 分支：\\`${GITHUB_REF_NAME}\\`"
-            echo "- commit：\\`${GITHUB_SHA:0:7}\\`"
+            echo '- 分支：`'"${GITHUB_REF_NAME}"'`'
+            echo '- commit：`'"${GITHUB_SHA:0:7}"'`'
             # 注意：不要寫成 [ -n "$X" ] && echo ...，GitHub 的 bash 有 -e，
             # 條件不成立時整步會直接失敗。
             if [ -n "$COMMIT_MSG" ]; then
-              echo "- 訊息：${COMMIT_MSG%%$'\\n'*}"
+              echo "- 訊息：${COMMIT_MSG%%$'\n'*}"
             fi
-            echo "- 觸發：\\`${GITHUB_EVENT_NAME}\\`"
+            echo '- 觸發：`'"${GITHUB_EVENT_NAME}"'`'
           } >> "$GITHUB_STEP_SUMMARY"
 
           if [ "$STATIC_RESULT" != "success" ] || [ "$TEST_RESULT" != "success" ]; then
