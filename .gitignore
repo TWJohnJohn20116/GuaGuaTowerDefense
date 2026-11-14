@@ -9,7 +9,8 @@ dist-ssr/
 
 # Tauri
 src-tauri/target/
-src-tauri/Cargo.lock
+# src-tauri/Cargo.lock 不忽略（TD-02）：本專案是應用程式不是 library，
+# 鎖住 Rust 依賴版本才能重現建置；library 才該忽略它。
 
 # IDE
 .idea/
