@@ -11,6 +11,7 @@ import { drawEnemyModel } from '@/utils/enemyRenderer';
 import { initializeGrid } from '@/store/gameStoreUtils';
 import { useSettingsStore } from '@/store/settingsStore';
 import { shouldDrawReplayEnemyHealthBar } from '@/data/replayCanvasDisplay';
+import { createFrameLoopGuard } from '@/utils/frameLoopGuard';
 import type { ReplaySnapshot, ReplayEvent } from '@/store/replayStore';
 import { buildRenderFrame } from './replayPlayback';
 
@@ -185,8 +186,10 @@ export function ReplayCanvas({
     };
 
     // 每幀插值繪製（顯示器幀率）
+    // 單幀異常只掉一幀：迴圈排程放在 guard 外，避免一次拋錯就讓回放永久定格
+    const frameGuard = createFrameLoopGuard({ label: 'replay-canvas' });
     const loop = () => {
-      draw();
+      frameGuard.run(draw);
       animationRef.current = requestAnimationFrame(loop);
     };
     animationRef.current = requestAnimationFrame(loop);
