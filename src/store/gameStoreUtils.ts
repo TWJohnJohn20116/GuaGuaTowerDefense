@@ -4,6 +4,12 @@ import type {
 import { GAME_CONSTANTS, PATHS, TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
 import { useModStore } from './modStore';
 import { getArmorTakenMult, getDamageTakenMult, type CombatEffectLike } from '@/data/combatStatus';
+import {
+  getEnemyPhaseFade,
+  getEnemyStealthFade,
+  isEnemyPhased,
+  isEnemyStealthed,
+} from '@/data/enemyVisibility';
 
 // 性能優化：getTowerData 結果快取
 // - 基礎塔（TOWER_DATA）為穩定常數，直接命中 O(1) hash 查找
@@ -148,89 +154,11 @@ export const getEnemyVisuals = (enemyType: string): ModVisuals => {
   return visuals;
 };
 
-// ============ 隱身敵人（stealth）週期判定 ============
-// 隱身節奏：出生後先「可見 stealthCooldown ms」→「隱身 stealthDuration ms」循環。
-// 以 spawnTime 推算的純函式，戰鬥邏輯與 2D/3D 渲染共用，無需額外運行時狀態。
-
-/** 隱身淡入淡出時長 (ms)，渲染過渡用 */
-const STEALTH_FADE_MS = 250;
-
-/** 敵人目前是否處於隱身狀態（塔無法鎖定為主目標） */
-export const isEnemyStealthed = (
-  enemy: { type: string; health: number; spawnTime?: number },
-  now: number,
-): boolean => {
-  if (enemy.health <= 0) return false;
-  const data = ENEMY_DATA[enemy.type as keyof typeof ENEMY_DATA];
-  if (data?.ability !== 'stealth') return false;
-  const dur = data.stealthDuration ?? 3000;
-  const cd = data.stealthCooldown ?? 5000;
-  const t = (now - (enemy.spawnTime ?? now)) % (dur + cd);
-  return t >= cd;
-};
-
-/**
- * 隱身視覺強度 0~1（0=完全可見、1=完全隱身），含 STEALTH_FADE_MS 平滑過渡。
- * 非隱身型敵人恆回傳 0。
- */
-export const getEnemyStealthFade = (
-  enemy: { type: string; health: number; spawnTime?: number },
-  now: number,
-): number => {
-  if (enemy.health <= 0) return 0;
-  const data = ENEMY_DATA[enemy.type as keyof typeof ENEMY_DATA];
-  if (data?.ability !== 'stealth') return 0;
-  const dur = data.stealthDuration ?? 3000;
-  const cd = data.stealthCooldown ?? 5000;
-  const cycle = dur + cd;
-  const t = (now - (enemy.spawnTime ?? now)) % cycle;
-  if (t < cd) {
-    // 可見期：尾端淡出進入隱身
-    const untilStealth = cd - t;
-    return untilStealth < STEALTH_FADE_MS ? 1 - untilStealth / STEALTH_FADE_MS : 0;
-  }
-  // 隱身期：尾端淡入回到可見
-  const untilVisible = cycle - t;
-  return untilVisible < STEALTH_FADE_MS ? untilVisible / STEALTH_FADE_MS : 1;
-};
-
-// ============ 幽靈敵人（phase）相位週期判定 ============
-// 相位節奏：出生後先「實體 phaseCooldown ms」→「相位 phaseDuration ms」循環。
-// 相位期間塔無法鎖定且完全免疫所有傷害（直擊 / AOE / DoT）。
-
-/** 敵人目前是否處於相位狀態（無法鎖定且免疫傷害） */
-export const isEnemyPhased = (
-  enemy: { type: string; health: number; spawnTime?: number },
-  now: number,
-): boolean => {
-  if (enemy.health <= 0) return false;
-  const data = ENEMY_DATA[enemy.type as keyof typeof ENEMY_DATA];
-  if (data?.ability !== 'phase') return false;
-  const dur = data.phaseDuration ?? 2000;
-  const cd = data.phaseCooldown ?? 4000;
-  const t = (now - (enemy.spawnTime ?? now)) % (dur + cd);
-  return t >= cd;
-};
-
-/** 相位視覺強度 0~1（0=實體、1=完全相位），含平滑過渡。非相位型敵人恆回傳 0。 */
-export const getEnemyPhaseFade = (
-  enemy: { type: string; health: number; spawnTime?: number },
-  now: number,
-): number => {
-  if (enemy.health <= 0) return 0;
-  const data = ENEMY_DATA[enemy.type as keyof typeof ENEMY_DATA];
-  if (data?.ability !== 'phase') return 0;
-  const dur = data.phaseDuration ?? 2000;
-  const cd = data.phaseCooldown ?? 4000;
-  const cycle = dur + cd;
-  const t = (now - (enemy.spawnTime ?? now)) % cycle;
-  if (t < cd) {
-    const untilPhase = cd - t;
-    return untilPhase < STEALTH_FADE_MS ? 1 - untilPhase / STEALTH_FADE_MS : 0;
-  }
-  const untilSolid = cycle - t;
-  return untilSolid < STEALTH_FADE_MS ? untilSolid / STEALTH_FADE_MS : 1;
-};
+// ============ 隱身 / 相位週期判定 ============
+// 判定已搬到 data 層（`src/data/enemyVisibility.ts`）：戰鬥邏輯與 2D/3D 渲染的
+// snapshot 都要用同一份，且渲染端不該反向 import store。這裡保留同名轉出，
+// 既有呼叫端（gameLoop / 技能 / 測試）不必改 import 路徑。
+export { getEnemyPhaseFade, getEnemyStealthFade, isEnemyPhased, isEnemyStealthed };
 
 // ============ 統一傷害管線（裝甲減傷 / 護盾吸收 / 相位免疫） ============
 
