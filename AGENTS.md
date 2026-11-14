@@ -41,6 +41,7 @@
 | 目的 | 指令 | 位置 | 備註 |
 |---|---|---|---|
 | 開發（瀏覽器） | `npm run dev` | ❌ 使用者自己跑 | 埠由系統動態分配（`VITE_DEV_PORT` 可指定），`?scene=game` 可跳場景（僅 DEV） |
+| 視覺驗證 | `node scripts/visual-check.mjs` | ✅ 本機可（§13.10） | 自動開 dev server → 逐場景截圖 → 產總表；不跑 typecheck／測試 |
 | 開發（桌面） | `npm run tauri dev` | ❌ 使用者自己跑 | 會先跑 `predev` 產生百科檔案清單 |
 | 型別 | `npm run typecheck` | ❌ CI | `tsc --noEmit`，0 error 是底線 |
 | 測試 | `npm run test` | ❌ CI | Vitest + jsdom，測試檔在 `src/test/**/*.test.ts` |
@@ -249,7 +250,8 @@ services → types（只能 import type 或由入口注入）
 ### 5.7 改 UI
 1. 先確認屬於五種佈局之一（Home / Page / Split / Battle / Overlay），用 `components/ui` 的 SceneShell 系列
 2. 樣式 token 用 `SCENE_TYPOGRAPHY` / `--hl-*`；不要自創顏色常數
-3. push 後看 CI 的 `designTokens.test.ts` 有沒有紅（它是 class 契約；§13.9 禁止本機跑測試）
+3. **改完立刻跑 `node scripts/visual-check.mjs`，並用看圖能力檢視 `contact-sheet.png`**（§13.10）
+4. push 後看 CI 的 `designTokens.test.ts` 有沒有紅（它是 class 契約；§13.9 禁止本機跑測試）
 
 ---
 
@@ -276,7 +278,7 @@ services → types（只能 import type 或由入口注入）
 
 1. **CI 綠**：`gh run watch <id> --exit-status` 得到 success，且 job 不是 `skipped`（§13.2）。typecheck 0 error、i18n 通過、710 個測試全過都由 CI 判定——**本機不得自己跑**（§13.9）。
 2. 沒有新增 `as any` / `: any` / `@ts-ignore` / 硬編碼中文 / 死 export（可用 `node scripts/ci/guards.mjs --debt` 唯讀自查，那是純讀檔）。
-3. 動到戰鬥或渲染 → 需要視覺驗證時**請使用者自己跑 `npm run dev`**（代理端不跑，§13.9）；效能相關改動要靠 Dev 面板的 p95 數據，請使用者提供。
+3. 動到 UI／戰鬥／渲染 → **必須跑 `node scripts/visual-check.mjs` 並用看圖能力檢視 `contact-sheet.png`**（§13.10）。log 印 PASS 不代表畫面正確。效能相關改動要靠 Dev 面板的 p95 數據。
 4. 動到打包相關 → 由 CI 的 `打包體積預算` 步驟判定（主 chunk 上限 1.18 MB），本機不跑 build。
 5. 回報時附：改了哪些檔、為什麼、跑了什麼指令、結果如何；**不要**只說「已修好」，也不要只在最後才一次補述（過程就要說）。多步任務全程都要標 `進度 k/N`，見 §10.3。
 6. 任務清單**全部 `completed`**（或明確標出哪幾項沒做與原因）；不得留著 `pending` / `in_progress` 就宣布完成，見 §11.5。
@@ -643,6 +645,13 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 
 ### 13.9 絕對規則：本機不得編譯、建置或執行測試
 
+> **例外（2026-11-14 由使用者授權）：為了「視覺截圖驗證」可以啟動 dev server。**
+> - **允許**：`npm run dev`（僅啟動 dev server），並用 headless 瀏覽器對它截圖、存到 `.shots/`（不進版控）。
+> - **仍禁止**：`npm run typecheck`、`npm run test`、`npm run build`、`npm run check`、`npm run check:full`。
+> - 也就是說：**「能不能編譯」沒放寬，放寬的只有「看得到畫面」**。型別與測試的唯一判準仍然是 CI。
+> - 每次啟動前先確認埠沒被佔用；截完就關掉，不要留背景程序。
+> - 理由：UI 改動沒有真實畫面等於盲改，本專案已多次出現「結構對、畫面錯」的來回。
+
 **唯一允許的驗證途徑是 GitHub Actions。** 在使用者這台 Windows 電腦上，不得執行任何會編譯、建置、打包或測試本專案的指令。**沒有「順手跑一下」的例外。**
 
 #### 禁止（一律不得在本機執行）
@@ -652,7 +661,7 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 | 型別編譯 | `npm run typecheck`、`npx tsc`、任何 `tsc --noEmit` |
 | 測試 | `npm run test`、`test:watch`、`test:coverage`、`npx vitest` |
 | 建置／打包 | `npm run build`、`build:check`、`npm run tauri build`、`npx vite build` |
-| 開發伺服器 | `npm run dev`、`npm run tauri dev`、`npx vite`（**Vite dev 會即時編譯 TS，一樣算**） |
+| 開發伺服器 | `npm run tauri dev`（桌面版仍禁止）。`npm run dev`／`npx vite` **僅限 §13.10 的截圖驗證**，且只透過 `scripts/visual-check.mjs` 或明確的截圖流程啟動 |
 | 組合指令 | `npm run check`、`npm run check:full`、`npm run ci:guards`（`--bundle` 需要 `dist/`）、`npm run verify:isms`（走 `npx tsx`，會編譯） |
 | 環境調校 | 手動維護 `node_modules`、新增本機建置腳本、用 `npm ci` 之後自己跑任何上面那幾項 |
 
@@ -678,7 +687,7 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 
 1. push 之後用 `gh run watch <id> --exit-status` 等結論（低風險改動可先做別的事，見 §13.7）。
 2. 紅燈時用 `gh run view <id> --log-failed` 讀**失敗那一步的 CI 日誌**——那就是本機編譯輸出的替代品。
-3. 需要視覺驗證（畫面、動畫、手感）時，**請使用者自己開 `npm run dev`**，代理端不跑。
+3. 需要視覺驗證時，跑 `node scripts/visual-check.mjs` 並**用看圖能力檢視 `contact-sheet.png`**（§13.10）。
 4. 回報時要分清「CI 已驗證」與「尚未驗證」（§10.8）。
 
 #### 為什麼要這麼嚴
@@ -692,3 +701,73 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 | 與 §13.7 衝突 | §13.7 允許 push 後不阻塞等待；若同時又允許本機跑，就會出現兩套「驗證」互相蓋過對方結論 |
 
 **CI 是唯一可信的驗證來源**：本機能編過不代表 CI 會過，反之亦然。
+
+### 13.10 視覺驗證流程（改 UI 必做）
+
+**規則：只要動到畫面（className、佈局、token、元件尺寸），就必須「跑工具 + 看圖」——兩件都做，缺一不算完成。**
+
+#### 為什麼要寫成規則
+
+程式檢查會騙人。實例（2026-11-14）：
+
+> 工具首次跑完全部場景，log 印出 `19/19 通過`。
+> 用看圖能力打開總表一看：**19 個場景有 15 個只顯示「載入中…」**。
+> 原因：這些場景是 `React.lazy()` 載入，截圖時 chunk 還沒到；而載入骨架的 DOM 也有幾千字元，
+> 所以 `rootFilled > 200` 這種檢查全部誤判通過。
+
+同一輪看圖還抓到 `--cn-ink-3` / `--cn-ink-4` 在奶油底上只有 **2.93:1 / 1.94:1**，小字幾乎讀不到。
+
+**結論：log 的 PASS 只代表「畫面有東西」，不代表「畫面正確」。**
+
+#### 指令
+
+| 目的 | 指令 |
+|---|---|
+| 全部場景 + 總表 | `node scripts/visual-check.mjs` |
+| 只驗一個場景（改單頁時最快） | `node scripts/visual-check.mjs --scenes=pathSelection --concurrency=1` |
+| 多尺寸 | `node scripts/visual-check.mjs --sizes=1600x900,1280x800` |
+| 重用已開的 dev server | `node scripts/visual-check.mjs --server=http://localhost:10050` |
+| 只要截圖不要 DOM 檢查 | `node scripts/visual-check.mjs --no-dom` |
+
+19 個場景約 20 秒（單一瀏覽器實例 + CDP，見工具檔頭說明）。
+
+#### 必做三步
+
+1. **跑工具**：`node scripts/visual-check.mjs`。
+2. **看圖**：用看圖能力打開 `contact-sheet.png`（不是只看 log）。
+3. **逐格判斷**：空白／載入中／文字讀不到／元素重疊／間距失衡／色彩刺眼。有問題就修，修完重跑。
+
+#### 產出位置
+
+`.shots/verify/<timestamp>/`：
+- `*.png` — 每個場景的原尺寸截圖
+- `contact-sheet.png` — **驗證要看的就是這張**
+- `index.html` — 逐張放大 + 檢查項明細
+- `report.json` — 給程式讀，含 `timing`（server / 截圖分段）
+
+全部在 `.shots/`，**不進版控**（§4.8）。
+
+#### 工具會檢查什麼（抓到這七項）
+
+截圖存在、尺寸與要求相符、檔案 > 20KB、可讀文字 > 120 字、無 Vite 錯誤覆蓋層、無 JS 崩潰字樣、`#root` 存在。
+
+**它抓不到**：對比度不足、元素互相遮擋、留白失衡、字級不對、顏色刺眼。**那些只能看圖。**
+
+#### 文字對比度（硬要求）
+
+小字（< 18px）在奶油底 `#FFF8EF` 上必須 **≥ 4.5:1**（WCAG AA）。
+
+| token | 值 | 對奶油底 | 狀態 |
+|---|---|---|---|
+| `--cn-ink` | `#2E2440` | 18.0 | ✅ |
+| `--cn-ink-2` | `#5A4E75` | 7.16 | ✅ |
+| `--cn-ink-3` | `#6E6288` | 5.29 | ✅ |
+| `--cn-ink-4` | `#75698F` | 4.77 | ✅（下限） |
+
+改配色前先算，不要靠感覺。任何新 token 低於 4.5:1 一律不接受。
+
+#### 已知未修（看圖看到但尚未處理）
+
+- 成就通知固定右下，在戰鬥畫面會蓋住塔塢面板、在選圖會蓋住「自訂」難度卡。
+- `game` 場景頂部 HUD 條在截圖中偏薄，需單獨放大確認是圖層還是高度問題。
+
