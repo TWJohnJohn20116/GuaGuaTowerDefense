@@ -1,7 +1,8 @@
 /**
- * 戰前簡報 · 戰場參數（HARDLINE StatCell 方格）
+ * 戰前簡報 · 戰場參數（CANDY POP 資料格）
  *
- * 大於 1 對玩家不利 → alarm；小於 1 → vital。純資料色，不做彩色底板。
+ * 六格 2×3：標籤在上、等寬數值在下。大於 100% 對玩家不利 → alarm；
+ * 低於 100% → vital。只用資料色，不做彩色底板。
  */
 
 import type { DifficultyModifiers } from '@/types/game';
@@ -49,9 +50,9 @@ export function StatsGrid({ mod }: StatsGridProps) {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+    <div className="grid flex-1 grid-cols-2 gap-2 sm:grid-cols-3">
       {cells.map((c) => (
-        <div key={c.label} className="rounded-[14px] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] px-3 py-2.5">
+        <div key={c.label} className="arc-panel--sunken flex flex-col justify-center px-2.5 py-2">
           <StatCell label={c.label} value={c.value} tone={c.tone} />
         </div>
       ))}

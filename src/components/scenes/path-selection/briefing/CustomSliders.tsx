@@ -1,7 +1,7 @@
 /**
- * 戰前簡報 · 自訂難度滑桿（HARDLINE）
+ * 戰前簡報 · 自訂難度滑桿（CANDY POP）
  *
- * 只出現於「自訂」難度。滑桿走 1px 軌道 + 資料色，不放圓角膠囊。
+ * 只在「自訂」難度展開。軌道 4px、拇指是糖果圓點，數值用等寬字。
  */
 
 import type { Dispatch, SetStateAction } from 'react';
@@ -71,21 +71,21 @@ export function CustomSliders({ custom, setCustom }: CustomSlidersProps) {
   ];
 
   return (
-    <div className="arc-enter border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
-      <div className="flex items-center justify-between gap-3 border-b border-[var(--cn-line-soft)] px-3 py-2">
+    <div className="arc-pop mt-3 rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line-mid)] bg-[var(--cn-card-2)] p-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
         <span className="arc-label">{t.pathSelection.customParams}</span>
         <Btn size="sm" variant="ghost" onClick={() => setCustom(DEFAULT_MODIFIERS)}>
           {t.pathSelection.resetDefaults}
         </Btn>
       </div>
-      <div className="grid grid-cols-1 gap-x-5 gap-y-3 px-3 py-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-5 gap-y-3 sm:grid-cols-2">
         {params.map((p) => {
           const value = custom[p.key];
           return (
             <div key={p.key}>
               <div className="mb-1.5 flex items-baseline justify-between gap-2">
                 <span className="arc-label">{p.label}</span>
-                <span className="font-mono text-[11px] tabular-nums text-[var(--arc-caution)]">
+                <span className="font-mono text-[12px] font-extrabold tabular-nums text-[var(--cn-coral-deep)]">
                   {p.format(value)}
                 </span>
               </div>
@@ -99,7 +99,7 @@ export function CustomSliders({ custom, setCustom }: CustomSlidersProps) {
                 onChange={(e) =>
                   setCustom((prev) => ({ ...prev, [p.key]: parseFloat(e.target.value) }))
                 }
-                className="h-1 w-full cursor-pointer appearance-none bg-[var(--arc-line)] accent-[var(--arc-caution)]"
+                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[var(--cn-line-mid)] accent-[var(--cn-coral)]"
               />
             </div>
           );

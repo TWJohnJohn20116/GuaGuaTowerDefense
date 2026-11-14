@@ -1,13 +1,13 @@
 /**
- * 戰前簡報 · 難度分段（HARDLINE）
+ * 戰前簡報 · 難度分段（CANDY POP）
  *
- * 六個方塊並排：mono 編號、名稱、5 格難度刻度。
- * 沒有漸層、沒有發光；選中＝訊號線 + 訊號膜。
+ * 六張方塊卡：編號 + 名稱 + 5 格刻度。點擊即切換，選中＝墨線 + 珊瑚膜 + 硬投影收合。
+ * 不使用 Btn：難度卡是「可選資料格」，不是動作鍵，行為與外觀都更接近 radio。
  */
 
 import type { GameDifficulty } from '@/types/game';
 import { useTranslation } from '@/i18n';
-import { Btn, Segments } from '@/components/hl';
+import { Segments } from '@/components/hl';
 import { DIFFICULTY_META, DIFF_ORDER, getGameDifficultyLabel } from './difficulty';
 
 interface DifficultyRowProps {
@@ -19,42 +19,45 @@ export function DifficultyRow({ selected, onChange }: DifficultyRowProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-6">
+    <div role="radiogroup" className="grid flex-1 grid-cols-3 gap-2 sm:grid-cols-6">
       {DIFF_ORDER.map((diff, i) => {
         const meta = DIFFICULTY_META[diff];
         const active = diff === selected;
         return (
-          <Btn
+          <button
             key={diff}
-            size="lg"
-            variant={active ? 'quiet' : 'ghost'}
+            type="button"
+            role="radio"
+            aria-checked={active}
             onClick={() => onChange(diff)}
-            aria-pressed={active}
-            className={`h-auto flex-col gap-1.5 py-2.5 ${
+            className={[
+              'flex flex-col items-center justify-center gap-2 rounded-[var(--cn-r-md)] border-[3px] px-2 py-2.5',
+              'transition-[background-color,border-color,box-shadow,transform] duration-[160ms]',
               active
-                ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
-                : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck-2)]'
-            }`}
+                ? 'border-[var(--cn-line)] bg-[var(--cn-coral-soft)] shadow-[0_4px_0_var(--cn-coral-deep)]'
+                : 'border-[var(--cn-line-soft)] bg-[var(--cn-card)] shadow-[0_3px_0_var(--cn-line-soft)] hover:border-[var(--cn-line-mid)] hover:bg-[var(--cn-card-2)]',
+            ].join(' ')}
           >
-            <span className="flex w-full items-center justify-between">
-              <span
-                className={`font-mono text-[9.5px] tabular-nums ${
-                  active ? 'text-[var(--arc-gold)]' : 'text-[var(--arc-ink-4)]'
-                }`}
-              >
-                {String(i + 1).padStart(2, '0')}
-
-              </span>
+            <span
+              className={[
+                'font-mono text-[9.5px] font-extrabold tabular-nums leading-none',
+                active ? 'text-[var(--cn-coral-deep)]' : 'text-[var(--cn-ink-4)]',
+              ].join(' ')}
+            >
+              {String(i + 1).padStart(2, '0')}
             </span>
             <span
-              className={`w-full truncate text-center text-[11.5px] font-semibold ${
-                active ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-2)]'
-              }`}
+              className={[
+                'w-full truncate text-center text-[12px] leading-tight',
+                active
+                  ? 'font-black text-[var(--cn-ink)]'
+                  : 'font-bold text-[var(--cn-ink-2)]',
+              ].join(' ')}
             >
               {getGameDifficultyLabel(t, diff)}
             </span>
-            <Segments total={5} filled={meta.stars} size="sm" tone={meta.tone} />
-          </Btn>
+            <Segments total={5} filled={meta.stars} size="sm" tone={meta.tone} fluid />
+          </button>
         );
       })}
     </div>
