@@ -51,8 +51,3 @@ export function getEncyclopediaSourceFiles(
 
   return [...new Set(paths)];
 }
-
-/** 地圖 id 對應的 paths 子檔案 */
-export function getMapSourceFile(mapId: string): string | undefined {
-  return MAP_SOURCE_INDEX[mapId];
-}

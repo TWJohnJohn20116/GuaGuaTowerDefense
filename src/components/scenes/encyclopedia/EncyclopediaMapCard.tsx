@@ -5,7 +5,6 @@
  */
 import MapPreview from '@/components/ui/MapPreview';
 import { Deck } from '@/components/hl';
-import { StarIcon } from '@/components/ui/Icons';
 import type { MapInfo } from './EncyclopediaTypes';
 import { playUiHover } from '@/services/audioService';
 
@@ -91,15 +90,4 @@ function CardStat({
     </span>
   );
 }
-
-/** 難度用的星等徽章（保留給外部呼叫端） */
-export function MapDifficultyMark({ label }: { label: string }) {
-  return (
-    <span className="inline-flex items-center gap-1 font-mono text-[10px] text-[var(--hl-caution)]">
-      <StarIcon className="h-3 w-3" />
-      {label}
-    </span>
-  );
-}
-
 export default EncyclopediaMapCard;

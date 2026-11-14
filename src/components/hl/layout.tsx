@@ -196,18 +196,3 @@ export function RailItem({
     </button>
   );
 }
-
-/* ------------------------------------------------------------- Breadcrumb */
-
-export function Crumbs({ items }: { items: React.ReactNode[] }) {
-  return (
-    <div className="flex items-center gap-1.5 font-mono text-[10px] tracking-[0.1em] text-[var(--hl-ink-4)] uppercase">
-      {items.map((item, i) => (
-        <span key={i} className="flex items-center gap-1.5">
-          {i > 0 && <span className="text-[var(--hl-line-hot)]">/</span>}
-          <span className={i === items.length - 1 ? 'text-[var(--hl-ink-2)]' : ''}>{item}</span>
-        </span>
-      ))}
-    </div>
-  );
-}

@@ -6,9 +6,6 @@
  */
 
 import { SettingsChoiceButton } from './settingsChoice';
-
-export type SettingsTab = 'general' | 'audio' | 'controls' | 'about';
-
 export const keyCodeToDisplayName = (code: string): string => {
   const keyMap: Record<string, string> = {
     KeyA: 'A', KeyB: 'B', KeyC: 'C', KeyD: 'D', KeyE: 'E',
