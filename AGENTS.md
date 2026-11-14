@@ -41,7 +41,7 @@
 | 目的 | 指令 | 位置 | 備註 |
 |---|---|---|---|
 | 開發（瀏覽器） | `npm run dev` | ❌ 使用者自己跑 | 埠由系統動態分配（`VITE_DEV_PORT` 可指定），`?scene=game` 可跳場景（僅 DEV） |
-| 視覺驗證 | `node scripts/visual-check.mjs` | ✅ 本機可（§13.10） | 自動開 dev server → 逐場景截圖 → 產總表；不跑 typecheck／測試 |
+| 視覺驗證 | `node scripts/visual-check.mjs` | ✅ 本機可（§13.10） | 自動開 dev server → 逐場景截圖 → 頁內稽核（對比度／截斷／溢出／遮擋）＋像素判空 → 產總表；不跑 typecheck／測試 |
 | 開發（桌面） | `npm run tauri dev` | ❌ 使用者自己跑 | 會先跑 `predev` 產生百科檔案清單 |
 | 型別 | `npm run typecheck` | ❌ CI | `tsc --noEmit`，0 error 是底線 |
 | 測試 | `npm run test` | ❌ CI | Vitest + jsdom，測試檔在 `src/test/**/*.test.ts` |
@@ -278,7 +278,7 @@ services → types（只能 import type 或由入口注入）
 
 1. **CI 綠**：`gh run watch <id> --exit-status` 得到 success，且 job 不是 `skipped`（§13.2）。typecheck 0 error、i18n 通過、710 個測試全過都由 CI 判定——**本機不得自己跑**（§13.9）。
 2. 沒有新增 `as any` / `: any` / `@ts-ignore` / 硬編碼中文 / 死 export（可用 `node scripts/ci/guards.mjs --debt` 唯讀自查，那是純讀檔）。
-3. 動到 UI／戰鬥／渲染 → **必須跑 `node scripts/visual-check.mjs` 並用看圖能力檢視 `contact-sheet.png`**（§13.10）。log 印 PASS 不代表畫面正確。效能相關改動要靠 Dev 面板的 p95 數據。
+3. 動到 UI／戰鬥／渲染 → **必須跑 `node scripts/visual-check.mjs`、用看圖能力檢視 `contact-sheet.png`、並逐條判定 `report.json` 的 warnings**（§13.10）。log 印 PASS 不代表畫面正確；警告沒判定等於沒驗證。效能相關改動要靠 Dev 面板的 p95 數據。
 4. 動到打包相關 → 由 CI 的 `打包體積預算` 步驟判定（主 chunk 上限 1.18 MB），本機不跑 build。
 5. 回報時附：改了哪些檔、為什麼、跑了什麼指令、結果如何；**不要**只說「已修好」，也不要只在最後才一次補述（過程就要說）。多步任務全程都要標 `進度 k/N`，見 §10.3。
 6. 任務清單**全部 `completed`**（或明確標出哪幾項沒做與原因）；不得留著 `pending` / `in_progress` 就宣布完成，見 §11.5。
@@ -736,7 +736,7 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 
 19 個場景約 20–22 秒（單一瀏覽器實例 + CDP，見工具檔頭說明）；`--full-page`／`--dpr=2` 會多花時間。
 
-工具由三支選配模組組成：`scripts/visual-audit.mjs`（頁內稽核表達式）、`scripts/visual-pixel.mjs`（像素統計）、`scripts/visual-sheet.mjs`（總表分組排版）。缺檔會自動降級回舊的七項檢查。
+工具由四支選配模組組成：`scripts/visual-audit.mjs`（頁內稽核表達式）、`scripts/visual-pixel.mjs`（像素統計）、`scripts/visual-sheet.mjs`（總表分組排版）、`scripts/visual-shots.mjs`（截圖與稽核動作）。缺檔會自動降級回舊的七項檢查。
 
 #### 必做六步（少一步就算沒驗證）
 
@@ -751,6 +751,8 @@ node scripts/visual-check.mjs
 用看圖能力打開 `contact-sheet.png`。**每一個格子都要給判定**，不能只看「有沒有東西」。
 判定只允許兩種：`OK` 或 `問題：<具體描述>`。寫「看起來正常」不算。
 
+每格下方的「N 警告」是**警告類別數**，黃框代表有警告。警告不是自動失敗（`--strict` 才升級），但它們是「有人已經幫你看過一遍」的線索——**必須逐條判定**：真問題就記進待修，誤報就在回報裡寫明為什麼是誤報（例：卡片上的大號裝飾數字、`talentTree` 未解鎖節點）。
+
 **3. 可疑場景單獨放大**（全尺寸 PNG）
 
 ```bash
@@ -758,6 +760,18 @@ node scripts/visual-check.mjs --scenes=<場景> --concurrency=1
 ```
 
 再 `read_image` 打開該張 PNG。總表是縮圖，字級／對齊／截斷只有原尺寸看得出來。
+
+要看某個 Modal／卡片本身（圓角、邊界、內距）就加 `--clip`，它會多拍一張局部原尺寸幀：
+
+```bash
+node scripts/visual-check.mjs --scenes=gameOver --clip='[role=dialog]' --concurrency=1
+```
+
+懷疑「主行動鍵被推到摺疊線以下」時加 `--full-page`，它會多拍一張整頁長圖（限高 6000px）：
+
+```bash
+node scripts/visual-check.mjs --scenes=settings --full-page --concurrency=1
+```
 
 **4. 開狀態再拍一次**（這是「詳細」的關鍵）
 
@@ -791,6 +805,14 @@ node scripts/visual-check.mjs --sizes=1600x900,1280x800,390x844
 
 有響應式斷點的版面（Split / Battle）一定要看窄版，否則重疊與溢出抓不到。
 
+總表會**按尺寸分組**（每組一個標題與自己的列數／行高），所以混尺寸跑不會把窄版縮成一小塊。
+
+要驗 Retina 下的模糊與 1px 邊框，加 `--dpr=2`（圖會變成 CSS 尺寸的兩倍，`sizeMatches` 已按比例換算）：
+
+```bash
+node scripts/visual-check.mjs --sizes=1600x900,390x844 --dpr=2 --concurrency=3
+```
+
 **6. 修完重跑，直到每一格都 OK**
 
 修一處 → 重跑一次（20 秒），不要累積多處才驗。
@@ -823,6 +845,21 @@ node scripts/visual-check.mjs --sizes=1600x900,1280x800,390x844
 每格在總表上標「N 警告」並用黃框；`report.json` 內含 `audit`（明細前 40 條）與 `stats`（像素統計）。
 
 **它抓不到**：留白失衡、字級節奏、顏色刺眼、hover／focus 的視覺差異（第 11 項仍要用 `--js` 觸發後看圖）。**那些只能看圖。**
+
+#### 怎麼讀警告（哪些要修、哪些是噪聲）
+
+明細在 `report.json` 的 `results[].warnings`（每項給前 12 條）與 `results[].audit`（前 40 條）。
+
+| 類別 | 先看什麼 | 判真問題 | 判噪聲 |
+|---|---|---|---|
+| `contrast` | `ratio` 與 `fontSize` | 正文、按鈕文字、表單標籤低於 4.5（大字 3） | 卡片上的大號裝飾數字、水印、`aria-hidden` 的純視覺點綴 |
+| `truncated` | `scrollWidth` vs `clientWidth` | 關鍵字被切掉（塔名、成就名、價格） | 刻意的單行省略（列表摘要）且截斷處不影響辨識 |
+| `overflow` | `side` 與 `rect` | 按鈕／輸入框跑出視口，使用者點不到 | 可滾動容器內的橫向卡片列（稽核已排除，仍出現就是容器判定沒抓到的特例） |
+| `occlusion` | `overlap` 與 `by` | `by` 是通知／Toast／浮動按鈕，`overlap` 高（>0.5） | 半透明遮罩、`(pointer-events:none)` 且面積小的裝飾光暈 |
+| `console` | `text` | React warning、`is not a function`、CSP 拒絕 | `[更新檢查]` 的 403（dev 環境離線／限流，已降級但仍在清單） |
+| `external` | `url` | 不影響版面，通常只看一眼 | 音樂 API、GitHub releases 這類外部服務 |
+
+修一處 → 重跑一次（20 秒），直到該類別歸零或剩下的每一條都能說明理由。**不要一次改十處才重跑。**
 
 #### 每個場景必看的 12 項（看圖時的檢查表）
 
@@ -863,12 +900,12 @@ node scripts/visual-check.mjs --sizes=1600x900,1280x800,390x844
 #### 回報格式（貼進回覆，不可只寫「看過了」）
 
 ```
-| 場景 | 尺寸 | 判定 | 問題／備註 |
-|---|---|---|---|
-| mainMenu | 1600x900 | OK | — |
-| pathSelection | 1600x900 | 問題 | 難度摘要顯示英文 normal → 已修 ggXX |
-| game | 1600x900 | 問題 | 成就通知遮住塔塢面板 → 待修 |
+| 場景 | 尺寸 | 警告 | 判定 | 問題／備註 |
+|---|---|---|---|---|
+| mainMenu | 1600x900 | contrast 7 | 問題 | 「開始遊戲」白字橙底 2.82:1 → 待修 |
+| pathSelection | 1600x900 | occlusion 5 | OK | 難度卡被成就通知蓋住 → 已知未修 |
+| game | 1600x900 | — | OK | 深色底為場景本體（已與改動前舊幀對照） |
 ```
 
-19 個場景就要 19 列。**少列一行視為沒驗證。**
+19 個場景就要 19 列。**少列一行視為沒驗證。**「警告」欄寫類別與數量；判為噪聲的要在備註寫理由（例：卡片裝飾數字、`aria-hidden` 點綴），不能只寫「OK」。
 
