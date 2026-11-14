@@ -1669,16 +1669,17 @@
     <p class="lead"><b>編號規則：</b>每一項都有固定編號 <span class="tid">TD-01</span>～<span class="tid">TD-42</span>，
       字母前綴代表分類（A 流程與版控、B 架構分層、C 型別、D 死碼重複、E 效能打包、F 可觀測性、G 資料 i18n、H 資產、I 測試）。
       commit、PR、issue、回報請直接寫 <code>TD-13</code>，不要只寫「那個 as any 的債」。</p>
-    <p class="lead"><b>還債進度：</b><span class="sev done">6 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
+    <p class="lead"><b>還債進度：</b><span class="sev done">7 / 42 已還</span> <span class="sev p1">3 項部分償還 · TD-07、TD-20、TD-24</span>
       <span class="tid">TD-01</span> 已建立版本控制（branch <code>main</code>、基準 commit <code>1f347c7</code>、1,177 檔納入）；
       <span class="tid">TD-09</span> 場景清單三份真相收斂成一份（<code>SceneName = GameScene</code>，Dev 面板選單改由 <code>Record&lt;GameScene, string&gt;</code> 產生，補回漏掉的 10 個場景）；
       <span class="tid">TD-10</span> 刪掉從未被載入的 <code>data/gameData/index.ts</code>（同名 barrel 只剩檔案版一個入口，並清掉 3 處路徑字串與 10 語系的死文案）；
       <span class="tid">TD-02</span> <code>Cargo.lock</code> 不再被 ignore，472 個 Rust 依賴版本首度鎖進版控；
       <span class="tid">TD-16</span> 18 個無效的 <code>eslint-disable</code> 全數清空（10 處改寫成 TD-17 的說明），棘輪基準 18 → 0；
       <span class="tid">TD-11</span> 測試專用 API 移出正式碼：3 個零引用 export 直接刪（136 → 133），檢查器與 class 契約樣本搬進 <code>src/test/contracts/</code>；
+      <span class="tid">TD-17</span> 10 處手動接管的 effect deps 逐一查核：3 處是真 stale closure（已修），其餘 7 處判定為非債並在原地寫明理由；
       <span class="tid">TD-07</span> 七個上帝檔案減為六個（<code>Icons.tsx</code> 已拆）；
       <span class="tid">TD-20</span> <code>Icons.tsx</code> 2,426 行 → 8 個分區模組 + 12 行門面，主 chunk 1,165,958 → <b>1,154,208 bytes</b>；
-      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 33 項待處理。</p>
+      <span class="tid">TD-24</span> 主 chunk 1,333,086 → <b>1,154,208 bytes</b>（-13.4%，CI 預算上限 1,180,000）；其餘 32 項待處理。</p>
 
     <div class="kpi">
       <div class="good"><b>0</b><span>TODO / FIXME / @ts-ignore</span></div>
@@ -1831,12 +1832,12 @@
           <td>已還：18 處全數清空——10 處 <code>exhaustive-deps</code> 改寫成看得懂的說明並標上 <code>TD-17</code>（記下 deps 由誰手動維護、為什麼），8 處 <code>no-explicit-any</code> 與 1 處 <code>no-console</code> 直接刪（那些 <code>any</code> 由 TD-13 追蹤）；棘輪基準 18 → 0，之後新增會直接打紅。<b>仍未裝 ESLint</b>（原建議的 <code>no-explicit-any: warn</code>／<code>exhaustive-deps: warn</code> 需要加依賴，另開任務）</td>
         </tr>
         <tr>
-          <td><span class="tid">TD-17</span><span class="sev p2">P2</span><b>C5 手動接管的 effect 依賴 10 處</b></td>
+          <td><span class="tid">TD-17</span><span class="sev done">✓ 已還 · P2</span><b>C5 手動接管的 effect 依賴 10 處</b></td>
           <td><code>GameCanvas.tsx:272</code>、<code>useGameSceneEffects.ts:663</code>、<code>GameOver.tsx:82</code>、<code>Victory.tsx:139</code>、
             <code>useMapEditorState.ts:39/48</code>、<code>ModIconEditor.tsx:92/146</code>、<code>FullscreenWaveEditor.tsx:84</code>、<code>model3d/Model3DEditor.tsx:252</code>
-            （清 TD-16 時重新點名，原本漏列 3 處；現在每一處都有一行中文說明它為什麼不該重跑）</td>
+            （清 TD-16 時重新點名，原本漏列 3 處）</td>
           <td>依賴陣列被刻意縮小，改邏輯時很容易 stale closure（讀到舊 state）。</td>
-          <td>抽 <code>useLatestRef</code>／<code>useEvent</code>；「為什麼不該重跑」已在 TD-16 那輪寫成註解，剩下的是把依賴改成 ref 形式</td>
+          <td>已還：10 處逐一查核，<b>3 處是真缺陷</b>——<code>FullscreenWaveEditor</code> 漏列 <code>selectedWaveIdx</code>；<code>ModIconEditor</code> 的 Ctrl+D 抓到舊閉包（<code>duplicateLayer</code> 改 <code>useCallback([icons])</code> 並列進 deps，且必須宣告在監聽器之前，否則 deps 在 render 期間求值會踩 TDZ）；<code>useGameSceneEffects</code> 用靜態掃描（effect 內識別字 ∩ 檔內宣告 − deps）補上 4 個漏列的 store 動作。其餘 7 處核對後<b>判定為非債</b>（掛載一次的命令式資源建立、兩支刻意互斥的 effect、走 <code>getState()</code> 的即時取值），全部在原地寫明理由，不再只靠「刻意」兩個字</td>
         </tr>
       </tbody>
     </table>

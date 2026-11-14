@@ -105,7 +105,8 @@ services → types（只能 import type 或由入口注入）
   - 若卡在 Mod 動態欄位（`flameEffect`、`windEffect`、`moneyGeneration`…）：**先補 `TowerData` 可選欄位**，不要在 UI 端硬轉。
 - ❌ 不用 `@ts-ignore` / `@ts-expect-error`（目前 0，保持 0）。
 - ❌ 不要靠 `eslint-disable` 當護欄——專案**沒有** ESLint，寫了也不會生效。舊的 18 處已在 TD-16 全部清空（棘輪基準 0，新增會直接打紅）；要護欄就去裝 ESLint，不是加註解。
-- ✅ hook 的 deps 若刻意縮小（TD-17 共 10 處）→ 用一行中文註解寫明「為什麼不該重跑」，不要留 `eslint-disable`。
+- ✅ hook 的 deps 要列齊。真的不能列（命令式資源建立、兩支互斥的 effect、走 `getState()` 的即時取值）→ 用一行中文註解寫明「為什麼」，不要留 `eslint-disable`。TD-17 的 10 處已全部查核完畢：3 處是真 stale closure（已修），7 處原地寫明判定理由。
+- ⚠️ 把值列進 deps 時注意宣告順序：`useEffect` 的 deps 陣列在 render 期間就求值，被引用的 `const` 若宣告在後面會踩 TDZ（`TS2448`／執行期 ReferenceError）。
 - ✅ canvas 的格子型別是 `Tile[][]`，不要 `any[][]`。
 
 ### 4.4 i18n
