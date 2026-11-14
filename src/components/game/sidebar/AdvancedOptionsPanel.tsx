@@ -7,7 +7,7 @@ import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
 import {
   CoinIcon, BrainIcon, UpArrowIcon, RobotIcon,
   ScalesIcon, SwordsIcon, ShieldIcon, ConstructionIcon,
-  LightningIcon, SkipForwardIcon, TrashIcon,
+  LightningIcon, SkipForwardIcon, TrashIcon, SparklesIcon,
 } from '@/components/ui/Icons';
 import { Btn, SegHead } from '@/components/hl';
 
@@ -118,6 +118,11 @@ export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
                 <label className={`${ROW} cursor-pointer text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)]`}>
                   <span className="hl-label flex items-center gap-1.5"><TrashIcon className="h-3 w-3" />{t.game.aiAutoSell}</span>
                   <ToggleSwitch enabled={autoBattleConfig.autoSell} onToggle={() => setAutoBattleConfig({ autoSell: !autoBattleConfig.autoSell })} size="sm" activeColor="orange" />
+                </label>
+                {/* 融合：預設關閉（會吃掉兩座塔），但必須有入口，否則 AI 的融合評分永遠不會執行 */}
+                <label className={`${ROW} cursor-pointer text-[var(--hl-ink-3)] hover:text-[var(--hl-ink)]`}>
+                  <span className="hl-label flex items-center gap-1.5"><SparklesIcon className="h-3 w-3" />{t.game.aiAutoFusion}</span>
+                  <ToggleSwitch enabled={autoBattleConfig.autoFusion} onToggle={() => setAutoBattleConfig({ autoFusion: !autoBattleConfig.autoFusion })} size="sm" activeColor="cyan" />
                 </label>
               </div>
             </div>

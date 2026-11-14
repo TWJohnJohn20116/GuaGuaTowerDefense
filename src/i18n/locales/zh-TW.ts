@@ -321,6 +321,7 @@ export const zhTW = {
     aiAutoSkill: '自動技能',
     aiAutoSkip: '自動略波',
     aiAutoSell: '自動拆塔（變陣優化）',
+    aiAutoFusion: '自動融合',
     aiLog: 'AI 記錄',
     autoStartNextWave: '自動開始下一波',
     batchUpgradeSimple: '已升級 {count} 座塔',
