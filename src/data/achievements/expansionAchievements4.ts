@@ -105,17 +105,6 @@ export const mapCompletionAchievements: Achievement[] = [
 ];
 
 // =====================================================================
-// FF. 章節進度 (Chapter Progress)
-// =====================================================================
-export const chapterProgressAchievements: Achievement[] = [
-  { id: 'chapter_clear_3', name: '三章完成', description: '完成戰役第 1 至 3 章', icon: React.createElement(StarIcon, { className: 'w-8 h-8 text-amber-300' }), category: 'progress', rarity: 'common', conditions: [{ type: 'complete_chapter', target: 3 }], rewards: [{ type: 'points', value: 15 }], order: 420 },
-  { id: 'chapter_clear_5', name: '五章完成', description: '完成戰役前 5 章', icon: React.createElement(StarIcon, { className: 'w-8 h-8 text-amber-400' }), category: 'progress', rarity: 'uncommon', conditions: [{ type: 'complete_chapter', target: 5 }], rewards: [{ type: 'points', value: 25 }], order: 421 },
-  { id: 'chapter_clear_all', name: '全章完成者', description: '完成所有戰役章節', icon: React.createElement(TrophyIcon, { className: 'w-8 h-8 text-amber-500' }), category: 'progress', rarity: 'rare', conditions: [{ type: 'custom', target: 1 }], rewards: [{ type: 'points', value: 50 }, { type: 'title', value: '全章完成者' }], order: 422 },
-  { id: 'chapter_perfect_5', name: '五章完美', description: '完美完成戰役前 5 章（每張地圖 3 星）', icon: React.createElement(CrownIcon, { className: 'w-8 h-8 text-yellow-500' }), category: 'progress', rarity: 'epic', conditions: [{ type: 'custom', target: 5 }], rewards: [{ type: 'points', value: 80 }, { type: 'title', value: '五章完美' }], order: 423 },
-  { id: 'chapter_perfect_all', name: '全章完美', description: '完美完成所有章節', icon: React.createElement(CrownIcon, { className: 'w-8 h-8 text-amber-500' }), category: 'legendary', rarity: 'legendary', conditions: [{ type: 'custom', target: 1 }], rewards: [{ type: 'points', value: 300 }, { type: 'title', value: '全章完美' }], order: 424 },
-];
-
-// =====================================================================
 // GG. Mod 進階 (Mod Advanced)
 // =====================================================================
 export const modAdvancedAchievements: Achievement[] = [

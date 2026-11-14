@@ -6,7 +6,7 @@
 import type { Achievement } from '@/types/achievement';
 import React from 'react';
 import {
-  WrenchIcon, GearIcon, PackageBoxIcon, FlameIcon, SkullIcon, DangerIcon, MusicNoteIcon, MusicNotesIcon, CrosshairIcon, TargetIcon, LightningIcon, CastleIcon, BooksIcon, UpArrowIcon, AlienMonsterIcon, ShieldIcon, EyeIcon, SwordsIcon, GhostIcon, ExplosionIcon, AlienIcon, StarIcon, MagicIcon, WarningIcon, HourglassIcon, CrystalBallIcon, TreeIcon, FlowerIcon, CrownIcon, ChartIcon, SunriseIcon, SwordIcon, BuildIcon, SparklesIcon, NotepadIcon, TrophyIcon, TowerIcon, GlobeIcon, GamepadIcon, EndlessIcon, BrokenHeartIcon, CoinsIcon, SnowflakeIcon
+  WrenchIcon, GearIcon, PackageBoxIcon, FlameIcon, SkullIcon, DangerIcon, MusicNoteIcon, MusicNotesIcon, CrosshairIcon, TargetIcon, LightningIcon, CastleIcon, BooksIcon, UpArrowIcon, AlienMonsterIcon, ShieldIcon, EyeIcon, SwordsIcon, GhostIcon, ExplosionIcon, AlienIcon, StarIcon, MagicIcon, WarningIcon, HourglassIcon, CrystalBallIcon, TreeIcon, FlowerIcon, CrownIcon, ChartIcon, SparklesIcon, NotepadIcon, TrophyIcon, TowerIcon, GlobeIcon, GamepadIcon, EndlessIcon, BrokenHeartIcon, CoinsIcon, SnowflakeIcon
 } from '@/components/ui/Icons';
 
 // ============ 模組相關成就 ============
@@ -427,64 +427,6 @@ export const funHiddenAchievements: Achievement[] = [
   },
 ];
 
-// ============ 每日成就 ============
-export const dailyAchievements: Achievement[] = [
-  {
-    id: 'daily_first_win',
-    name: '今日首勝',
-    description: '今天贏得第一場遊戲',
-    icon: React.createElement(SunriseIcon, { className: "w-8 h-8 text-orange-400" }),
-    category: 'daily',
-    rarity: 'common',
-    conditions: [{ type: 'games_won', target: 1 }],
-    rewards: [{ type: 'points', value: 5 }],
-    order: 1,
-  },
-  {
-    id: 'daily_three_games',
-    name: '日常三局',
-    description: '今天完成三場遊戲',
-    icon: React.createElement(TargetIcon, { className: "w-8 h-8 text-emerald-400" }),
-    category: 'daily',
-    rarity: 'common',
-    conditions: [{ type: 'games_played', target: 3 }],
-    rewards: [{ type: 'points', value: 10 }],
-    order: 2,
-  },
-  {
-    id: 'daily_killer',
-    name: '今日殺手',
-    description: '今天擊殺 100 個敵人',
-    icon: React.createElement(SwordIcon, { className: "w-8 h-8 text-red-400" }),
-    category: 'daily',
-    rarity: 'uncommon',
-    conditions: [{ type: 'enemies_killed', target: 100 }],
-    rewards: [{ type: 'points', value: 15 }],
-    order: 3,
-  },
-  {
-    id: 'daily_builder',
-    name: '今日建築師',
-    description: '今天放置 20 座塔',
-    icon: React.createElement(BuildIcon, { className: "w-8 h-8 text-amber-500" }),
-    category: 'daily',
-    rarity: 'uncommon',
-    conditions: [{ type: 'towers_placed', target: 20 }],
-    rewards: [{ type: 'points', value: 15 }],
-    order: 4,
-  },
-  {
-    id: 'daily_perfect',
-    name: '今日完美',
-    description: '今天完成一場無傷遊戲',
-    icon: React.createElement(SparklesIcon, { className: "w-8 h-8 text-yellow-300" }),
-    category: 'daily',
-    rarity: 'rare',
-    conditions: [{ type: 'no_damage_game', target: 1 }],
-    rewards: [{ type: 'points', value: 25 }],
-    order: 5,
-  },
-];
 
 // ============ 每週成就 ============
 export const weeklyAchievements: Achievement[] = [

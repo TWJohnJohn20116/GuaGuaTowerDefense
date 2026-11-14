@@ -148,14 +148,6 @@ export const subtleObservationAchievements: Achievement[] = [
 ];
 
 // =====================================================================
-// BBB. 紀念碑與英雄 (Memorial & Heroes)
-// =====================================================================
-export const memorialHeroAchievements: Achievement[] = [
-  { id: 'mem_first_visit', name: '初訪紀念碑', description: '第一次造訪紀念碑', icon: React.createElement(FlowerIcon, { className: 'w-8 h-8 text-rose-300' }), category: 'progress', rarity: 'common', conditions: [{ type: 'custom', target: 1 }], rewards: [{ type: 'points', value: 5 }], order: 650 },
-  { id: 'mem_read_all', name: '永誌不忘', description: '閱讀紀念碑上所有英雄事蹟', icon: React.createElement(HeartIcon, { className: 'w-8 h-8 text-rose-400' }), category: 'collection', rarity: 'rare', conditions: [{ type: 'custom', target: 1 }], rewards: [{ type: 'points', value: 30 }, { type: 'title', value: '永誌不忘' }], order: 651 },
-];
-
-// =====================================================================
 // CCC. 戰術協議 (Tactical Protocol)
 // =====================================================================
 export const tacticalProtocolAchievements: Achievement[] = [

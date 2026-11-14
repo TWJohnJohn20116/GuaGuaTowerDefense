@@ -31,53 +31,6 @@ export const progressAchievements: Achievement[] = [
     tips: '只要跟著教學指示完成第一關即可獲得。'
   },
   {
-    id: 'prog_campaign_1',
-    name: '戰役初探',
-    description: '通關第一章「覺醒：未知的威脅」所有關卡。',
-    icon: React.createElement(MapIcon, { className: "w-8 h-8 text-emerald-400" }),
-    category: 'progress',
-    rarity: 'common',
-    conditions: [
-      { type: 'complete_chapter', target: 1, current: 0 }
-    ],
-    rewards: [
-      { type: 'points', value: 20 },
-      { type: 'title', value: '新兵' }
-    ]
-  },
-  {
-    id: 'prog_campaign_2',
-    name: '陰影獵手',
-    description: '通關第二章「污染：擴散的陰影」所有關卡。',
-    icon: React.createElement(ShieldIcon, { className: "w-8 h-8 text-cyan-400" }),
-    category: 'progress',
-    rarity: 'uncommon',
-    conditions: [
-      { type: 'complete_chapter', target: 2, current: 0 }
-    ],
-    rewards: [
-      { type: 'points', value: 40 },
-      { type: 'title', value: '前線指揮官' }
-    ]
-  },
-  {
-    id: 'prog_campaign_3',
-    name: '源頭剋星',
-    description: '通關第三章「真相：源頭之戰」並擊敗最終首領。',
-    icon: React.createElement(TrophyIcon, { className: "w-8 h-8 text-purple-400" }),
-    category: 'progress',
-    rarity: 'epic',
-    conditions: [
-      { type: 'complete_chapter', target: 3, current: 0 }
-    ],
-    rewards: [
-      { type: 'points', value: 100 },
-      { type: 'title', value: '瓜瓜守護者' },
-      { type: 'badge', value: '終焉勳章', name: '終焉勳章', icon: React.createElement(MedalIcon, { className: "w-4 h-4 text-purple-400" }) }
-    ],
-    tips: '通關前累積足夠的天賦點，並善用解鎖的所有防禦塔種類。'
-  },
-  {
     id: 'prog_campaign_half',
     name: '漸入佳境',
     description: '通關遊戲一半的關卡。',
@@ -93,7 +46,7 @@ export const progressAchievements: Achievement[] = [
   },
   {
     id: 'prog_campaign_master',
-    name: '戰役大師',
+    name: '地圖大師',
     description: '通關所有基本地圖。',
     icon: React.createElement(TrophyIcon, { className: "w-8 h-8 text-amber-400" }),
     category: 'progress',
@@ -103,7 +56,7 @@ export const progressAchievements: Achievement[] = [
     ],
     rewards: [
       { type: 'points', value: 50 },
-      { type: 'badge', value: '戰役通關勳章', name: '戰役通關勳章', icon: React.createElement(MedalIcon, { className: "w-4 h-4 text-amber-400" }) }
+      { type: 'badge', value: '全地圖勳章', name: '全地圖勳章', icon: React.createElement(MedalIcon, { className: "w-4 h-4 text-amber-400" }) }
     ]
   },
   {

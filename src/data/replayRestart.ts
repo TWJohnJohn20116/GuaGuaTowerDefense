@@ -1,5 +1,4 @@
 import type { GameDifficulty, DifficultyModifiers } from '@/types/game';
-import type { MutatorRules } from '@/types/mutatorChallenge';
 
 interface ReplayRestartSource {
   mapId: string;
@@ -11,7 +10,6 @@ interface ReplayRestartSource {
   startPathName?: string;
   customWaveSetId?: string;
   customModifiers?: DifficultyModifiers;
-  mutator?: { id: string; rules: MutatorRules };
 }
 
 interface ReplayRestartArgs {
@@ -21,10 +19,9 @@ interface ReplayRestartArgs {
   maxWaves: number;
   customModifiers?: DifficultyModifiers;
   customWaveSetId?: string;
-  mutator?: { id: string; rules: MutatorRules };
 }
 
-/** 回放「重新挑戰」：還原戰役 id／突變／波次組，舊檔則退回地圖與難度。 */
+/** 回放「重新挑戰」：還原戰役 id／波次組，舊檔則退回地圖與難度。 */
 export function resolveReplayRestartArgs(replay: ReplayRestartSource): ReplayRestartArgs {
   const fallbackMaxWaves = replay.isVictory ? replay.finalWave : 15;
   const args: ReplayRestartArgs = {
@@ -35,6 +32,5 @@ export function resolveReplayRestartArgs(replay: ReplayRestartSource): ReplayRes
   };
   if (replay.customModifiers) args.customModifiers = replay.customModifiers;
   if (replay.customWaveSetId) args.customWaveSetId = replay.customWaveSetId;
-  if (replay.mutator) args.mutator = replay.mutator;
   return args;
 }

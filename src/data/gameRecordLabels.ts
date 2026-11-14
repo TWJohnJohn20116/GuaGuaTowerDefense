@@ -28,20 +28,20 @@ export function formatGameRecordDifficulty(
   }
 }
 
-export function gameDifficultyLabelsFromDetail(d: {
-  diffEasy: string;
-  diffNormal: string;
-  diffHard: string;
-  diffNightmare: string;
-  diffImpossible: string;
-  diffCustom: string;
+export function gameDifficultyLabelsFromGameCopy(g: {
+  pauseDiffEasy: string;
+  pauseDiffNormal: string;
+  pauseDiffHard: string;
+  pauseDiffNightmare: string;
+  pauseDiffImpossible: string;
+  pauseDiffCustom: string;
 }): GameDifficultyLabels {
   return {
-    easy: d.diffEasy,
-    normal: d.diffNormal,
-    hard: d.diffHard,
-    nightmare: d.diffNightmare,
-    impossible: d.diffImpossible,
-    custom: d.diffCustom,
+    easy: g.pauseDiffEasy,
+    normal: g.pauseDiffNormal,
+    hard: g.pauseDiffHard,
+    nightmare: g.pauseDiffNightmare,
+    impossible: g.pauseDiffImpossible,
+    custom: g.pauseDiffCustom,
   };
 }

@@ -12,7 +12,7 @@ import {
   FlameIcon,
   ClockIcon, TimerIcon, HourglassIcon, CalendarIcon, WatchIcon,
   BrokenHeartIcon, SkullIcon, BoneIcon, BloodIcon, DragonIcon,
-  StarIcon, SparklesIcon, CrownIcon, MedalIcon, GiftIcon,
+  StarIcon, SparklesIcon, CrownIcon, GiftIcon,
   BrainIcon, EyeIcon,
   OpenBookIcon, PaletteIcon,
   PuzzleIcon, MagicIcon, DiceIcon, CrystalBallIcon,
@@ -423,17 +423,6 @@ export const firstTimesAchievements: Achievement[] = [
 // P. 細節控 (Detail Lovers) - 玩家行為細節
 // =====================================================================
 export const detailLoverAchievements: Achievement[] = [
-  {
-    id: 'detail_daily_challenge_30',
-    name: '每日挑戰常客',
-    description: '完成 30 次每日挑戰',
-    icon: React.createElement(MedalIcon, { className: 'w-8 h-8 text-orange-400' }),
-    category: 'daily',
-    rarity: 'rare',
-    conditions: [{ type: 'custom', target: 30 }],
-    rewards: [{ type: 'points', value: 30 }],
-    order: 253,
-  },
   {
     id: 'detail_weekly_challenge_10',
     name: '週週挑戰',

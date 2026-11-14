@@ -3,8 +3,6 @@ export const HOME_GRID_CLASS = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 g
 
 /** 右欄等寬入口，不含左欄的選圖主行動 */
 export const HOME_ENTRY_SCENES = [
-  'dailyChallenge',
-  'mutatorChallenge',
   'shop',
   'talentTree',
   'encyclopedia',
@@ -13,7 +11,6 @@ export const HOME_ENTRY_SCENES = [
   'statistics',
   'workshop',
   'replay',
-  'memorial',
   'tutorial',
   'changelog',
   'settings',
