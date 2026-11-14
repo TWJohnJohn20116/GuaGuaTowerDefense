@@ -46,7 +46,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Node 24 = npm 11，與 package-lock.json 的產生環境一致。
+          # 用 Node 20（npm 10）會對 vitest@4 的嵌套 vite 解析出不同樹，
+          # 導致 npm ci 判定 lock 不完整（Missing: esbuild@0.28.2）。
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
