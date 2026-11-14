@@ -22,12 +22,16 @@
 name: 建置與測試
 
 # 標題必須單行：用 head_commit.message 會把整段多行訊息塞進標題，run 清單會變得很難看。
-# 觸發方式用繁中標籤，commit 訊息本身在 run 頁面本來就會顯示。
-run-name: 建置與測試 · ${{ github.event_name == 'push' && '推送' || github.event_name == 'pull_request' && '合併請求' || '手動觸發' }} · ${{ github.ref_name }}
+# 觸發方式用繁中標籤；PR 顯示編號（否則 ref_name 會是沒有意義的 "3/merge"）。
+run-name: 建置與測試 · ${{ github.event_name == 'push' && '推送' || github.event_name == 'pull_request' && '合併請求' || '手動觸發' }} · ${{ github.event.pull_request.number && format('#{0}', github.event.pull_request.number) || github.ref_name }}
 
 on:
   push:
-    branches: ['**']
+    # '!dependabot/**' 一定要放在 '**' 後面：Dependabot 開 PR 時會先 push 分支，
+    # 沒排除的話同一個 commit 會跑兩次（push + pull_request），白燒一倍 CI 分鐘。
+    branches:
+      - '**'
+      - '!dependabot/**'
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
