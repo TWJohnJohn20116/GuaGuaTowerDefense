@@ -4,17 +4,20 @@
  * 左半是「這支腳本能做什麼」（hook／權限／節流），右半是程式碼；
  * 底部即時顯示語法狀態、缺權限提示與最近日誌。
  */
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { CustomScriptData, ModScriptHook, ModScriptPermission } from '@/types/modScript';
 import { checkScriptSyntax } from '@/mod-script/sandbox';
 import { missingPermissions } from '@/mod-script/permissions';
 import { MOD_SCRIPT_HOOKS, MOD_SCRIPT_LIMITS, MOD_SCRIPT_PERMISSIONS } from '@/mod-script/limits';
 import { useModScriptStore } from '@/store/modScriptStore';
+import { useModStore } from '@/store/modStore';
+import { verifyModSignature, type ModSignatureResult } from '@/mod-script/signing';
 import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 import { CopyIcon, PlayIcon, TrashIcon } from '@/components/ui/Icons';
 import { Btn, Input, Key, Num, SegHead, Toggle } from '@/components/hl';
 import { createScriptSkeleton } from './scriptTemplate';
+import { ScriptCodeEditor } from './ScriptCodeEditor';
 
 interface ScriptEditorProps {
   script: CustomScriptData;
@@ -45,6 +48,43 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
   const scriptingEnabled = useModScriptStore((s) => s.enabled);
   const setScriptingEnabled = useModScriptStore((s) => s.setEnabled);
   const status = useModScriptStore((s) => s.statuses.find((item) => item.scriptId === script.id));
+  const scriptState = useModScriptStore((s) => s.scriptState[script.id]);
+  const clearScriptState = useModScriptStore((s) => s.clearScriptState);
+  const stateKeys = Object.keys(scriptState ?? {}).length;
+  const trustMode = useModScriptStore((s) => s.trustMode);
+  const setTrustMode = useModScriptStore((s) => s.setTrustMode);
+  const trustedFingerprints = useModScriptStore((s) => s.trustedKeyFingerprints);
+  const trustKey = useModScriptStore((s) => s.trustKey);
+  const ownerMod = useModStore((s) => s.mods.find((item) => item.metadata.id === script.modId));
+  const [signature, setSignature] = useState<ModSignatureResult | null>(null);
+
+  useEffect(() => {
+    if (!ownerMod) {
+      setSignature(null);
+      return;
+    }
+    let alive = true;
+    void verifyModSignature(ownerMod).then((result) => {
+      if (alive) setSignature(result);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [ownerMod]);
+
+  const fingerprint = signature?.fingerprint ?? null;
+  const keyIsTrusted = fingerprint !== null && trustedFingerprints.includes(fingerprint);
+  const signatureLabel = !ownerMod
+    ? m.scriptSigNoMod
+    : signature === null
+      ? '—'
+      : signature.status === 'unsigned'
+        ? m.scriptSigUnsigned
+        : signature.status === 'valid'
+          ? m.scriptSigValid
+          : signature.status === 'invalid'
+            ? m.scriptSigInvalid
+            : m.scriptSigError;
 
   const syntaxError = useMemo(() => checkScriptSyntax(script.code), [script.code]);
   const missing = useMemo(
@@ -112,6 +152,40 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
         </span>
       </div>
 
+      {/* 簽章與信任 */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-[var(--cn-line-soft)] pb-2">
+        <span className="arc-label">{m.scriptTrustTitle}</span>
+        <Btn
+          size="sm"
+          variant={trustMode === 'all' ? 'signal' : 'line'}
+          onClick={() => setTrustMode('all')}
+        >
+          {m.scriptTrustAll}
+        </Btn>
+        <Btn
+          size="sm"
+          variant={trustMode === 'signed' ? 'signal' : 'line'}
+          onClick={() => setTrustMode('signed')}
+        >
+          {m.scriptTrustSigned}
+        </Btn>
+        <span className="ml-auto font-mono text-[10px] text-[var(--arc-ink-3)]">{signatureLabel}</span>
+        {fingerprint && (
+          <span className="font-mono text-[9.5px] text-[var(--arc-ink-4)]">
+            {fillTemplate(m.scriptSigFingerprint, { fp: fingerprint })}
+          </span>
+        )}
+        {fingerprint && signature?.status === 'valid' && !keyIsTrusted && (
+          <Btn size="sm" variant="line" onClick={() => trustKey(fingerprint)}>
+            {m.scriptTrustKey}
+          </Btn>
+        )}
+        {keyIsTrusted && (
+          <span className="font-mono text-[9.5px] text-[var(--arc-vital)]">{m.scriptTrustedKey}</span>
+        )}
+        <span className="w-full font-mono text-[9.5px] text-[var(--arc-ink-4)]">{m.scriptTrustHint}</span>
+      </div>
+
       {/* 01 hook */}
       <SectionHead no="01" title={m.scriptHooksTitle} hint={m.scriptHooksHint} />
       <div className="grid grid-cols-2 gap-1.5 md:grid-cols-4">
@@ -168,12 +242,11 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
         title={m.scriptCodeTitle}
         hint={fillTemplate(m.scriptCodeHint, { lines: String(lineCount), max: String(MOD_SCRIPT_LIMITS.maxCodeLength) })}
       />
-      <textarea
+      <ScriptCodeEditor
         value={script.code}
-        onChange={(e) => onChange({ ...script, code: e.target.value })}
-        spellCheck={false}
-        className="h-64 w-full resize-y border border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] p-2.5 font-mono text-[11.5px] leading-relaxed text-[var(--arc-ink)] outline-hidden focus:border-[var(--arc-line)]"
+        onChange={(code) => onChange({ ...script, code })}
         placeholder={m.scriptCodePh}
+        hint={m.scriptAutocompleteHint}
       />
 
       <div className="flex flex-wrap items-center gap-3">
@@ -196,6 +269,9 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
           />
           <span className="text-[10px] text-[var(--arc-ink-4)]">{m.scriptThrottleHint}</span>
         </label>
+        <Btn size="sm" variant="ghost" onClick={() => clearScriptState(script.id)}>
+          {fillTemplate(m.scriptClearState, { count: String(stateKeys) })}
+        </Btn>
         <span
           className={`ml-auto font-mono text-[10.5px] ${
             syntaxError ? 'text-[var(--arc-alert)]' : 'text-[var(--arc-vital)]'
