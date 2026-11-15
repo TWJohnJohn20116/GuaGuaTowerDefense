@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { DEFAULT_THEME_ID, isThemeId, type ThemeId } from '@/data/themeData';
 
 type VisualSettingKey = 'animationsEnabled' | 'showTowerRange' | 'screenShake' | 'showDamageNumbers' | 'showHealthBars' | 'bloomEnabled';
 type ShadowQuality = 'off' | 'low' | 'medium' | 'high';
@@ -140,6 +141,10 @@ export interface SettingsState {
     zoomSpeed: number;
   };
   hudLayout: HudLayoutState;
+  /** 主題色：只存 id，色票本身在 src/data/themeData.ts */
+  themeId: ThemeId;
+  /** 切換主題（實際套用由 App 的 effect 呼叫 themeService） */
+  setTheme: (id: ThemeId) => void;
   toggleVisual: (key: VisualSettingKey) => void;
   toggleGameplay: (key: GameplaySettingKey) => void;
   toggleAudio: (key: AudioSettingKey) => void;
@@ -187,12 +192,17 @@ const defaultState = {
     zoomSpeed: 1,
   },
   hudLayout: { ...DEFAULT_HUD_LAYOUT },
+  themeId: DEFAULT_THEME_ID as ThemeId,
 };
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
       ...defaultState,
+      setTheme: (id) =>
+        set(() => ({
+          themeId: isThemeId(id) ? id : DEFAULT_THEME_ID,
+        })),
       toggleVisual: (key) =>
         set((state) => ({
           visual: { ...state.visual, [key]: !state.visual[key] },
@@ -240,6 +250,7 @@ export const useSettingsStore = create<SettingsState>()(
           audio: { ...defaultState.audio },
           controls: { ...defaultState.controls },
           hudLayout: { ...DEFAULT_HUD_LAYOUT },
+          themeId: DEFAULT_THEME_ID,
         })),
     }),
     {
@@ -250,6 +261,7 @@ export const useSettingsStore = create<SettingsState>()(
         audio: state.audio,
         controls: state.controls,
         hudLayout: state.hudLayout,
+        themeId: state.themeId,
       }),
       merge: (persistedState, currentState) => {
         const persisted = (persistedState ?? {}) as Partial<SettingsState>;
@@ -260,6 +272,7 @@ export const useSettingsStore = create<SettingsState>()(
           audio: { ...defaultState.audio, ...(persisted.audio || {}) },
           controls: { ...defaultState.controls, ...(persisted.controls || {}) },
           hudLayout: { ...DEFAULT_HUD_LAYOUT, ...(persisted.hudLayout || {}) },
+          themeId: isThemeId(persisted.themeId) ? persisted.themeId : DEFAULT_THEME_ID,
         };
       },
     }

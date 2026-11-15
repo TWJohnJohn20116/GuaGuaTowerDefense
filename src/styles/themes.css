@@ -1,0 +1,109 @@
+/* ============================================================================
+   主題層
+   ----------------------------------------------------------------------------
+   1. 12 套色票只在 src/data/themeData.ts 定義，由 themeService 寫成 html 行內變數。
+      這裡只補「色票以外」的東西：文字角色別名、深色模式結構覆寫、切換過場。
+   2. 顏色角色（改色票時請一起看）：
+      - --cn-coral*   強調區：primary 填色／邊框、deep 深填色、soft 淺徽章底
+      - --cn-accent-text 強調色**文字**（深色主題不可用 deep，會變看不見）
+      - --cn-cta / --cn-on-cta 主要行動按鈕（12 套都驗過 ≥ 4.5:1）
+      - --cn-*-text   語意色**文字**（vital／alarm／caution／reach／signal）
+      - --cn-fill-*   語意色**填色**（配 --cn-on-fill 白字）
+   ========================================================================= */
+
+:root {
+  /* 預設（珊瑚糖）：JS 尚未套用前就靠這組，避免首屏閃一下別的顏色 */
+  --cn-accent-text: var(--cn-coral-deep);
+  --cn-cta: var(--cn-coral-deep);
+  --cn-on-cta: #ffffff;
+
+  --cn-signal-text: var(--cn-coral-deep);
+  --cn-vital-text: #0b7d52;
+  --cn-alarm-text: #b3243f;
+  --cn-caution-text: #7a6300;
+  --cn-reach-text: #5a2fc0;
+
+  --cn-fill-success: #0b7d52;
+  --cn-fill-sky: #1b6ea8;
+  --cn-fill-danger: #b3243f;
+  --cn-fill-grape: #5a2fc0;
+  --cn-fill-accent: #8a6400;
+  --cn-on-fill: #ffffff;
+
+  --cn-glow-1: rgba(255, 107, 74, 0.13);
+  --cn-glow-2: rgba(155, 107, 255, 0.12);
+  --cn-glow-3: rgba(61, 165, 255, 0.12);
+  --cn-dot: rgba(46, 36, 64, 0.055);
+}
+
+/* --------------------------------------------------------------------------
+   深色模式（墨夜／深海）
+   語意色在深底上要「變亮」才看得到；但填色按鈕仍要深到能壓白字，所以分開。
+   -------------------------------------------------------------------------- */
+[data-theme-mode='dark'] {
+  --cn-mint-deep: #4ade80;
+  --cn-sky-deep: #7cc6ff;
+  --cn-sun-deep: #ffd93d;
+  --cn-grape-deep: #c4a6ff;
+  --cn-alert-deep: #ff8fa3;
+
+  --cn-signal-text: var(--cn-accent-text);
+  --cn-vital-text: #4ade80;
+  --cn-alarm-text: #ff8fa3;
+  --cn-caution-text: #ffd93d;
+  --cn-reach-text: #c4a6ff;
+
+  /* 淺階底色改成「強調色 22% + 卡片色」，深底上才有層次又不刺眼 */
+  --cn-coral-soft: color-mix(in oklab, var(--cn-coral) 24%, var(--cn-card));
+  --cn-mint-soft: color-mix(in oklab, var(--cn-mint) 22%, var(--cn-card));
+  --cn-sky-soft: color-mix(in oklab, var(--cn-sky) 22%, var(--cn-card));
+  --cn-sun-soft: color-mix(in oklab, var(--cn-sun) 22%, var(--cn-card));
+  --cn-grape-soft: color-mix(in oklab, var(--cn-grape) 22%, var(--cn-card));
+  --cn-alert-soft: color-mix(in oklab, var(--cn-alert) 22%, var(--cn-card));
+
+  /* 貼紙投影改成純黑，深底上亮色投影會像發光 */
+  --cn-pop: 0 6px 0 #08060f;
+  --cn-pop-sm: 0 4px 0 #08060f;
+  --cn-pop-soft: 0 8px 0 -2px rgba(0, 0, 0, 0.55);
+  --cn-soft: 0 16px 32px -16px rgba(0, 0, 0, 0.85);
+
+  color-scheme: dark;
+}
+
+[data-theme-mode='dark'] ::selection {
+  background: var(--cn-coral);
+  color: var(--cn-on-cta);
+}
+
+[data-theme-mode='dark'] ::-webkit-scrollbar-track {
+  background: var(--cn-card-2);
+}
+
+[data-theme-mode='dark'] ::-webkit-scrollbar-thumb {
+  background: var(--cn-line-mid);
+  border-color: var(--cn-card-2);
+}
+
+/* --------------------------------------------------------------------------
+   切換過場：200ms 內只對顏色過渡，不動 transform（避免版面閃動）
+   -------------------------------------------------------------------------- */
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition:
+    background-color 180ms var(--cn-ease-out),
+    border-color 180ms var(--cn-ease-out),
+    color 180ms var(--cn-ease-out),
+    box-shadow 180ms var(--cn-ease-out) !important;
+  transition-delay: 0s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition: none !important;
+  }
+}

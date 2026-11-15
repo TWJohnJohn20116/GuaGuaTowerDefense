@@ -6,6 +6,7 @@ import { useDevStore } from '@/store/devStore';
 import { useSkinStore } from '@/store/skinStore';
 import { useAchievementStore } from '@/store/achievementStore';
 import { ALL_SKINS } from '@/data/skinData';
+import { applyTheme } from '@/services/themeService';
 import { getDefaultSkinId } from '@/data/skinData';
 import { initAudio } from '@/services/audioService';
 import { initMusic, syncMusic } from '@/services/musicService';
@@ -79,11 +80,17 @@ function App() {
   const scene = useGameStore((state) => state.scene);
   const isPaused = useGameStore((state) => state.isPaused);
   const animationsEnabled = useSettingsStore((s) => s.visual.animationsEnabled);
+  const themeId = useSettingsStore((s) => s.themeId);
   const testScene = useDevStore((state) => state.testScene);
 
   useEffect(() => {
     document.documentElement.classList.toggle('no-anim', !animationsEnabled);
   }, [animationsEnabled]);
+
+  // 主題唯一的 DOM 寫入點（色票 → html 行內 CSS 變數 + data-theme-mode）
+  useEffect(() => {
+    applyTheme(themeId);
+  }, [themeId]);
 
   // 開發用：?scene=xxx 或 #<scene> 直接跳場景（僅 dev 生效）
   //

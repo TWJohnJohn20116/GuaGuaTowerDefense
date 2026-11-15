@@ -34,7 +34,7 @@
   --cn-coral-deep: #d2401f;
   --cn-coral-soft: #ffe3db;
   --cn-mint: #23c98b;
-  --cn-mint-deep: #0e8f5f;
+  --cn-mint-deep: #0b7d52;
   --cn-mint-soft: #d8f8ec;
   --cn-sky: #3da5ff;
   --cn-sky-deep: #1b72c4;
@@ -131,10 +131,10 @@
   /* 奶油紙底：大顆柔色斑 + 細點紋，沒有網格也沒有掃描線 */
   body {
     background-image:
-      radial-gradient(38rem 30rem at 8% 0%, rgba(255, 107, 74, 0.13), transparent 62%),
-      radial-gradient(34rem 28rem at 96% 6%, rgba(155, 107, 255, 0.12), transparent 60%),
-      radial-gradient(44rem 34rem at 52% 108%, rgba(61, 165, 255, 0.12), transparent 64%),
-      radial-gradient(rgba(46, 36, 64, 0.055) 1.2px, transparent 1.2px);
+      radial-gradient(38rem 30rem at 8% 0%, var(--cn-glow-1), transparent 62%),
+      radial-gradient(34rem 28rem at 96% 6%, var(--cn-glow-2), transparent 60%),
+      radial-gradient(44rem 34rem at 52% 108%, var(--cn-glow-3), transparent 64%),
+      radial-gradient(var(--cn-dot) 1.2px, transparent 1.2px);
     background-size: auto, auto, auto, 22px 22px;
     background-attachment: fixed;
   }
@@ -336,33 +336,34 @@
     filter: saturate(0.5);
   }
 
+  /* 主按鈕吃 --cn-cta / --cn-on-cta：12 套主題都驗過 ≥ 4.5:1（原本白字壓 #ff6b4a 只有 2.82） */
   .arc-btn--gold,
   .btn-primary {
-    background: var(--cn-coral);
+    background: var(--cn-cta);
     border-color: var(--cn-line);
-    color: #fff;
-    box-shadow: 0 4px 0 var(--cn-coral-deep);
+    color: var(--cn-on-cta);
+    box-shadow: 0 4px 0 color-mix(in oklab, var(--cn-cta) 70%, #000);
   }
   .arc-btn--gold:hover:not(:disabled),
   .btn-primary:hover:not(:disabled) {
-    background: #ff7d60;
-    box-shadow: 0 6px 0 var(--cn-coral-deep);
+    background: color-mix(in oklab, var(--cn-cta) 86%, #fff);
+    box-shadow: 0 6px 0 color-mix(in oklab, var(--cn-cta) 70%, #000);
   }
   .arc-btn--gold:active:not(:disabled),
   .btn-primary:active:not(:disabled) {
-    box-shadow: 0 0 0 var(--cn-coral-deep);
+    box-shadow: 0 0 0 color-mix(in oklab, var(--cn-cta) 70%, #000);
   }
 
   .arc-btn--cyan {
-    background: var(--cn-sky);
-    color: #fff;
-    box-shadow: 0 4px 0 var(--cn-sky-deep);
+    background: var(--cn-fill-sky);
+    color: var(--cn-on-fill);
+    box-shadow: 0 4px 0 color-mix(in oklab, var(--cn-fill-sky) 70%, #000);
   }
 
   .arc-btn--accent2 {
-    background: var(--cn-grape);
-    color: #fff;
-    box-shadow: 0 4px 0 var(--cn-grape-deep);
+    background: var(--cn-fill-grape);
+    color: var(--cn-on-fill);
+    box-shadow: 0 4px 0 color-mix(in oklab, var(--cn-fill-grape) 70%, #000);
   }
 
   .arc-btn--ghost {
@@ -385,25 +386,25 @@
 
   .arc-btn--danger,
   .btn-danger {
-    background: var(--cn-alert);
-    color: #fff;
-    box-shadow: 0 4px 0 var(--cn-alert-deep);
+    background: var(--cn-fill-danger);
+    color: var(--cn-on-fill);
+    box-shadow: 0 4px 0 color-mix(in oklab, var(--cn-fill-danger) 70%, #000);
   }
   .arc-btn--danger:active:not(:disabled),
   .btn-danger:active:not(:disabled) {
-    box-shadow: 0 0 0 var(--cn-alert-deep);
+    box-shadow: 0 0 0 color-mix(in oklab, var(--cn-fill-danger) 70%, #000);
   }
 
   .btn-success {
-    background: var(--cn-mint);
-    color: #fff;
-    box-shadow: 0 4px 0 var(--cn-mint-deep);
+    background: var(--cn-fill-success);
+    color: var(--cn-on-fill);
+    box-shadow: 0 4px 0 color-mix(in oklab, var(--cn-fill-success) 70%, #000);
   }
 
   .btn-accent {
     background: var(--cn-sun);
     color: var(--cn-ink);
-    box-shadow: 0 4px 0 var(--cn-sun-deep);
+    box-shadow: 0 4px 0 color-mix(in oklab, var(--cn-sun) 55%, #000);
   }
 
   /* ------------------------------ chip ------------------------------- */
