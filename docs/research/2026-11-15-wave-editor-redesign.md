@@ -98,6 +98,30 @@ hpScale_i = clamp(target_i / (count_i × baseHealth), 0.05, 20)
 真正跑一局要接 `playtest/simulator`（會註冊波次組、接管虛擬時鐘、吃掉數秒），
 不適合放在拖曳即時回饋的路徑上，所以編輯器內用估算、需要真數據時走「試玩」頁。
 
+## 視覺驗證（§13.10）
+
+用 `node scripts/visual-check.mjs --scenes=workshop --js-file=...` 開範本專案 → 生成 15 波 → 選第 1 波，
+逐張看圖。三輪結果：
+
+| 場景 | 尺寸 | 警告 | 判定 | 問題／備註 |
+|---|---|---|---|---|
+| workshop（檢視器） | 1600x900 | occlusion 10 · truncated 1 | 問題→已修 | 左欄批次區被 flex 壓縮後溢出蓋住清單列；清單摘要 162px 塞不進 150px 而換行 |
+| workshop（檢視器，修後） | 1600x900 | occlusion 10 · truncated 1 | OK | 剩下的是「已捲出視口、被 overflow-y-auto 裁掉」的列，幾何上落在頁腳底下但看不到 |
+| workshop（分析） | 1600x900 | occlusion 6 · truncated 1 | OK | 起始金幣 300／塔價 150／收入折扣 0.8 曾被 spinner 切成 30€／15€／0.€，已修 |
+
+修掉的真問題：
+
+1. 公式預設敵人 `grunt` 不存在 → 生成的 15 波全部是「未知敵人」，HP 與獎勵皆 0（改 `normal`）。
+2. 左欄工具列／批次區沒有 `shrink-0`，被壓縮後子元素溢出蓋住清單。
+3. 時間軸沒有 `flex-1`，軌道只有 68px 高、下面留一大片空白。
+4. 數字輸入的瀏覽器 spinner 吃掉寬度，四位數被截掉最後一位。
+
+判定為噪聲的：
+
+- `truncated 1`：頂部「創意工坊」標題（改動前就存在，不是本次造成）。
+- `external 1` / `console 1`：GitHub releases API 403（dev 環境限流，已知）。
+- `occlusion` 殘項：清單捲出視口的列，被 `overflow-y-auto` 裁掉、視覺上不可見。
+
 ## 沒做的部分（誠實列出）
 
 - **沒有寫測試**：本次依指示只做實作與文件；`waveModel`/`waveAnalysis` 的純函式很適合補一組
