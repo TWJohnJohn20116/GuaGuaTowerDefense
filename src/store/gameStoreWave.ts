@@ -124,7 +124,9 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
       set(inPlaytest
         ? { health: 0, isGameOver: true, isPlaying: false, isPaused: false }
         : { health: 0, isGameOver: true, isPlaying: false, isPaused: false, scene: 'gameOver' });
-      if (!inPlaytest) notifyModScripts('onGameOver');
+      // 腳本事件不受試玩隔離：試玩的目的就是驗規則，
+      // 失敗規則若在試玩時不觸發，作者永遠測不到（場景切換仍然隔離）
+      notifyModScripts('onGameOver');
       playGameOver(); // 失敗音
     } else {
       set({ health: newHealth });
