@@ -881,7 +881,7 @@ export const pt: DeepPartial<Translations> = {
     clearSearch: 'Limpar busca',
     emptySearchHint: 'Nenhuma configuracao encontrada para "{search}"',
     general: 'Geral',
-    theme: 'Tema',
+    theme: { title: 'Cores do tema' },
     audio: 'Audio',
     controls: 'Controles',
     sound: 'Som',

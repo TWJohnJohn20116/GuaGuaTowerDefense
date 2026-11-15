@@ -893,7 +893,7 @@ export const ja: DeepPartial<Translations> = {
     clearSearch: '検索をクリア',
     emptySearchHint: '「{search}」に一致する設定なし',
     general: '一般',
-    theme: 'テーマ',
+    theme: { title: 'テーマカラー' },
     audio: '音声',
     controls: '操作',
     sound: '音效',

@@ -882,7 +882,7 @@ export const zhCN: DeepPartial<Translations> = {
     clearSearch: '清除搜索',
     emptySearchHint: '找不到「{search}」相关设置',
     general: '一般',
-    theme: '主题',
+    theme: { title: '主题色' },
     audio: '音效',
     controls: '控制',
     sound: '音效',

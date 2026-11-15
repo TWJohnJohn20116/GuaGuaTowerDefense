@@ -899,7 +899,7 @@ export const en: DeepPartial<Translations> = {
     clearSearch: 'Clear search',
     emptySearchHint: 'No settings found for "{search}"',
     general: 'General',
-    theme: 'Theme',
+    theme: { title: 'Theme colors' },
     audio: 'Audio',
     controls: 'Controls',
     sound: 'Sound',

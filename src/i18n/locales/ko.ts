@@ -883,7 +883,7 @@ export const ko: DeepPartial<Translations> = {
     clearSearch: '검색 지우기',
     emptySearchHint: '"{search}"에 해당하는 설정을 찾을 수 없습니다',
     general: '일반',
-    theme: '테마',
+    theme: { title: '테마 색상' },
     audio: '오디오',
     controls: '조작',
     sound: '효과음',

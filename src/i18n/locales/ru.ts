@@ -883,7 +883,7 @@ export const ru: DeepPartial<Translations> = {
     clearSearch: 'Очистить поиск',
     emptySearchHint: 'Настройки для "{search}" не найдены',
     general: 'Общие',
-    theme: 'Тема',
+    theme: { title: 'Цвета темы' },
     audio: 'Аудио',
     controls: 'Управление',
     sound: 'Звук',

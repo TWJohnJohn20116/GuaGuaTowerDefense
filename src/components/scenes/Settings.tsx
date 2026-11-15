@@ -21,11 +21,12 @@ import { Btn, Empty, IconBtn, Input, Rail, TopBar } from '@/components/hl';
 import {
   GearIcon, SpeakerIcon, GamepadIcon, SparklesIcon, SearchIcon, MonitorIcon,
   PauseIcon, PointerIcon, LightningIcon, WaveIcon, CoinIcon,
-  UpArrowIcon, RefreshIcon, CheckIcon, CrossIcon, WarningIcon,
+  UpArrowIcon, RefreshIcon, CheckIcon, CrossIcon, WarningIcon, PaletteIcon,
 } from '@/components/ui/Icons';
 import { isSettingsTypingTarget, resolveSettingsEscape } from '@/data/settingsBack';
 import { shouldApplyQuickPlaceDefaultSync } from '@/data/quickPlaceSync';
 import { GeneralSection } from './settings/sections/GeneralSection';
+import { ThemeSection } from './settings/sections/ThemeSection';
 import { SettingsBackupPanel } from './settings/SettingsBackupPanel';
 import { AudioSection } from './settings/sections/AudioSection';
 import { ControlsSection } from './settings/sections/ControlsSection';
@@ -33,7 +34,7 @@ import { HudLayoutSection } from './settings/sections/HudLayoutSection';
 import { KeyBindingOverlay } from './settings/KeyBindingOverlay';
 import AboutTab from './settings/AboutTab';
 
-type SettingsNavId = 'general' | 'hud' | 'audio' | 'controls' | 'about';
+type SettingsNavId = 'general' | 'theme' | 'hud' | 'audio' | 'controls' | 'about';
 
 interface NavItem {
   id: SettingsNavId;
@@ -88,6 +89,7 @@ export default function Settings() {
   const navs: NavItem[] = useMemo(
     () => [
       { id: 'general', label: t.settings.general, desc: t.settings.navDesc.general, icon: <GearIcon className="h-4 w-4" /> },
+      { id: 'theme', label: t.settings.theme.title, desc: t.settings.navDesc.theme, icon: <PaletteIcon className="h-4 w-4" /> },
       { id: 'hud', label: t.settings.hud.navLabel, desc: t.settings.navDesc.hud, icon: <MonitorIcon className="h-4 w-4" /> },
       { id: 'audio', label: t.settings.audio, desc: t.settings.navDesc.audio, icon: <SpeakerIcon className="h-4 w-4" /> },
       { id: 'controls', label: t.settings.controls, desc: t.settings.navDesc.controls, icon: <GamepadIcon className="h-4 w-4" /> },
@@ -163,6 +165,7 @@ export default function Settings() {
                     {!searching && <SettingsBackupPanel />}
                   </>
                 )}
+                {show('theme') && <ThemeSection filter={filter} />}
                 {show('hud') && <HudLayoutSection filter={filter} />}
                 {show('audio') && <AudioSection filter={filter} />}
                 {show('controls') && (
@@ -364,7 +367,7 @@ function EmptySearchHint({ search, onClear }: { search: string; onClear: () => v
       title={
         <span className="text-[14px]">
           {before}
-          <span className="text-[var(--cn-coral-deep)]">{search}</span>
+          <span className="text-[var(--cn-signal-text)]">{search}</span>
           {after}
         </span>
       }
