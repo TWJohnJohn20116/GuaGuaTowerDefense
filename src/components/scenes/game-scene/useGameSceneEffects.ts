@@ -103,7 +103,7 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
   const confirmSell = useSettingsStore((s) => s.gameplay.confirmSell);
 
   // ===== Refs =====
-  const spawnQueueRef = useRef<{ type: string; delay: number }[]>([]);
+  const spawnQueueRef = useRef<{ type: string; delay: number; hpScale: number }[]>([]);
   // 使用「遊戲時間」累計器(ms)，受 gameSpeed 影響；非 Date.now() 真實時間
   const spawnElapsedRef = useRef(0);
   /** onTick 的最後派發時間（遊戲時間），避免每幀都叫醒 worker */
@@ -338,6 +338,9 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
     type WaveItem = { type: string; count: number; delay?: number };
     let waveConfig: { enemies: WaveItem[] } | null = null;
     let useCustomDelay = false;
+    // 工坊波次的自訂生成參數：組內間隔與血量倍率，缺省＝全域常數／1
+    let waveIntervalMs = GAME_CONSTANTS.ENEMY_SPAWN_DELAY;
+    let waveHpScale = 1;
     
     if (useTutorialStore.getState().isActive && currentWave === 1) {
       waveConfig = { enemies: [{ type: 'normal', count: 3 }] };
@@ -347,6 +350,8 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
         const w = waveSet.waves[currentWave - 1];
         waveConfig = { enemies: w.enemies };
         useCustomDelay = true;
+        if (typeof w.intervalMs === 'number' && w.intervalMs > 0) waveIntervalMs = w.intervalMs;
+        if (typeof w.hpScale === 'number' && w.hpScale > 0) waveHpScale = w.hpScale;
       }
     } else if (endlessMode && endlessWaveConfig) {
       waveConfig = endlessWaveConfig;
@@ -357,7 +362,7 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
     
     if (!waveConfig) return;
 
-    const queue: { type: string; delay: number }[] = [];
+    const queue: { type: string; delay: number; hpScale: number }[] = [];
     let delay = 0;
     
     waveConfig.enemies.forEach((enemyConfig) => {
@@ -366,8 +371,8 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
         delay += enemyConfig.delay;
       }
       for (let i = 0; i < enemyConfig.count; i++) {
-        queue.push({ type: enemyConfig.type, delay });
-        delay += GAME_CONSTANTS.ENEMY_SPAWN_DELAY;
+        queue.push({ type: enemyConfig.type, delay, hpScale: waveHpScale });
+        delay += waveIntervalMs;
       }
     });
 
@@ -405,7 +410,7 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
           spawnElapsedRef.current >= spawnQueueRef.current[0].delay
         ) {
           const spawn = spawnQueueRef.current.shift()!;
-          spawnEnemy(spawn.type);
+          spawnEnemy(spawn.type, spawn.hpScale);
         }
 
         const s = useGameStore.getState();

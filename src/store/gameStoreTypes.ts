@@ -264,7 +264,8 @@ export interface GameStore {
   takeDamage: (amount: number) => void;
   
   // 游戏循环更新
-  spawnEnemy: (type: string) => void;
+  /** hpScale：波次血量倍率（缺省 1），乘在敵人基礎血量上 */
+  spawnEnemy: (type: string, hpScale?: number) => void;
   updateEnemies: (deltaTime: number, tileSize: number) => void;
   updateTowers: (deltaTime: number) => void;
   updateProjectiles: (deltaTime: number) => void;

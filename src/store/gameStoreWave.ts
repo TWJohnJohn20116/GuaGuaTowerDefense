@@ -202,7 +202,7 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
     return true;
   },
 
-  spawnEnemy: (type: string) => {
+  spawnEnemy: (type: string, hpScale = 1) => {
     const { enemies, selectedPath, difficultyModifiers, activeProtocol, currentWave } = get();
     const path = PATHS[selectedPath];
     // 自訂敵人：用 mod id 解析資料，type 映回內建基底（沿用引擎能力分支）
@@ -213,8 +213,9 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
       ? (requestedType as EnemyType)
       : inferEnemyBaseType(enemyData);
     
-    // 應用難度修飾器
-    const modifiedHealth = Math.round(enemyData.health * difficultyModifiers.enemyHealthMult);
+    // 應用難度修飾器；波次血量倍率（hpScale）疊在難度之後，兩者相乘才是實際血量
+    const waveScale = Number.isFinite(hpScale) && hpScale > 0 ? hpScale : 1;
+    const modifiedHealth = Math.round(enemyData.health * difficultyModifiers.enemyHealthMult * waveScale);
     const modifiedSpeed = enemyData.speed * difficultyModifiers.enemySpeedMult;
     const modifiedReward = Math.round(enemyData.reward * difficultyModifiers.enemyRewardMult);
 
