@@ -108,10 +108,13 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
 
   // 切換關卡 / 專案時把草稿換成該關卡的內容（draft 是編輯草稿，不是世界狀態，用 state 是刻意的）
   useEffect(() => {
+    draftRef.current = seed;
     setDraft(seed);
     setSelectedWaypoint(null);
     setSelectedTowerId(null);
     setSaveState(level ? 'idle' : 'scratch');
+    historyRef.current = [];
+    futureRef.current = [];
   }, [seed, level]);
 
   const noticeTimer = useRef<number>(0);
@@ -148,15 +151,67 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
     [s],
   );
 
-  /** 所有草稿操作都走這裡：被拒絕時保留原草稿，只把原因顯示出來 */
+  const draftRef = useRef<MapDraft>(draft);
+  const historyRef = useRef<MapDraft[]>([]);
+  const futureRef = useRef<MapDraft[]>([]);
+  const [historyVersion, setHistoryVersion] = useState(0);
+
+  useEffect(() => {
+    draftRef.current = draft;
+  }, [draft]);
+
+  /**
+   * 所有草稿操作都走這裡：被拒絕時保留原草稿，只把原因顯示出來。
+   * 成功的操作推一格歷史（上限 60），redo 堆疊清空。
+   */
   const applyOp = useCallback((op: (current: MapDraft) => DraftOpResult) => {
-    setDraft((current) => {
-      const result = op(current);
-      if (result.changed) return result.draft;
+    const current = draftRef.current;
+    const result = op(current);
+    if (!result.changed) {
       if (result.issue) setNotice(result.issue.code);
-      return current;
-    });
+      return;
+    }
+    historyRef.current.push(current);
+    if (historyRef.current.length > 60) historyRef.current.shift();
+    futureRef.current = [];
+    draftRef.current = result.draft;
+    setDraft(result.draft);
+    setHistoryVersion((value) => value + 1);
   }, []);
+
+  const undo = useCallback(() => {
+    const previous = historyRef.current.pop();
+    if (!previous) return;
+    futureRef.current.push(draftRef.current);
+    draftRef.current = previous;
+    setDraft(previous);
+    setHistoryVersion((value) => value + 1);
+  }, []);
+
+  const redo = useCallback(() => {
+    const next = futureRef.current.pop();
+    if (!next) return;
+    historyRef.current.push(draftRef.current);
+    draftRef.current = next;
+    setDraft(next);
+    setHistoryVersion((value) => value + 1);
+  }, []);
+
+  const canUndo = historyVersion >= 0 ? historyRef.current.length > 0 : false;
+  const canRedo = historyVersion >= 0 ? futureRef.current.length > 0 : false;
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent): void => {
+      const target = event.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'z') return;
+      event.preventDefault();
+      if (event.shiftKey) redo();
+      else undo();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [undo, redo]);
 
   const handleAddWaypoint = useCallback(
     (point: GridPoint) => {
@@ -386,6 +441,10 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
       />
 
       <MapToolbar
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={undo}
+        onRedo={redo}
         tool={tool}
         onToolChange={setTool}
         showGrid={showGrid}

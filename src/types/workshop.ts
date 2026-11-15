@@ -275,6 +275,8 @@ export interface WorkshopLevel {
   winConditions: WinCondition;
   /** 關卡覆寫專案層規則表；內容由編譯器的型別守衛解析（不合形狀＝忽略並 warning） */
   ruleOverrides?: unknown[];
+  /** 戰役順序：要在哪一關之後才解鎖（null／缺省＝一開始就能玩） */
+  requiresLevelId?: string | null;
   startingResources?: WorkshopStartingResources;
   /** 指向本關要用的規則集（缺省／null＝沿用專案層） */
   ruleSetRef?: AssetRef | null;

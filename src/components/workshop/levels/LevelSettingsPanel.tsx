@@ -44,6 +44,7 @@ export function LevelSettingsPanel({ projectId, levelId }: LevelSettingsPanelPro
   const level = useWorkshopStore((state) => state.getLevel(projectId, levelId));
   const updateLevel = useWorkshopStore((state) => state.updateLevel);
   const listAssets = useWorkshopStore((state) => state.listAssets);
+  const project = useWorkshopStore((state) => state.getProject(projectId));
   const towerAssets = listAssets('tower');
   const ruleSetAssets = listAssets('ruleSet');
 
@@ -80,6 +81,20 @@ export function LevelSettingsPanel({ projectId, levelId }: LevelSettingsPanelPro
           <Input value={level.description ?? ''} onChange={(event) => patch({ description: event.target.value })} className="h-7 w-full px-1.5 text-[11.5px]" />
         </label>
       </div>
+
+      <SegHead label={s.unlockAfter} />
+      <select
+        value={level.requiresLevelId ?? ''}
+        onChange={(event) => patch({ requiresLevelId: event.target.value || null })}
+        className="h-7 w-full border border-[var(--cn-line)] bg-[var(--cn-card)] px-1.5 font-mono text-[11.5px] text-[var(--cn-ink)]"
+      >
+        <option value="">{s.noneUnlock}</option>
+        {(project?.levels ?? [])
+          .filter((item) => item.id !== level.id)
+          .map((item) => (
+            <option key={item.id} value={item.id}>{item.name}</option>
+          ))}
+      </select>
 
       <SegHead label={s.winConditions} />
       <div className="flex flex-col">

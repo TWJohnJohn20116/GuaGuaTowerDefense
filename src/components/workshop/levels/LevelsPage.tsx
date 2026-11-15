@@ -22,6 +22,7 @@ export function LevelsPage({ projectId }: LevelsPageProps) {
   const project = useWorkshopStore((state) => state.getProject(projectId));
   const addLevel = useWorkshopStore((state) => state.addLevel);
   const deleteLevel = useWorkshopStore((state) => state.deleteLevel);
+  const updateProject = useWorkshopStore((state) => state.updateProject);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState<LevelTab>('map');
 
@@ -90,11 +91,40 @@ export function LevelsPage({ projectId }: LevelsPageProps) {
             {s.tabSettings}
           </Btn>
           {selectedId && (
+            <span className="ml-auto flex items-center gap-1">
+              <Btn
+                size="sm"
+                variant="line"
+                onClick={() => {
+                  const index = levels.findIndex((level) => level.id === selectedId);
+                  if (index <= 0) return;
+                  const next = [...levels];
+                  [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                  updateProject(projectId, { levels: next });
+                }}
+              >
+                {s.moveUp}
+              </Btn>
+              <Btn
+                size="sm"
+                variant="line"
+                onClick={() => {
+                  const index = levels.findIndex((level) => level.id === selectedId);
+                  if (index < 0 || index >= levels.length - 1) return;
+                  const next = [...levels];
+                  [next[index + 1], next[index]] = [next[index], next[index + 1]];
+                  updateProject(projectId, { levels: next });
+                }}
+              >
+                {s.moveDown}
+              </Btn>
+            </span>
+          )}
+          {selectedId && (
             <Btn
               size="sm"
               variant="ghost"
               icon={<TrashIcon className="h-3.5 w-3.5" />}
-              className="ml-auto"
               onClick={() => {
                 if (!window.confirm(t.studio.common.confirmDelete)) return;
                 deleteLevel(projectId, selectedId);

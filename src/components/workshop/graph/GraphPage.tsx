@@ -7,7 +7,7 @@
  *
  * 作用域：專案層與關卡層各有一份圖；關卡層＝該關卡 scriptRefs 指向的腳本模組。
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type React from 'react';
 import { useTranslation } from '@/i18n';
 import { useWorkshopStore } from '@/store/workshopStore';
@@ -112,6 +112,8 @@ export function GraphPage({ projectId, levelId }: GraphPageProps): React.ReactEl
   useEffect(() => {
     setGraph(inheritsProjectGraph ? projectGraph : storedGraph);
     setBoundAssetId(scopeRefId);
+    historyRef.current = [];
+    futureRef.current = [];
   }, [projectId, scope, resolvedLevelId, scopeRefId, inheritsProjectGraph, projectGraph]);
 
   useEffect(() => {
@@ -127,8 +129,8 @@ export function GraphPage({ projectId, levelId }: GraphPageProps): React.ReactEl
       ? studioText(t, 'studio.graph.asset.levelRules')
       : studioText(t, 'studio.graph.asset.projectRules');
 
-  const applyGraph = (next: RuleGraph): void => {
-    setGraph(next);
+  /** 只負責把圖寫回 store（不碰歷史，undo/redo 也用它） */
+  const persistGraph = (next: RuleGraph): void => {
     const state = useWorkshopStore.getState();
     let targetId = boundAssetId;
     if (!targetId) {
@@ -158,6 +160,61 @@ export function GraphPage({ projectId, levelId }: GraphPageProps): React.ReactEl
       enabled: current.data.enabled ?? true,
     };
     useWorkshopStore.getState().upsertAsset({ ...current, data, updatedAt: Date.now() });
+  };
+
+  const historyRef = useRef<RuleGraph[]>([]);
+  const futureRef = useRef<RuleGraph[]>([]);
+  const graphRef = useRef(graph);
+  const [historyVersion, setHistoryVersion] = useState(0);
+
+  useEffect(() => {
+    graphRef.current = graph;
+  }, [graph]);
+
+  const applyGraph = (next: RuleGraph): void => {
+    historyRef.current.push(graphRef.current);
+    if (historyRef.current.length > 60) historyRef.current.shift();
+    futureRef.current = [];
+    graphRef.current = next;
+    setGraph(next);
+    setHistoryVersion((value) => value + 1);
+    persistGraph(next);
+  };
+
+  const undo = (): void => {
+    const previous = historyRef.current.pop();
+    if (!previous) return;
+    futureRef.current.push(graphRef.current);
+    graphRef.current = previous;
+    setGraph(previous);
+    setHistoryVersion((value) => value + 1);
+    persistGraph(previous);
+  };
+
+  const canUndo = historyVersion >= 0 ? historyRef.current.length > 0 : false;
+  const canRedo = historyVersion >= 0 ? futureRef.current.length > 0 : false;
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent): void => {
+      const target = event.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'z') return;
+      event.preventDefault();
+      if (event.shiftKey) redo();
+      else undo();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
+  const redo = (): void => {
+    const next = futureRef.current.pop();
+    if (!next) return;
+    historyRef.current.push(graphRef.current);
+    graphRef.current = next;
+    setGraph(next);
+    setHistoryVersion((value) => value + 1);
+    persistGraph(next);
   };
 
   if (!project) {
@@ -220,6 +277,12 @@ export function GraphPage({ projectId, levelId }: GraphPageProps): React.ReactEl
         )}
 
         <div className="ml-auto flex items-center gap-2">
+          <Btn size="sm" variant="line" onClick={undo} disabled={!canUndo}>
+            {studioText(t, 'studio.graph.page.undo')}
+          </Btn>
+          <Btn size="sm" variant="line" onClick={redo} disabled={!canRedo}>
+            {studioText(t, 'studio.graph.page.redo')}
+          </Btn>
           <span className="text-[11px] font-bold text-[var(--cn-ink-3)]">
             {studioText(t, 'studio.graph.page.doubleClickHint')}
           </span>

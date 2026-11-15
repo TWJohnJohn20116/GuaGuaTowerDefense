@@ -9,7 +9,9 @@ import { SceneShell } from '@/components/ui/SceneShell';
 import { Num, Rail, RailItem, TopBar, Btn } from '@/components/hl';
 import { WrenchIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
+import { useEffect, useState } from 'react';
 import { useWorkshopStore } from '@/store/workshopStore';
+import { writeBackup } from '@/workshop/backup';
 import { ProjectsPage, type StudioPage } from '@/components/workshop/projects/ProjectsPage';
 import { AssetsPage } from '@/components/workshop/assets/AssetsPage';
 import { LevelsPage } from '@/components/workshop/levels/LevelsPage';
@@ -23,10 +25,19 @@ export default function Workshop() {
   const { t } = useTranslation();
   const s = t.studio;
   const [page, setPage] = useState<StudioPage>('projects');
+  const [playtestLevelId, setPlaytestLevelId] = useState<string | null>(null);
   const projects = useWorkshopStore((state) => state.projects);
   const activeProjectId = useWorkshopStore((state) => state.activeProjectId);
   const setActiveProject = useWorkshopStore((state) => state.setActiveProject);
   const createProject = useWorkshopStore((state) => state.createProject);
+
+  // 自動備份：store 每次變動都試寫（writeBackup 內部節流 20 秒、只留 3 份）
+  useEffect(() => {
+    const unsubscribe = useWorkshopStore.subscribe((state) => {
+      writeBackup(state.projects, state.assets);
+    });
+    return unsubscribe;
+  }, []);
 
   const activeProject = useMemo(
     () => projects.find((project) => project.id === activeProjectId) ?? null,
@@ -45,6 +56,10 @@ export default function Workshop() {
 
   const needsProject = page !== 'projects' && page !== 'assets';
   const missingProject = needsProject && !activeProject;
+
+  useEffect(() => {
+    setPlaytestLevelId(activeProject?.levels[0]?.id ?? null);
+  }, [activeProject?.id]);
 
   const createTemplate = (kind: 'basic' | 'boss' | 'swarm') => {
     const name =
@@ -112,11 +127,25 @@ export default function Workshop() {
                 {page === 'rules' && activeProject && <GraphPage projectId={activeProject.id} />}
                 {page === 'playtest' && activeProject && (
                   <div className="flex min-h-0 flex-1 flex-col gap-2 p-3 lg:flex-row">
-                    <div className="min-h-0 min-w-0 flex-1">
-                      <PlaytestStage projectId={activeProject.id} />
+                    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="arc-label">{s.playtest.level}</span>
+                        <select
+                          value={playtestLevelId ?? ''}
+                          onChange={(event) => setPlaytestLevelId(event.target.value || null)}
+                          className="h-7 w-56 border border-[var(--cn-line)] bg-[var(--cn-card)] px-1.5 font-mono text-[11.5px] text-[var(--cn-ink)]"
+                        >
+                          {activeProject.levels.map((level) => (
+                            <option key={level.id} value={level.id}>{level.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="min-h-0 flex-1">
+                        <PlaytestStage projectId={activeProject.id} levelId={playtestLevelId ?? undefined} />
+                      </div>
                     </div>
                     <aside className="w-full shrink-0 lg:w-[320px]">
-                      <BalancePanel projectId={activeProject.id} />
+                      <BalancePanel projectId={activeProject.id} levelId={playtestLevelId ?? undefined} />
                     </aside>
                   </div>
                 )}

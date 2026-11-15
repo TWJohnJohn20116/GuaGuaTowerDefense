@@ -29,6 +29,10 @@ export interface MapToolbarProps {
   onSpeedChange: (value: number) => void;
   /** 沒有選到關卡時整列停用 */
   disabled: boolean;
+  canUndo: boolean;
+  canRedo: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
 }
 
 const SPEEDS: { value: number; label: string }[] = [
@@ -55,9 +59,19 @@ export function MapToolbar({
   speed,
   onSpeedChange,
   disabled,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
 }: MapToolbarProps) {
   const { t } = useTranslation();
   const s = t.studio.map;
+  const undoRedo = (
+    <span className="flex items-center gap-1">
+      <Btn size="sm" variant="line" onClick={onUndo} disabled={disabled || !canUndo}>{s.undo}</Btn>
+      <Btn size="sm" variant="line" onClick={onRedo} disabled={disabled || !canRedo}>{s.redo}</Btn>
+    </span>
+  );
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] p-2 shadow-[0_5px_0_-1px_rgba(46,36,64,0.18)]">
@@ -75,6 +89,8 @@ export function MapToolbar({
           {s.tool.erase}
         </Chip>
       </div>
+
+      {undoRedo}
 
       <span className="mx-1 hidden h-7 w-[3px] rounded-full bg-[var(--cn-line-soft)] sm:block" />
 
