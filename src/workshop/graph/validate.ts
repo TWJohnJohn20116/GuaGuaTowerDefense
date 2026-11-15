@@ -358,7 +358,7 @@ export function validateGraph(graph: RuleGraph): GraphValidation {
     warnings,
     permissions: collectPermissions(graph),
     hooks: collectHooks(graph),
-    hasJs: hasUnanalyzableNode(graph),
+    hasJs: graph.nodes.some((node) => node.kind === 'js' || Boolean(node.inlineCode)),
     issuesByNode,
   };
 }

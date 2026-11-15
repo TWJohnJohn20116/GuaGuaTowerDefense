@@ -21,7 +21,7 @@ interface WaveCompileResult {
 
 function createIssue(
   code: WorkshopCompileWarningCode,
-  extra: { levelId?: string; assetId?: string } = {},
+  extra: Pick<WorkshopCompileIssue, 'levelId' | 'assetId'> = {},
 ): WorkshopCompileIssue {
   const issue: WorkshopCompileIssue = { code, key: `studio.compile.${code}` };
   if (extra.levelId !== undefined) issue.levelId = extra.levelId;

@@ -18,6 +18,7 @@ import type {
   WorkshopLevel,
   WorkshopRule,
   WorkshopRuleSetAsset,
+  WorkshopRuleTrigger,
 } from '@/types/workshop';
 import { runtimeAssetId } from '@/workshop/ids';
 import { readRuleOverrides } from './assetGraph';
@@ -37,7 +38,7 @@ interface RuleCompileResult {
 }
 
 /** 規則觸發點 → 腳本 hook（只用 mod-script 既有的 hook 名） */
-const HOOK_BY_TRIGGER = new Map<string, ModScriptHook>([
+const HOOK_BY_TRIGGER = new Map<WorkshopRuleTrigger, ModScriptHook>([
   ['waveStart', 'onWaveStart'],
   ['waveComplete', 'onWaveClear'],
   ['bossSpawn', 'onBossSpawn'],
@@ -49,7 +50,7 @@ const HOOK_BY_TRIGGER = new Map<string, ModScriptHook>([
 
 function createIssue(
   code: WorkshopCompileWarningCode,
-  extra: { levelId?: string; assetId?: string; params?: Record<string, string | number> } = {},
+  extra: Pick<WorkshopCompileIssue, 'levelId' | 'assetId' | 'params'> = {},
 ): WorkshopCompileIssue {
   const issue: WorkshopCompileIssue = { code, key: `studio.compile.${code}` };
   if (extra.levelId !== undefined) issue.levelId = extra.levelId;

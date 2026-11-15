@@ -22,7 +22,7 @@ interface ScriptCompileResult {
 
 function createIssue(
   code: WorkshopCompileWarningCode,
-  extra: { assetId?: string; params?: Record<string, string | number> } = {},
+  extra: Pick<WorkshopCompileIssue, 'assetId' | 'params'> = {},
 ): WorkshopCompileIssue {
   const issue: WorkshopCompileIssue = { code, key: `studio.compile.${code}` };
   if (extra.assetId !== undefined) issue.assetId = extra.assetId;

@@ -25,9 +25,11 @@ export function compileMap(projectId: string, asset: WorkshopMapAsset): Compiled
     name: asset.name,
     description: asset.description ?? '',
     // PathConfig 的三個必填面：difficulty／waypoints 由資產帶，category 補預設
-    difficulty: data.difficulty.length > 0 ? data.difficulty : 'normal',
+    difficulty:
+      typeof data.difficulty === 'string' && data.difficulty.length > 0 ? data.difficulty : 'normal',
     category: data.category ?? 'normal',
-    waypoints: data.waypoints,
+    // 壞掉的存檔（waypoints 不是陣列）不讓整份編譯炸掉，退成空路徑
+    waypoints: Array.isArray(data.waypoints) ? data.waypoints : [],
     blockedCells: data.blockedCells ?? [],
   };
 

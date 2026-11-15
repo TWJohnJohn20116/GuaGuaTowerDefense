@@ -175,7 +175,7 @@ function applyLeakDamage(count: number): void {
 }
 
 /** 移除已死／已到終點的敵人，並結算獎勵、死亡能力、塔的爆炸傷害 */
-function settleEnemies(rt: MatchRuntime): void {
+function settleEnemies(_rt: MatchRuntime): void {
   const store = useGameStore.getState();
   const path = PATHS[store.selectedPath];
   if (!path) return;

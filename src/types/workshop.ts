@@ -203,7 +203,7 @@ export type WorkshopAsset =
 // ===== 勝負條件 =====
 
 /** 自訂計分規則：欄位＋權重（負權重＝扣分） */
-interface WorkshopScoreRule {
+export interface WorkshopScoreRule {
   id: string;
   label: string;
   weight: number;
@@ -235,7 +235,7 @@ export interface WinCondition {
   scoreRules?: WorkshopScoreRule[];
 }
 
-type WorkshopOutcome = 'ongoing' | 'victory' | 'defeat';
+export type WorkshopOutcome = 'ongoing' | 'victory' | 'defeat';
 
 export interface WorkshopMatchSnapshot {
   wavesSurvived: number;

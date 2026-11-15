@@ -45,11 +45,7 @@ const DEFAULT_INITIAL_MONEY = 150;
 const DEFAULT_BASE_HEALTH = 20;
 const DEFAULT_WAVE_INTERVAL_SECONDS = 8;
 
-interface IssueExtra {
-  levelId?: string;
-  assetId?: string;
-  params?: Record<string, string | number>;
-}
+type IssueExtra = Pick<WorkshopCompileIssue, 'levelId' | 'assetId' | 'params'>;
 
 function createIssue(code: WorkshopCompileWarningCode, extra?: IssueExtra): WorkshopCompileIssue {
   const issue: WorkshopCompileIssue = { code, key: `${ISSUE_KEY_PREFIX}${code}` };
@@ -228,6 +224,12 @@ export function compileProject(
   for (const id of candidates) {
     const asset = assetById.get(id);
     if (!asset) continue;
+    // 存檔被手改成壞形狀時回 issue，不讓整份編譯丟例外
+    const rawData: unknown = asset.data;
+    if (typeof rawData !== 'object' || rawData === null) {
+      issues.push(createIssue('missingAsset', { assetId: asset.id }));
+      continue;
+    }
     switch (asset.kind) {
       case 'tower': {
         const compiled = compileTower(project.id, asset);

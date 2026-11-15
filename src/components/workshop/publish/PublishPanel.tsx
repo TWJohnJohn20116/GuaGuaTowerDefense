@@ -58,11 +58,11 @@ function collectAssetIds(project: WorkshopProject): string[] {
   pushRef(project.ruleSetRef);
   for (const ref of project.assetRefs) pushRef(ref);
   for (const level of project.levels) {
-    push(level.mapAssetId);
+    push(level.mapAssetId ?? null);
     pushRef(level.ruleSetRef);
-    for (const ref of level.towerRefs) pushRef(ref);
-    for (const ref of level.scriptRefs) pushRef(ref);
-    for (const ref of level.artRefs) pushRef(ref);
+    for (const ref of level.towerRefs ?? []) pushRef(ref);
+    for (const ref of level.scriptRefs ?? []) pushRef(ref);
+    for (const ref of level.artRefs ?? []) pushRef(ref);
   }
   return [...ids];
 }
