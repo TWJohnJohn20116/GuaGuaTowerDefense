@@ -19,6 +19,11 @@
   .flex-shrink {
     flex-shrink: 1;
   }
+  /* 棋盤底紋：與 drawGrid 的 8px 縫距對應，只當裝飾層用 */
+  .bd-checker {
+    background-image: repeating-conic-gradient(var(--bd-line-soft) 0% 25%, transparent 0% 50%);
+    background-size: 8px 8px;
+  }
 }
 
 @layer base {
