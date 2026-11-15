@@ -45,6 +45,8 @@ export interface HudLayoutState {
   showTowerPanel: boolean;
   /** 顯示底部控制條 */
   showBottomControls: boolean;
+  /** 顯示右側戰場資訊欄（波次進度、在場單位、選中塔） */
+  showIntelPanel: boolean;
   // ----- 外觀風格 -----
   /** 圓角風格：pill / rounded / square */
   cornerStyle: HudCornerStyle;
@@ -80,13 +82,14 @@ export interface HudLayoutState {
 
 export const DEFAULT_HUD_LAYOUT: HudLayoutState = {
   statsBar: 'center',
-  towerPanel: 'right',
+  towerPanel: 'left',
   bottomControls: 'center',
   uiScale: 'normal',
   opacity: 1,
   showStatsBar: true,
   showTowerPanel: true,
   showBottomControls: true,
+  showIntelPanel: true,
   cornerStyle: 'pill',
   blurIntensity: 'heavy',
   accentColor: 'default',
