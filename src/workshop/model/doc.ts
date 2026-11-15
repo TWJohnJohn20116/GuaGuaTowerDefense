@@ -163,7 +163,7 @@ function breakCycles(parts: Custom3DPart[]): void {
       }
       seen.add(cursor.id);
       path.push(cursor.id);
-      const parentId = cursor.parentId;
+      const parentId: string | null | undefined = cursor.parentId;
       cursor = parentId ? byId.get(parentId) : undefined;
     }
   }

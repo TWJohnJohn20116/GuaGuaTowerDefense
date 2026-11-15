@@ -375,7 +375,8 @@ describe('tower model templates', () => {
       const ids = built.parts.map((item) => item.id);
       expect(new Set(ids).size).toBe(ids.length);
       for (const item of built.parts) {
-        expect(item.name ?? '').toMatch(/^[a-z][a-z ]*$/);
+        // 模板命名是小寫英文加序號（leg 1、shard 1、ground ring），故允許數字與空白
+        expect(item.name ?? '').toMatch(/^[a-z][a-z0-9 -]*$/);
         expect(item.shape.length).toBeGreaterThan(0);
       }
       const again = builder.build();

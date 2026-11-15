@@ -77,7 +77,8 @@ describe('gizmo 位移', () => {
       origin: { x: 0, y: 0, z: 0 },
       axis: 'x',
       from: { x: 0, y: 0 },
-      to: { x: 0.037, y: 0 },
+      // 投影是 1000px/單位，所以 37px = 0.037 世界單位，吸附到 0.05
+      to: { x: 37, y: 0 },
       project: (world) => ({ x: world.x * 1000, y: world.y * 1000 }),
       snap: 0.05,
     });
@@ -86,7 +87,7 @@ describe('gizmo 位移', () => {
 });
 
 describe('gizmo 旋轉', () => {
-  it('繞中心從 3 點鐘拖到 12 點鐘是 +90 度', () => {
+  it('繞中心從 3 點鐘拖到 12 點鐘是 -90 度（螢幕 y 向下）', () => {
     const delta = dragRotate({
       center: { x: 0, y: 0, z: 0 },
       axis: 'y',
@@ -95,7 +96,7 @@ describe('gizmo 旋轉', () => {
       project: flatProject,
       snap: 0,
     });
-    expect(delta).toBeCloseTo(Math.PI / 2);
+    expect(delta).toBeCloseTo(-Math.PI / 2);
   });
 
   it('invert 會讓螢幕方向反向（軸朝鏡頭時需要）', () => {
@@ -107,7 +108,7 @@ describe('gizmo 旋轉', () => {
       project: flatProject,
       snap: 0,
     };
-    expect(dragRotate({ ...base, invert: true })).toBeCloseTo(-Math.PI / 2);
+    expect(dragRotate({ ...base, invert: true })).toBeCloseTo(Math.PI / 2);
   });
 
   it('預設吸附到 15 度', () => {

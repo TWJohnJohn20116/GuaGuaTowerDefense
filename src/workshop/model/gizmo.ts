@@ -180,11 +180,18 @@ export const VIEW_ANGLES: Record<ViewPreset, { theta: number; phi: number }> = {
   iso: { theta: Math.PI * 0.25, phi: Math.PI * 0.28 },
 };
 
-/** 球座標 → 相機位移（y 向上） */
+/**
+ * 球座標 → 相機位移（y 向上）。
+ *
+ * phi 是「與 +Y 的夾角」：phi=0 在正上方、phi=π/2 在地平面，
+ * 所以水平半徑是 sin(phi)，垂直分量是 cos(phi)。
+ * （曾誤用 cos(phi) 當水平半徑，導致俯視時相機跑到側面。）
+ */
 export function sphericalOffset(theta: number, phi: number, dist: number): Vec3Like {
+  const horizontal = Math.sin(phi) * dist;
   return {
-    x: Math.sin(theta) * Math.cos(phi) * dist,
+    x: Math.sin(theta) * horizontal,
     y: Math.cos(phi) * dist,
-    z: Math.cos(theta) * Math.cos(phi) * dist,
+    z: Math.cos(theta) * horizontal,
   };
 }
