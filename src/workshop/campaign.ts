@@ -10,6 +10,8 @@
  */
 import { useGameStore } from '@/store/gameStore';
 import { startCustomBgm, stopCustomBgm } from '@/services/audioService';
+import { PATHS } from '@/data/gameData';
+import { setActiveMapTheme } from '@/utils/themeBoard';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
 import { resolveLevelLocks } from '@/workshop/progress';
@@ -117,6 +119,7 @@ export async function startCampaignLevel(key: string): Promise<boolean> {
   game.setPlaytestMode(false);
 
   activeCampaign = { projectId: parsed.projectId, levelId: parsed.levelId };
+  setActiveMapTheme(PATHS[setup.pathName]?.theme ?? null);
   await useGameStore.getState().startGame(
     setup.pathName,
     setup.difficulty,

@@ -11,6 +11,7 @@ import { useGameStore } from '@/store/gameStore';
 import { useModStore } from '@/store/modStore';
 import { PATHS, DIFFICULTY_MODIFIERS } from '@/data/gameData';
 import { listCampaignLevels, startCampaignLevel } from '@/workshop/campaign';
+import { setActiveMapTheme } from '@/utils/themeBoard';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
 import { useState, useEffect, useMemo, useCallback } from 'react';
@@ -179,6 +180,8 @@ export default function PathSelection() {
       const ws = findPlayableWaveSet(customWaveSetId);
       if (ws) effectiveMaxWaves = ws.waves.length;
     }
+    // 地圖自訂主題：開局前套用（缺省＝跟隨全域主題）
+    setActiveMapTheme(PATHS[targetId]?.theme ?? null);
     startGame(
       targetId,
       selectedDifficulty,

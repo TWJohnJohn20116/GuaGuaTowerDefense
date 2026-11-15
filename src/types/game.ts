@@ -484,6 +484,7 @@ export interface PathConfig {
   waypoints: GridPosition[];           // 普通地圖用
   segments?: PathSegment[];            // 進階地圖用（叉路系統）
   startSegmentId?: string;             // 進階地圖起始路段 ID
+  theme?: string;                      // 地圖自訂主題（缺省跟隨全域主題）
   /** Mod 地圖障礙格子（不可建造） */
   blockedCells?: GridPosition[];
   /** 地圖主題 id（影響場地配色；缺省＝跟隨全域主題） */

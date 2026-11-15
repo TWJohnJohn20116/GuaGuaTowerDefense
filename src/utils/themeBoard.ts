@@ -18,8 +18,27 @@ export function setActiveThemeId(id: ThemeId): void {
   activeThemeId = id;
 }
 
+/** 地圖自訂主題（per-map）；null＝跟隨全域主題 */
+let activeMapTheme: string | null = null;
+
+/** 地圖主題色票：只調場地與道路，起終點與障礙保持全域主題色，避免整張圖變單色 */
+const MAP_THEME_TINTS: Record<string, { path: string; tile: string }> = {
+  moss: { path: '#6f8f4a', tile: '#e8f0d8' },
+  ash: { path: '#7a7480', tile: '#e7e3ea' },
+  frost: { path: '#6f97b5', tile: '#e2eef6' },
+  ember: { path: '#b56a4a', tile: '#f7e7dd' },
+};
+
+export function setActiveMapTheme(theme: string | null): void {
+  activeMapTheme = theme;
+}
+
 export function getBoardColors(): ThemeBoard {
-  return getTheme(activeThemeId).board;
+  const board = getTheme(activeThemeId).board;
+  if (!activeMapTheme) return board;
+  const tint = MAP_THEME_TINTS[activeMapTheme];
+  if (!tint) return board;
+  return { ...board, path: mixHex(board.path, tint.path, 0.65), tile: mixHex(board.tile, tint.tile, 0.5) };
 }
 
 /** 3D 場景用的場地配色（three 的 MeshStandardMaterial 吃 #rrggbb 字串） */

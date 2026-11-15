@@ -37,6 +37,7 @@ export function compileMap(projectId: string, asset: WorkshopMapAsset): Compiled
   if (data.segments) map.segments = data.segments;
   if (data.startSegmentId) map.startSegmentId = data.startSegmentId;
   if (data.thumbnail) map.thumbnail = data.thumbnail;
+  if (data.theme) map.theme = data.theme;
 
   return {
     map,

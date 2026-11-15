@@ -41,6 +41,7 @@ function toPathConfig(compiled: CustomMapData, fallbackName: string): PathConfig
     ...(compiled.segments && compiled.segments.length > 0 ? { segments: compiled.segments } : {}),
     ...(compiled.startSegmentId ? { startSegmentId: compiled.startSegmentId } : {}),
     ...(compiled.blockedCells && compiled.blockedCells.length > 0 ? { blockedCells: compiled.blockedCells } : {}),
+    ...(compiled.theme ? { theme: compiled.theme } : {}),
   };
 }
 
