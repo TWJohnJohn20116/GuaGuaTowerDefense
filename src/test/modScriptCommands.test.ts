@@ -7,7 +7,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { applyModScriptCommands } from '@/mod-script/commands';
 import { useGameStore } from '@/store/gameStore';
-import { DEFAULT_PATH, PATHS, DIFFICULTY_MODIFIERS, PATHS } from '@/data/gameData';
+import { DEFAULT_PATH, PATHS, DIFFICULTY_MODIFIERS } from '@/data/gameData';
 import { makeEnemy } from '@/test/fixtures';
 import type { ModScriptCommand } from '@/types/modScript';
 import type { MapPoint } from '@/types/game';

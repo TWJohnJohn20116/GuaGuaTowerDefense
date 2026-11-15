@@ -101,6 +101,8 @@ describe('自由放置', () => {
     useGameStore.getState().sellTower(tower);
     expect(useGameStore.getState().towers).toHaveLength(0);
 
+    // placeTower 成功後會清掉塔種（非快速放置模式），重放前要重新選
+    useGameStore.setState({ selectedTowerType: 'basic' });
     expect(useGameStore.getState().placeTower(spot)).toBe(true);
     expect(useGameStore.getState().towers).toHaveLength(1);
   });

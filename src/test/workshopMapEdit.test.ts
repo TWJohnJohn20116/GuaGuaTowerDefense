@@ -19,7 +19,7 @@ import {
   moveWaypoint,
   paintBlocked,
   removeWaypoint,
-  toTileGrid,
+  serializeDraft,
   toggleBlocked,
   validateDraft,
   type GridPoint,
@@ -306,41 +306,17 @@ describe('validateDraft', () => {
   });
 });
 
-describe('toTileGrid', () => {
-  it('尺寸、起終點、路徑、障礙、塔 id 全部對位', () => {
+describe('serializeDraft', () => {
+  it('障礙格輸出成圓形禁建區（圓心取格中心）', () => {
     const draft = createStarterDraft();
     const mr = midRowOf(draft);
-    const mc = midColOf(draft);
     const blockedCell: GridPoint = { col: 1, row: mr + 1 };
-    const towerCell: GridPoint = { col: 2, row: mr + 2 };
-
     const withBlocked = paintBlocked(draft, [blockedCell], true).draft;
-    const placed = addPreviewTower(withBlocked, towerCell, 'sniper', 'pt-sniper-1');
-    expect(placed.changed, '塔應放在 ' + at(towerCell)).toBe(true);
-    const built = placed.draft;
 
-    const grid = toTileGrid(built);
-    expect(grid.length, 'grid 列數應為 ' + built.rows).toBe(built.rows);
-    grid.forEach((row, r) => {
-      expect(row.length, '第 ' + r + ' 列長度應為 ' + built.cols).toBe(built.cols);
-    });
-
-    expect(grid[mr][0].type, '起點 (0,' + mr + ') 應為 start').toBe('start');
-    expect(grid[mr][built.cols - 1].type, '終點 (' + (built.cols - 1) + ',' + mr + ') 應為 end').toBe('end');
-    expect(grid[mr][mc].type, '中間轉角 (' + mc + ',' + mr + ') 應為 path').toBe('path');
-    expect(grid[mr][1].type, '路徑中段 (1,' + mr + ') 應為 path').toBe('path');
-    expect(grid[mr + 1][1].type, '障礙格 ' + at(blockedCell) + ' 應為 blocked').toBe('blocked');
-
-    expect(grid[mr + 2][2].towerId, '塔格應記下塔 id').toBe('pt-sniper-1');
-    expect(grid[mr + 2][2].type, '塔格本身不是路徑也不是障礙').toBe('empty');
-    expect(grid[0][0].type, '左上角既非路徑也非障礙，應為 empty').toBe('empty');
-    expect(grid[0][0].towerId).toBeNull();
-
-    for (let r = 0; r < built.rows; r++) {
-      for (let c = 0; c < built.cols; c++) {
-        expect(grid[r][c].row, '(' + c + ',' + r + ') 的 row 欄位').toBe(r);
-        expect(grid[r][c].col, '(' + c + ',' + r + ') 的 col 欄位').toBe(c);
-      }
-    }
+    const serialized = serializeDraft(withBlocked);
+    expect(serialized.blockedAreas, '障礙格 ' + at(blockedCell) + ' 應轉成圓心').toEqual([
+      { x: 1.5, y: mr + 1.5 },
+    ]);
+    expect(serialized.waypoints.length, '路徑點要原樣帶出').toBeGreaterThanOrEqual(2);
   });
 });
