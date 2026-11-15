@@ -15,6 +15,8 @@ import { initMusic, syncMusic } from '@/services/musicService';
 import { prefetchSelectedMenuAlbum } from '@/services/music/menuMusicPlayback';
 import type { GameScene, TowerType } from '@/types/game';
 import Loading from '@/components/ui/Loading';
+import { SceneErrorBoundary } from '@/components/ui/SceneErrorBoundary';
+import { useTranslation } from '@/i18n';
 import AchievementNotification from '@/components/ui/AchievementNotification';
 import UpdateNotification from '@/components/ui/UpdateNotification';
 
@@ -78,6 +80,7 @@ const SCENE_COMPONENTS: Record<GameScene, ComponentType> = {
 };
 
 function App() {
+  const { t } = useTranslation();
   const scene = useGameStore((state) => state.scene);
   const isPaused = useGameStore((state) => state.isPaused);
   const animationsEnabled = useSettingsStore((s) => s.visual.animationsEnabled);
@@ -172,7 +175,13 @@ function App() {
             transition={SPRING_SOFT}
           >
             <Suspense fallback={<Loading />}>
-              <Scene />
+              {/* lazy chunk 載入失敗時 Suspense 會永遠停在 Loading；錯誤邊界把它變成可讀訊息 */}
+              <SceneErrorBoundary
+                sceneKey={activeScene ?? 'mainMenu'}
+                labels={t.common.sceneError}
+              >
+                <Scene />
+              </SceneErrorBoundary>
             </Suspense>
           </motion.div>
         </AnimatePresence>

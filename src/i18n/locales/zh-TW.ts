@@ -13,6 +13,12 @@ export const zhTW = {
     reset: '重置',
     settings: '設定',
     loading: '載入中...',
+    /** 場景載入／渲染失敗時的錯誤邊界文案 */
+    sceneError: {
+      title: '這個場景載入失敗',
+      hint: '多半是開發伺服器的模組快取失效，重新載入通常就會恢復。',
+      reload: '重新載入',
+    },
     close: '關閉',
     copy: '複製',
     undo: '撤銷',
