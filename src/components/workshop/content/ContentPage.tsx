@@ -300,7 +300,8 @@ export function ContentPage({ projectId }: ContentPageProps) {
       <SegHead
         label={c.title}
         right={
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-2">
+            {/* 三組之間用細線分隔：公式｜復原重做｜匯出 —— 舊版 gap-1 擠成一排，看不出分組 */}
             <Btn
               size="sm"
               variant="line"
@@ -309,12 +310,16 @@ export function ContentPage({ projectId }: ContentPageProps) {
             >
               {c.formula.title}
             </Btn>
-            <IconBtn label={w.undo} className="h-7 w-7" onClick={history.undo} disabled={!history.canUndo}>
-              <UndoIcon className="h-4 w-4" />
-            </IconBtn>
-            <IconBtn label={w.redo} className="h-7 w-7" onClick={history.redo} disabled={!history.canRedo}>
-              <RedoIcon className="h-4 w-4" />
-            </IconBtn>
+            <span aria-hidden="true" className="h-4 w-px shrink-0 bg-[var(--cn-line-soft)]" />
+            <div className="flex shrink-0 items-center gap-1">
+              <IconBtn label={w.undo} className="h-7 w-7" onClick={history.undo} disabled={!history.canUndo}>
+                <UndoIcon className="h-4 w-4" />
+              </IconBtn>
+              <IconBtn label={w.redo} className="h-7 w-7" onClick={history.redo} disabled={!history.canRedo}>
+                <RedoIcon className="h-4 w-4" />
+              </IconBtn>
+            </div>
+            <span aria-hidden="true" className="h-4 w-px shrink-0 bg-[var(--cn-line-soft)]" />
             <Btn
               size="sm"
               variant="line"
