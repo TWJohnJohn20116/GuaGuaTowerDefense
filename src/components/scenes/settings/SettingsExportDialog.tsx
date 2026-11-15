@@ -66,7 +66,7 @@ export function SettingsExportDialog({ open, onClose, onDone }: Props) {
           <SceneModal onClose={onClose} maxWidth="max-w-lg" zIndex="z-[100000]" variant="solid" panelClassName="p-0">
             <Deck notch tone="bare" className="flex max-h-[80vh] flex-col border-0">
               <div className="flex items-center gap-2.5 border-b border-[var(--cn-line-soft)] px-4 py-3">
-                <span className="flex h-6 w-6 items-center justify-center border-[3px] border-[var(--cn-line-soft)] text-[var(--arc-ink-2)]">
+                <span className="flex h-6 w-6 items-center justify-center border border-[var(--cn-line-soft)] text-[var(--arc-ink-2)]">
                   <DownloadIcon className="h-3.5 w-3.5" />
                 </span>
                 <span className="arc-label text-[var(--arc-ink-2)]">{d.title}</span>
@@ -82,10 +82,10 @@ export function SettingsExportDialog({ open, onClose, onDone }: Props) {
                   onSelectionChange={setSelection}
                 />
 
-                <div className="mt-3 flex flex-col gap-1.5 border-[3px] border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] p-2.5">
+                <div className="mt-3 flex flex-col gap-1.5 border border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] p-2.5">
                   <span className="arc-label">{d.destination}</span>
 
-                  <label className="flex items-center justify-between gap-3 border-[3px] border-[var(--cn-line-soft)] px-2.5 py-2">
+                  <label className="flex items-center justify-between gap-3 border border-[var(--cn-line-soft)] px-2.5 py-2">
                     <span className="flex items-center gap-1.5 text-[11.5px] text-[var(--arc-ink-2)]">
                       <DownloadIcon className="h-3.5 w-3.5 text-[var(--arc-ink-3)]" />
                       {d.downloadJson}
@@ -93,7 +93,7 @@ export function SettingsExportDialog({ open, onClose, onDone }: Props) {
                     <ToggleSwitch enabled={download} onToggle={() => setDownload((v) => !v)} size="sm" />
                   </label>
 
-                  <label className="flex items-center justify-between gap-3 border-[3px] border-[var(--cn-line-soft)] px-2.5 py-2">
+                  <label className="flex items-center justify-between gap-3 border border-[var(--cn-line-soft)] px-2.5 py-2">
                     <span className="flex items-center gap-1.5 text-[11.5px] text-[var(--arc-ink-2)]">
                       <FolderIcon className="h-3.5 w-3.5 text-[var(--arc-ink-3)]" />
                       {d.saveToVault}
