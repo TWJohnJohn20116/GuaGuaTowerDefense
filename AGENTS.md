@@ -856,6 +856,12 @@ node scripts/visual-check.mjs --sizes=1600x900,390x844 --dpr=2 --concurrency=3
 
 全部在 `.shots/`，**不進版控**（§4.8）。
 
+#### 視覺腳本的三個坑（2026-11-15 補）
+
+- **`--js-file` 會被 `;;` 切成多段**，每段以 `awaitPromise: true` 執行、段間固定 sleep 350ms。要「點一下 → 等它渲染 → 再點一下」就寫 `;;` 分隔，並用 `new Promise((r) => setTimeout(r, 400))` 當等待段。**整段寫成一個 async 函式不會被 await**（我卡了兩次）。
+- **Node 不認 MSYS 的 `/tmp`**：`readFileSync('/tmp/x.js')` 會解析成 `D:\tmp\x.js`（ENOENT）。暫存腳本一律 `cygpath -w "$TEMP"` 轉絕對路徑再傳給 `--js-file`。
+- **收合後的側欄項目只剩序號**，用「文字包含某頁名」去找會點錯頁（甚至誤判成版面壞掉）。一律用 `nav [aria-label="內容"]` 這類 aria 選擇器。
+
 #### 工具會檢查什麼
 
 **硬失敗（`pass=false`）**：截圖存在、尺寸與要求相符（含 dpr 換算）、像素判空（唯一色數／邊緣密度，取代舊的 >20KB 門檻）、可讀文字 > 120 字、無 Vite 錯誤覆蓋層、無 JS 崩潰字樣、無本站 console error／資源載入失敗。
