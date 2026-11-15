@@ -35,6 +35,13 @@ interface HudStyleClasses {
  * 取得 HUD 風格 class（ARCADE 版）
  * shape：決定小圓角等級，其餘一致。
  */
+/**
+ * 對局速度鈕：所有寬度都顯示，不能用 hidden 藏掉（gameSpeedHud.test.ts 的契約）。
+ * 窄版靠橫向滾動而不是隱藏按鈕。
+ */
+export const GAME_SPEED_BAR_CLASS =
+  'flex items-center gap-0.5 rounded-full border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] p-0.5 shadow-[0_4px_0_var(--cn-line)] overflow-x-auto max-w-[52vw] sm:max-w-none';
+
 export function getHudStyleClasses(_layout: HudLayoutState, shape: HudShape): HudStyleClasses {
   const corner = CORNER_CLASS[shape];
   const blur = 'bg-[var(--arc-deck-2)]';
