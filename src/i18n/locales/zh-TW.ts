@@ -79,7 +79,6 @@ export const zhTW = {
     },
     hero: {
       kicker: 'operations',
-      tagline: 'tower defense',
       hintEnter: 'ENTER 開始',
       hintSave: '本機存檔',
       hintRender: '2D / 3D',

@@ -14,25 +14,22 @@
 
 /** 拼貼外框：窄螢幕單欄，桌機 12 欄 × 4 列（品牌／快捷與 Hero／快捷與 Hero／三群帶） */
 export const HOME_SHELL_CLASS =
-  'grid flex-1 grid-cols-1 content-start gap-2 overflow-y-auto lg:min-h-0 lg:grid-cols-12 lg:grid-rows-[auto_minmax(150px,1fr)_minmax(150px,1fr)_auto] lg:content-stretch';
-
-/** 品牌條：橫貫 12 欄，窄螢幕最上 */
-export const HOME_BRAND_CLASS = 'order-1 lg:order-none lg:col-span-12';
+  'grid flex-1 grid-cols-1 content-start gap-2 overflow-y-auto lg:min-h-0 lg:grid-cols-12 lg:grid-rows-[minmax(150px,1fr)_minmax(150px,1fr)_auto] lg:content-stretch';
 
 /** Hero 舞台：桌機正中央 6 欄 × 2 列；窄螢幕排在品牌之後 */
 export const HOME_HERO_CLASS =
-  'order-2 lg:min-h-0 lg:order-none lg:col-start-4 lg:col-end-10 lg:row-start-2 lg:row-end-4';
+  'order-2 lg:min-h-0 lg:order-none lg:col-start-4 lg:col-end-10 lg:row-start-1 lg:row-end-3';
 
 /** 快捷欄共同基底：桌機跨 2 列，窄螢幕兩欄並排 */
 const QUICK_COL_BASE =
   'order-3 grid grid-cols-2 gap-2.5 lg:order-none lg:min-h-0 lg:flex lg:flex-col lg:gap-2.5';
 
 /** 左快捷欄（金幣／成就） */
-export const HOME_QUICK_LEFT_CLASS = QUICK_COL_BASE + ' lg:col-start-1 lg:col-end-4 lg:row-start-2 lg:row-end-4';
+export const HOME_QUICK_LEFT_CLASS = QUICK_COL_BASE + ' lg:col-start-1 lg:col-end-4 lg:row-start-1 lg:row-end-3';
 
 /** 右快捷欄（天賦／戰績）：窄螢幕接在左欄之後 */
 export const HOME_QUICK_RIGHT_CLASS =
-  QUICK_COL_BASE + ' order-4 lg:order-none lg:col-start-10 lg:col-end-13 lg:row-start-2 lg:row-end-4';
+  QUICK_COL_BASE + ' order-4 lg:order-none lg:col-start-10 lg:col-end-13 lg:row-start-1 lg:row-end-3';
 
 /** 三群入口帶：橫貫 12 欄 */
 export const HOME_GROUPS_CLASS = 'order-5 lg:mb-3 lg:h-[164px] lg:order-none lg:col-span-12';
