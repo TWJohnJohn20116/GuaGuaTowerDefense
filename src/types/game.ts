@@ -487,8 +487,6 @@ export interface PathConfig {
   theme?: string;                      // 地圖自訂主題（缺省跟隨全域主題）
   /** Mod 地圖障礙格子（不可建造） */
   blockedCells?: GridPosition[];
-  /** 地圖主題 id（影響場地配色；缺省＝跟隨全域主題） */
-  theme?: string;
 }
 
 // 波次配置
