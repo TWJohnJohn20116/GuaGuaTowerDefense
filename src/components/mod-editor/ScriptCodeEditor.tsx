@@ -48,7 +48,7 @@ export function ScriptCodeEditor({ value, onChange, placeholder, hint }: ScriptC
 
   return (
     <div className="relative">
-      <div className="relative h-64 w-full overflow-hidden border border-[var(--cn-line-soft)] bg-[var(--arc-void-2)]">
+      <div className="relative h-64 w-full overflow-hidden border border-[var(--cn-line-soft)] bg-[var(--cn-card)]">
         <pre
           ref={preRef}
           aria-hidden="true"
@@ -89,7 +89,7 @@ export function ScriptCodeEditor({ value, onChange, placeholder, hint }: ScriptC
               insert(matches[0].insert);
             }
           }}
-          className={`absolute inset-0 h-full w-full resize-none overflow-auto bg-transparent p-2.5 text-transparent caret-[var(--arc-gold)] outline-hidden placeholder:text-[var(--arc-ink-4)] ${SHARED}`}
+          className={`absolute inset-0 h-full w-full resize-none overflow-auto bg-transparent p-2.5 text-transparent caret-[var(--arc-gold)] outline-hidden placeholder:text-[var(--cn-ink-4)] ${SHARED}`}
         />
       </div>
 
@@ -97,17 +97,17 @@ export function ScriptCodeEditor({ value, onChange, placeholder, hint }: ScriptC
         <button
           type="button"
           onClick={openCompletion}
-          className="border border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9.5px] text-[var(--arc-ink-3)] transition-colors hover:border-[var(--arc-line)] hover:text-[var(--arc-ink)]"
+          className="border border-[var(--cn-line-soft)] px-1.5 py-0.5 font-mono text-[9.5px] text-[var(--cn-ink-3)] transition-colors hover:border-[var(--cn-line)] hover:text-[var(--cn-ink)]"
         >
           Ctrl+Space
         </button>
-        <span className="font-mono text-[9.5px] text-[var(--arc-ink-4)]">{hint}</span>
+        <span className="font-mono text-[9.5px] text-[var(--cn-ink-4)]">{hint}</span>
       </div>
 
       {query !== null && (
-        <div className="absolute bottom-9 left-0 z-20 max-h-48 w-[min(460px,100%)] overflow-y-auto border border-[var(--arc-line-strong)] bg-[var(--arc-void-2)]">
+        <div className="absolute bottom-9 left-0 z-20 max-h-48 w-[min(460px,100%)] overflow-y-auto border border-[var(--cn-line-mid)] bg-[var(--cn-card)]">
           {matches.length === 0 ? (
-            <div className="px-2 py-1.5 font-mono text-[10px] text-[var(--arc-ink-4)]">沒有符合的 API</div>
+            <div className="px-2 py-1.5 font-mono text-[10px] text-[var(--cn-ink-4)]">沒有符合的 API</div>
           ) : (
             matches.map((entry) => (
               <button
@@ -117,10 +117,10 @@ export function ScriptCodeEditor({ value, onChange, placeholder, hint }: ScriptC
                   e.preventDefault();
                   insert(entry.insert);
                 }}
-                className="flex w-full items-center justify-between gap-2 border-b border-[var(--cn-line-soft)] px-2 py-1 text-left last:border-b-0 hover:bg-[var(--arc-deck-2)]"
+                className="flex w-full items-center justify-between gap-2 border-b border-[var(--cn-line-soft)] px-2 py-1 text-left last:border-b-0 hover:bg-[var(--cn-card-2)]"
               >
-                <span className="font-mono text-[10.5px] text-[var(--arc-ink)]">{entry.label}</span>
-                <span className="shrink-0 font-mono text-[9px] text-[var(--arc-ink-4)]">
+                <span className="font-mono text-[10.5px] text-[var(--cn-ink)]">{entry.label}</span>
+                <span className="shrink-0 font-mono text-[9px] text-[var(--cn-ink-4)]">
                   {entry.permission ?? '—'}
                 </span>
               </button>

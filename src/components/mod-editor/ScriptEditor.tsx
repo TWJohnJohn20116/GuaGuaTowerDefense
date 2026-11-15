@@ -33,10 +33,10 @@ function SectionHead({ no, title, hint }: { no: string; title: string; hint?: st
       label={
         <span className="flex items-center gap-2">
           <Key>{no}</Key>
-          <span className="text-[var(--arc-ink-2)]">{title}</span>
+          <span className="text-[var(--cn-ink-2)]">{title}</span>
         </span>
       }
-      right={hint ? <span className="shrink-0 font-mono text-[9.5px] text-[var(--arc-ink-4)]">{hint}</span> : undefined}
+      right={hint ? <span className="shrink-0 font-mono text-[9.5px] text-[var(--cn-ink-4)]">{hint}</span> : undefined}
     />
   );
 }
@@ -146,8 +146,8 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
         <span className="arc-label">{m.scriptGlobalSwitch}</span>
         <Toggle on={scriptingEnabled} onChange={setScriptingEnabled} label={m.scriptGlobalSwitch} />
         <span className="ml-auto flex items-center gap-1.5">
-          <PlayIcon className="h-3 w-3 text-[var(--arc-ink-3)]" />
-          <span className="font-mono text-[10px] text-[var(--arc-ink-2)]">{statusLabel}</span>
+          <PlayIcon className="h-3 w-3 text-[var(--cn-ink-3)]" />
+          <span className="font-mono text-[10px] text-[var(--cn-ink-2)]">{statusLabel}</span>
           <Num value={String(status?.calls ?? 0).padStart(3, '0')} tone="muted" size="sm" />
         </span>
       </div>
@@ -169,9 +169,9 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
         >
           {m.scriptTrustSigned}
         </Btn>
-        <span className="ml-auto font-mono text-[10px] text-[var(--arc-ink-3)]">{signatureLabel}</span>
+        <span className="ml-auto font-mono text-[10px] text-[var(--cn-ink-3)]">{signatureLabel}</span>
         {fingerprint && (
-          <span className="font-mono text-[9.5px] text-[var(--arc-ink-4)]">
+          <span className="font-mono text-[9.5px] text-[var(--cn-ink-4)]">
             {fillTemplate(m.scriptSigFingerprint, { fp: fingerprint })}
           </span>
         )}
@@ -181,9 +181,9 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
           </Btn>
         )}
         {keyIsTrusted && (
-          <span className="font-mono text-[9.5px] text-[var(--arc-vital)]">{m.scriptTrustedKey}</span>
+          <span className="font-mono text-[9.5px] text-[var(--cn-vital-text)]">{m.scriptTrustedKey}</span>
         )}
-        <span className="w-full font-mono text-[9.5px] text-[var(--arc-ink-4)]">{m.scriptTrustHint}</span>
+        <span className="w-full font-mono text-[9.5px] text-[var(--cn-ink-4)]">{m.scriptTrustHint}</span>
       </div>
 
       {/* 01 hook */}
@@ -199,11 +199,11 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
               className={`flex items-center justify-between border px-2 py-1.5 text-left transition-colors ${
                 active
                   ? 'border-[var(--arc-gold)] text-[var(--arc-ink)]'
-                  : 'border-[var(--cn-line-soft)] text-[var(--arc-ink-3)] hover:border-[var(--arc-line)]'
+                  : 'border-[var(--cn-line-soft)] text-[var(--cn-ink-3)] hover:border-[var(--arc-line)]'
               }`}
             >
               <span className="truncate font-mono text-[10.5px]">{hook}</span>
-              <span className="ml-2 shrink-0 font-mono text-[9px] text-[var(--arc-ink-4)]">
+              <span className="ml-2 shrink-0 font-mono text-[9px] text-[var(--cn-ink-4)]">
                 {m.scriptHooks[hook]}
               </span>
             </button>
@@ -224,11 +224,11 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
               className={`flex items-center justify-between border px-2 py-1.5 text-left transition-colors ${
                 active
                   ? 'border-[var(--arc-gold)] text-[var(--arc-ink)]'
-                  : 'border-[var(--cn-line-soft)] text-[var(--arc-ink-3)] hover:border-[var(--arc-line)]'
+                  : 'border-[var(--cn-line-soft)] text-[var(--cn-ink-3)] hover:border-[var(--arc-line)]'
               }`}
             >
               <span className="truncate font-mono text-[10.5px]">{permission}</span>
-              <span className="ml-2 shrink-0 text-[9.5px] text-[var(--arc-ink-4)]">
+              <span className="ml-2 shrink-0 text-[9.5px] text-[var(--cn-ink-4)]">
                 {m.scriptPerms[permission]}
               </span>
             </button>
@@ -267,14 +267,14 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
             onChange={(e) => onChange({ ...script, throttleMs: Math.max(0, Number(e.target.value) || 0) })}
             className="h-7 w-20 px-1.5 text-center font-mono text-[11px]"
           />
-          <span className="text-[10px] text-[var(--arc-ink-4)]">{m.scriptThrottleHint}</span>
+          <span className="text-[10px] text-[var(--cn-ink-4)]">{m.scriptThrottleHint}</span>
         </label>
         <Btn size="sm" variant="ghost" onClick={() => clearScriptState(script.id)}>
           {fillTemplate(m.scriptClearState, { count: String(stateKeys) })}
         </Btn>
         <span
           className={`ml-auto font-mono text-[10.5px] ${
-            syntaxError ? 'text-[var(--arc-alert)]' : 'text-[var(--arc-vital)]'
+            syntaxError ? 'text-[var(--cn-alert-text)]' : 'text-[var(--cn-vital-text)]'
           }`}
         >
           {syntaxError ? fillTemplate(m.scriptSyntaxError, { message: syntaxError }) : m.scriptSyntaxOk}
@@ -282,7 +282,7 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
       </div>
 
       {missing.length > 0 && (
-        <div className="border-l-2 border-l-[var(--arc-caution)] pl-2 font-mono text-[10.5px] text-[var(--arc-caution)]">
+        <div className="border-l-2 border-l-[var(--cn-caution-text)] pl-2 font-mono text-[10.5px] text-[var(--cn-caution-text)]">
           {fillTemplate(m.scriptMissingPerms, { perms: missing.join(', ') })}
         </div>
       )}
@@ -290,24 +290,24 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
       {/* 04 日誌 */}
       <SectionHead no="04" title={m.scriptLogsTitle} hint={m.scriptLogsHint} />
       {recentLogs.length === 0 ? (
-        <span className="font-mono text-[10.5px] text-[var(--arc-ink-4)]">{m.scriptLogsEmpty}</span>
+        <span className="font-mono text-[10.5px] text-[var(--cn-ink-4)]">{m.scriptLogsEmpty}</span>
       ) : (
         <div className="flex flex-col divide-y divide-[var(--cn-line-soft)] border border-[var(--cn-line-soft)]">
           {recentLogs.map((entry, index) => (
             <div key={`${entry.at}-${index}`} className="flex items-baseline gap-2 px-2 py-1">
-              <span className="shrink-0 font-mono text-[9px] text-[var(--arc-ink-4)]">
+              <span className="shrink-0 font-mono text-[9px] text-[var(--cn-ink-4)]">
                 {new Date(entry.at).toLocaleTimeString()}
               </span>
               <span
                 className={`shrink-0 font-mono text-[9px] uppercase ${
-                  entry.level === 'error' ? 'text-[var(--arc-alert)]'
-                    : entry.level === 'warn' ? 'text-[var(--arc-caution)]'
-                      : 'text-[var(--arc-ink-3)]'
+                  entry.level === 'error' ? 'text-[var(--cn-alert-text)]'
+                    : entry.level === 'warn' ? 'text-[var(--cn-caution-text)]'
+                      : 'text-[var(--cn-ink-3)]'
                 }`}
               >
                 {entry.level}
               </span>
-              <span className="min-w-0 flex-1 truncate text-[11px] text-[var(--arc-ink-2)]">{entry.message}</span>
+              <span className="min-w-0 flex-1 truncate text-[11px] text-[var(--cn-ink-2)]">{entry.message}</span>
             </div>
           ))}
         </div>

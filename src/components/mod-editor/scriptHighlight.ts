@@ -65,13 +65,14 @@ export function tokenizeScript(code: string): ScriptToken[] {
 
 /** token 種類 → HARDLINE 色票 */
 export const SCRIPT_TOKEN_CLASS: Record<ScriptTokenKind, string> = {
-  comment: 'text-[var(--arc-ink-4)]',
-  string: 'text-[var(--arc-vital)]',
-  number: 'text-[var(--arc-caution)]',
-  keyword: 'text-[var(--arc-reach)]',
-  api: 'text-[var(--arc-gold)]',
-  func: 'text-[var(--arc-ink)] font-semibold',
-  plain: 'text-[var(--arc-ink-2)]',
+  // 一律用「淺底可讀」的 text token：arc-* 是深色介面色，放在奶油底只有 2.49:1
+  comment: 'text-[var(--cn-ink-3)]',
+  string: 'text-[var(--cn-vital-text)]',
+  number: 'text-[var(--cn-caution-text)]',
+  keyword: 'text-[var(--cn-reach-text)]',
+  api: 'text-[var(--cn-signal-text)]',
+  func: 'text-[var(--cn-ink)] font-semibold',
+  plain: 'text-[var(--cn-ink-2)]',
 };
 
 export interface ScriptApiEntry {
