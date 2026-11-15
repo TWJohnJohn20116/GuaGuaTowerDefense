@@ -74,6 +74,9 @@ export type HomeQuickScene = (typeof HOME_QUICK_SCENES)[number];
 /** 全部入口場景 */
 export type HomeEntryScene = HomeQuickScene | HomeGroupScene;
 
+/** 磚型：tile 是大磚（圖示 64px）、compact 是群組小磚（圖示 44px） */
+export type HomeEntrySize = 'tile' | 'compact';
+
 /**
  * 鍵盤焦點序列 = 視覺閱讀序：開始遊戲（預設）→ 左欄 → 右欄 → 三群帶。
  * 'start' 不是場景，是 Hero 上那顆開始遊戲。
