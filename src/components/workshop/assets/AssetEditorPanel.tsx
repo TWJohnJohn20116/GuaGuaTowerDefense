@@ -19,7 +19,6 @@ import { TOWER_DATA } from '@/data/gameData';
 import { MOD_SCRIPT_HOOKS, MOD_SCRIPT_PERMISSIONS } from '@/mod-script/limits';
 import { Btn, Deck, Empty, Input, SegHead, Toggle } from '@/components/hl';
 import { ScriptCodeEditor } from '@/components/mod-editor/ScriptCodeEditor';
-import { TowerModelEditor } from './TowerModelEditor';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 
 const ABILITIES = ['none', 'flying', 'healing', 'spawning', 'shield', 'stealth', 'berserk', 'armored', 'teleport', 'miniboss', 'swarm', 'phase', 'explode', 'jam', 'escort'] as const;
@@ -27,8 +26,8 @@ const TOWER_BASE_TYPES = Object.keys(TOWER_DATA);
 
 interface AssetEditorPanelProps {
   assetId: string;
-  /** 地圖／規則集要回各自的頁面編輯 */
-  onNavigate?: (page: 'levels' | 'rules') => void;
+  /** 地圖／規則集／3D 模型要回各自的頁面編輯 */
+  onNavigate?: (page: 'levels' | 'rules' | 'models') => void;
 }
 
 function NumField({ label, value, onChange, step = 1 }: { label: string; value: number; onChange: (next: number) => void; step?: number }) {
@@ -180,12 +179,15 @@ export function AssetEditorPanel({ assetId, onNavigate }: AssetEditorPanelProps)
             )}
           </div>
 
-          <TowerModelEditor
-            towerId={towerData.baseType}
-            color={towerData.color}
-            model={towerData.custom3d}
-            onChange={(custom3d) => patchData({ custom3d })}
-          />
+          <SegHead label={s.model3d} />
+          <div className="flex items-center justify-between gap-2">
+            <span className="min-w-0 flex-1 font-mono text-[10.5px] leading-relaxed text-[var(--cn-ink-3)]">
+              {(towerData.custom3d?.parts.length ?? 0) > 0
+                ? t.studio.models.partCount.replace('{count}', String(towerData.custom3d?.parts.length ?? 0))
+                : s.noParts}
+            </span>
+            <Btn size="sm" variant="line" onClick={() => onNavigate?.('models')}>{s.gotoEdit}</Btn>
+          </div>
         </>
       )}
 

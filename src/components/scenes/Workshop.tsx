@@ -16,6 +16,7 @@ import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
 import { useGameStore } from '@/store/gameStore';
 import { ProjectsPage, type StudioPage } from '@/components/workshop/projects/ProjectsPage';
 import { AssetsPage } from '@/components/workshop/assets/AssetsPage';
+import { ModelsPage } from '@/components/workshop/models/ModelsPage';
 import { LevelsPage } from '@/components/workshop/levels/LevelsPage';
 import { ContentPage } from '@/components/workshop/content/ContentPage';
 import { GraphPage } from '@/components/workshop/graph/GraphPage';
@@ -58,11 +59,12 @@ export default function Workshop() {
     { id: 'content', label: s.nav.content },
     { id: 'rules', label: s.nav.rules },
     { id: 'assets', label: s.nav.assets },
+    { id: 'models', label: s.nav.models },
     { id: 'playtest', label: s.nav.playtest },
     { id: 'publish', label: s.nav.publish },
   ];
 
-  const needsProject = page !== 'projects' && page !== 'assets';
+  const needsProject = page !== 'projects' && page !== 'assets' && page !== 'models';
   const missingProject = needsProject && !activeProject;
 
   useEffect(() => {
@@ -147,6 +149,7 @@ export default function Workshop() {
               <>
                 {page === 'projects' && <ProjectsPage onNavigate={setPage} onCreateTemplate={createTemplate} />}
                 {page === 'assets' && <AssetsPage onNavigate={setPage} />}
+                {page === 'models' && <ModelsPage />}
                 {page === 'levels' && activeProject && <LevelsPage projectId={activeProject.id} />}
                 {page === 'content' && activeProject && <ContentPage projectId={activeProject.id} />}
                 {page === 'rules' && activeProject && <GraphPage projectId={activeProject.id} />}

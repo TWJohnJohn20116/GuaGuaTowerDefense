@@ -11,7 +11,15 @@ import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
 import { Btn, Deck, Empty, Input, Num, SegHead } from '@/components/hl';
 import { PlusIcon, CopyIcon, TrashIcon, PlayIcon, MapIcon, DownloadIcon, UploadIcon } from '@/components/ui/Icons';
 
-export type StudioPage = 'projects' | 'levels' | 'content' | 'rules' | 'assets' | 'playtest' | 'publish';
+export type StudioPage =
+  | 'projects'
+  | 'levels'
+  | 'content'
+  | 'rules'
+  | 'assets'
+  | 'models'
+  | 'playtest'
+  | 'publish';
 
 interface ProjectsPageProps {
   onNavigate: (page: StudioPage) => void;

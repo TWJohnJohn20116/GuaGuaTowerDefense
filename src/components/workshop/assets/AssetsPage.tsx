@@ -12,7 +12,7 @@ import { AssetEditorPanel } from './AssetEditorPanel';
 
 const KINDS: WorkshopAssetKind[] = ['tower', 'enemy', 'map', 'ruleSet', 'script', 'art'];
 
-export function AssetsPage({ onNavigate }: { onNavigate?: (page: 'levels' | 'rules') => void } = {}) {
+export function AssetsPage({ onNavigate }: { onNavigate?: (page: 'levels' | 'rules' | 'models') => void } = {}) {
   const { t } = useTranslation();
   const s = t.studio.assets;
   const projects = useWorkshopStore((state) => state.projects);
