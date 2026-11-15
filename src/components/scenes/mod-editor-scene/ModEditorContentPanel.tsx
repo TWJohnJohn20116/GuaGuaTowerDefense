@@ -4,20 +4,21 @@
  * 帶狀標題（h-11）＋密集清單：每個項目是一段 1px 分隔的區塊，不做卡片堆疊。
  */
 import { motion, AnimatePresence } from 'framer-motion';
-import type { CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData, ModItem, ModType } from '@/types/game';
+import type { CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData, CustomScriptData, ModItem, ModType } from '@/types/game';
 import { useTranslation } from '@/i18n';
 import {
   TowerEditor, EnemyEditor, MapEditorPanel,
   towerTemplates, enemyTemplates,
 } from '@/components/mod-editor';
 import { WaveEditor } from '@/components/mod-editor/WaveEditor';
+import { ScriptEditor } from '@/components/mod-editor/ScriptEditor';
 import { ModEditorSettingsTab } from '@/components/scenes/mod-editor-scene/ModEditorSettingsTab';
 import { PlusIcon, TemplateIcon } from '@/components/ui/Icons';
 import type { ModValidationFlag } from '@/types/game';
 import { getItemValidationLevel, validationRingClass } from '@/components/mod-editor/modValidationFlags';
 import { Btn, Empty, Num } from '@/components/hl';
 
-export type ContentTab = 'settings' | 'towers' | 'enemies' | 'maps' | 'waves';
+export type ContentTab = 'settings' | 'towers' | 'enemies' | 'maps' | 'waves' | 'scripts';
 
 interface TabConfig {
   id: ContentTab;
@@ -249,6 +250,14 @@ export function ModEditorContentPanel({
                       <WaveEditor
                         waveSet={item as CustomWaveData}
                         onChange={(w) => onUpdateItem(index, w)}
+                        onDelete={() => onDeleteItem(index)}
+                        onDuplicate={() => onDuplicateItem(index)}
+                      />
+                    )}
+                    {activeTab === 'scripts' && (
+                      <ScriptEditor
+                        script={item as CustomScriptData}
+                        onChange={(x) => onUpdateItem(index, x)}
                         onDelete={() => onDeleteItem(index)}
                         onDuplicate={() => onDuplicateItem(index)}
                       />

@@ -12,7 +12,7 @@ import { CustomCheckbox } from '@/components/ui/CustomCheckbox';
 import { Btn, Chip, Deck, Num, SegHead } from '@/components/hl';
 import {
   DownloadIcon, UploadIcon, XIcon, CopyIcon, WarningIcon,
-  TowerIcon, AlienIcon, MapIcon, WaveIcon, FolderIcon,
+  TowerIcon, AlienIcon, MapIcon, WaveIcon, PlayIcon, FolderIcon,
 } from '@/components/ui/Icons';
 import type { ImportMergeMode } from './modEditorImportMerge';
 
@@ -21,6 +21,7 @@ interface ExportSelection {
   enemies: boolean;
   maps: boolean;
   waves: boolean;
+  scripts: boolean;
 }
 
 interface ModImportExportDialogsProps {
@@ -31,6 +32,7 @@ interface ModImportExportDialogsProps {
   enemiesCount: number;
   mapsCount: number;
   wavesCount: number;
+  scriptsCount: number;
   modName: string;
   importJson: string;
   importFileName: string;
@@ -81,6 +83,7 @@ export function ModImportExportDialogs({
   enemiesCount,
   mapsCount,
   wavesCount,
+  scriptsCount,
   importJson,
   importFileName,
   importError,
@@ -124,13 +127,14 @@ export function ModImportExportDialogs({
   }, [onImportFileLoad]);
 
   const exportDisabled = !exportSelection.towers && !exportSelection.enemies
-    && !exportSelection.maps && !exportSelection.waves;
+    && !exportSelection.maps && !exportSelection.waves && !exportSelection.scripts;
 
   const exportRows = [
     { key: 'towers' as const, icon: <TowerIcon className="h-3.5 w-3.5" />, tone: 'text-[var(--arc-reach)]', count: towersCount, label: m.exportTowers.replace('{count}', String(towersCount)) },
     { key: 'enemies' as const, icon: <AlienIcon className="h-3.5 w-3.5" />, tone: 'text-[var(--arc-alert)]', count: enemiesCount, label: m.exportEnemies.replace('{count}', String(enemiesCount)) },
     { key: 'maps' as const, icon: <MapIcon className="h-3.5 w-3.5" />, tone: 'text-[var(--arc-vital)]', count: mapsCount, label: m.exportMaps.replace('{count}', String(mapsCount)) },
     { key: 'waves' as const, icon: <WaveIcon className="h-3.5 w-3.5" />, tone: 'text-[var(--arc-ink-2)]', count: wavesCount, label: `${m.tabWaves} (${wavesCount})` },
+    { key: 'scripts' as const, icon: <PlayIcon className="h-3.5 w-3.5" />, tone: 'text-[var(--arc-caution)]', count: scriptsCount, label: `${m.tabScripts} (${scriptsCount})` },
   ];
 
   return (

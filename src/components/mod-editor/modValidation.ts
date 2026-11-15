@@ -5,6 +5,9 @@ import type { Mod, ModValidationResult, ModValidationFlag } from '@/types/game';
 import type { Translations } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 import { ENEMY_DATA } from '@/data/gameData';
+import { checkScriptSyntax } from '@/mod-script/sandbox';
+import { missingPermissions } from '@/mod-script/permissions';
+import { MOD_SCRIPT_LIMITS } from '@/mod-script/limits';
 
 const BOSS_TYPES = new Set(['boss', 'miniboss']);
 
@@ -47,6 +50,14 @@ const ZH_FALLBACK: Partial<ValM> = {
   valWaveUnknownEnemy: '波次組「{name}」第 {wave} 波第 {group} 組：未知敵人類型「{type}」（非內建且非自訂敵人 ID）',
   valWaveCustomEnemy: '波次組「{name}」第 {wave} 波使用自訂敵人「{type}」',
   valWaveEnemyCount: '波次組「{name}」第 {wave} 波敵人數量須大於 0',
+  valLabelScript: '腳本',
+  valScriptMissingId: '腳本 #{index} 缺少 ID',
+  valScriptMissingName: '腳本 #{index} 缺少名稱',
+  valScriptEmptyCode: '腳本「{name}」沒有程式碼',
+  valScriptTooLong: '腳本「{name}」超過 {max} 字元上限',
+  valScriptNoHooks: '腳本「{name}」沒有掛任何事件',
+  valScriptSyntax: '腳本「{name}」語法錯誤：{message}',
+  valScriptMissingPerm: '腳本「{name}」使用未勾選的權限：{perms}',
   valErrorsPrefix: '錯誤：',
   valWarningsPrefix: '警告：',
 };
@@ -148,7 +159,8 @@ export function validateModContent(
     (mod.content.towers?.length ?? 0) > 0 ||
     (mod.content.enemies?.length ?? 0) > 0 ||
     (mod.content.maps?.length ?? 0) > 0 ||
-    (mod.content.waves?.length ?? 0) > 0;
+    (mod.content.waves?.length ?? 0) > 0 ||
+    (mod.content.scripts?.length ?? 0) > 0;
   if (!hasContent) pushError(v(m, 'valNoContent'), { tab: 'settings' });
 
   if (
@@ -163,19 +175,23 @@ export function validateModContent(
   const enemies = mod.content.enemies ?? [];
   const maps = mod.content.maps ?? [];
   const waveSets = mod.content.waves ?? [];
+  const scripts = mod.content.scripts ?? [];
 
   const lblTower = v(m, 'valLabelTower');
   const lblEnemy = v(m, 'valLabelEnemy');
   const lblMap = v(m, 'valLabelMap');
   const lblWaveSet = v(m, 'valLabelWaveSet');
+  const lblScript = v(m, 'valLabelScript');
 
   errors.push(...findDuplicateIds(towers, lblTower, m));
   errors.push(...findDuplicateIds(enemies, lblEnemy, m));
   errors.push(...findDuplicateIds(maps, lblMap, m));
   errors.push(...findDuplicateIds(waveSets, lblWaveSet, m));
+  errors.push(...findDuplicateIds(scripts, lblScript, m));
 
   warnings.push(...findDuplicateNames(towers, lblTower, m));
   warnings.push(...findDuplicateNames(enemies, lblEnemy, m));
+  warnings.push(...findDuplicateNames(scripts, lblScript, m));
 
   const enemyIds = new Set(enemies.map((e) => e.id));
 
@@ -256,6 +272,37 @@ export function validateModContent(
         }
       });
     });
+  });
+
+  scripts.forEach((script, i) => {
+    const scriptName = script.name || String(i + 1);
+    const tabFlag = { tab: 'scripts' as const, index: i };
+    if (!script.id) pushError(fillTemplate(v(m, 'valScriptMissingId'), { index: String(i + 1) }), tabFlag);
+    if (!script.name) pushError(fillTemplate(v(m, 'valScriptMissingName'), { index: String(i + 1) }), tabFlag);
+    if (!script.code.trim()) {
+      pushError(fillTemplate(v(m, 'valScriptEmptyCode'), { name: scriptName }), tabFlag);
+      return;
+    }
+    if (script.code.length > MOD_SCRIPT_LIMITS.maxCodeLength) {
+      pushError(
+        fillTemplate(v(m, 'valScriptTooLong'), { name: scriptName, max: String(MOD_SCRIPT_LIMITS.maxCodeLength) }),
+        tabFlag,
+      );
+    }
+    if (script.hooks.length === 0) {
+      pushWarning(fillTemplate(v(m, 'valScriptNoHooks'), { name: scriptName }), tabFlag);
+    }
+    const syntaxError = checkScriptSyntax(script.code);
+    if (syntaxError) {
+      pushError(fillTemplate(v(m, 'valScriptSyntax'), { name: scriptName, message: syntaxError }), tabFlag);
+    }
+    const missing = missingPermissions(script.code, script.permissions);
+    if (missing.length > 0) {
+      pushWarning(
+        fillTemplate(v(m, 'valScriptMissingPerm'), { name: scriptName, perms: missing.join(', ') }),
+        tabFlag,
+      );
+    }
   });
 
   return { valid: errors.length === 0, errors, warnings, flags };

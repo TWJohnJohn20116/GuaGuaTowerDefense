@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useModStore } from '@/store/modStore';
 import { useTranslation } from '@/i18n';
-import type { Mod, ModType, ModItem, CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData } from '@/types/game';
+import type { Mod, ModType, ModItem, CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData, CustomScriptData } from '@/types/game';
 import { SceneShell } from '@/components/ui/SceneShell';
 import { 
   defaultColors, 
@@ -12,7 +12,7 @@ import {
 } from '@/components/mod-editor';
 import { ModPreviewSidebar } from '@/components/mod-editor/ModPreviewSidebar';
 import { validateModContent, formatValidationMessage } from '@/components/mod-editor/modValidation';
-import { ModEditorContentPanel } from '@/components/scenes/mod-editor-scene/ModEditorContentPanel';
+import { ModEditorContentPanel, type ContentTab } from '@/components/scenes/mod-editor-scene/ModEditorContentPanel';
 import { ModEditorSidebarNav } from '@/components/scenes/mod-editor-scene/ModEditorSidebarNav';
 import { ModEditorHeader } from '@/components/scenes/mod-editor-scene/ModEditorHeader';
 import { ModEditorEmbeddedBar } from '@/components/scenes/mod-editor-scene/ModEditorEmbeddedBar';
@@ -26,11 +26,14 @@ import {
 import { 
   TowerIcon, AlienIcon, MapIcon,
   WaveIcon,
+  PlayIcon,
   SettingsIcon,
 } from '@/components/ui/Icons';
-
-// 內容類型
-type ContentTab = 'settings' | 'towers' | 'enemies' | 'maps' | 'waves';
+import {
+  createScriptSkeleton,
+  SCRIPT_DEFAULT_HOOKS,
+  SCRIPT_DEFAULT_PERMISSIONS,
+} from '@/components/mod-editor/scriptTemplate';
 
 // 主 Mod 編輯器組件
 export default function ModEditor({ embedded = false }: { embedded?: boolean } = {}) {
@@ -42,6 +45,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
     { id: 'enemies', label: t.modEditorExt.tabEnemies, icon: <AlienIcon className="h-3.5 w-3.5" /> },
     { id: 'maps', label: t.modEditorExt.tabMaps, icon: <MapIcon className="h-3.5 w-3.5" /> },
     { id: 'waves', label: t.modEditorExt.tabWaves, icon: <WaveIcon className="h-3.5 w-3.5" /> },
+    { id: 'scripts', label: t.modEditorExt.tabScripts, icon: <PlayIcon className="h-3.5 w-3.5" /> },
   ];
   const installMod = useModStore((s) => s.installMod);
   const updateMod = useModStore((s) => s.updateMod);
@@ -57,7 +61,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
   const [editingModId, setEditingModId] = useState<string | null>(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
-  const [exportSelection, setExportSelection] = useState({ towers: true, enemies: true, maps: true, waves: true });
+  const [exportSelection, setExportSelection] = useState({ towers: true, enemies: true, maps: true, waves: true, scripts: true });
   const [importJson, setImportJson] = useState('');
   const [importFileName, setImportFileName] = useState('');
   const [importMergeMode, setImportMergeMode] = useState<ImportMergeMode>('replace');
@@ -79,12 +83,14 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
   const [enemies, setEnemies] = useState<CustomEnemyData[]>([]);
   const [maps, setMaps] = useState<CustomMapData[]>([]);
   const [waves, setWaves] = useState<CustomWaveData[]>([]);
+  const [scripts, setScripts] = useState<CustomScriptData[]>([]);
 
   // 當前選中的項目
   const currentItems = activeTab === 'settings' ? []
     : activeTab === 'towers' ? towers 
     : activeTab === 'enemies' ? enemies 
     : activeTab === 'maps' ? maps
+    : activeTab === 'scripts' ? scripts
     : waves;
 
   // 載入編輯中的 Mod
@@ -101,6 +107,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
       setEnemies(editingMod.content.enemies || []);
       setMaps(editingMod.content.maps || []);
       setWaves(editingMod.content.waves || []);
+      setScripts(editingMod.content.scripts || []);
       if (modEditorFocus) {
         setActiveTab(modEditorFocus.tab);
         const list = modEditorFocus.tab === 'towers'
@@ -109,7 +116,9 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
             ? editingMod.content.enemies
             : modEditorFocus.tab === 'maps'
               ? editingMod.content.maps
-              : editingMod.content.waves;
+              : modEditorFocus.tab === 'scripts'
+                ? editingMod.content.scripts
+                : editingMod.content.waves;
         const idx = modEditorFocus.itemId
           ? (list ?? []).findIndex((item) => item.id === modEditorFocus.itemId)
           : -1;
@@ -148,6 +157,13 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
         id, modId: '', name: m.newWaveSet, description: m.customWave,
         waves: [{ enemies: [{ type: 'normal', count: 5, delay: 0 }], reward: 50 }],
       }]);
+    } else if (activeTab === 'scripts') {
+      setScripts([...scripts, {
+        id, modId: '', name: m.newScript, description: m.customScript,
+        hooks: [...SCRIPT_DEFAULT_HOOKS],
+        permissions: [...SCRIPT_DEFAULT_PERMISSIONS],
+        code: createScriptSkeleton(),
+      }]);
     }
 
     setSelectedItemIndex(currentItems.length);
@@ -185,6 +201,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
     else if (activeTab === 'enemies') { const newEnemies = [...enemies]; newEnemies[index] = item as CustomEnemyData; setEnemies(newEnemies); }
     else if (activeTab === 'maps') { const newMaps = [...maps]; newMaps[index] = item as CustomMapData; setMaps(newMaps); }
     else if (activeTab === 'waves') { const newWaves = [...waves]; newWaves[index] = item as CustomWaveData; setWaves(newWaves); }
+    else if (activeTab === 'scripts') { const newScripts = [...scripts]; newScripts[index] = item as CustomScriptData; setScripts(newScripts); }
   };
 
   const deleteItem = (index: number) => {
@@ -192,6 +209,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
     else if (activeTab === 'enemies') setEnemies(enemies.filter((_, i) => i !== index));
     else if (activeTab === 'maps') setMaps(maps.filter((_, i) => i !== index));
     else if (activeTab === 'waves') setWaves(waves.filter((_, i) => i !== index));
+    else if (activeTab === 'scripts') setScripts(scripts.filter((_, i) => i !== index));
     if (selectedItemIndex === index) setSelectedItemIndex(null);
     else if (selectedItemIndex !== null && selectedItemIndex > index) setSelectedItemIndex(selectedItemIndex - 1);
   };
@@ -211,6 +229,9 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
     } else if (activeTab === 'waves') {
       const src = waves[index];
       setWaves([...waves, { ...clone(src), id: generateId(), name: src.name + m.duplicateSuffix }]);
+    } else if (activeTab === 'scripts') {
+      const src = scripts[index];
+      setScripts([...scripts, { ...clone(src), id: generateId(), name: src.name + m.duplicateSuffix }]);
     }
     setSelectedItemIndex(currentItems.length);
   };
@@ -224,6 +245,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
         enemies: enemies.length > 0 ? enemies.map(e => ({ ...e, modId })) : undefined,
         maps: maps.length > 0 ? maps.map(m => ({ ...m, modId })) : undefined,
         waves: waves.length > 0 ? waves.map(w => ({ ...w, modId })) : undefined,
+        scripts: scripts.length > 0 ? scripts.map(s => ({ ...s, modId })) : undefined,
       },
       enabled: false, loadOrder: 999,
     };
@@ -234,7 +256,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
       installedModIds: installedMods.map((mod) => mod.metadata.id),
       editingModId,
     }, m),
-    [modName, modVersion, modAuthor, modDescription, modType, modIcon, towers, enemies, maps, waves, editingModId, installedMods, m],
+    [modName, modVersion, modAuthor, modDescription, modType, modIcon, towers, enemies, maps, waves, scripts, editingModId, installedMods, m],
   );
 
   const importPreview = useMemo(() => {
@@ -286,6 +308,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
         enemies: (exportSelection.enemies && enemies.length > 0) ? enemies.map(e => ({ ...e, modId })) : undefined,
         maps: (exportSelection.maps && maps.length > 0) ? maps.map(m => ({ ...m, modId })) : undefined,
         waves: (exportSelection.waves && waves.length > 0) ? waves.map(w => ({ ...w, modId })) : undefined,
+        scripts: (exportSelection.scripts && scripts.length > 0) ? scripts.map(s => ({ ...s, modId })) : undefined,
       },
       enabled: false, loadOrder: 999,
     };
@@ -301,7 +324,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
     setTimeout(() => setSaveMessage(null), 3000);
   };
 
-  const draftMod = useMemo(() => buildMod(), [modName, modVersion, modAuthor, modDescription, modType, modIcon, towers, enemies, maps, waves, editingModId, m.customTag]);
+  const draftMod = useMemo(() => buildMod(), [modName, modVersion, modAuthor, modDescription, modType, modIcon, towers, enemies, maps, waves, scripts, editingModId, m.customTag]);
 
   const baselineMod = useMemo(
     () => (editingModId ? installedMods.find((mod) => mod.metadata.id === editingModId) ?? null : null),
@@ -342,7 +365,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
       if (parsed.metadata.icon !== undefined && importMergeMode === 'replace') setModIcon(parsed.metadata.icon);
 
       const merged = mergeModImportContent(
-        { towers, enemies, maps, waves },
+        { towers, enemies, maps, waves, scripts },
         parsed.content,
         importMergeMode,
         generateId,
@@ -351,6 +374,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
       setEnemies(merged.enemies);
       setMaps(merged.maps);
       setWaves(merged.waves);
+      setScripts(merged.scripts);
 
       setShowImportDialog(false);
       setImportJson('');
@@ -372,6 +396,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
       case 'enemies': return enemies.length;
       case 'maps': return maps.length;
       case 'waves': return waves.length;
+      case 'scripts': return scripts.length;
     }
   };
 
@@ -469,6 +494,7 @@ export default function ModEditor({ embedded = false }: { embedded?: boolean } =
         enemiesCount={enemies.length}
         mapsCount={maps.length}
         wavesCount={waves.length}
+        scriptsCount={scripts.length}
         modName={modName}
         importJson={importJson}
         importFileName={importFileName}

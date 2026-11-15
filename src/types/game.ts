@@ -1,5 +1,7 @@
 // 游戏核心类型定义
 
+import type { CustomScriptData } from './modScript';
+
 // 遊戲難度
 export type GameDifficulty = 'easy' | 'normal' | 'hard' | 'nightmare' | 'impossible' | 'custom';
 
@@ -611,7 +613,7 @@ export interface CustomWaveData {
 }
 
 /** Mod 編輯器四種內容的聯集（編輯器只有一個「目前分頁」的選取狀態，陣列本身仍各自具名） */
-export type ModItem = CustomTowerData | CustomEnemyData | CustomMapData | CustomWaveData;
+export type ModItem = CustomTowerData | CustomEnemyData | CustomMapData | CustomWaveData | CustomScriptData;
 
 // Mod 內容
 interface ModContent {
@@ -619,6 +621,8 @@ interface ModContent {
   enemies?: CustomEnemyData[];
   maps?: CustomMapData[];
   waves?: CustomWaveData[];
+  /** 腳本（Worker 沙箱執行，只回傳指令） */
+  scripts?: CustomScriptData[];
 }
 
 // 完整 Mod 定義
@@ -630,7 +634,7 @@ export interface Mod {
 }
 
 // Mod 驗證結果
-type ModValidationTab = 'settings' | 'towers' | 'enemies' | 'maps' | 'waves';
+type ModValidationTab = 'settings' | 'towers' | 'enemies' | 'maps' | 'waves' | 'scripts';
 
 export interface ModValidationFlag {
   tab: ModValidationTab;

@@ -6,7 +6,7 @@ import type { Mod, ModValidationResult, CustomTowerData, CustomEnemyData, Custom
 import { sampleMod, eliteEnemyMod, hellMapMod, sampleWaveMod } from '@/data/sampleMods';
 import { validateModContent, formatValidationMessage } from '@/components/mod-editor/modValidation';
 
-export type ModEditorFocusTab = 'towers' | 'enemies' | 'maps' | 'waves';
+export type ModEditorFocusTab = 'towers' | 'enemies' | 'maps' | 'waves' | 'scripts';
 export type WorkshopTab = 'modEditor' | 'modManager';
 
 interface ModEditorFocus {

@@ -1,7 +1,7 @@
 /**
  * Mod 匯入內容合併工具
  */
-import type { Mod, CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData } from '@/types/game';
+import type { Mod, CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData, CustomScriptData } from '@/types/game';
 
 export type ImportMergeMode = 'replace' | 'merge';
 
@@ -14,6 +14,7 @@ interface MergedImportContent {
   enemies: CustomEnemyData[];
   maps: CustomMapData[];
   waves: CustomWaveData[];
+  scripts: CustomScriptData[];
 }
 
 export function mergeModImportContent(
@@ -28,6 +29,7 @@ export function mergeModImportContent(
       enemies: (incoming.enemies ?? []).map((e) => ({ ...e, id: generateId() })),
       maps: (incoming.maps ?? []).map((m) => ({ ...m, id: generateId() })),
       waves: (incoming.waves ?? []).map((w) => ({ ...w, id: generateId() })),
+      scripts: (incoming.scripts ?? []).map((s) => ({ ...s, id: generateId() })),
     };
   }
 
@@ -47,6 +49,10 @@ export function mergeModImportContent(
     waves: [
       ...current.waves,
       ...(incoming.waves ?? []).map((w) => ({ ...w, id: generateId() })),
+    ],
+    scripts: [
+      ...current.scripts,
+      ...(incoming.scripts ?? []).map((s) => ({ ...s, id: generateId() })),
     ],
   };
 }
