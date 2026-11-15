@@ -54,6 +54,11 @@ function onWaveStart(ctx, api) {
 | `onTick` | 主迴圈節流 500ms（遊戲時間） | 無 |
 | `onGameOver` | 基地血量歸零 | 無 |
 | `onVictory` | `setVictory()` | 無 |
+| `onTowerUpgraded` | `upgradeTower()` 成功後 | `towerType`, `row`, `col` |
+| `onEnemySpawned` | `spawnEnemy()` 追加敵人後 | `enemyType`, `wave` |
+| `onSkillUsed` | `activateSkill()` 成功後 | `towerType`, `row`, `col` |
+| `onBossKilled` | 擊殺批次中含 boss／miniboss | `enemyType`, `killCount` |
+| `onWavePrepared` | `startWave()` 佇列建立後、派發前 | `wave` |
 
 ## 3. API 與權限
 
@@ -65,6 +70,15 @@ function onWaveStart(ctx, api) {
 | `api.base.heal(n)` / `api.base.damage(n)` | `base.health` | `healBase` / `damageBase` |
 | `api.spawn.enemy(type, count?, intervalMs?)` | `enemy.spawn` | `spawnEnemy`（1–20 隻、0–10000ms） |
 | `api.status.apply(effect, durationMs, value?, target?)` | `enemy.modify` | `applyStatus`（≤60s、≤200 隻） |
+| `api.store.get/set/all` | `storage` | `setScriptState`（≤32 鍵、字串 ≤512 字元） |
+| `api.score.add(n)` | `economy` | `addScore`（結果不會低於 0） |
+| `api.tower.modify(scope, stat, mult)` | `tower.modify` | `modifyTower`（總量夾 0.1~5，重複套用累乘） |
+| `api.tower.upgrade(row, col)` / `sell(row, col)` | `tower.modify` | `upgradeTowerAt` / `sellTowerAt`（Lv2 預設 A 路線） |
+| `api.tower.grant(type, row, col)` | `tower.modify` | `grantTower`（空格才放，佔用格跳過） |
+| `api.enemy.teleport(type, row, col)` | `enemy.modify` | `teleportEnemy`（只搬指定型別） |
+| `api.difficulty.set({ healthMult, speedMult, rewardMult })` | `match.modify` | `setDifficulty`（總量夾 0.1~10，避免反覆觸發失控） |
+| `api.wave.setDelay(ms)` | `match.modify` | `setWaveDelay`（0~60000） |
+| `api.fx.burst(row, col, color?)` | `match.modify` | `playEffect` |
 | `api.rng()` / `rngInt` / `chance` / `pick` | 免權限 | （決定性 RNG，seed＝hash(scriptId)+事件序號） |
 
 - 沒有勾的權限 → 指令被丟棄，並在 UI 日誌寫一筆 `權限不足` 警告（不中斷腳本）。
@@ -184,3 +198,144 @@ CSP 錯誤在 webview 裡通常只表現成白畫面或資源靜默失敗。
 5. 編輯器色票走低彩度（AA 可讀優先）：`api 2.49:1 → 通過` 之後視覺上偏素；
    若要更鮮豔需要先算過一輪對比，再加高彩度 token。
 6. 自動完成沒有參數提示（signature help）；目前只插入範例片段。
+
+> 節點層的目錄、未實作項目與限制見下一節。
+
+## 10. 節點目錄（114 個）
+
+節點庫 `src/workshop/graph/nodeLibrary.ts` 是唯一真相：畫布、檢視器、規則表、驗證器、codegen 都從它讀規格。節點 type 一旦發布不可改名（存檔與 .ggmod 都靠它）。
+
+三層關係：**規格**（nodeLibrary）→ **產生程式碼**（codegen）→ **落地**（commands，只有新指令才需要動）。
+`src/test/workshopNodeCoverage.test.ts` 會逐型別建最小圖並編譯，任何漏接 codegen 的節點都會讓 CI 紅。
+
+### 10.1 事件（17）
+
+| type | 名稱 |
+|---|---|
+| `event.gameStart` | 遊戲開始 |
+| `event.waveStart` | 波次開始 |
+| `event.wavePrepared` | 波次準備 |
+| `event.waveClear` | 波次結束 |
+| `event.enemySpawned` | 敵人生成 |
+| `event.enemyKilled` | 敵人死亡 |
+| `event.enemyLeaked` | 漏怪 |
+| `event.bossSpawn` | Boss 出現 |
+| `event.bossKilled` | Boss 擊殺 |
+| `event.towerPlaced` | 塔放置 |
+| `event.towerUpgraded` | 塔升級 |
+| `event.towerSold` | 塔出售 |
+| `event.skillUsed` | 技能啟用 |
+| `event.moneyChanged` | 金錢變動 |
+| `event.tick` | 每幀 |
+| `event.victory` | 勝利 |
+| `event.gameOver` | 遊戲失敗 |
+
+### 10.2 條件（31）
+
+| type | 名稱 | 讀什麼 |
+|---|---|---|
+| `cond.chance` | 隨機機率 | `api.chance(p)` |
+| `cond.compare` | 數值比較 | 兩個數值埠 |
+| `cond.between` | 區間判定 | 數值埠＋上下限 |
+| `cond.and` / `cond.or` / `cond.not` | 且／或／非 | 布林埠 |
+| `cond.xor` / `cond.nand` / `cond.nor` | 互斥／非且／非或 | 布林埠 |
+| `cond.anyOf` / `cond.allOf` | 任一成立／全部成立 | 三個布林埠 |
+| `cond.wave` | 波次門檻 | `api.state.wave` |
+| `cond.waveModulo` | 每 N 波 | `api.state.wave % n` |
+| `cond.waveParity` | 波次奇偶 | `api.state.wave % 2` |
+| `cond.health` | 基地生命門檻 | `api.state.health` |
+| `cond.towerCount` | 塔數門檻 | `api.state.towerCount` |
+| `cond.towerType` | 場上有某種塔 | `api.state.towerTypes` |
+| `cond.enemyCount` | 場上敵人數 | `api.state.enemyCount` |
+| `cond.enemyType` | 指定敵人數量 | `api.state.enemiesByType` |
+| `cond.bossOnField` | Boss 在場 | boss／miniboss 計數 |
+| `cond.fieldEmpty` | 場上清空 | `enemyCount === 0` |
+| `cond.money` | 金錢比較 | `api.state.money` |
+| `cond.score` | 分數門檻 | `api.state.score` |
+| `cond.kills` | 擊殺數門檻 | `api.state.kills` |
+| `cond.leaks` | 漏怪數門檻 | `api.state.leaks` |
+| `cond.elapsed` | 經過時間 | `api.state.elapsedMs / 1000` |
+| `cond.difficulty` | 難度比對 | `api.state.difficulty` |
+| `cond.endless` | 是否無盡模式 | `api.state.endless` |
+| `cond.pathName` | 地圖比對 | `api.state.pathName` |
+| `cond.varCompare` | 變數比對 | `api.store.get`（storage） |
+| `cond.varString` | 字串變數比對 | `api.store.get`（storage） |
+
+### 10.3 動作（20）
+
+| type | 名稱 | 產生 |
+|---|---|---|
+| `action.addMoney` | 加錢 | `api.money.add` |
+| `action.addScore` | 加分 | `api.score.add` |
+| `action.healBase` / `action.damageBase` | 回復／扣除基地生命 | `api.base.*` |
+| `action.spawnEnemy` | 生成敵人 | `api.spawn.enemy` |
+| `action.applyStatus` | 施加狀態 | `api.status.apply` |
+| `action.applyStatusAll` | 全體施加狀態 | `api.status.apply`（無目標） |
+| `action.modifyTower` | 修改塔能力 | `api.tower.modify` |
+| `action.upgradeTowerAt` | 升級座標塔 | `api.tower.upgrade` |
+| `action.sellTowerAt` | 出售座標塔 | `api.tower.sell` |
+| `action.grantTower` | 送塔 | `api.tower.grant` |
+| `action.teleportEnemy` | 傳送敵人 | `api.enemy.teleport` |
+| `action.setDifficulty` | 調整難度倍率 | `api.difficulty.set` |
+| `action.setWaveDelay` | 設定下一波延遲 | `api.wave.setDelay` |
+| `action.playEffect` | 播放特效 | `api.fx.burst` |
+| `action.log` / `action.logValue` | 寫入日誌／印出數值 | `api.log` |
+| `action.setVar` / `action.addVar` / `action.clearVar` | 設定／累加／清除變數 | `api.store.set` |
+
+### 10.4 流程（8）
+
+| type | 名稱 | 說明 |
+|---|---|---|
+| `flow.if` | 條件分支 | then／else 兩路 |
+| `flow.switch` | 多分支 | 三個具名分支＋預設，沒接線的分支不產生空 if |
+| `flow.sequence` | 序列 | 三路依序 |
+| `flow.sequenceN` | 序列（六路） | 六路依序 |
+| `flow.loop` | 迴圈 | 上限 50 次 |
+| `flow.throttle` | 節流 | 依 `elapsedMs` 間隔 |
+| `flow.gate` | 每 N 次通過 | 持久計數 |
+| `flow.once` | 只執行一次 | 持久旗標 |
+
+### 10.5 數值（31）
+
+| type | 名稱 |
+|---|---|
+| `num.literal` | 固定數值 |
+| `num.add` / `num.sub` / `num.mul` / `num.div` | 四則運算（除以 0 回 0） |
+| `num.mod` / `num.pow` / `num.abs` | 餘數／次方／絕對值 |
+| `num.floor` / `num.ceil` / `num.round` | 捨去／進位／四捨五入 |
+| `num.min` / `num.max` / `num.clamp` | 取最小／取最大／夾在範圍 |
+| `num.random` / `num.randomFloat` | 隨機整數／隨機小數 |
+| `num.state` / `num.var` | 讀狀態欄位／讀腳本變數 |
+| `num.wave` / `num.maxWaves` | 目前波次／總波數 |
+| `num.health` / `num.money` | 基地生命／目前金錢 |
+| `num.towerCount` / `num.towerLevelSum` | 場上塔數／塔等級總和 |
+| `num.enemyCount` / `num.enemiesOfType` | 場上敵人數／指定敵人數量 |
+| `num.bossHealth` | 場上 Boss 最高血量 |
+| `num.score` / `num.kills` / `num.leaks` | 分數／擊殺數／漏怪數 |
+| `num.elapsedSec` | 經過秒數 |
+
+### 10.6 字串（6）
+
+| type | 名稱 | 說明 |
+|---|---|---|
+| `text.literal` | 文字 | 固定字串 |
+| `text.concat` | 串接文字 | 兩段相接 |
+| `text.number` | 數字轉文字 | `String(v)` |
+| `text.template` | 文字模板 | `漏了 {n} 隻` 插值 |
+| `text.upper` | 轉大寫 | `toUpperCase` |
+| `text.slice` | 取子字串 | 起始＋長度 |
+
+### 10.7 JS（1）
+
+`js.node`：直接寫 JS，與腳本同一個 Worker 沙箱與權限模型，標記為不可靜態分析。
+
+### 10.8 尚未實作的節點（需要先動核心系統）
+
+| 節點 | 卡在哪 |
+|---|---|
+| `action.setTargeting` | 塔沒有「目標優先級」欄位，要先定義覆寫機制 |
+| `action.shieldTower` | 塔沒有血量系統（敵人只會穿過），護盾沒有意義 |
+| `action.spawnWave` | 生成佇列在 rAF 的 ref 裡，要重構成 store 佇列才能插波 |
+| `action.revealWave` | 預告資料不在 store，需要先開 UI 通道 |
+| `cond.enemyInRange` | 等於把挑目標邏輯搬進沙箱，容易與主迴圈不一致 |
+
