@@ -279,10 +279,10 @@ describe('戰鬥熱鍵與場景效果接線', () => {
   });
 
   it('返回鍵先取消融合再處理場景返回', () => {
-    const effects = effects();
-    expect(effects).toMatch(/fusionMode/);
-    expect(effects).toMatch(/cancelFusion/);
-    expect(effects).toMatch(/cancel_fusion/);
+    const text = effects();
+    expect(text).toMatch(/fusionMode/);
+    expect(text).toMatch(/cancelFusion/);
+    expect(text).toMatch(/cancel_fusion/);
   });
 
   it('快速放置預設值只由 store 與共用判定提供', () => {
