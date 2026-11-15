@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 import { motion } from 'framer-motion';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { sectionMatches } from '@/data/devSearch';
-import { Deck, Btn, Input } from '@/components/hl';
+import { Deck } from '@/components/hl';
 
 export type Accent = 'cyan' | 'emerald' | 'purple' | 'violet' | 'amber' | 'rose' | 'white';
 
@@ -184,35 +184,42 @@ export const DevNumberInput = ({ label, value, onChange, min, max, step = 1, suf
 
   return (
     <div className="flex items-center gap-2">
-      {label && <span className="text-[10px] font-bold tracking-widest text-[var(--arc-ink-3)] uppercase flex-shrink-0">{label}</span>}
-      <Deck tone="sunken" className="flex items-center overflow-hidden flex-1">
-        <Btn
-          variant="ghost"
-          size="sm"
+      {label && (
+        <span className="shrink-0 font-mono text-[9.5px] uppercase tracking-[0.14em] text-[var(--arc-ink-4)]">
+          {label}
+        </span>
+      )}
+      {/* 原生 input 重畫：1px 細框、5px 圓角、加減鍵獨立 hover，數字用等寬字 */}
+      <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-[5px] border border-[var(--arc-line)] bg-[var(--arc-deck-2)]">
+        <button
+          type="button"
           onClick={() => onChange(clamp(value - step))}
-          className="px-2.5 py-1.5 text-[var(--arc-ink-4)] hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink)] transition-colors text-sm font-bold"
+          aria-label="減"
+          className="flex h-7 w-7 shrink-0 items-center justify-center text-[13px] font-bold text-[var(--arc-ink-4)] transition-colors hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink)]"
         >
           −
-        </Btn>
-        <Input
+        </button>
+        <input
           type="number"
-          className="flex-1 min-w-0 bg-transparent text-center text-[var(--arc-ink)] text-xs font-mono font-bold px-1 py-1.5 focus:outline-none"
           value={value}
           onChange={(e) => onChange(clamp(Number(e.target.value) || 0))}
           min={min}
           max={max}
           step={step}
+          className="min-w-0 flex-1 appearance-none bg-transparent px-1 text-center font-mono text-[11px] font-bold text-[var(--arc-ink)] focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
-        {suffix && <span className="px-2 text-[10px] text-[var(--arc-ink-4)] font-mono">{suffix}</span>}
-        <Btn
-          variant="ghost"
-          size="sm"
+        {suffix && (
+          <span className="shrink-0 pr-1 font-mono text-[9px] text-[var(--arc-ink-4)]">{suffix}</span>
+        )}
+        <button
+          type="button"
           onClick={() => onChange(clamp(value + step))}
-          className="px-2.5 py-1.5 text-[var(--arc-ink-4)] hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink)] transition-colors text-sm font-bold"
+          aria-label="加"
+          className="flex h-7 w-7 shrink-0 items-center justify-center text-[13px] font-bold text-[var(--arc-ink-4)] transition-colors hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink)]"
         >
           +
-        </Btn>
-      </Deck>
+        </button>
+      </div>
     </div>
   );
 };
