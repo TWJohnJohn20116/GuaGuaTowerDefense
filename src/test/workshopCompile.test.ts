@@ -399,3 +399,59 @@ describe('compileProject：關卡設定', () => {
     ]);
   });
 });
+
+// 波次層的新欄位（hpScale／intervalMs／enabled／chapter／name）是工坊波次編輯器加的，
+// 編譯層要負責兩件事：有值的才寫進 .ggmod、停用的波要歸零但保留波數。
+describe('compileProject：波次層欄位', () => {
+  it('停用的波編譯成空波 + 0 獎勵，波數不變', () => {
+    const project = makeProject({
+      levels: [
+        makeLevel({
+          waves: [
+            { enemies: [{ type: 'normal', count: 3, delay: 0 }], reward: 40 },
+            { enemies: [{ type: 'normal', count: 5, delay: 0 }], reward: 60, enabled: false },
+            { enemies: [{ type: 'normal', count: 2, delay: 0 }], reward: 20 },
+          ],
+        }),
+      ],
+    });
+
+    const result = compileProject(project, []);
+    const waves = result.mod.content.waves?.[0]?.waves ?? [];
+    expect(waves).toHaveLength(3);
+    expect(waves[1].enemies).toEqual([]);
+    expect(waves[1].reward).toBe(0);
+    expect(waves[0].reward).toBe(40);
+    expect(waves[2].reward).toBe(20);
+    // 停用的波不該被當成「有敵人卻對不上」
+    expect(result.warnings).not.toContain('studio.compile.invalidWaveGroup');
+  });
+
+  it('hpScale／intervalMs／chapter／name 只帶有值的欄位進封裝', () => {
+    const project = makeProject({
+      levels: [
+        makeLevel({
+          waves: [
+            {
+              enemies: [{ type: 'normal', count: 2, delay: 0 }],
+              reward: 10,
+              hpScale: 1.5,
+              intervalMs: 400,
+              chapter: 'A',
+              name: '開場',
+            },
+            { enemies: [{ type: 'normal', count: 2, delay: 0 }], reward: 10 },
+          ],
+        }),
+      ],
+    });
+
+    const result = compileProject(project, []);
+    const waves = result.mod.content.waves?.[0]?.waves ?? [];
+    expect(waves[0]).toMatchObject({ hpScale: 1.5, intervalMs: 400, chapter: 'A', name: '開場' });
+    expect(waves[1].hpScale).toBeUndefined();
+    expect(waves[1].intervalMs).toBeUndefined();
+    expect(waves[1].chapter).toBeUndefined();
+    expect(waves[1].name).toBeUndefined();
+  });
+});
