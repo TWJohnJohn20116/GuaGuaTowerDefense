@@ -21,9 +21,34 @@ import { resolveFusionCanvasClick } from '@/data/fusionCanvasClick';
 import { resolveGridTowerClick, resolveMarqueeAsClick } from '@/data/gridTowerClick';
 import { shouldShowTowerRangeRing } from '@/data/towerRangeVisibility';
 import { useSettingsStore } from '@/store/settingsStore';
+import type { MapPoint, PathConfig, Tower } from '@/types/game';
+import {
+  DEFAULT_TOWER_RADIUS,
+  circlesOverlap,
+  isBlockedAt,
+  isInsideBounds,
+  pathClearance,
+  pathWidthOf,
+} from '@/data/mapGeometry';
 
 const COLS = GAME_CONSTANTS.GRID_COLS;
 const ROWS = GAME_CONSTANTS.GRID_ROWS;
+
+/** 指標落在哪座塔上（圓形命中，與 2D 同一套判定） */
+const findTowerAt = (towers: Tower[], point: MapPoint): Tower | null => {
+  for (const tower of towers) {
+    if (circlesOverlap(point, tower.radius + 0.08, tower.pos, 0)) return tower;
+  }
+  return null;
+};
+
+/** 這個點能不能放塔（與 store.placeTower 同一套判定，只差金錢） */
+const canPlaceAt = (map: PathConfig | null, point: MapPoint, towers: Tower[]): boolean => {
+  if (!isInsideBounds(map, point, DEFAULT_TOWER_RADIUS)) return false;
+  if (isBlockedAt(map, point, DEFAULT_TOWER_RADIUS)) return false;
+  if (pathClearance(map, point) < pathWidthOf(map) / 2 + DEFAULT_TOWER_RADIUS) return false;
+  return !towers.some((t) => circlesOverlap(point, DEFAULT_TOWER_RADIUS, t.pos, t.radius));
+};
 
 interface Interaction3D {
   /** 每幀更新（高亮 / 射程圈 / 選中環） */
@@ -55,8 +80,8 @@ export function createInteraction3D(
   const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.12);
   const hitPoint = new THREE.Vector3();
 
-  /** 目前懸停格（無效時為 null） */
-  let hoverCell: { col: number; row: number } | null = null;
+  /** 目前懸停點（世界座標，單位＝格；無效時為 null） */
+  let hoverPoint: MapPoint | null = null;
 
   // ===== 懸停高亮塊 =====
   const hoverMat = new THREE.MeshStandardMaterial({
@@ -105,8 +130,8 @@ export function createInteraction3D(
   selectedHalo.visible = false;
   scene.add(selectedHalo);
 
-  // ===== 滑鼠 → 格座標 =====
-  const pickCell = (clientX: number, clientY: number): { col: number; row: number } | null => {
+  // ===== 滑鼠 → 世界座標（連續，不取整）=====
+  const pickPoint = (clientX: number, clientY: number): MapPoint | null => {
     const rect = dom.getBoundingClientRect();
     pointerNdc.set(
       ((clientX - rect.left) / rect.width) * 2 - 1,
@@ -114,10 +139,12 @@ export function createInteraction3D(
     );
     raycaster.setFromCamera(pointerNdc, camera);
     if (!raycaster.ray.intersectPlane(groundPlane, hitPoint)) return null;
-    const col = Math.round(hitPoint.x + COLS / 2 - 0.5);
-    const row = Math.round(hitPoint.z + ROWS / 2 - 0.5);
-    if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return null;
-    return { col, row };
+    // toWorld 是「格左上 → 世界」，反推後 +0.5 得到格中心語意（與 Tower.pos 一致）
+    const x = hitPoint.x + COLS / 2;
+    const y = hitPoint.z + ROWS / 2;
+    const map = useGameStore.getState().activeMap;
+    if (!isInsideBounds(map, { x, y })) return null;
+    return { x, y };
   };
 
   // ===== 事件 =====
@@ -141,16 +168,16 @@ export function createInteraction3D(
       return;
     }
 
-    hoverCell = pickCell(e.clientX, e.clientY);
+    hoverPoint = pickPoint(e.clientX, e.clientY);
 
     const store = useGameStore.getState();
-    const current = store.hoveredTile;
-    if (hoverCell) {
-      if (current?.col !== hoverCell.col || current?.row !== hoverCell.row) {
-        store.setHoveredTile(hoverCell);
+    const current = store.hoverPoint;
+    if (hoverPoint) {
+      if (!current || current.x !== hoverPoint.x || current.y !== hoverPoint.y) {
+        store.setHoverPoint(hoverPoint);
       }
     } else if (current) {
-      store.setHoveredTile(null);
+      store.setHoverPoint(null);
     }
 
     // 敵人懸停拾取（InstancedMesh raycast，instanceId 即陣列索引）
@@ -180,24 +207,24 @@ export function createInteraction3D(
   };
 
   // 把塔的世界座標投影到 container 本地像素座標
-  const projectTower = (col: number, row: number): { x: number; y: number } => {
-    const [wx, wz] = toWorld(col, row);
+  const projectTower = (pos: { x: number; y: number }): { x: number; y: number } => {
+    // pos 是塔中心（格座標），toWorld 吃格左上，所以各減 0.5
+    const [wx, wz] = toWorld(pos.x - 0.5, pos.y - 0.5);
     const v = new THREE.Vector3(wx, 0.4, wz).project(camera);
     const rect = dom.getBoundingClientRect();
     return { x: ((v.x + 1) / 2) * rect.width, y: ((1 - v.y) / 2) * rect.height };
   };
 
   const handleLeftClick = (e: PointerEvent) => {
-    const cell = pickCell(e.clientX, e.clientY);
-    if (!cell) return;
+    const point = pickPoint(e.clientX, e.clientY);
+    if (!point) return;
     const store = useGameStore.getState();
-    const tile = store.grid[cell.row]?.[cell.col];
-    if (!tile) return;
+    const hitTower = findTowerAt(store.towers, point);
 
     const fusionClick = resolveFusionCanvasClick({
       fusionMode: store.fusionMode,
       fusionSourceId: store.fusionSourceId,
-      clickedTowerId: tile.towerId ?? null,
+      clickedTowerId: hitTower?.id ?? null,
     });
     if (fusionClick.kind === 'fuse') {
       store.fuseTowers(fusionClick.sourceId, fusionClick.targetId);
@@ -209,23 +236,21 @@ export function createInteraction3D(
     }
     if (store.fusionMode) return;
 
-    const tileTower = tile.towerId
-      ? store.towers.find((t) => t.id === tile.towerId) ?? null
-      : null;
+    const canPlace = Boolean(store.selectedTowerType) && canPlaceAt(store.activeMap, point, store.towers);
     const kind = resolveGridTowerClick({
-      hasTower: Boolean(tileTower),
+      hasTower: Boolean(hitTower),
       modifierSelect: e.shiftKey || e.ctrlKey || e.metaKey,
       doubleClick: e.detail === 2,
-      canPlace: Boolean(store.selectedTowerType && tile.type === 'empty'),
+      canPlace,
     });
-    if (kind === 'toggle_multi' && tileTower) {
-      store.toggleTowerInMultiSelect(tileTower.id);
-    } else if (kind === 'select_type' && tileTower) {
-      store.selectAllTowersOfType(tileTower.type);
-    } else if (kind === 'select' && tileTower) {
-      store.selectTower(tileTower);
+    if (kind === 'toggle_multi' && hitTower) {
+      store.toggleTowerInMultiSelect(hitTower.id);
+    } else if (kind === 'select_type' && hitTower) {
+      store.selectAllTowersOfType(hitTower.type);
+    } else if (kind === 'select' && hitTower) {
+      store.selectTower(hitTower);
     } else if (kind === 'place') {
-      store.placeTower({ col: cell.col, row: cell.row });
+      store.placeTower(point);
     } else {
       store.selectTower(null);
       store.clearMultiSelect();
@@ -254,7 +279,7 @@ export function createInteraction3D(
       const store = useGameStore.getState();
       const ids: string[] = [];
       for (const t of store.towers) {
-        const p = projectTower(t.gridPos.col, t.gridPos.row);
+        const p = projectTower(t.pos);
         if (p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY) ids.push(t.id);
       }
       if (ids.length > 0) {
@@ -269,11 +294,11 @@ export function createInteraction3D(
       const dy = e.clientY - rightDownPos.y;
       rightDownPos = null;
       if (dx * dx + dy * dy > 36) return;
-      const cell = pickCell(e.clientX, e.clientY);
-      if (!cell) return;
+      const point = pickPoint(e.clientX, e.clientY);
+      if (!point) return;
       const store = useGameStore.getState();
-      const tile = store.grid[cell.row]?.[cell.col];
-      if (tile?.towerId) store.toggleTowerLock(tile.towerId);
+      const hitTower = findTowerAt(store.towers, point);
+      if (hitTower) store.toggleTowerLock(hitTower.id);
       return;
     }
 
@@ -310,15 +335,15 @@ export function createInteraction3D(
   // ===== 每幀更新 =====
   const update = (now: number) => {
     const store = useGameStore.getState();
-    const { selectedTowerType, selectedTower, grid } = store;
+    const { selectedTowerType, selectedTower } = store;
     const showTowerRange = useSettingsStore.getState().visual.showTowerRange;
 
     // --- 懸停高亮與放塔預覽 ---
-    if (hoverCell) {
-      const tile = grid[hoverCell.row]?.[hoverCell.col];
-      const [wx, wz] = toWorld(hoverCell.col, hoverCell.row);
+    if (hoverPoint) {
+      const hitTower = findTowerAt(store.towers, hoverPoint);
+      const [wx, wz] = toWorld(hoverPoint.x - 0.5, hoverPoint.y - 0.5);
 
-      if (tile?.towerId) {
+      if (hitTower) {
         // 懸停已有塔：白色微光
         hoverMesh.visible = true;
         hoverMesh.position.set(wx, 0.17, wz);
@@ -327,13 +352,13 @@ export function createInteraction3D(
         hoverMat.opacity = 0.18;
         hoverRangeRing.visible = false;
       } else if (selectedTowerType) {
-        const placeable = tile?.type === 'empty';
+        const placeable = canPlaceAt(store.activeMap, hoverPoint, store.towers);
         hoverMesh.visible = true;
         hoverMesh.position.set(wx, 0.17, wz);
         const wouldSynergize = placeable && previewPlacementSynergies(
           selectedTowerType,
-          hoverCell.col,
-          hoverCell.row,
+          hoverPoint.x,
+          hoverPoint.y,
           store.towers.map(toTowerRef),
         ).length > 0;
         const tone = !placeable ? 0xef4444 : wouldSynergize ? 0x38bdf8 : 0x22d3ee;
@@ -363,7 +388,7 @@ export function createInteraction3D(
     if (selectedTower) {
       const live = store.towers.find((t) => t.id === selectedTower.id);
       if (live) {
-        const [wx, wz] = toWorld(live.gridPos.col, live.gridPos.row);
+        const [wx, wz] = toWorld(live.pos.x - 0.5, live.pos.y - 0.5);
         const pulse = 0.55 + Math.sin(now * 0.006) * 0.25;
 
         selectedHalo.visible = true;
@@ -392,7 +417,7 @@ export function createInteraction3D(
       marqueeStart = null;
       downPos = null;
       rightDownPos = null;
-      hoverCell = null;
+      hoverPoint = null;
       options?.onMarquee?.(null);
       options?.onHoverEnemy?.(null, 0, 0);
     }

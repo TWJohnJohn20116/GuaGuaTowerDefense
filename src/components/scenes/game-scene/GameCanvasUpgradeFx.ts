@@ -1,12 +1,12 @@
 // 塔升級動畫繪製模組 - 從 GameCanvasDynamic 抽出以保持單一檔案 ≤ 888 行
 // 包含: 升級動畫主循環、星星粒子、火花粒子、等級文字、滿級文字
-import type { GridPosition } from '@/types/game';
+import type { MapPoint } from '@/types/game';
 import { towerMaxLevelText } from '@/data/towerLevelLabel';
 
 interface UpgradeAnim {
   id: string;
   towerId: string;
-  gridPos: GridPosition;
+  pos: MapPoint;
   newLevel: number;
   towerColor: string;
   startTime: number;
@@ -29,10 +29,11 @@ export function drawUpgradeAnimations(
     const elapsed = now - anim.startTime;
     if (elapsed > totalDuration) return;
 
-    const ax = offsetX + anim.gridPos.col * tileSize;
-    const ay = offsetY + anim.gridPos.row * tileSize;
-    const acx = ax + tileSize / 2;
-    const acy = ay + tileSize / 2;
+    const ax = offsetX + anim.pos.x * tileSize;
+    const ay = offsetY + anim.pos.y * tileSize;
+    // 自由制：pos 就是塔中心
+    const acx = ax;
+    const acy = ay;
     const baseRadius = tileSize * 0.35;
     const isMax = !!anim.isMaxLevel;
 

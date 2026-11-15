@@ -5,7 +5,8 @@
 // 透過 replayPlayback 在相鄰快照間做實體插值繪製（顯示器幀率，遠超 24 FPS）。
 import { useRef, useEffect, useMemo } from 'react';
 import { GAME_CONSTANTS, TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
-import { drawGrid } from '@/components/game/PathRenderer';
+import { drawField } from '@/components/game/PathRenderer';
+import { boundsOf } from '@/data/mapGeometry';
 import { drawTowerModel } from '@/components/game/TowerModels';
 import { drawEnemyModel } from '@/utils/enemyRenderer';
 import { initializeGrid } from '@/store/gameStoreUtils';
@@ -39,7 +40,8 @@ export function ReplayCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
 
-  const grid = useMemo(() => initializeGrid(mapId), [mapId]);
+  // 自由制：回放只需要地圖定義，不再重建格子陣列
+  const mapPath = useMemo(() => PATHS[mapId] ?? null, [mapId]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -47,10 +49,10 @@ export function ReplayCanvas({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const { GRID_COLS, GRID_ROWS } = GAME_CONSTANTS;
-    const tileSize = Math.floor(Math.min(width / GRID_COLS, height / GRID_ROWS));
-    const offsetX = (width - tileSize * GRID_COLS) / 2;
-    const offsetY = (height - tileSize * GRID_ROWS) / 2;
+    const bounds = boundsOf(mapPath);
+    const tileSize = Math.floor(Math.min(width / bounds.width, height / bounds.height));
+    const offsetX = (width - tileSize * bounds.width) / 2;
+    const offsetY = (height - tileSize * bounds.height) / 2;
 
     const draw = () => {
       const playhead = playheadRef.current;
@@ -61,7 +63,7 @@ export function ReplayCanvas({
 
       const showEnemyPath = useSettingsStore.getState().gameplay.showEnemyPath;
       const showHealthBars = useSettingsStore.getState().visual.showHealthBars;
-      drawGrid(ctx, grid, tileSize, offsetX, offsetY, showEnemyPath);
+      drawField(ctx, mapPath, tileSize, offsetX, offsetY, { showPath: showEnemyPath });
 
       if (!frame) return;
 

@@ -80,8 +80,8 @@ export function useReplayRecorder() {
         const towers = gs.towers.slice(0, MAX_TOWERS_PER_SNAPSHOT).map((t) => ({
           id: t.id,
           type: String(t.type),
-          x: t.gridPos.col + 0.5,         // 塔中心位於格子中央
-          y: t.gridPos.row + 0.5,
+          x: t.pos.x + 0.5,         // 塔中心位於格子中央
+          y: t.pos.y + 0.5,
           level: t.level,
           rotation: Math.round(t.rotation * 100) / 100,
         }));

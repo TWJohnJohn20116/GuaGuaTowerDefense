@@ -56,7 +56,7 @@ export function createTowerHealthBars3D(scene: THREE.Scene): TowerHealthBars3D {
         hpFg.setMatrixAt(i, ZERO_SCALE);
         continue;
       }
-      const [wx, wz] = toWorld(t.gridPos.col, t.gridPos.row);
+      const [wx, wz] = toWorld(t.pos.x - 0.5, t.pos.y - 0.5);
       const hpRatio = t.healthRatio;
       const barY = 0.12 + 0.78 * towerLevelScale(t.level);
 

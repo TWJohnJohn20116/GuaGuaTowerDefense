@@ -360,8 +360,8 @@ function drawBattleInspire(
   const towerFrames = snapshot.towers;
   for (let i = 0; i < snapshot.towerCount; i++) {
     const tower = towerFrames[i];
-    const tx = offsetX + tower.gridPos.col * tileSize + tileSize / 2;
-    const ty = offsetY + tower.gridPos.row * tileSize + tileSize / 2;
+    const tx = offsetX + tower.pos.x * tileSize;
+    const ty = offsetY + tower.pos.y * tileSize;
     const ringAlpha = baseAlpha * (0.3 + pulse * 0.4);
     const ringRadius = tileSize * (0.5 + pulse * 0.15);
     ctx.save();

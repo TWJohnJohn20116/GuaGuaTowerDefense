@@ -2,7 +2,7 @@ import type { GridPosition } from '@/types/game';
 
 interface SellAnim {
   id: string;
-  gridPos: GridPosition;
+  pos: MapPoint;
   towerColor: string;
   startTime: number;
   refundAmount?: number;
@@ -21,8 +21,8 @@ export function drawSellAnimations(
     const elapsed = now - anim.startTime;
     if (elapsed > 1200) return;
     const p = elapsed / 1200;
-    const ax = offsetX + anim.gridPos.col * tileSize + tileSize / 2;
-    const ay = offsetY + anim.gridPos.row * tileSize + tileSize / 2;
+    const ax = offsetX + anim.pos.x * tileSize;
+    const ay = offsetY + anim.pos.y * tileSize;
     const r = tileSize * 0.35;
 
     // 階段 1 (0-0.4): 內爆 - 塔向中心收縮並震動

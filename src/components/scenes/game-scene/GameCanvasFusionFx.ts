@@ -4,7 +4,7 @@ import { fusionBurstText } from '@/data/fusionBurstLabel';
 
 interface FusionAnim {
   id: string;
-  gridPos: GridPosition;
+  pos: MapPoint;
   resultType: string;
   startTime: number;
   colorA: string;
@@ -27,8 +27,8 @@ export function drawFusionAnimations(
     const dur = 1400;
     if (elapsed > dur) return;
 
-    const cx = offsetX + anim.gridPos.col * tileSize + tileSize / 2;
-    const cy = offsetY + anim.gridPos.row * tileSize + tileSize / 2;
+    const cx = offsetX + anim.pos.x * tileSize;
+    const cy = offsetY + anim.pos.y * tileSize;
     const r = tileSize * 0.35;
 
     // 效果 1：衝擊閃光 (0-250ms)

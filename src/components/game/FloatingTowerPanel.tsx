@@ -20,6 +20,7 @@ import { getTowerCombatIdentityPills } from '@/data/towerCombatIdentity';
 import { getTowerUpgradeCost } from '@/data/towerUpgradeCost';
 import { getTowerSellRefund, requestSellTower } from '@/store/sellConfirm';
 import { getTowerStatBonusFor } from '@/store/gameStoreUtils';
+import { boundsOf } from '@/data/mapGeometry';
 import { getTowerLockTitle } from '@/data/towerLockTitle';
 import { formatCurrentPathCaption, formatUpgradePathTag } from '@/data/upgradePathLabel';
 import { formatTowerLevelBadge } from '@/data/towerLevelLabel';
@@ -128,7 +129,7 @@ export const FloatingTowerPanel = ({
     const parent = el.offsetParent as HTMLElement | null;
     const containerH = parent?.clientHeight || window.innerHeight;
     const panelH = el.scrollHeight;
-    const ty = offsetY + selectedTower.gridPos.row * tileSize;
+    const ty = offsetY + selectedTower.pos.y * tileSize;
     const idealTop = Math.max(TOP_BAND + 8, ty - 20);
     const maxTop = containerH - panelH - 8;
     setPanelTop(Math.max(TOP_BAND + 8, Math.min(idealTop, maxTop)));
@@ -165,8 +166,8 @@ export const FloatingTowerPanel = ({
   const synergyMods = getSynergyModsForTower(toTowerRef(selectedTower), towers.map(toTowerRef));
   const protocolMods = getProtocolWaveMods(activeProtocol);
   const jamFireRateMult = getTowerJamFireRateMult(
-    selectedTower.gridPos.col,
-    selectedTower.gridPos.row,
+    selectedTower.pos.x,
+    selectedTower.pos.y,
     collectJammerAurasCached(enemies, ENEMY_DATA, Date.now()),
   );
   const isJammed = jamFireRateMult < 1;
@@ -208,10 +209,12 @@ export const FloatingTowerPanel = ({
     { value: 'lowestPercent', label: t.towers.priority.lowestPercent },
   ] as const;
 
-  const towerX = offsetX + selectedTower.gridPos.col * tileSize + tileSize / 2;
+  // 自由制：塔座標就是中心點，地圖寬度改讀本局地圖（不再固定 15 欄）
+  const towerX = offsetX + selectedTower.pos.x * tileSize;
   const panelWidth = 304;
-  const showOnRight = selectedTower.gridPos.col < GAME_CONSTANTS.GRID_COLS / 2;
-  const panelX = dock ? 16 : (showOnRight ? towerX + tileSize : towerX - panelWidth - tileSize / 2);
+  const mapWidth = boundsOf(useGameStore.getState().activeMap).width;
+  const showOnRight = selectedTower.pos.x < mapWidth / 2;
+  const panelX = dock ? 16 : (showOnRight ? towerX + tileSize * 0.8 : towerX - panelWidth - tileSize * 0.8);
   const panelTopFinal = dock ? TOP_BAND + 32 : panelTop;
 
   const branches = TOWER_UPGRADE_BRANCHES[selectedTower.type as TowerType];

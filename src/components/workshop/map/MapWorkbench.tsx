@@ -17,6 +17,7 @@ import { PATHS } from '@/data/gameData';
 import { useGameStore } from '@/store/gameStore';
 import { useWorkshopStore } from '@/store/workshopStore';
 import type { WorkshopAsset } from '@/types/workshop';
+import type { PathConfig } from '@/types/game';
 import {
   addPreviewTower,
   addWaypoint,
@@ -340,21 +341,30 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
   useEffect(() => {
     if (view !== '3d') return;
     const snapshot = {
-      grid: useGameStore.getState().grid,
+      activeMap: useGameStore.getState().activeMap,
       selectedPath: useGameStore.getState().selectedPath,
+    };
+    // 草稿 → 臨時 PathConfig（3D 只讀這一份，不動世界狀態）
+    const mirrorMap: PathConfig = {
+      name: 'draft',
+      description: '',
+      difficulty: 'normal',
+      waypoints: draft.waypoints,
+      segments: draft.segments,
+      blockedAreas: draft.blocked.map((p) => ({ x: p.col + 0.5, y: p.row + 0.5 })),
     };
     try {
       useGameStore.setState({
-        grid: toTileGrid(draft),
+        activeMap: mirrorMap,
         selectedPath: MIRROR_PATH_KEY,
-        previewMap: { waypoints: draft.waypoints, blockedCells: draft.blocked },
+        previewMap: mirrorMap,
       });
     } catch (error) {
       console.error('[workshop-map] 3D 鏡像寫入失敗', error);
     }
     return () => {
       try {
-        useGameStore.setState({ grid: snapshot.grid, selectedPath: snapshot.selectedPath, previewMap: null });
+        useGameStore.setState({ activeMap: snapshot.activeMap, selectedPath: snapshot.selectedPath, previewMap: null });
       } finally {
         // 還原沒有後續步驟，finally 只用來保證「即使 setState 拋錯也不會再往下做別的寫入」
       }

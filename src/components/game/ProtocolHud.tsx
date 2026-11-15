@@ -20,19 +20,24 @@ export function ProtocolHud() {
   const towers = useGameStore((s) => s.towers);
   const enemies = useGameStore((s) => s.enemies);
   const selectedTowerType = useGameStore((s) => s.selectedTowerType);
-  const hoveredTile = useGameStore((s) => s.hoveredTile);
-  const grid = useGameStore((s) => s.grid);
+  const hoverPoint = useGameStore((s) => s.hoverPoint);
+  const activeMap = useGameStore((s) => s.activeMap);
   // 一次配置、多處重用（原本每次渲染要 map 兩次 toTowerRef）
   const towerRefs = towers.map(toTowerRef);
   const synergyKinds = countActiveSynergyKinds(towerRefs);
   const jammedCount = listJammedTowerIds(
-    towers.map((tower) => ({ id: tower.id, col: tower.gridPos.col, row: tower.gridPos.row })),
+    towers.map((tower) => ({ id: tower.id, col: tower.pos.x, row: tower.pos.y })),
     collectJammerAurasCached(enemies, ENEMY_DATA, Date.now()),
   ).length;
 
-  const hoverTile = hoveredTile ? grid[hoveredTile.row]?.[hoveredTile.col] : null;
-  const placementPreview = selectedTowerType && hoveredTile && hoverTile?.type === 'empty' && !hoverTile.towerId
-    ? previewPlacementSynergies(selectedTowerType, hoveredTile.col, hoveredTile.row, towerRefs)
+  // 自由制：能不能放看圓形淨空，不再查格子
+  const hoverPlaceable = !!hoverPoint
+    && isInsideBounds(activeMap, hoverPoint, DEFAULT_TOWER_RADIUS)
+    && !isBlockedAt(activeMap, hoverPoint, DEFAULT_TOWER_RADIUS)
+    && pathClearance(activeMap, hoverPoint) >= pathWidthOf(activeMap) / 2 + DEFAULT_TOWER_RADIUS
+    && !towers.some((tw) => circlesOverlap(hoverPoint, DEFAULT_TOWER_RADIUS, tw.pos, tw.radius));
+  const placementPreview = selectedTowerType && hoverPoint && hoverPlaceable
+    ? previewPlacementSynergies(selectedTowerType, hoverPoint.x, hoverPoint.y, towerRefs)
     : [];
 
   if (!active && discount <= 0 && synergyKinds <= 0 && placementPreview.length === 0 && jammedCount <= 0) return null;

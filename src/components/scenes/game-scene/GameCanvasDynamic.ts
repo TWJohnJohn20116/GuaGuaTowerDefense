@@ -70,8 +70,8 @@ function drawHitboxes(
   ctx.lineWidth = 2;
 
   enemies.forEach(enemy => {
-    const ex = offsetX + enemy.x * tileSize + tileSize / 2;
-    const ey = offsetY + enemy.y * tileSize + tileSize / 2;
+    const ex = offsetX + enemy.x * tileSize;
+    const ey = offsetY + enemy.y * tileSize;
     const size = (enemy.size / 50) * tileSize * 0.8;
     ctx.strokeRect(ex - size / 2, ey - size / 2, size, size);
 
@@ -87,8 +87,8 @@ function drawHitboxes(
   // 塔的格子框
   ctx.strokeStyle = 'rgba(0, 255, 255, 0.8)';
   towers.forEach(tower => {
-    const tx = offsetX + tower.gridPos.col * tileSize;
-    const ty = offsetY + tower.gridPos.row * tileSize;
+    const tx = offsetX + tower.pos.x * tileSize;
+    const ty = offsetY + tower.pos.y * tileSize;
     ctx.strokeRect(tx + 2, ty + 2, tileSize - 4, tileSize - 4);
   });
 
@@ -111,9 +111,9 @@ type GetSkinModelSet = (type: TowerType) => string | undefined;
 interface DynamicLayerParams {
   /** 這一幀的渲染快照（2D 與 3D 共用的純函式契約），敵人本體只從這裡取資料 */
   snapshot: RenderSnapshot;
-  upgradeAnimations: { id: string; towerId: string; gridPos: GridPosition; newLevel: number; towerColor: string; startTime: number; isMaxLevel?: boolean }[];
-  sellAnimations: { id: string; gridPos: GridPosition; towerColor: string; startTime: number }[];
-  fusionAnimations: Array<{ id: string; gridPos: GridPosition; resultType: string; startTime: number; colorA: string; colorB: string }>;
+  upgradeAnimations: { id: string; towerId: string; pos: MapPoint; newLevel: number; towerColor: string; startTime: number; isMaxLevel?: boolean }[];
+  sellAnimations: { id: string; pos: MapPoint; towerColor: string; startTime: number }[];
+  fusionAnimations: Array<{ id: string; pos: MapPoint; resultType: string; startTime: number; colorA: string; colorB: string }>;
   playerSkillAnimations: PlayerSkillAnimation[];
   towers: Tower[];
   enemies: Enemy[];
@@ -230,8 +230,8 @@ function drawTowerHealthBars(
   for (let i = 0; i < snapshot.towerCount; i++) {
     const tower = frames[i];
     if (!shouldShowTowerHealthBar(tower.health, tower.maxHealth, showHealthBars)) continue;
-    const tx = offsetX + tower.gridPos.col * tileSize;
-    const ty = offsetY + tower.gridPos.row * tileSize;
+    const tx = offsetX + tower.pos.x * tileSize;
+    const ty = offsetY + tower.pos.y * tileSize;
     const barWidth = tileSize * 0.8;
     const barHeight = 4;
     const barX = tx + (tileSize - barWidth) / 2;
@@ -260,7 +260,7 @@ function drawDamageTexts(
     const progress = fxProgress(t.startTime, t.duration, now);
     const alpha = Math.min(1, (1 - progress) * 1.5);
 
-    const tx = offsetX + t.x * tileSize + tileSize / 2;
+    const tx = offsetX + t.x * tileSize;
     const ty = offsetY + t.y * tileSize;
 
     const baseFontMul = t.isMoney ? 0.45 : (t.isCrit ? 0.55 : 0.4);
@@ -299,8 +299,8 @@ function drawImpactParticles(
   impactParticles: ImpactParticle[]
 ): void {
   impactParticles.forEach(p => {
-    const px = offsetX + p.x * tileSize + tileSize / 2;
-    const py = offsetY + p.y * tileSize + tileSize / 2;
+    const px = offsetX + p.x * tileSize;
+    const py = offsetY + p.y * tileSize;
 
     ctx.globalAlpha = p.alpha;
     ctx.fillStyle = p.color;
@@ -334,7 +334,7 @@ function drawSynergyLinks(
   const refs = frames.slice(0, snapshot.towerCount).map(toTowerRef);
   const links = listActiveSynergyLinks(refs);
   if (links.length === 0) return;
-  const byId = new Map<string, { gridPos: { col: number; row: number } }>();
+  const byId = new Map<string, { pos: { x: number; y: number } }>();
   for (let i = 0; i < snapshot.towerCount; i++) {
     byId.set(frames[i].id, frames[i]);
   }
@@ -348,8 +348,8 @@ function drawSynergyLinks(
     const b = byId.get(link.bId);
     if (!a || !b) continue;
     ctx.beginPath();
-    ctx.moveTo(offsetX + a.gridPos.col * tileSize + tileSize / 2, offsetY + a.gridPos.row * tileSize + tileSize / 2);
-    ctx.lineTo(offsetX + b.gridPos.col * tileSize + tileSize / 2, offsetY + b.gridPos.row * tileSize + tileSize / 2);
+    ctx.moveTo(offsetX + a.pos.x * tileSize, offsetY + a.pos.y * tileSize);
+    ctx.lineTo(offsetX + b.pos.x * tileSize, offsetY + b.pos.y * tileSize);
     ctx.stroke();
   }
   ctx.restore();
@@ -371,11 +371,12 @@ function drawTowers(
   const synergyRefs = towerFrames.slice(0, snapshot.towerCount).map(toTowerRef);
   for (let towerIndex = 0; towerIndex < snapshot.towerCount; towerIndex++) {
     const tower = towerFrames[towerIndex];
-    const x = offsetX + tower.gridPos.col * tileSize;
-    const y = offsetY + tower.gridPos.row * tileSize;
+    const x = offsetX + tower.pos.x * tileSize;
+    const y = offsetY + tower.pos.y * tileSize;
     const modVisuals = getTowerVisuals(tower.type);
-    const centerX = x + tileSize / 2;
-    const centerY = y + tileSize / 2;
+    // 自由制：pos 就是塔的中心點，不再有「格左上 + 半格」的換算
+    const centerX = x;
+    const centerY = y;
     const baseRadius = tileSize * 0.35;
 
     // === 建造動畫 ===
@@ -386,7 +387,7 @@ function drawTowers(
     const buildAlpha = Math.min(1, buildProgress * 2);
 
     // === 待機呼吸 ===
-    const idlePulse = Math.sin(now * 0.003 + tower.gridPos.col * 0.7 + tower.gridPos.row * 1.1) * 0.03;
+    const idlePulse = Math.sin(now * 0.003 + tower.pos.x * 0.7 + tower.pos.y * 1.1) * 0.03;
 
     // === 攻擊後座力 ===
     const attackElapsed = tower.lastAttackTime ? now - tower.lastAttackTime : 9999;
@@ -429,7 +430,7 @@ function drawTowers(
     }
 
     if (synergyActive) {
-      const pulse = 0.55 + 0.45 * Math.sin(now / 320 + tower.gridPos.col);
+      const pulse = 0.55 + 0.45 * Math.sin(now / 320 + tower.pos.x);
       ctx.save();
       ctx.globalAlpha = 0.35 + pulse * 0.25;
       ctx.strokeStyle = 'rgba(56, 189, 248, 0.95)';
@@ -442,7 +443,7 @@ function drawTowers(
 
     if (tower.type === 'money') {
       const auraR = getMoneyAuraRange(tower.level) * tileSize;
-      const pulse = 0.55 + 0.45 * Math.sin(now * 0.0028 + tower.gridPos.col);
+      const pulse = 0.55 + 0.45 * Math.sin(now * 0.0028 + tower.pos.x);
       ctx.save();
       ctx.globalAlpha = 0.2 + pulse * 0.12;
       ctx.strokeStyle = 'rgba(250, 204, 21, 0.95)';
@@ -454,8 +455,8 @@ function drawTowers(
       ctx.restore();
     }
 
-    if (isTowerJammed(tower.gridPos.col, tower.gridPos.row, jammerAuras)) {
-      const pulse = 0.5 + 0.5 * Math.sin(now * 0.008 + tower.gridPos.row);
+    if (isTowerJammed(tower.pos.x, tower.pos.y, jammerAuras)) {
+      const pulse = 0.5 + 0.5 * Math.sin(now * 0.008 + tower.pos.y);
       ctx.save();
       ctx.globalAlpha = 0.35 + pulse * 0.25;
       ctx.strokeStyle = 'rgba(167, 139, 250, 0.95)';
@@ -605,8 +606,8 @@ function drawEnemies(
   for (let frameIndex = 0; frameIndex < enemyCount; frameIndex++) {
     const enemy = frames[frameIndex];
     const enemyData = getEnemyData(enemy.originType ?? enemy.type);
-    const x = offsetX + enemy.x * tileSize + tileSize / 2;
-    const y = offsetY + enemy.y * tileSize + tileSize / 2;
+    const x = offsetX + enemy.x * tileSize;
+    const y = offsetY + enemy.y * tileSize;
     const radius = (enemy.size / 50) * tileSize * 0.4;
 
     const enemyVisuals = getEnemyVisuals(enemy.type, enemy.originType);

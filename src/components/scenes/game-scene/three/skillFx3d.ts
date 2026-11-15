@@ -352,7 +352,7 @@ export function createSkillFx3D(scene: THREE.Scene): SkillFx3D {
         flameMap.set(t.id, fx);
       }
 
-      const [tx, tz] = toWorld(t.gridPos.col, t.gridPos.row);
+      const [tx, tz] = toWorld(t.pos.x - 0.5, t.pos.y - 0.5);
       const [ex, ez] = toWorld(target.x, target.y);
       const dx = ex - tx;
       const dz = ez - tz;

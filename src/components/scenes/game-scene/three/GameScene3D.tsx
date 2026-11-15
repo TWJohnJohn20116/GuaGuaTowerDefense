@@ -47,6 +47,7 @@ import {
   createParticleInstances,
 } from './instanced3d';
 import { createTowerHealthBars3D } from './towerHealthBars3d';
+import { boundsOf, pathPolylines, pathWidthOf } from '@/data/mapGeometry';
 
 const COLS = GAME_CONSTANTS.GRID_COLS;
 const ROWS = GAME_CONSTANTS.GRID_ROWS;
@@ -222,82 +223,72 @@ export function GameScene3D() {
     mapGroup.add(ground);
 
     // 依 grid 建立立體格（empty 地塊棋盤格交替色打破單調；材質按 type+奇偶共用）
-    const tileGeoCache = new Map<string, THREE.BoxGeometry>();
-    const tileMatCache = new Map<string, THREE.MeshStandardMaterial>();
-    const pathSensitiveTiles: { mesh: THREE.Mesh; type: string; row: number; col: number }[] = [];
-    const styleOf = (type: string) => TILE_STYLE[type] || TILE_STYLE.empty;
-    const ensureTileGeo = (type: string) => {
-      let geo = tileGeoCache.get(type);
-      if (!geo) {
-        geo = new THREE.BoxGeometry(0.94, styleOf(type).height, 0.94);
-        tileGeoCache.set(type, geo);
-      }
-      return geo;
-    };
-    const ensureTileMat = (type: string, row: number, col: number) => {
-      const style = styleOf(type);
-      const checker = type === 'empty' && (row + col) % 2 === 1;
-      const matKey = type + (checker ? '-alt' : '');
-      let mat = tileMatCache.get(matKey);
-      if (!mat) {
-        mat = new THREE.MeshStandardMaterial({
-          color: tileBaseColor(type, checker, getBoard3DColors()),
-          roughness: 0.85,
-          metalness: 0.1,
-          emissive: style.emissive ?? 0x000000,
-          emissiveIntensity: style.emissive ? 0.6 : 0,
-        });
-        tileMatCache.set(matKey, mat);
-      }
-      return mat;
-    };
-    // 切換主題時只改顏色、不重建場景（重建會洗掉鏡頭、小人與懸停狀態）
+    // 自由制：不再逐格建地塊。3D 只留「整片地面 + 帶狀路徑」，
+    // 主題切換時只改材質顏色（不重建場景，避免洗掉鏡頭、小人與懸停狀態）。
+    const mapSurfaceMat = new THREE.MeshStandardMaterial({
+      color: cssColor(getBoard3DColors().empty),
+      roughness: 0.9,
+      metalness: 0.05,
+    });
+    const pathBandMat = new THREE.MeshStandardMaterial({
+      color: cssColor(getBoard3DColors().path),
+      roughness: 0.7,
+      metalness: 0.15,
+      emissive: cssColor(getBoard3DColors().pathLine),
+      emissiveIntensity: 0.15,
+    });
     const applyTheme3D = () => {
       const board = getBoard3DColors();
       scene.background = new THREE.Color(cssColor(board.background));
       scene.fog?.color.setHex(cssColor(board.background));
       groundMat.color.setHex(cssColor(board.ground));
-      for (const [key, mat] of tileMatCache) {
-        mat.color.setHex(tileBaseColor(key.replace('-alt', ''), key.endsWith('-alt'), board));
-      }
+      mapSurfaceMat.color.setHex(cssColor(board.empty));
+      pathBandMat.color.setHex(cssColor(board.path));
     };
     applyTheme3DRef.current = applyTheme3D;
-    const applyTileDisplay = (
-      mesh: THREE.Mesh,
-      type: string,
-      row: number,
-      col: number,
-      showEnemyPath: boolean,
-    ) => {
-      const display = resolveDisplayedTileType(type, showEnemyPath);
-      const style = styleOf(display);
-      mesh.geometry = ensureTileGeo(display);
-      mesh.material = ensureTileMat(display, row, col);
-      mesh.position.y = style.height / 2;
-    };
     const buildMapTiles = () => {
-      const { grid } = useGameStore.getState();
       const showEnemyPath = useSettingsStore.getState().gameplay.showEnemyPath;
-      for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-          const tile = grid[r]?.[c];
-          const type = tile?.type || 'empty';
-          const mesh = new THREE.Mesh();
-          const [wx, wz] = toWorld(c, r);
-          mesh.position.set(wx, 0, wz);
-          applyTileDisplay(mesh, type, r, c, showEnemyPath);
-          mesh.receiveShadow = true;
-          if (type === 'blocked') mesh.castShadow = true;
-          mapGroup.add(mesh);
-          if (resolveDisplayedTileType(type, false) === 'empty' && type !== 'empty') {
-            pathSensitiveTiles.push({ mesh, type, row: r, col: c });
+      const map = useGameStore.getState().activeMap;
+      const bounds = boundsOf(map);
+
+      // 整片地面（單一 plane，置中；不再逐格建地塊）
+      const surface = new THREE.Mesh(
+        new THREE.PlaneGeometry(bounds.width, bounds.height),
+        mapSurfaceMat,
+      );
+      surface.rotation.x = -Math.PI / 2;
+      surface.position.y = 0.01;
+      surface.receiveShadow = true;
+      mapGroup.add(surface);
+
+      // 帶狀路徑：每段 waypoint 一個 plane，寬度讀地圖的 width
+      if (showEnemyPath && map) {
+        const bandWidth = pathWidthOf(map);
+        const drawBand = (wps: { col: number; row: number }[]) => {
+          for (let i = 0; i < wps.length - 1; i++) {
+            const from = wps[i];
+            const to = wps[i + 1];
+            const dx = to.col - from.col;
+            const dz = to.row - from.row;
+            const len = Math.hypot(dx, dz);
+            if (len < 0.001) continue;
+            const band = new THREE.Mesh(new THREE.PlaneGeometry(len, bandWidth), pathBandMat);
+            band.rotation.x = -Math.PI / 2;
+            band.rotation.z = -Math.atan2(dz, dx);
+            const [ax, az] = toWorld(from.col, from.row);
+            const [bx, bz] = toWorld(to.col, to.row);
+            band.position.set((ax + bx) / 2, 0.05, (az + bz) / 2);
+            mapGroup.add(band);
           }
+        };
+        if (map.segments && map.segments.length > 0) {
+          for (const seg of map.segments) drawBand(seg.waypoints);
+        } else {
+          drawBand(map.waypoints);
         }
       }
 
       // 路徑中心導引線（沿 waypoints 畫發光線段；可由開發者面板 showPath 開關）
-      const { selectedPath } = useGameStore.getState();
-      const path = PATHS[selectedPath];
       const lineMat = new THREE.LineBasicMaterial({ color: 0x66aaff, transparent: true, opacity: 0.5 });
       const drawWaypointLine = (wps: { col: number; row: number }[]) => {
         if (!wps || wps.length < 2) return;
@@ -308,10 +299,10 @@ export function GameScene3D() {
         const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
         pathLinesGroup.add(new THREE.Line(lineGeo, lineMat));
       };
-      if (path.segments && path.segments.length > 0) {
-        for (const seg of path.segments) drawWaypointLine(seg.waypoints);
-      } else {
-        drawWaypointLine(path.waypoints);
+      if (map?.segments && map.segments.length > 0) {
+        for (const seg of map.segments) drawWaypointLine(seg.waypoints);
+      } else if (map) {
+        drawWaypointLine(map.waypoints);
       }
     };
     const pathLinesGroup = new THREE.Group();
@@ -323,26 +314,29 @@ export function GameScene3D() {
     const beacons: { mesh: THREE.Mesh; kind: 'start' | 'end' }[] = [];
     const beaconTiles: { kind: 'start' | 'end'; col: number; row: number }[] = [];
     {
-      const { grid } = useGameStore.getState();
-      for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-          const t = grid[r]?.[c];
-          if (t?.type !== 'start' && t?.type !== 'end') continue;
-          const mat = new THREE.MeshBasicMaterial({
-            color: t.type === 'start' ? 0x34d399 : 0xef4444,
-            transparent: true,
-            opacity: 0.18,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false,
-            side: THREE.DoubleSide,
-          });
-          const mesh = new THREE.Mesh(beaconGeo, mat);
-          const [wx, wz] = toWorld(c, r);
-          mesh.position.set(wx, 1.5, wz);
-          mapGroup.add(mesh);
-          beacons.push({ mesh, kind: t.type });
-          beaconTiles.push({ kind: t.type, col: c, row: r });
-        }
+      // 自由制：起終點直接取每條折線的首尾，不再掃格子找 start/end
+      const map = useGameStore.getState().activeMap;
+      const ends: { kind: 'start' | 'end'; col: number; row: number }[] = [];
+      for (const line of pathPolylines(map)) {
+        ends.push({ kind: 'start', col: line[0].col, row: line[0].row });
+        const last = line[line.length - 1];
+        ends.push({ kind: 'end', col: last.col, row: last.row });
+      }
+      for (const end of ends) {
+        const mat = new THREE.MeshBasicMaterial({
+          color: end.kind === 'start' ? 0x34d399 : 0xef4444,
+          transparent: true,
+          opacity: 0.18,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          side: THREE.DoubleSide,
+        });
+        const mesh = new THREE.Mesh(beaconGeo, mat);
+        const [wx, wz] = toWorld(end.col, end.row);
+        mesh.position.set(wx, 1.5, wz);
+        mapGroup.add(mesh);
+        beacons.push({ mesh, kind: end.kind });
+        beaconTiles.push(end);
       }
     }
 
@@ -531,24 +525,22 @@ export function GameScene3D() {
         tacticalMesh.count = 0;
         return;
       }
-      const key = [s.grid, s.selectedTowerType, s.showTacticalView];
+      const key = [s.activeMap, s.selectedTowerType, s.showTacticalView];
       if (key.every((v, i) => v === tacticalCacheKey[i])) return;
       tacticalCacheKey = key;
 
-      // 工坊 3D 預覽：previewMap 優先（不動 grid、也不需要在退出時還原路徑）
+      // 工坊 3D 預覽：previewMap 優先（不動世界狀態，也不需要在退出時還原路徑）
       const preview = useGameStore.getState().previewMap;
-      const wps = preview?.waypoints ?? PATHS[s.selectedPath]?.waypoints ?? [];
       const scores = calculateTacticalScores({
-        grid: s.grid,
-        waypoints: wps,
-        tileSize: 60,
+        path: preview ?? s.activeMap,
+        towers: s.towers,
         selectedTowerType: s.selectedTowerType,
         getTowerData: (type) => getTowerData(type as never),
       });
       const n = Math.min(scores.length, COLS * ROWS);
       for (let i = 0; i < n; i++) {
         const sc = scores[i];
-        const [wx, wz] = toWorld(sc.col, sc.row);
+        const [wx, wz] = toWorld(sc.x - 0.5, sc.y - 0.5);
         tacticalDummy.position.set(wx, 0.16, wz);
         tacticalDummy.rotation.set(-Math.PI / 2, 0, 0);
         tacticalDummy.scale.setScalar(1);
@@ -612,7 +604,7 @@ export function GameScene3D() {
             glowIntensity: visuals.glowColor ? visuals.glowIntensity : undefined,
             custom3d: visuals.custom3d ?? undefined,
           });
-          const [wx, wz] = toWorld(t.gridPos.col, t.gridPos.row);
+          const [wx, wz] = toWorld(t.pos.x - 0.5, t.pos.y - 0.5);
           g.position.set(wx, TILE_STYLE.empty.height, wz);
           scene.add(g);
           towerGroups.set(t.id, g);
@@ -703,7 +695,7 @@ export function GameScene3D() {
       for (const t of state.towers) {
         const prevTime = towerLastAttack.get(t.id) ?? 0;
         if (t.lastAttackTime && t.lastAttackTime > prevTime) {
-          const [wx, wz] = toWorld(t.gridPos.col, t.gridPos.row);
+          const [wx, wz] = toWorld(t.pos.x - 0.5, t.pos.y - 0.5);
           attackLights.flash(wx, wz, t.type);
           towerLastAttack.set(t.id, t.lastAttackTime);
         }

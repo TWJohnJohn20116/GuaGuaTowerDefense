@@ -5,8 +5,7 @@ import { useSkinStore } from '@/store/skinStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useDevStore } from '@/store/devStore';
 import { useTutorialStore, INTERACTIVE_TUTORIAL_STEPS } from '@/store/tutorialStore';
-import { PATHS, GAME_CONSTANTS } from '@/data/gameData';
-import type { Enemy, Tower } from '@/types/game';
+import type { Enemy, MapPoint, Tower } from '@/types/game';
 import type { GameStore } from '@/store/gameStoreTypes';
 import { getTowerData as getTowerDataRaw } from '@/store/gameStoreUtils';
 import { calculateTacticalScores } from '@/components/game/TacticalUtils';
@@ -22,6 +21,12 @@ import { resolveGridTowerClick } from '@/data/gridTowerClick';
 import { resolveCanvasShakeIntensity, visibleDamageTexts } from '@/data/hudVisualVisibility';
 import { createRenderSnapshot, writeRenderSnapshot } from '@/data/renderSnapshot';
 import { createFrameLoopGuard } from '@/utils/frameLoopGuard';
+import {
+  DEFAULT_TOWER_RADIUS,
+  boundsOf,
+  circlesOverlap,
+  isInsideBounds,
+} from '@/data/mapGeometry';
 import { renderStaticLayer } from './GameCanvasStatic';
 import { renderDynamicLayer } from './GameCanvasDynamic';
 
@@ -30,7 +35,7 @@ import { renderDynamicLayer } from './GameCanvasDynamic';
 /**
  * 靜態層依賴的「塔結構簽章」。
  *
- * 靜態層畫的是地板、射程圈、多選高亮、協同預覽——只跟塔的位置/種類/等級/鎖定狀態有關，
+ * 靜態層畫的是場地、射程圈、多選高亮、協同預覽——只跟塔的位置/種類/等級/鎖定狀態有關，
  * 跟 rotation / lastFireTime / target 這些每幀都會變的欄位無關。
  * 但 updateTowers 每幀都產生新的 towers 陣列，直接訂閱陣列會讓靜態層每秒重繪 60 次
  * （等於整張畫面畫兩遍）。這裡改訂閱一個便宜的字串簽章，結構沒變就不重繪。
@@ -40,7 +45,7 @@ export const towerLayoutKeySelector = (s: GameStore): string => {
   let key = '';
   for (let i = 0; i < towers.length; i++) {
     const t = towers[i];
-    key += `${t.id},${t.type},${t.level},${t.upgradePath ?? ''},${t.locked ? 1 : 0},${t.gridPos.col},${t.gridPos.row};`;
+    key += `${t.id},${t.type},${t.level},${t.upgradePath ?? ''},${t.locked ? 1 : 0},${t.pos.x},${t.pos.y};`;
   }
   return key;
 };
@@ -55,42 +60,48 @@ export const canAffordSelectedSelector = (s: GameStore): boolean => {
   return s.money >= cost;
 };
 
+/** 指標落在哪座塔上（圓形命中，容忍度略大於塔半徑，避免小塔很難點） */
+const findTowerAt = (towers: Tower[], point: MapPoint): Tower | null => {
+  for (const tower of towers) {
+    if (circlesOverlap(point, tower.radius + 0.08, tower.pos, 0)) return tower;
+  }
+  return null;
+};
+
 // 用 memo 包裝：GameCanvas 沒有 props，可有效阻斷父組件 (GameScene) re-render 時的連鎖渲染
 // 自身仍會在訂閱的 store 值變動時 re-render，這是預期行為
 const GameCanvasImpl = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dynamicCanvasRef = useRef<HTMLCanvasElement>(null);
-  const grid = useGameStore((s) => s.grid);
-  const selectedPath = useGameStore((s) => s.selectedPath);
+  const activeMap = useGameStore((s) => s.activeMap);
   const selectedTowerType = useGameStore((s) => s.selectedTowerType);
   const selectedTower = useGameStore((s) => s.selectedTower);
   const multiSelectedTowerIds = useGameStore((s) => s.multiSelectedTowerIds);
-  const hoveredTile = useGameStore((s) => s.hoveredTile);
+  const hoverPoint = useGameStore((s) => s.hoverPoint);
   // 只訂閱「結構簽章」與「買不買得起」，不訂閱每幀都會換參考的 towers / money
   const towerLayoutKey = useGameStore(towerLayoutKeySelector);
   const canAffordSelected = useGameStore(canAffordSelectedSelector);
   const { t } = useTranslation();
   const placeTower = useGameStore((s) => s.placeTower);
   const selectTower = useGameStore((s) => s.selectTower);
-  const setHoveredTile = useGameStore((s) => s.setHoveredTile);
+  const setHoverPoint = useGameStore((s) => s.setHoverPoint);
   const showTacticalView = useGameStore((s) => s.showTacticalView);
   const showTowerRange = useSettingsStore((s) => s.visual.showTowerRange);
   const getTowerData = useGetTowerData();
-  
+
   // 皮膚系統
   const getSkinVisuals = useSkinStore((s) => s.getSkinVisuals);
   const getSkinModelSet = useSkinStore((s) => s.getEquippedSkinModelSet);
-  
-  // 調適工具顯示
-  const showGrid = useDevStore((s) => s.showGrid);
+
+  // 調適工具顯示（格線已移除，showGrid 不再有作用）
   const showPath = useDevStore((s) => s.showPath);
   const showHitboxes = useDevStore((s) => s.showHitboxes);
   const showEnemyPath = useSettingsStore((s) => s.gameplay.showEnemyPath);
   const screenShake = useSettingsStore((s) => s.visual.screenShake);
-  
+
   // 畫面震動
   const shakeIntensity = useGameStore((s) => s.shakeIntensity);
-  
+
   // 動畫系統
   const animFrameRef = useRef<number>(0);
 
@@ -99,61 +110,45 @@ const GameCanvasImpl = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 計算互動教學模式的特定網格目標 (動態尋找一個靠近中央的空格)
+  // 地圖尺寸（自由制：每張圖可以有自己的 bounds，不再固定 15×11）
+  const bounds = boundsOf(activeMap);
+
+  // 計算互動教學模式的目標位置（找一個靠近中央的可建造點）
   const tutorialActive = useTutorialStore((s) => s.isActive);
   const currentStepIndex = useTutorialStore((s) => s.currentStepIndex);
-  
-  const tutorialTarget = useMemo(() => {
+
+  const tutorialTarget = useMemo<MapPoint | null>(() => {
     if (!tutorialActive) return null;
     const action = INTERACTIVE_TUTORIAL_STEPS[currentStepIndex]?.action;
 
-    // 如果是要選擇已放置的塔：直接從 towers 找（不必再逐格掃描）
+    // 如果是要選擇已放置的塔：直接從 towers 找
     if (action === 'select_placed_tower') {
       const placed = useGameStore.getState().towers;
-      const foundTower: Tower | null = placed.find((t) => t.type === 'basic') ?? placed[0] ?? null;
-      if (foundTower) {
-        return { col: foundTower.gridPos.col, row: foundTower.gridPos.row };
-      }
+      const foundTower: Tower | null = placed.find((tw) => tw.type === 'basic') ?? placed[0] ?? null;
+      if (foundTower) return { x: foundTower.pos.x, y: foundTower.pos.y };
     }
 
-    const centerRow = Math.floor(GAME_CONSTANTS.GRID_ROWS / 2);
-    const centerCol = Math.floor(GAME_CONSTANTS.GRID_COLS / 2);
-    for (let r = centerRow - 2; r <= centerRow + 2; r++) {
-      for (let c = centerCol - 2; c <= centerCol + 2; c++) {
-        if (grid[r]?.[c]?.type === 'empty') return { col: c, row: r };
-      }
-    }
-    return { col: 5, row: 5 }; // Fallback
-  }, [tutorialActive, grid, currentStepIndex]);
-  
-  // 計算路徑坐標
-  const waypoints = useMemo(() => {
-    return PATHS[selectedPath || 'zigzag']?.waypoints || [];
-  }, [selectedPath]);
-  
+    return { x: Math.round(bounds.width / 2), y: Math.round(bounds.height / 2) };
+  }, [tutorialActive, currentStepIndex, bounds.width, bounds.height]);
+
   // 計算戰術建議
   const tacticalScores = useMemo(() => {
-    if (!showTacticalView || !waypoints.length) return [];
+    if (!showTacticalView || !activeMap) return [];
     return calculateTacticalScores({
-      grid,
-      waypoints,
-      tileSize:
-        Math.min(
-          (dimensions.width - 40) / GAME_CONSTANTS.GRID_COLS,
-          (dimensions.height - 40) / GAME_CONSTANTS.GRID_ROWS
-        ) || 40,
+      path: activeMap,
+      towers: useGameStore.getState().towers,
       selectedTowerType,
       getTowerData,
     });
-  }, [showTacticalView, grid, waypoints, dimensions, selectedTowerType, getTowerData]);
+  }, [showTacticalView, activeMap, selectedTowerType, getTowerData]);
 
   const tileSize = Math.max(0, Math.min(
-    (dimensions.width - 40) / GAME_CONSTANTS.GRID_COLS,
-    (dimensions.height - 40) / GAME_CONSTANTS.GRID_ROWS
+    (dimensions.width - 40) / bounds.width,
+    (dimensions.height - 40) / bounds.height
   ));
 
-  const gridWidth = tileSize * GAME_CONSTANTS.GRID_COLS;
-  const gridHeight = tileSize * GAME_CONSTANTS.GRID_ROWS;
+  const gridWidth = tileSize * bounds.width;
+  const gridHeight = tileSize * bounds.height;
   const offsetX = (dimensions.width - gridWidth) / 2;
   const offsetY = (dimensions.height - gridHeight) / 2;
 
@@ -168,13 +163,13 @@ const GameCanvasImpl = () => {
     };
 
     updateSize();
-    
+
     // 使用 ResizeObserver 確保在容器大小改變時也能更新
     const observer = new ResizeObserver(updateSize);
     if (containerRef.current) {
       observer.observe(containerRef.current);
     }
-    
+
     window.addEventListener('resize', updateSize);
     return () => {
       window.removeEventListener('resize', updateSize);
@@ -192,21 +187,21 @@ const GameCanvasImpl = () => {
     // 渲染 snapshot 緩衝：與 3D 視圖共用同一份純函式契約，只建立一次、逐幀原地寫入
     const snapshot = createRenderSnapshot();
     const frameGuard = createFrameLoopGuard({ label: '2d-canvas' });
-    
+
     let frameCount = 0;
     let lastTime = performance.now();
     let currentFps = 0;
-    
+
     const drawFrame = () => {
       const now = performance.now();
       frameCount++;
-      
+
       if (now - lastTime >= 1000) {
         currentFps = Math.round((frameCount * 1000) / (now - lastTime));
         frameCount = 0;
         lastTime = now;
       }
-      
+
       const state = useGameStore.getState();
       // 這一幀的實體視覺資料：寫一次，2D 圖層與（切到 3D 時）3D 實例池吃同一份契約
       writeRenderSnapshot(state, snapshot, Date.now());
@@ -243,7 +238,7 @@ const GameCanvasImpl = () => {
       frameGuard.run(drawFrame);
       animFrameRef.current = requestAnimationFrame(loop);
     };
-    
+
     animFrameRef.current = requestAnimationFrame(loop);
     return () => {
       if (animFrameRef.current) {
@@ -253,7 +248,7 @@ const GameCanvasImpl = () => {
     };
   }, [tileSize, offsetX, offsetY, getSkinVisuals, getSkinModelSet, t]);
 
-  // ===== 靜態層：地板 + 戰術 + 範圍圈（塔身由動態層每幀繪製）=====
+  // ===== 靜態層：場地 + 戰術 + 範圍圈（塔身由動態層每幀繪製）=====
   // 依賴全部換成「低頻」值：towers 陣列每幀都會換參考，改看結構簽章 towerLayoutKey；
   // money 每殺一隻就變，改看 canAffordSelected。這樣靜態層只在真的需要時才重繪。
   useEffect(() => {
@@ -263,23 +258,28 @@ const GameCanvasImpl = () => {
     if (!ctx) return;
 
     renderStaticLayer(ctx, canvas.width, canvas.height, {
-      grid, hoveredTile, selectedTower, selectedTowerType,
+      map: activeMap, hoverPoint, selectedTower, selectedTowerType,
       canAffordSelected, tileSize, offsetX, offsetY,
       getSkinVisuals, getTowerData, showTacticalView, tacticalScores, showTowerRange,
-      showGrid, showPath, showHitboxes,
-      showEnemyPath,
+      showPath: showPath || showEnemyPath, showHitboxes,
       multiSelectedTowerIds,
       // 繪製當下取最新塔清單（結構變更時本 effect 才會被觸發）
       towers: useGameStore.getState().towers,
     });
     // deps 已列齊實際會變的欄位（含 towerLayoutKey）；towers 由 getState() 當下取，
     // 是為了避免每殺一隻就重繪整層，不是漏列（TD-17 判定：非債）
-  }, [grid, hoveredTile, selectedTower, selectedTowerType, canAffordSelected, tileSize, offsetX, offsetY, getSkinVisuals, showTacticalView, tacticalScores, getTowerData, showTowerRange, showGrid, showPath, showHitboxes, showEnemyPath, multiSelectedTowerIds, towerLayoutKey]);
+  }, [activeMap, hoverPoint, selectedTower, selectedTowerType, canAffordSelected, tileSize, offsetX, offsetY, getSkinVisuals, showTacticalView, tacticalScores, getTowerData, showTowerRange, showPath, showHitboxes, showEnemyPath, multiSelectedTowerIds, towerLayoutKey]);
 
-
+  /** 畫布像素 → 世界座標（格單位，連續；不取整） */
+  const toWorldPoint = useCallback((clientX: number, clientY: number, rect: DOMRect): MapPoint => {
+    return {
+      x: (clientX - rect.left - offsetX) / tileSize,
+      y: (clientY - rect.top - offsetY) / tileSize,
+    };
+  }, [offsetX, offsetY, tileSize]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
+    const canvas = dynamicCanvasRef.current;
     if (!canvas || !tileSize) return;
 
     const rect = canvas.getBoundingClientRect();
@@ -296,131 +296,121 @@ const GameCanvasImpl = () => {
       });
     }
 
-    const x = rawX - offsetX;
-    const y = rawY - offsetY;
-
     // 更新滑鼠位置（用於提示框）
     setMousePos({ x: rawX, y: rawY });
 
-    const col = Math.floor(x / tileSize);
-    const row = Math.floor(y / tileSize);
+    const point = toWorldPoint(e.clientX, e.clientY, rect);
 
     // 教學模式：游標預覽控制
     if (tutorialActive) {
       const step = useTutorialStore.getState();
       const action = INTERACTIVE_TUTORIAL_STEPS[step.currentStepIndex]?.action;
       if (action === 'place_tower' || action === 'select_placed_tower') {
-        if (!tutorialTarget || col !== tutorialTarget.col || row !== tutorialTarget.row) {
-          setHoveredTile(null); // 不在目標格子上，不顯示預覽
+        if (!tutorialTarget || Math.hypot(point.x - tutorialTarget.x, point.y - tutorialTarget.y) > 0.6) {
+          setHoverPoint(null); // 不在目標附近，不顯示預覽
         } else {
-          setHoveredTile({ col, row }); // 在目標格子上，顯示預覽
+          setHoverPoint(point);
         }
       } else {
-        setHoveredTile(null); // 其他教學步驟，不顯示畫布預覽
+        setHoverPoint(null); // 其他教學步驟，不顯示畫布預覽
       }
     } else {
       // 正常模式
-      if (col >= 0 && col < GAME_CONSTANTS.GRID_COLS && row >= 0 && row < GAME_CONSTANTS.GRID_ROWS) {
-        setHoveredTile({ col, row });
+      if (isInsideBounds(activeMap, point)) {
+        setHoverPoint(point);
       } else {
-        setHoveredTile(null);
+        setHoverPoint(null);
       }
     }
-    
-    // 檢測滑鼠是否懸浮在敵人上
+
+    // 敵人懸停偵測
+    const state = useGameStore.getState();
+    const x = rawX - offsetX;
+    const y = rawY - offsetY;
     let foundEnemy: Enemy | null = null;
-    const { enemies } = useGameStore.getState();
-    for (const enemy of enemies) {
-      const enemyX = offsetX + enemy.x * tileSize + tileSize / 2;
-      const enemyY = offsetY + enemy.y * tileSize + tileSize / 2;
-      const hitRadius = (enemy.size / 50) * tileSize * 0.4 + 5;
-      
-      const dx = rawX - enemyX;
-      const dy = rawY - enemyY;
+    const hitRadius = Math.max(tileSize * 0.4, 12);
+    for (const enemy of state.enemies) {
+      const ex = offsetX + enemy.x * tileSize + tileSize / 2;
+      const ey = offsetY + enemy.y * tileSize + tileSize / 2;
+      const dx = x - ex;
+      const dy = y - ey;
       const distSq = dx * dx + dy * dy;
-      
+
       if (distSq <= hitRadius * hitRadius) {
         foundEnemy = enemy;
         break;
       }
     }
     setHoveredEnemy(foundEnemy);
-  }, [tileSize, offsetX, offsetY, setHoveredTile]);
+  }, [tileSize, offsetX, offsetY, activeMap, tutorialActive, tutorialTarget, setHoverPoint, toWorldPoint]);
 
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas || !tileSize) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left - offsetX;
-    const y = e.clientY - rect.top - offsetY;
+    const point = toWorldPoint(e.clientX, e.clientY, rect);
 
-    const col = Math.floor(x / tileSize);
-    const row = Math.floor(y / tileSize);
+    if (!isInsideBounds(activeMap, point)) return;
 
-    if (col >= 0 && col < GAME_CONSTANTS.GRID_COLS && row >= 0 && row < GAME_CONSTANTS.GRID_ROWS) {
-      const tile = grid[row]?.[col];
-      
-      // 教學模式鎖定邏輯
-      if (tutorialActive) {
-        const step = useTutorialStore.getState();
-        const action = INTERACTIVE_TUTORIAL_STEPS[step.currentStepIndex]?.action;
-        if (action === 'place_tower' || action === 'select_placed_tower') {
-          if (!tutorialTarget || col !== tutorialTarget.col || row !== tutorialTarget.row) {
-            return; // 鎖定點擊：只允許點擊目標網格
-          }
-        } else {
-          return; // 教學中其他步驟不允許與畫布互動
+    // 教學模式鎖定邏輯
+    if (tutorialActive) {
+      const step = useTutorialStore.getState();
+      const action = INTERACTIVE_TUTORIAL_STEPS[step.currentStepIndex]?.action;
+      if (action === 'place_tower' || action === 'select_placed_tower') {
+        if (!tutorialTarget || Math.hypot(point.x - tutorialTarget.x, point.y - tutorialTarget.y) > 0.6) {
+          return; // 鎖定點擊：只允許點擊目標附近
         }
-      }
-
-      // 融合模式：點擊第二座塔執行合體
-      const g = useGameStore.getState();
-      const fusionClick = resolveFusionCanvasClick({
-        fusionMode: g.fusionMode,
-        fusionSourceId: g.fusionSourceId,
-        clickedTowerId: tile?.towerId ?? null,
-      });
-      if (fusionClick.kind === 'fuse') {
-        g.fuseTowers(fusionClick.sourceId, fusionClick.targetId);
-        return;
-      }
-      if (fusionClick.kind === 'cancel') {
-        g.cancelFusion();
-        return;
-      }
-      if (g.fusionMode) return;
-
-      const tileTower = tile?.towerId
-        ? g.towers.find((t) => t.id === tile.towerId) ?? null
-        : null;
-      if (tileTower) {
-        const kind = resolveGridTowerClick({
-          hasTower: true,
-          modifierSelect: e.shiftKey || e.ctrlKey || e.metaKey,
-          doubleClick: e.detail === 2,
-          canPlace: false,
-        });
-        if (kind === 'toggle_multi') {
-          useGameStore.getState().toggleTowerInMultiSelect(tileTower.id);
-        } else if (kind === 'select_type') {
-          useGameStore.getState().selectAllTowersOfType(tileTower.type);
-        } else {
-          selectTower(tileTower);
-        }
-        useTutorialStore.getState().checkAction('select_placed_tower', 'tutorial-target-specific-grid');
-      } else if (selectedTowerType && tile?.type === 'empty') {
-        placeTower({ col, row });
-        // 因為 setState 非同步，這裡稍微延遲以確保組件拿到最新狀態
-        setTimeout(() => {
-          useTutorialStore.getState().checkAction('place_tower', 'tutorial-target-specific-grid');
-        }, 50);
       } else {
-        selectTower(null);
-        useGameStore.getState().clearMultiSelect();
+        return; // 教學中其他步驟不允許與畫布互動
       }
     }
-  }, [tileSize, offsetX, offsetY, grid, selectedTowerType, placeTower, selectTower, tutorialActive, tutorialTarget]);
+
+    const g = useGameStore.getState();
+    const hitTower = findTowerAt(g.towers, point);
+
+    // 融合模式：點擊第二座塔執行合體
+    const fusionClick = resolveFusionCanvasClick({
+      fusionMode: g.fusionMode,
+      fusionSourceId: g.fusionSourceId,
+      clickedTowerId: hitTower?.id ?? null,
+    });
+    if (fusionClick.kind === 'fuse') {
+      g.fuseTowers(fusionClick.sourceId, fusionClick.targetId);
+      return;
+    }
+    if (fusionClick.kind === 'cancel') {
+      g.cancelFusion();
+      return;
+    }
+    if (g.fusionMode) return;
+
+    if (hitTower) {
+      const kind = resolveGridTowerClick({
+        hasTower: true,
+        modifierSelect: e.shiftKey || e.ctrlKey || e.metaKey,
+        doubleClick: e.detail === 2,
+        canPlace: false,
+      });
+      if (kind === 'toggle_multi') {
+        g.toggleTowerInMultiSelect(hitTower.id);
+      } else if (kind === 'select_type') {
+        g.selectAllTowersOfType(hitTower.type);
+      } else {
+        selectTower(hitTower);
+      }
+      useTutorialStore.getState().checkAction('select_placed_tower', 'tutorial-target-specific-grid');
+    } else if (selectedTowerType) {
+      placeTower(point);
+      // 因為 setState 非同步，這裡稍微延遲以確保組件拿到最新狀態
+      setTimeout(() => {
+        useTutorialStore.getState().checkAction('place_tower', 'tutorial-target-specific-grid');
+      }, 50);
+    } else {
+      selectTower(null);
+      useGameStore.getState().clearMultiSelect();
+    }
+  }, [tileSize, offsetX, offsetY, activeMap, selectedTowerType, placeTower, selectTower, tutorialActive, tutorialTarget, toWorldPoint]);
 
   // 右鍵 → 切換塔鎖定/解鎖 (防誤出售)
   const handleContextMenu = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -428,17 +418,10 @@ const GameCanvasImpl = () => {
     const canvas = canvasRef.current;
     if (!canvas || !tileSize) return;
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left - offsetX;
-    const y = e.clientY - rect.top - offsetY;
-    const col = Math.floor(x / tileSize);
-    const row = Math.floor(y / tileSize);
-    if (col >= 0 && col < GAME_CONSTANTS.GRID_COLS && row >= 0 && row < GAME_CONSTANTS.GRID_ROWS) {
-      const tile = grid[row]?.[col];
-      if (tile?.towerId) {
-        useGameStore.getState().toggleTowerLock(tile.towerId);
-      }
-    }
-  }, [tileSize, offsetX, offsetY, grid]);
+    const point = toWorldPoint(e.clientX, e.clientY, rect);
+    const hitTower = findTowerAt(useGameStore.getState().towers, point);
+    if (hitTower) useGameStore.getState().toggleTowerLock(hitTower.id);
+  }, [tileSize, toWorldPoint]);
 
   // 拖拽矩形多選 (Ctrl+拖)
   // （Ctrl+A 全選 / Esc 取消多選的快捷鍵已上移至 GameScene，2D/3D 視圖共用）
@@ -464,28 +447,21 @@ const GameCanvasImpl = () => {
 
   const handleMouseUp = useCallback(() => {
     if (marquee && tileSize) {
-      const minX = Math.min(marquee.x1, marquee.x2) - offsetX;
-      const minY = Math.min(marquee.y1, marquee.y2) - offsetY;
-      const maxX = Math.max(marquee.x1, marquee.x2) - offsetX;
-      const maxY = Math.max(marquee.y1, marquee.y2) - offsetY;
-      const startCol = Math.floor(minX / tileSize);
-      const endCol = Math.floor(maxX / tileSize);
-      const startRow = Math.floor(minY / tileSize);
-      const endRow = Math.floor(maxY / tileSize);
-      const ids: string[] = [];
-      for (let r = Math.max(0, startRow); r <= Math.min(GAME_CONSTANTS.GRID_ROWS - 1, endRow); r++) {
-        for (let c = Math.max(0, startCol); c <= Math.min(GAME_CONSTANTS.GRID_COLS - 1, endCol); c++) {
-          const tile = grid[r]?.[c];
-          if (tile?.towerId) ids.push(tile.towerId);
-        }
-      }
+      // 框選改成世界座標：直接比對塔的圓心落在矩形內
+      const minX = (Math.min(marquee.x1, marquee.x2) - offsetX) / tileSize;
+      const minY = (Math.min(marquee.y1, marquee.y2) - offsetY) / tileSize;
+      const maxX = (Math.max(marquee.x1, marquee.x2) - offsetX) / tileSize;
+      const maxY = (Math.max(marquee.y1, marquee.y2) - offsetY) / tileSize;
+      const ids = useGameStore.getState().towers
+        .filter((tw) => tw.pos.x >= minX && tw.pos.x <= maxX && tw.pos.y >= minY && tw.pos.y <= maxY)
+        .map((tw) => tw.id);
       if (ids.length > 0) {
         useGameStore.setState({ multiSelectedTowerIds: ids, selectedTower: null, selectedTowerType: null });
       }
     }
     dragStartRef.current = null;
     setMarquee(null);
-  }, [marquee, tileSize, offsetX, offsetY, grid]);
+  }, [marquee, tileSize, offsetX, offsetY]);
 
   // 計算震動偏移
   const appliedShake = resolveCanvasShakeIntensity(shakeIntensity, screenShake);
@@ -502,7 +478,7 @@ const GameCanvasImpl = () => {
         transform: shaking ? `translate(${shakeX}px, ${shakeY}px)` : 'none'
       }}
     >
-      {/* 靜態層：地板 + 塔 */}
+      {/* 靜態層：場地 + 路徑帶 */}
       <canvas
         ref={canvasRef}
         width={dimensions.width}
@@ -510,16 +486,16 @@ const GameCanvasImpl = () => {
         className="absolute inset-0"
       />
 
-      {/* 教學模式精確高亮目標區塊 */}
+      {/* 教學模式精確高亮目標區塊（圓形，對應塔的佔位半徑） */}
       {tutorialActive && tutorialTarget && (
         <div
           id="tutorial-target-specific-grid"
-          className="absolute z-[99] pointer-events-none"
+          className="absolute z-[99] pointer-events-none rounded-full"
           style={{
-            left: offsetX + tutorialTarget.col * tileSize,
-            top: offsetY + tutorialTarget.row * tileSize,
-            width: tileSize,
-            height: tileSize,
+            left: offsetX + (tutorialTarget.x - DEFAULT_TOWER_RADIUS) * tileSize,
+            top: offsetY + (tutorialTarget.y - DEFAULT_TOWER_RADIUS) * tileSize,
+            width: DEFAULT_TOWER_RADIUS * 2 * tileSize,
+            height: DEFAULT_TOWER_RADIUS * 2 * tileSize,
           }}
         />
       )}
@@ -536,7 +512,7 @@ const GameCanvasImpl = () => {
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={() => {
-          setHoveredTile(null);
+          setHoverPoint(null);
           setHoveredEnemy(null);
           if (dragStartRef.current) {
             dragStartRef.current = null;

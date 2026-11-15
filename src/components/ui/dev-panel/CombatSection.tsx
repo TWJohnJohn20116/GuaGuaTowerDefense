@@ -1,11 +1,11 @@
 import { useDevStore } from '@/store/devStore';
 import { useGameStore } from '@/store/gameStore';
 import { generateId } from '@/store/gameStoreUtils';
-import { setTileTowerId, syncGridTowerIds } from '@/store/gridTower';
 import { TOWER_SKILLS } from '@/data/skillData';
 import { defaultTargetPriority } from '@/data/towerTargeting';
 import { ENEMY_DATA, GAME_CONSTANTS } from '@/data/gameData';
-import type { GridPosition, Tower } from '@/types/game';
+import { DEFAULT_TOWER_RADIUS, sampleBuildablePoints } from '@/data/mapGeometry';
+import type { Tower } from '@/types/game';
 import { useTranslation } from '@/i18n';
 import {
   AlienIcon, TowerIcon, ShieldIcon, FlameIcon, LightningIcon,
@@ -66,16 +66,10 @@ const TowerSpawner = () => {
 
   const handleSpawn = () => {
     const state = useGameStore.getState();
-    const emptyCells: GridPosition[] = [];
-    state.grid.forEach((row, r) => {
-      row.forEach((cell, c) => {
-        if (cell.type === 'empty' && !cell.towerId) {
-          emptyCells.push({ col: c, row: r });
-        }
-      });
-    });
-    if (emptyCells.length === 0) return;
-    const shuffled = [...emptyCells].sort(() => Math.random() - 0.5);
+    // 自由制：沒有空格可枚舉，用共用的取樣器挑可建造點（已含路徑淨空與禁建區）
+    const candidates = sampleBuildablePoints(state.activeMap, spawnTowerCount * 4);
+    if (candidates.length === 0) return;
+    const shuffled = [...candidates].sort(() => Math.random() - 0.5);
     const targets = shuffled.slice(0, Math.min(spawnTowerCount, shuffled.length));
 
     const skillType = TOWER_SKILLS[spawnTowerType];
@@ -83,9 +77,8 @@ const TowerSpawner = () => {
     const newTowers: Tower[] = targets.map((pos) => ({
       id: generateId(),
       type: spawnTowerType,
-      gridPos: pos,
-      x: 0,
-      y: 0,
+      pos,
+      radius: DEFAULT_TOWER_RADIUS,
       level: maxLevel ? GAME_CONSTANTS.MAX_TOWER_LEVEL : 1,
       upgradePath: null,
       rotation: 0,
@@ -100,20 +93,12 @@ const TowerSpawner = () => {
       skill: skillType ? { skillId: skillType, lastUsedTime: 0, isActive: false, activeUntil: 0 } : undefined,
     }));
 
-    const newGrid = newTowers.reduce(
-      (grid, tower) => setTileTowerId(grid, tower.gridPos, tower.id),
-      state.grid,
-    );
-
     useGameStore.setState({
-      grid: newGrid,
       towers: [...state.towers, ...newTowers],
     });
   };
 
-  const emptyCount = useGameStore((s) =>
-    s.grid.reduce((sum, row) => sum + row.filter((c) => c.type === 'empty' && !c.towerId).length, 0)
-  );
+  const emptyCount = useGameStore((s) => sampleBuildablePoints(s.activeMap, 400).length);
 
   const actualSpawn = Math.min(spawnTowerCount, emptyCount);
 
@@ -301,9 +286,8 @@ const TowerControl = () => {
   };
 
   const sellAllTowers = () => {
-    const state = useGameStore.getState();
-    // 以 towers 為權威來源整張重建：賣光就是把所有格子登記清空
-    useGameStore.setState({ towers: [], grid: syncGridTowerIds(state.grid, []) });
+    // 塔的資料只有 towers 一份，清空就是清空
+    useGameStore.setState({ towers: [] });
   };
 
   return (

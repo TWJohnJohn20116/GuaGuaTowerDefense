@@ -31,8 +31,8 @@ export const drawFlameEffectsNordic = (
     const target = enemyFrameById(snapshot, tower.targetId);
     if (!target || target.health <= 0) continue;
 
-    const tx = offsetX + tower.gridPos.col * tileSize + tileSize / 2;
-    const ty = offsetY + tower.gridPos.row * tileSize + tileSize / 2;
+    const tx = offsetX + tower.pos.x * tileSize;
+    const ty = offsetY + tower.pos.y * tileSize;
     const ex = offsetX + target.x * tileSize + tileSize / 2;
     const ey = offsetY + target.y * tileSize + tileSize / 2;
 

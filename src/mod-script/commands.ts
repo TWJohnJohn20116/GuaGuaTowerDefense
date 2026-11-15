@@ -13,7 +13,10 @@ import { MOD_SCRIPT_LIMITS } from './limits';
 
 /** 依格子座標找塔（腳本指令用；座標是 (col,row) 但呼叫端習慣 row,col，這裡統一收 row,col） */
 function findTowerAt(towers: readonly Tower[], row: number, col: number): Tower | undefined {
-  return towers.find((tower) => tower.gridPos.row === row && tower.gridPos.col === col);
+  // 自由制：塔座標是連續值，用半格容差取代整數相等
+  return towers.find(
+    (tower) => Math.abs(tower.pos.y - row) < 0.5 && Math.abs(tower.pos.x - col) < 0.5,
+  );
 }
 
 interface ApplyCommandResult {
@@ -141,18 +144,16 @@ export async function applyModScriptCommands(
       }
       case 'grantTower': {
         const state = useGameStore.getState();
-        const tile = state.grid[command.row]?.[command.col];
-        if (!tile || tile.type !== 'empty' || tile.towerId) {
-          log('warn', `座標 (${command.col}, ${command.row}) 不能放塔，送塔指令已忽略`);
-          skipped += 1;
-          break;
-        }
+        // 自由制：能不能放由 placeTower 的圓形淨空判定，這裡不再預先查格子
         const previousType = state.selectedTowerType;
         useGameStore.setState({ selectedTowerType: command.towerType as TowerType });
-        const placed = useGameStore.getState().placeTower({ row: command.row, col: command.col });
+        const placed = useGameStore.getState().placeTower({ x: command.col, y: command.row });
         useGameStore.setState({ selectedTowerType: previousType });
         if (placed) applied += 1;
-        else skipped += 1;
+        else {
+          log('warn', `座標 (${command.col}, ${command.row}) 不能放塔，送塔指令已忽略`);
+          skipped += 1;
+        }
         break;
       }
       case 'teleportEnemy': {

@@ -233,10 +233,11 @@ export function validateModContent(
     if (!map.waypoints || map.waypoints.length < 2) {
       pushError(fillTemplate(v(m, 'valMapWaypoints'), { name }), tabFlag);
     }
-    const blocked = map.blockedCells ?? [];
+    const blocked = map.blockedAreas ?? [];
     if (blocked.length > 0 && map.waypoints.length > 0) {
-      const onPath = blocked.some((cell) =>
-        map.waypoints.some((wp) => wp.col === cell.col && wp.row === cell.row),
+      // 自由制：禁建區是圓，壓到路徑的判定改成距離
+      const onPath = blocked.some((area) =>
+        map.waypoints.some((wp) => Math.hypot(wp.col - area.x, wp.row - area.y) < 0.75),
       );
       if (onPath) pushWarning(fillTemplate(v(m, 'valMapBlockOverlap'), { name }), tabFlag);
     }

@@ -7,7 +7,6 @@ import { PATHS, WAVE_CONFIGS, GAME_CONSTANTS, ENEMY_DATA, generateEndlessWaveCon
 import { getSegmentMap } from '@/store/gameLoop/pathHelpers';
 import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { generateId, getEnemyData, getTowerData } from '@/store/gameStoreUtils';
-import { clearTowerIds } from '@/store/gridTower';
 import { createFrameLoopGuard } from '@/utils/frameLoopGuard';
 import { requestSellTower } from '@/store/sellConfirm';
 import { time as perfTime, tickFrame as perfTickFrame } from '@/utils/perfMonitor';
@@ -529,8 +528,8 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
               const rSq = radiusTiles * radiusTiles;
               let hitAnyTower = false;
               for (const t of stateForDeath.towers) {
-                const dx = t.gridPos.col - e.x;
-                const dy = t.gridPos.row - e.y;
+                const dx = t.pos.x - e.x;
+                const dy = t.pos.y - e.y;
                 if (dx * dx + dy * dy <= rSq) {
                   towerBombDamage[t.id] = (towerBombDamage[t.id] || 0) + deadData.explosionDamage;
                   hitAnyTower = true;
@@ -553,7 +552,7 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
             const damagedTowers = st.towers.map(t => {
               const dmg = towerBombDamage[t.id] || 0;
               if (dmg > 0) {
-                st.addDamageText(t.gridPos.col, t.gridPos.row, dmg, false, '#ff6432');
+                st.addDamageText(t.pos.x, t.pos.y, dmg, false, '#ff6432');
                 return { ...t, health: t.health - dmg };
               }
               return t;
@@ -568,7 +567,6 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
               );
               useGameStore.setState({
                 towers: aliveTowers,
-                grid: clearTowerIds(st.grid, deadIds),
                 selectedTower: nextSelected,
               });
             } else {

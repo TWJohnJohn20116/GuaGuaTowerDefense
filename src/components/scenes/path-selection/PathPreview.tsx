@@ -1,27 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { PATHS } from '@/data/gameData';
-import type { PathConfig, GridPosition, Tile, TileType } from '@/types/game';
-import { drawGrid } from '@/components/game/PathRenderer';
+import type { PathConfig } from '@/types/game';
+import { boundsOf, pathPolylines, pathWidthOf } from '@/data/mapGeometry';
 
-const generateWaypointTiles = (waypoints: GridPosition[]): Set<string> => {
-  const tiles = new Set<string>();
-  for (let i = 0; i < waypoints.length - 1; i++) {
-    const start = waypoints[i];
-    const end = waypoints[i + 1];
-    const dx = Math.sign(end.col - start.col);
-    const dy = Math.sign(end.row - start.row);
-    let col = start.col;
-    let row = start.row;
-    while (col !== end.col || row !== end.row) {
-      tiles.add(`${col},${row}`);
-      if (col !== end.col) col += dx;
-      if (row !== end.row) row += dy;
-    }
-    tiles.add(`${end.col},${end.row}`);
-  }
-  return tiles;
-};
-
+/**
+ * 選圖頁的路徑縮圖。
+ *
+ * 舊版把 waypoints 膨脹成格子、建一張 dummyGrid 再交給 drawGrid；
+ * 自由制沒有格子，這裡改成直接沿折線描帶（深色底 + 發光路徑 + 起終點）。
+ */
 export const PathPreview = ({ 
   pathKey, 
   pathConfig, 
@@ -35,13 +22,12 @@ export const PathPreview = ({
 }) => {
   const path = pathConfig || (pathKey ? PATHS[pathKey] : null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
-  const gridCols = 15;
-  const gridRows = 11;
+
+  const bounds = boundsOf(path);
   const cellSize = size === 'small' ? 16 : size === 'large' ? 32 : 24;
-  const padding = size === 'small' ? 8 : size === 'large' ? 24 : 12; // 增加 large 的 padding 防止邊緣被裁切
-  const w = gridCols * cellSize + padding * 2;
-  const h = gridRows * cellSize + padding * 2;
+  const padding = size === 'small' ? 8 : size === 'large' ? 24 : 12;
+  const w = bounds.width * cellSize + padding * 2;
+  const h = bounds.height * cellSize + padding * 2;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -64,72 +50,49 @@ export const PathPreview = ({
     ctx.fillStyle = vignette;
     ctx.fillRect(0, 0, w, h);
 
-    const hasSegments = path.category === 'advanced' && path.segments && path.segments.length > 0;
-    
-    // 計算所有路徑格子
-    const pathTiles = new Set<string>();
-    if (hasSegments) {
-      for (const segment of path.segments!) {
-        const segTiles = generateWaypointTiles(segment.waypoints);
-        segTiles.forEach(t => pathTiles.add(t));
-      }
-    } else if (path.waypoints) {
-      const segTiles = generateWaypointTiles(path.waypoints);
-      segTiles.forEach(t => pathTiles.add(t));
-    }
+    const lines = pathPolylines(path);
+    const bandWidth = Math.max(3, pathWidthOf(path) * cellSize);
 
-    // 計算起點、終點、叉路點
-    let startPos: GridPosition | undefined;
-    const endPoints = new Set<string>();
-    const forkPoints = new Set<string>();
-    
-    if (hasSegments) {
-      const startSeg = path.segments!.find(s => s.id === path.startSegmentId) || path.segments![0];
-      if (startSeg) startPos = startSeg.waypoints[0];
-      
-      for (const segment of path.segments!) {
-        if (segment.next.length > 1) {
-          const lastWp = segment.waypoints[segment.waypoints.length - 1];
-          forkPoints.add(`${lastWp.col},${lastWp.row}`);
-        } else if (segment.next.length === 0) {
-          const lastWp = segment.waypoints[segment.waypoints.length - 1];
-          endPoints.add(`${lastWp.col},${lastWp.row}`);
+    // 路徑帶：外描邊 + 內填，圓角接合
+    for (const line of lines) {
+      if (line.length < 2) continue;
+      const trace = () => {
+        ctx.beginPath();
+        ctx.moveTo(padding + line[0].col * cellSize, padding + line[0].row * cellSize);
+        for (let i = 1; i < line.length; i++) {
+          ctx.lineTo(padding + line[i].col * cellSize, padding + line[i].row * cellSize);
         }
-      }
-    } else if (path.waypoints && path.waypoints.length > 0) {
-      startPos = path.waypoints[0];
-      const endPos = path.waypoints[path.waypoints.length - 1];
-      if (endPos) endPoints.add(`${endPos.col},${endPos.row}`);
+      };
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      trace();
+      ctx.lineWidth = bandWidth + 3;
+      ctx.strokeStyle = 'rgba(8, 12, 20, 0.9)';
+      ctx.stroke();
+      trace();
+      ctx.lineWidth = bandWidth;
+      ctx.strokeStyle = '#3f5a7a';
+      ctx.stroke();
+      trace();
+      ctx.lineWidth = Math.max(1, bandWidth * 0.22);
+      ctx.strokeStyle = 'rgba(147, 197, 253, 0.55)';
+      ctx.stroke();
     }
 
-    // 建立 dummyGrid
-    const dummyGrid: Tile[][] = [];
-    for (let row = 0; row < gridRows; row++) {
-      const rowTiles: Tile[] = [];
-      for (let col = 0; col < gridCols; col++) {
-        let type: TileType = 'empty';
-        const key = `${col},${row}`;
-        
-        if (pathTiles.has(key)) {
-          if (startPos && col === startPos.col && row === startPos.row) {
-            type = 'start';
-          } else if (endPoints.has(key)) {
-            type = 'end';
-          } else if (forkPoints.has(key)) {
-            type = 'fork';
-          } else {
-            type = 'path';
-          }
-        }
-        
-        rowTiles.push({ type, row, col, towerId: null });
-      }
-      dummyGrid.push(rowTiles);
+    // 起終點
+    for (const line of lines) {
+      if (line.length < 2) continue;
+      const first = line[0];
+      const last = line[line.length - 1];
+      ctx.beginPath();
+      ctx.arc(padding + first.col * cellSize, padding + first.row * cellSize, cellSize * 0.32, 0, Math.PI * 2);
+      ctx.fillStyle = '#34d399';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(padding + last.col * cellSize, padding + last.row * cellSize, cellSize * 0.32, 0, Math.PI * 2);
+      ctx.fillStyle = '#ef4444';
+      ctx.fill();
     }
-
-    // 繪製與遊戲內一致的路徑
-    drawGrid(ctx, dummyGrid, cellSize, padding, padding);
-
   }, [path, size, cellSize, padding, w, h]);
 
   if (!path) return null;

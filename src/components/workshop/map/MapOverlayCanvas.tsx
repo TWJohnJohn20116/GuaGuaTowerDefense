@@ -17,10 +17,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { GAME_CONSTANTS } from '@/data/gameData';
-import { drawGrid } from '@/components/game/PathRenderer';
+import { drawField } from '@/components/game/PathRenderer';
 import { getBoardColors } from '@/utils/themeBoard';
 import { createFrameLoopGuard } from '@/utils/frameLoopGuard';
-import type { Tile } from '@/types/game';
+import type { PathConfig } from '@/types/game';
 import {
   blockedPathConflicts,
   isBlocked,
@@ -29,7 +29,6 @@ import {
   pointKey,
   previewTowerAt,
   samePoint,
-  toTileGrid,
   type GridPoint,
   type MapDraft,
 } from '@/workshop/map/editModel';
@@ -283,9 +282,17 @@ const drawBaseLayer = (
 ): void => {
   if (geom.tileSize <= 0) return;
 
-  // 真實遊戲的繪製入口：地板、路徑連通、起終點標記、障礙塊都在這裡
-  const grid: Tile[][] = toTileGrid(draft);
-  drawGrid(ctx, grid, geom.tileSize, geom.offsetX, geom.offsetY, true);
+  // 真實遊戲的繪製入口：整片場地、路徑帶、起終點、禁建區都在這裡
+  // 自由制沒有格子陣列，直接把草稿轉成一份臨時 PathConfig
+  const path: PathConfig = {
+    name: 'draft',
+    description: '',
+    difficulty: 'normal',
+    waypoints: draft.waypoints,
+    segments: draft.segments,
+    blockedAreas: draft.blocked.map((p) => ({ x: p.col + 0.5, y: p.row + 0.5 })),
+  };
+  drawField(ctx, path, geom.tileSize, geom.offsetX, geom.offsetY, { showPath: true });
 
   const range = TOWER_RANGE_CELLS * geom.tileSize;
   for (let i = 0; i < draft.towers.length; i++) {

@@ -12,8 +12,8 @@ import type { DeathAnimation, DamageText } from '@/types/game';
 import { fxFade, fxProgress } from '@/data/fxProgress';
 import { FX_DURATIONS } from '@/data/fxLifetime';
 
-type UpgradeAnim = { id: string; gridPos: { col: number; row: number }; towerColor: string; startTime: number; isMaxLevel?: boolean };
-type SellAnim = { id: string; gridPos: { col: number; row: number }; towerColor: string; startTime: number };
+type UpgradeAnim = { id: string; pos: { x: number; y: number }; towerColor: string; startTime: number; isMaxLevel?: boolean };
+type SellAnim = { id: string; pos: { x: number; y: number }; towerColor: string; startTime: number };
 
 /** 2D 特效以 60px/格 為基準的速度換算比 */
 const PX_PER_TILE = 60;
@@ -190,7 +190,7 @@ export function createEffects3D(scene: THREE.Scene): Effects3D {
 
     const syncRing = (
       id: string,
-      gridPos: { col: number; row: number },
+      pos: { x: number; y: number },
       color: string,
       progress: number,
       grow: boolean,
@@ -207,7 +207,8 @@ export function createEffects3D(scene: THREE.Scene): Effects3D {
         });
         mesh = new THREE.Mesh(ringGeo, mat);
         mesh.rotation.x = -Math.PI / 2;
-        const [wx, wz] = toWorld(gridPos.col, gridPos.row);
+        // pos 是塔中心，toWorld 吃格左上
+        const [wx, wz] = toWorld(pos.x - 0.5, pos.y - 0.5);
         mesh.position.set(wx, 0.18, wz);
         scene.add(mesh);
         ringFxMap.set(id, mesh);
@@ -219,11 +220,11 @@ export function createEffects3D(scene: THREE.Scene): Effects3D {
 
     for (const u of upgrades) {
       const progress = fxProgress(u.startTime, FX_DURATIONS.upgrade, now);
-      syncRing(u.id, u.gridPos, u.towerColor || '#f59e0b', progress, true, u.isMaxLevel ? 2.6 : 1.8);
+      syncRing(u.id, u.pos, u.towerColor || '#f59e0b', progress, true, u.isMaxLevel ? 2.6 : 1.8);
     }
     for (const s of sells) {
       const progress = fxProgress(s.startTime, FX_DURATIONS.sell, now);
-      syncRing(s.id, s.gridPos, '#ef4444', progress, false, 1.4);
+      syncRing(s.id, s.pos, '#ef4444', progress, false, 1.4);
     }
 
     for (const [id, mesh] of ringFxMap) {
