@@ -13,6 +13,7 @@ const SKELETON_LINES = [
   '// 具名函式＝hook；ctx 是事件內容，api 是唯一能改動世界的入口。',
   '// 可用函式：onGameStart / onWaveStart / onWaveClear / onEnemyKilled',
   '//           onTowerPlaced / onTick / onGameOver / onVictory',
+  '//           onTowerSold / onBossSpawn / onMoneyChanged（金錢事件已節流 250ms）',
   'function onGameStart(ctx, api) {',
   "  api.log('腳本啟動：' + api.state.pathName + '（' + api.state.difficulty + '）');",
   '}',
