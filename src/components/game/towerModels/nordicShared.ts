@@ -7,7 +7,6 @@
 /** 暗部／輪廓：與 UI 的墨線同一個顏色，塔才不會像另一個世界來的 */
 export const NORDIC_DARK = '#2e2440';
 export const NORDIC_WHITE = '#f4f7fb';
-const NORDIC_LINE = 'rgba(255,255,255,0.35)';
 const NORDIC_LINE_SOFT = 'rgba(255,255,255,0.18)';
 const NORDIC_LINE_FAINT = 'rgba(255,255,255,0.12)';
 
