@@ -12,9 +12,20 @@ type Variant = 'signal' | 'line' | 'ghost' | 'danger' | 'quiet';
 type Size = 'sm' | 'md' | 'lg';
 
 const SIZE: Record<Size, string> = {
-  sm: 'h-9 px-3.5 text-[12.5px] rounded-[11px] shadow-[0_3px_0_var(--cn-line)]',
+  sm: 'h-9 px-3.5 text-[12.5px] rounded-[11px]',
   md: 'h-11 px-5 text-[14px]',
-  lg: 'h-12 px-7 text-[15px] rounded-[18px] shadow-[0_6px_0_var(--cn-line)]',
+  lg: 'h-12 px-7 text-[15px] rounded-[18px]',
+};
+
+/**
+ * 立體厚度只在「有實體邊框」的變體上出現。
+ * ghost 的 CSS 用 box-shadow:none 關掉厚度，但 Tailwind 的陰影工具類會蓋回去，
+ * 結果 ghost 按鈕下面浮著一條沒有按鈕本體的深色橫條（實機回報「很怪」）。
+ */
+const SIZE_SHADOW: Record<Size, string> = {
+  sm: 'shadow-[0_3px_0_var(--cn-line)]',
+  md: '',
+  lg: 'shadow-[0_6px_0_var(--cn-line)]',
 };
 
 const VARIANT: Record<Variant, string> = {
@@ -53,7 +64,14 @@ export function Btn({
         playUiHover();
         onMouseEnter?.(e);
       }}
-      className={['arc-btn whitespace-nowrap', SIZE[size], VARIANT[variant], block ? 'w-full' : '', className]
+      className={[
+        'arc-btn whitespace-nowrap',
+        SIZE[size],
+        variant === 'ghost' ? '' : SIZE_SHADOW[size],
+        VARIANT[variant],
+        block ? 'w-full' : '',
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
     >
