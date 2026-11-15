@@ -38,7 +38,7 @@ export interface SettingsExportPayload {
   appVersion: string;
   sections: SettingsExportSection[];
   language?: Language;
-  settings?: Partial<Pick<SettingsState, 'visual' | 'gameplay' | 'audio' | 'controls' | 'hudLayout'>>;
+  settings?: Partial<Pick<SettingsState, 'themeId' | 'visual' | 'gameplay' | 'audio' | 'controls' | 'hudLayout'>>;
   gamePrefs?: Partial<SettingsExportGamePrefs>;
 }
 
@@ -86,6 +86,7 @@ function collectSettingsExportPayload(
   }
 
   const settings: SettingsExportPayload['settings'] = {};
+  if (selection.theme) settings!.themeId = store.themeId;
   if (selection.visual) settings!.visual = { ...store.visual };
   if (selection.gameplay) settings!.gameplay = { ...store.gameplay };
   if (selection.audio) settings!.audio = { ...store.audio };
@@ -212,9 +213,11 @@ function applySettingsPayload(
     : payload.sections;
   const sections = new Set(effectiveSections);
   if (sections.size === 0) return;
-  const partial: Partial<Pick<SettingsState, 'visual' | 'gameplay' | 'audio' | 'controls' | 'hudLayout'>> = {};
+  const partial: Partial<Pick<SettingsState, 'themeId' | 'visual' | 'gameplay' | 'audio' | 'controls' | 'hudLayout'>> = {};
 
   if (payload.settings) {
+    // 壞檔／舊檔沒有 themeId，或用不存在的 id → 交給 setAll 的 isThemeId 擋掉
+    if (sections.has('theme') && payload.settings.themeId) partial.themeId = payload.settings.themeId;
     if (sections.has('visual') && payload.settings.visual) partial.visual = payload.settings.visual;
     if (sections.has('gameplay') && payload.settings.gameplay) partial.gameplay = payload.settings.gameplay;
     if (sections.has('audio') && payload.settings.audio) partial.audio = payload.settings.audio;

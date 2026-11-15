@@ -153,7 +153,7 @@ export interface SettingsState {
   setVisualValue: <K extends 'shadowQuality' | 'particleDensity'>(key: K, value: SettingsState['visual'][K]) => void;
   setHudLayout: <K extends keyof HudLayoutState>(key: K, value: HudLayoutState[K]) => void;
   resetHudLayout: () => void;
-  setAll: (partial: Partial<Pick<SettingsState, 'visual' | 'gameplay' | 'audio' | 'controls' | 'hudLayout'>>) => void;
+  setAll: (partial: Partial<Pick<SettingsState, 'themeId' | 'visual' | 'gameplay' | 'audio' | 'controls' | 'hudLayout'>>) => void;
   /** 重置全部設定回預設值 */
   resetAll: () => void;
 }
@@ -237,6 +237,7 @@ export const useSettingsStore = create<SettingsState>()(
         })),
       setAll: (partial) =>
         set((state) => ({
+          themeId: isThemeId(partial.themeId) ? partial.themeId : state.themeId,
           visual: { ...state.visual, ...(partial.visual || {}) },
           gameplay: { ...state.gameplay, ...(partial.gameplay || {}) },
           audio: { ...state.audio, ...(partial.audio || {}) },

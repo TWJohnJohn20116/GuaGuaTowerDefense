@@ -3,6 +3,7 @@
  */
 export type SettingsExportSection =
   | 'language'
+  | 'theme'
   | 'visual'
   | 'gameplay'
   | 'audio'
@@ -14,6 +15,7 @@ export type SettingsExportSection =
 
 export const ALL_SETTINGS_EXPORT_SECTIONS: SettingsExportSection[] = [
   'language',
+  'theme',
   'visual',
   'gameplay',
   'audio',
@@ -26,6 +28,7 @@ export const ALL_SETTINGS_EXPORT_SECTIONS: SettingsExportSection[] = [
 
 export const SETTINGS_SECTION_LABELS: Record<SettingsExportSection, string> = {
   language: '語言',
+  theme: '主題色',
   visual: '顯示',
   gameplay: '遊戲行為',
   audio: '音效分類',
@@ -40,7 +43,7 @@ export const SETTINGS_SECTION_GROUPS: { title: string; sections: SettingsExportS
   { title: '一般', sections: ['language', 'visual', 'gameplay'] },
   { title: '音效', sections: ['masterAudio', 'audio'] },
   { title: '操作', sections: ['controls', 'keyBindings', 'gameSpeed'] },
-  { title: '介面', sections: ['hudLayout'] },
+  { title: '介面', sections: ['theme', 'hudLayout'] },
 ];
 
 export type SettingsExportSelection = Record<SettingsExportSection, boolean>;
