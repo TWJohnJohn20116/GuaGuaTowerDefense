@@ -14,7 +14,7 @@ import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { Btn, Chip, Deck, Empty, IconBtn, Input, Num, SegHead } from '@/components/hl';
-import { RedoIcon, UndoIcon, WarningIcon } from '@/components/ui/Icons';
+import { DownloadIcon, RedoIcon, UndoIcon, WarningIcon } from '@/components/ui/Icons';
 import { ENEMY_DATA } from '@/data/gameData';
 import { RosterPanel, type RosterAsset } from '@/components/workshop/content/RosterPanel';
 import { WaveAnalysisPanel } from '@/components/workshop/content/WaveAnalysisPanel';
@@ -304,7 +304,7 @@ export function ContentPage({ projectId }: ContentPageProps) {
             <IconBtn label={w.redo} className="h-7 w-7" onClick={history.redo} disabled={!history.canRedo}>
               <RedoIcon className="h-4 w-4" />
             </IconBtn>
-            <Btn size="sm" variant="ghost" onClick={exportJson}>
+            <Btn size="sm" variant="line" icon={<DownloadIcon className="h-3.5 w-3.5" />} onClick={exportJson}>
               {w.jsonExport}
             </Btn>
           </div>
