@@ -67,7 +67,7 @@ export const AIStatusHeader = () => {
             animate={{ opacity: 1, scale: 1, x: 0, y: 0, rotate: 0 }}
             exit={{ opacity: 0, scale: 0.5, x: 200, y: 130, rotate: -2, transition: FADE_OUT }}
             transition={SPRING_POP}
-            className={`${BD_SHEET} pointer-events-auto relative flex max-h-[70vh] w-[320px] flex-col overflow-hidden`}
+            className={`${BD_SHEET} pointer-events-auto relative flex min-h-[220px] max-h-[76vh] w-[min(92vw,640px)] flex-col overflow-hidden`}
           >
             <header className="flex items-center gap-2 border-b-[3px] border-[var(--cn-line-soft)] px-3 py-2">
               <Dot tone="signal" pulse />
@@ -101,7 +101,7 @@ export const AIStatusHeader = () => {
                   )}
                 </div>
               ) : (
-                <p className="font-mono text-[10px] text-[var(--cn-ink-4)]">{t.game.aiActive}</p>
+                <p className="font-mono text-[11px] text-[var(--cn-ink-3)]">{t.game.aiWaiting}</p>
               )}
 
               <AnimatePresence initial={false}>

@@ -300,7 +300,7 @@ export const TowerPanel = () => {
               initial={{ opacity: 0, scale: 0.96, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={SPRING_SOFT}
-              className={`${BD_SHEET} flex max-h-[80vh] w-full max-w-[360px] flex-col overflow-hidden`}
+              className={`${BD_SHEET} flex max-h-[80vh] w-full max-w-[460px] flex-col overflow-hidden`}
               onClick={(e) => e.stopPropagation()}
             >
               <header className="flex items-center justify-between gap-2 border-b-[3px] border-[var(--cn-line-soft)] px-3 py-2">

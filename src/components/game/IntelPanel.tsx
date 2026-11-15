@@ -76,7 +76,7 @@ export function IntelPanel() {
             animate={{ opacity: 1, scale: 1, x: 0, y: 0, rotate: 0 }}
             exit={{ opacity: 0, scale: 0.5, x: 200, y: -110, rotate: 3, transition: FADE_OUT }}
             transition={SPRING_POP}
-            className={`${BD_SHEET} pointer-events-auto relative flex max-h-[76vh] w-[320px] flex-col overflow-hidden`}
+            className={`${BD_SHEET} pointer-events-auto relative flex max-h-[76vh] w-[min(92vw,520px)] flex-col overflow-hidden`}
           >
             <header className="flex items-center justify-between gap-2 border-b-[3px] border-[var(--cn-line-soft)] px-3 py-2">
               <span className={BD_LABEL}>{t.game.fieldIntel}</span>

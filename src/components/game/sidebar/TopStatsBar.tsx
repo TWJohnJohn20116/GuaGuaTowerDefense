@@ -114,7 +114,7 @@ export const TopStatsBar = () => {
               onClick={() => setShowStatsDialog(false)}
             >
               <motion.div
-                className="w-full max-w-[460px]"
+                className="w-full max-w-[560px]"
                 initial={{ opacity: 0, y: 14, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.97, transition: FADE_OUT }}

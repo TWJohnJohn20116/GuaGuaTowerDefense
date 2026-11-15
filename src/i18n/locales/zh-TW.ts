@@ -308,6 +308,7 @@ export const zhTW = {
     view2dLabel: '2D 視圖',
     view3dLabel: '3D 視圖',
     toggleViewHint: '切換 2D / 3D 視圖',
+    aiWaiting: '等待 AI 決策…',
     aiStatsTitle: 'AI 統計',
     aiPlacedLabel: 'AI 放置',
     aiSpentLabel: 'AI 花費',
