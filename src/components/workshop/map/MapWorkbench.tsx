@@ -49,7 +49,9 @@ import {
   setStartSegment,
 } from '@/workshop/map/editModel';
 import { MapOverlayCanvas } from './MapOverlayCanvas';
-import { MapToolbar, type MapTool } from './MapToolbar';
+import { MapToolRail, type MapTool } from './MapToolRail';
+import { MapPlaybackBar } from './MapPlaybackBar';
+import { ViewModeToggle } from '@/components/scenes/game-scene/three/ViewModeToggle';
 import { useMapPlayback } from './useMapPlayback';
 
 const GameScene3D = lazy(() => import('@/components/scenes/game-scene/three/GameScene3D'));
@@ -453,7 +455,7 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
   const canSave = Boolean(level) && issues.length === 0;
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 p-3">
+    <div className="flex h-full min-h-0 flex-col">
       <TopBar
         title={level?.name ?? s.title}
         meta={project?.name ?? s.metaFallback}
@@ -461,6 +463,7 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
         right={
           <>
             <span className="arc-micro hidden md:inline">{s.cellUnitHint}</span>
+            <ViewModeToggle mode={view} onToggle={() => setView((prev) => (prev === '2d' ? '3d' : '2d'))} />
             <Btn size="sm" variant="signal" onClick={handleSave} disabled={!canSave}>
               {s.panel.saveButton}
             </Btn>
@@ -468,39 +471,27 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
         }
       />
 
-      <MapToolbar
-        canUndo={canUndo}
-        canRedo={canRedo}
-        onUndo={undo}
-        onRedo={redo}
-        tool={tool}
-        onToolChange={setTool}
-        showGrid={showGrid}
-        onToggleGrid={() => setShowGrid((prev) => !prev)}
-        showCoords={showCoords}
-        onToggleCoords={() => setShowCoords((prev) => !prev)}
-        showArrows={showArrows}
-        onToggleArrows={() => setShowArrows((prev) => !prev)}
-        view={view}
-        onToggleView={() => setView((prev) => (prev === '2d' ? '3d' : '2d'))}
-        playing={playback.playing}
-        onTogglePlay={playback.toggle}
-        onResetPlayback={playback.reset}
-        progress={playback.progress}
-        speed={playback.speed}
-        onSpeedChange={playback.setSpeed}
-        disabled={cellCount === 0}
-      />
-
       {notice && (
-        <div className="flex items-center gap-2 rounded-[12px] border-[3px] border-[var(--cn-alert)] bg-[var(--cn-alert-soft)] px-3 py-1.5">
+        <div className="flex items-center gap-2 border-b-[3px] border-[var(--cn-alert)] bg-[var(--cn-alert-soft)] px-3 py-1.5">
           <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--cn-alert)]" />
           <span className="text-[12px] font-extrabold text-[var(--cn-alarm-text)]">{issueText(notice)}</span>
         </div>
       )}
 
-      <div className="flex min-h-0 flex-1 gap-3">
-        <div className="relative min-w-0 flex-1 overflow-hidden rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)]">
+      <div className="flex min-h-0 flex-1">
+        <MapToolRail
+          tool={tool}
+          onToolChange={setTool}
+          showGrid={showGrid}
+          onToggleGrid={() => setShowGrid((prev) => !prev)}
+          showCoords={showCoords}
+          onToggleCoords={() => setShowCoords((prev) => !prev)}
+          showArrows={showArrows}
+          onToggleArrows={() => setShowArrows((prev) => !prev)}
+          disabled={cellCount === 0}
+        />
+
+        <div className="relative min-w-0 flex-1 overflow-hidden bg-[var(--cn-card)]">
           {view === '2d' ? (
             <MapOverlayCanvas
               draft={draft}
@@ -567,6 +558,20 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
           onSave={handleSave}
         />
       </div>
+
+      <MapPlaybackBar
+        playing={playback.playing}
+        onTogglePlay={playback.toggle}
+        onResetPlayback={playback.reset}
+        progress={playback.progress}
+        speed={playback.speed}
+        onSpeedChange={playback.setSpeed}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={undo}
+        onRedo={redo}
+        disabled={cellCount === 0}
+      />
     </div>
   );
 }
