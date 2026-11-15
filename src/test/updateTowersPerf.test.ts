@@ -7,8 +7,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { useGameStore } from '@/store/gameStore';
-import { initializeGrid } from '@/store/gameStoreUtils';
-import { DEFAULT_PATH, DIFFICULTY_MODIFIERS } from '@/data/gameData';
+import { DEFAULT_PATH, DIFFICULTY_MODIFIERS, PATHS } from '@/data/gameData';
 import { makeEnemy, makeTower } from '@/test/fixtures';
 import type { Enemy, Tower } from '@/types/game';
 
@@ -37,7 +36,7 @@ const buildScene = (): { enemies: Enemy[]; towers: Tower[] } => {
       makeTower({
         id: `t${i}`,
         type: 'basic',
-        gridPos: { col: i % 15, row: Math.floor(i / 15) },
+        pos: { x: (i % 15) + 0.5, y: Math.floor(i / 15) + 0.5 },
         rotation: 0,
       }),
     );
@@ -46,7 +45,7 @@ const buildScene = (): { enemies: Enemy[]; towers: Tower[] } => {
   useGameStore.setState({
     scene: 'game',
     selectedPath: DEFAULT_PATH,
-    grid: initializeGrid(DEFAULT_PATH),
+    activeMap: PATHS[DEFAULT_PATH] ?? null,
     enemies,
     towers,
     projectiles: [],

@@ -11,7 +11,7 @@ function tower(skillId: 'toxic_cloud' | 'inferno', active: boolean, until = 9_00
   return makeTower({
     id: 'tower-1',
     type: skillId === 'inferno' ? 'flame' : 'poison',
-    gridPos: { col: 4, row: 4 },
+    pos: { x: 4, y: 4 },
     skill: makeSkill({ skillId, lastUsedTime: 1_000, isActive: active, activeUntil: until }),
   });
 }

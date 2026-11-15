@@ -12,7 +12,7 @@ import {
 } from '@/data/moneyAura';
 
 function moneyTower(col: number, row: number, level = 1) {
-  return { type: 'money' as const, gridPos: { col, row }, level };
+  return { type: 'money' as const, pos: { x: col, y: row }, level };
 }
 
 describe('money vault aura', () => {
@@ -21,7 +21,7 @@ describe('money vault aura', () => {
     expect(getKillBountyBonus(5, 5, 40, [])).toBe(0);
 
     const auras = collectMoneyAuras([
-      { type: 'basic', gridPos: { col: 5, row: 5 }, level: 1 },
+      { type: 'basic', pos: { x: 5, y: 5 }, level: 1 },
     ]);
     expect(auras).toHaveLength(0);
     expect(getKillBountyBonus(5, 5, 40, auras)).toBe(0);

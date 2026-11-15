@@ -10,7 +10,7 @@ const mapAsset: WorkshopMapAsset = {
   data: {
     grid: { cols: 12, rows: 10 },
     waypoints: [],
-    blockedCells: [],
+    blockedAreas: [],
     difficulty: 'hard',
     category: 'normal',
   },
@@ -34,6 +34,6 @@ describe('compileMap', () => {
     const { map } = compileMap('proj-1', broken);
     expect(map.difficulty).toBe('normal');
     expect(map.waypoints).toEqual([]);
-    expect(map.blockedCells).toEqual([]);
+    expect(map.blockedAreas).toEqual([]);
   });
 });

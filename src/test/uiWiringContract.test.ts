@@ -236,7 +236,7 @@ describe('場景接線', () => {
     expect(browse).toMatch(/gameDifficultyLabelsFromGameCopy/);
     const canvas = source('../components/scenes/replay/ReplayCanvas.tsx');
     expect(canvas).toMatch(/showEnemyPath/);
-    expect(canvas).toMatch(/drawGrid\([\s\S]*showEnemyPath/);
+    expect(canvas).toMatch(/drawField\([\s\S]*showPath/);
     expect(canvas).toMatch(/shouldDrawReplayEnemyHealthBar/);
   });
 

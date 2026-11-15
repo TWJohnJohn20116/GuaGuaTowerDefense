@@ -20,16 +20,16 @@ describe('updateVisualEffects 的塔位特效清理', () => {
     const now = Date.now();
     useGameStore.setState({
       upgradeAnimations: [
-        { id: 'u-old', towerId: 't1', gridPos: { col: 1, row: 1 }, newLevel: 2, towerColor: '#fff', startTime: now - 2000 },
-        { id: 'u-new', towerId: 't1', gridPos: { col: 1, row: 1 }, newLevel: 3, towerColor: '#fff', startTime: now },
+        { id: 'u-old', towerId: 't1', pos: { x: 1, y: 1 }, newLevel: 2, towerColor: '#fff', startTime: now - 2000 },
+        { id: 'u-new', towerId: 't1', pos: { x: 1, y: 1 }, newLevel: 3, towerColor: '#fff', startTime: now },
       ],
       sellAnimations: [
-        { id: 's-old', gridPos: { col: 2, row: 2 }, towerColor: '#fff', startTime: now - 1000 },
-        { id: 's-new', gridPos: { col: 2, row: 2 }, towerColor: '#fff', startTime: now },
+        { id: 's-old', pos: { x: 2, y: 2 }, towerColor: '#fff', startTime: now - 1000 },
+        { id: 's-new', pos: { x: 2, y: 2 }, towerColor: '#fff', startTime: now },
       ],
       fusionAnimations: [
-        { id: 'f-old', gridPos: { col: 3, row: 3 }, resultType: 'basic', startTime: now - 2000, colorA: '#fff', colorB: '#000' },
-        { id: 'f-new', gridPos: { col: 3, row: 3 }, resultType: 'basic', startTime: now, colorA: '#fff', colorB: '#000' },
+        { id: 'f-old', pos: { x: 3, y: 3 }, resultType: 'basic', startTime: now - 2000, colorA: '#fff', colorB: '#000' },
+        { id: 'f-new', pos: { x: 3, y: 3 }, resultType: 'basic', startTime: now, colorA: '#fff', colorB: '#000' },
       ],
     });
 
@@ -45,7 +45,7 @@ describe('updateVisualEffects 的塔位特效清理', () => {
     const now = Date.now();
     useGameStore.setState({
       upgradeAnimations: [
-        { id: 'u1', towerId: 't1', gridPos: { col: 1, row: 1 }, newLevel: 2, towerColor: '#fff', startTime: now },
+        { id: 'u1', towerId: 't1', pos: { x: 1, y: 1 }, newLevel: 2, towerColor: '#fff', startTime: now },
       ],
       sellAnimations: [],
       fusionAnimations: [],
@@ -61,7 +61,7 @@ describe('updateVisualEffects 的塔位特效清理', () => {
     const now = Date.now();
     useGameStore.setState({
       upgradeAnimations: [
-        { id: 'exact', towerId: 't1', gridPos: { col: 1, row: 1 }, newLevel: 2, towerColor: '#fff', startTime: now - 1500 },
+        { id: 'exact', towerId: 't1', pos: { x: 1, y: 1 }, newLevel: 2, towerColor: '#fff', startTime: now - 1500 },
       ],
       sellAnimations: [],
       fusionAnimations: [],

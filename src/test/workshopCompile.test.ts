@@ -107,7 +107,7 @@ function makeMapAsset(patch: Partial<WorkshopMapAsset> = {}): WorkshopMapAsset {
     data: {
       difficulty: 'normal',
       waypoints: [],
-      blockedCells: [],
+      blockedAreas: [],
       grid: { cols: 16, rows: 12 },
     },
     ...patch,

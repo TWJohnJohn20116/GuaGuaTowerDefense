@@ -213,7 +213,7 @@ describe('renderSnapshot 塔與投射物投影', () => {
       health: 60,
       maxHealth: 240,
       locked: true,
-      gridPos: { col: 4, row: 9 },
+      pos: { x: 4, y: 9 },
       fusedFrom: ['basic', 'frost'],
       lastAttackTime: 200,
       target: makeEnemy({ id: 'e9' }),
@@ -226,7 +226,7 @@ describe('renderSnapshot 塔與投射物投影', () => {
     expect(frame.id).toBe('t1');
     expect(frame.type).toBe('cannon');
     // gridPos 直接沿用塔自身的物件參照，不每幀複製
-    expect(frame.gridPos).toBe(tower.gridPos);
+    expect(frame.pos).toBe(tower.pos);
     expect(frame.level).toBe(3);
     expect(frame.rotation).toBe(1.25);
     expect(frame.health).toBe(60);

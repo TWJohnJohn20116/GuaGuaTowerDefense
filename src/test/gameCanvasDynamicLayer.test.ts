@@ -52,7 +52,7 @@ function basicTower(): Tower {
   return {
     id: 't1',
     type: 'basic',
-    gridPos: { col: 4, row: 5 },
+    pos: { x: 4, y: 5 },
     x: 4,
     y: 5,
     level: 1,

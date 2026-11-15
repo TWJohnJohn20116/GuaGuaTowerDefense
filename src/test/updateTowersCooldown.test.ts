@@ -12,8 +12,7 @@
  */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { useGameStore } from '@/store/gameStore';
-import { initializeGrid } from '@/store/gameStoreUtils';
-import { DEFAULT_PATH, DIFFICULTY_MODIFIERS } from '@/data/gameData';
+import { DEFAULT_PATH, DIFFICULTY_MODIFIERS, PATHS } from '@/data/gameData';
 import { makeEnemy, makeSkill, makeTower } from '@/test/fixtures';
 import type { Enemy, Tower } from '@/types/game';
 
@@ -23,7 +22,7 @@ const setup = (towers: Tower[], enemies: Enemy[]) => {
   useGameStore.setState({
     scene: 'game',
     selectedPath: DEFAULT_PATH,
-    grid: initializeGrid(DEFAULT_PATH),
+    activeMap: PATHS[DEFAULT_PATH] ?? null,
     towers,
     enemies,
     projectiles: [],
@@ -48,7 +47,8 @@ describe('updateTowers 冷卻期快路徑', () => {
     const tower = makeTower({
       id: 't-cool',
       type: 'basic',
-      gridPos: { col: 5, row: 5 },
+      pos: { x: 5.5, y: 5.5 },
+  radius: 0.38,
       rotation: 0,
       // 剛開過火 → 冷卻中
       lastFireTime: Date.now(),
@@ -69,7 +69,8 @@ describe('updateTowers 冷卻期快路徑', () => {
     const tower = makeTower({
       id: 't-ready',
       type: 'basic',
-      gridPos: { col: 5, row: 5 },
+      pos: { x: 5.5, y: 5.5 },
+  radius: 0.38,
       rotation: 0,
       lastFireTime: 0, // 很久沒開火 → 本幀可以射
     });
@@ -86,7 +87,8 @@ describe('updateTowers 冷卻期快路徑', () => {
     const tower = makeTower({
       id: 't-flame',
       type: 'flame',
-      gridPos: { col: 5, row: 5 },
+      pos: { x: 5.5, y: 5.5 },
+  radius: 0.38,
       rotation: 0,
       lastFireTime: Date.now(), // 若被誤判成「冷卻中就跳過」，這隻敵人不會掉血
       skill: makeSkill({ skillId: 'inferno' }),
@@ -105,7 +107,8 @@ describe('updateTowers 冷卻期快路徑', () => {
     const tower = makeTower({
       id: 't-lost',
       type: 'basic',
-      gridPos: { col: 5, row: 5 },
+      pos: { x: 5.5, y: 5.5 },
+  radius: 0.38,
       rotation: 0,
       lastFireTime: Date.now(),
     });

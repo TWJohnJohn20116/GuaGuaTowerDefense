@@ -11,7 +11,7 @@ describe('match session reset', () => {
       fusionSourceId: null,
       fusionFundsShort: null,
       fusionAnimations: [],
-      hoveredTile: null,
+      hoverPoint: null,
       showTacticalView: false,
       shakeIntensity: 0,
     });
@@ -26,7 +26,7 @@ describe('match session reset', () => {
       fusionMode: true,
       fusionSourceId: 'tower-1',
       fusionFundsShort: 120,
-      hoveredTile: { col: 3, row: 4 },
+      hoverPoint: { x: 3, y: 4 },
       showTacticalView: true,
       shakeIntensity: 9,
       money: 999,
@@ -40,7 +40,7 @@ describe('match session reset', () => {
     expect(state.fusionMode).toBe(false);
     expect(state.fusionSourceId).toBeNull();
     expect(state.fusionFundsShort).toBeNull();
-    expect(state.hoveredTile).toBeNull();
+    expect(state.hoverPoint).toBeNull();
     expect(state.showTacticalView).toBe(false);
     expect(state.shakeIntensity).toBe(0);
     expect(state.money).toBe(GAME_CONSTANTS.INITIAL_MONEY);

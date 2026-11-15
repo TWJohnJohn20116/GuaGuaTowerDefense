@@ -23,7 +23,7 @@ const key = () => towerLayoutKeySelector(useGameStore.getState());
 describe('靜態層重繪的觸發條件', () => {
   beforeEach(() => {
     useGameStore.setState({
-      towers: [makeTower({ id: 'a', type: 'basic', gridPos: { col: 3, row: 4 } })],
+      towers: [makeTower({ id: 'a', type: 'basic', pos: { x: 3.5, y: 4.5 } })],
       money: 1000,
       selectedTowerType: 'basic',
     });
@@ -59,7 +59,7 @@ describe('靜態層重繪的觸發條件', () => {
     useGameStore.setState({ towers: [{ ...tower, locked: true }] });
     expect(key()).not.toBe(afterLevel);
 
-    useGameStore.setState({ towers: [{ ...tower, gridPos: { col: 9, row: 1 } }] });
+    useGameStore.setState({ towers: [{ ...tower, pos: { x: 9.5, y: 1.5 } }] });
     expect(key()).not.toBe(afterLevel);
 
     useGameStore.setState({ towers: [] });

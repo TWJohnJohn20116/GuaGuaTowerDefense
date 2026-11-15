@@ -18,16 +18,15 @@ import {
   STRESS_TOWER_ID_PREFIX,
 } from '@/data/stressTest';
 import { DEFAULT_PATH, DIFFICULTY_MODIFIERS, PATHS } from '@/data/gameData';
-import { initializeGrid } from '@/store/gameStoreUtils';
-import { findGridTowerMismatches } from '@/test/contracts/gridTowerMismatches';
+import { findTowerOverlaps } from '@/test/contracts/gridTowerMismatches';
+import { pathClearance, pathWidthOf, sampleBuildablePoints } from '@/data/mapGeometry';
 import { useGameStore } from '@/store/gameStore';
 
 const setupMatch = () => {
-  const grid = initializeGrid(DEFAULT_PATH);
   useGameStore.setState({
     scene: 'game',
     selectedPath: DEFAULT_PATH,
-    grid,
+    activeMap: PATHS[DEFAULT_PATH] ?? null,
     towers: [],
     enemies: [],
     projectiles: [],
@@ -79,29 +78,26 @@ describe('壓測資料建構器', () => {
     expect(resolvePathChain(undefined).waypoints).toEqual([]);
   });
 
-  it('只挑空格與沒有塔的格子，且不重複', () => {
-    const grid = initializeGrid(DEFAULT_PATH);
-    const positions = pickStressTowerPositions(grid, STRESS_DEFAULT_TOWERS);
+  it('只挑可建造點（不壓路徑）且不重複', () => {
+    const positions = sampleBuildablePoints(PATHS[DEFAULT_PATH], STRESS_DEFAULT_TOWERS);
 
     expect(positions.length).toBeGreaterThan(0);
     expect(positions.length).toBeLessThanOrEqual(STRESS_DEFAULT_TOWERS);
-    expect(new Set(positions.map((p) => `${p.col},${p.row}`)).size).toBe(positions.length);
+    expect(new Set(positions.map((p) => `${p.x},${p.y}`)).size).toBe(positions.length);
 
     for (const pos of positions) {
-      const tile = grid[pos.row][pos.col];
-      expect(tile.type).toBe('empty');
-      expect(tile.towerId).toBeNull();
+      expect(pathClearance(PATHS[DEFAULT_PATH], pos)).toBeGreaterThan(pathWidthOf(PATHS[DEFAULT_PATH]) / 2);
     }
   });
 
   it('生成的塔 id 帶前綴、座標正確、等級 1', () => {
-    const positions = [{ col: 1, row: 1 }, { col: 2, row: 2 }];
+    const positions = [{ x: 1.5, y: 1.5 }, { x: 2.5, y: 2.5 }];
     const towers = buildStressTowers(positions);
 
     expect(towers).toHaveLength(2);
     towers.forEach((tower, i) => {
       expect(tower.id.startsWith(STRESS_TOWER_ID_PREFIX)).toBe(true);
-      expect(tower.gridPos).toEqual(positions[i]);
+      expect(tower.pos).toEqual(positions[i]);
       expect(tower.level).toBe(1);
       expect(tower.health).toBe(tower.maxHealth);
     });
@@ -127,20 +123,14 @@ describe('壓測灌進 store', () => {
     expect(state.enemies).toHaveLength(STRESS_DEFAULT_ENEMIES);
     expect(state.towers).toHaveLength(STRESS_DEFAULT_TOWERS);
     expect(state.waveActive).toBe(false);
-    expect(findGridTowerMismatches(state.grid, state.towers)).toEqual([]);
-
-    // 每座壓測塔都要有自己的格子
-    for (const tower of state.towers) {
-      expect(state.grid[tower.gridPos.row][tower.gridPos.col].towerId).toBe(tower.id);
-    }
+    expect(findTowerOverlaps(state.towers)).toEqual([]);
   });
 
   it('清除只會帶走壓測實體，玩家自己放的塔留著', () => {
-    const grid = useGameStore.getState().grid;
-    const emptyTile = grid.flat().find((t) => t.type === 'empty')!;
+    const spot = sampleBuildablePoints(PATHS[DEFAULT_PATH], 1)[0];
 
     useGameStore.setState({ selectedTowerType: 'basic' });
-    expect(useGameStore.getState().placeTower({ col: emptyTile.col, row: emptyTile.row })).toBe(true);
+    expect(useGameStore.getState().placeTower(spot)).toBe(true);
     const manualTowerId = useGameStore.getState().towers[0].id;
 
     useGameStore.getState().spawnStressEntities(1000, 20);
@@ -153,7 +143,7 @@ describe('壓測灌進 store', () => {
     expect(state.towers).toHaveLength(1);
     expect(state.towers[0].id).toBe(manualTowerId);
     expect(state.enemies).toHaveLength(0);
-    expect(findGridTowerMismatches(state.grid, state.towers)).toEqual([]);
+    expect(findTowerOverlaps(state.towers)).toEqual([]);
   });
 
   it('不在遊戲場景時拒絕灌入（回報原因，不改狀態）', () => {

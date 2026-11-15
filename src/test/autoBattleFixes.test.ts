@@ -11,33 +11,27 @@
  */
 import { beforeEach, describe, expect, it } from 'vitest';
 import { useGameStore } from '@/store/gameStore';
-import { initializeGrid } from '@/store/gameStoreUtils';
-import { DEFAULT_PATH, DIFFICULTY_MODIFIERS, GAME_CONSTANTS, TOWER_DATA } from '@/data/gameData';
+import { DEFAULT_PATH, DIFFICULTY_MODIFIERS, GAME_CONSTANTS, PATHS, TOWER_DATA } from '@/data/gameData';
+import { sampleBuildablePoints } from '@/data/mapGeometry';
 import {
   canAutoUpgradeTower,
   canBatchUpgradeTower,
   getTowerUpgradeCost,
 } from '@/data/towerUpgradeCost';
 import { getTowerBuildCost } from '@/data/towerCost';
-import type { GridPosition, Tile, Tower } from '@/types/game';
+import type { MapPoint } from '@/types/game';
 import { makeTower } from './fixtures';
 
-/** 找第一個可建塔的空格（與 towerGridConsistency 同一招） */
-const firstEmpty = (grid: Tile[][]): GridPosition => {
-  for (const row of grid) {
-    for (const tile of row) {
-      if (tile.type === 'empty' && !tile.towerId) {
-        return { col: tile.col, row: tile.row };
-      }
-    }
-  }
-  throw new Error('地圖上沒有空格可測試');
+/** 找第一個可建造點（自由制：用共用的取樣器，不再掃格子） */
+const firstEmpty = (): MapPoint => {
+  const spot = sampleBuildablePoints(PATHS[DEFAULT_PATH], 1)[0];
+  if (!spot) throw new Error('地圖上沒有可建造點可測試');
+  return spot;
 };
 
-const resetMatch = (towerCostMult = 1) => {
-  const grid = initializeGrid(DEFAULT_PATH);
+const resetMatch = (towerCostMult = 1): MapPoint => {
   useGameStore.setState({
-    grid,
+    activeMap: PATHS[DEFAULT_PATH] ?? null,
     towers: [],
     enemies: [],
     projectiles: [],
@@ -65,7 +59,7 @@ const resetMatch = (towerCostMult = 1) => {
       autoFusion: false,
     },
   });
-  return grid;
+  return firstEmpty();
 };
 
 beforeEach(() => {
@@ -95,9 +89,8 @@ describe('B1：自動戰鬥的升級判定', () => {
   });
 
   it('AI 的「Lv1→2 自己選路線」與 upgradeTower 契約一致：沒給路線就失敗，給了就成功', () => {
-    const grid = resetMatch();
-    const pos = firstEmpty(grid);
-    const tower = makeTower({ id: 'tower-b1', type: 'basic', gridPos: pos, level: 1, upgradePath: null });
+    const pos = resetMatch();
+    const tower = makeTower({ id: 'tower-b1', type: 'basic', pos, level: 1, upgradePath: null });
     useGameStore.setState({ towers: [tower] });
 
     // 沒帶路線 → store 拒絕（newLevel === 2 需要 path）
@@ -123,7 +116,7 @@ describe('B1：自動戰鬥的升級判定', () => {
       makeTower({
         id: `tw-${i}`,
         type: 'basic',
-        gridPos: { col: (i % 5) + 1, row: Math.floor(i / 5) + 1 },
+        pos: { x: (i % 5) + 1.5, y: Math.floor(i / 5) + 1.5 },
         level: 1,
         upgradePath: null,
         kills: 100,

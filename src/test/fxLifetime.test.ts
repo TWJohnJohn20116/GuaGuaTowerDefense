@@ -133,7 +133,7 @@ describe('專用清理器的時長', () => {
       {
         id: 'anim-1',
         towerId: 'tower-1',
-        gridPos: { col: 2, row: 3 },
+        pos: { x: 2, y: 3 },
         newLevel: 4,
         towerColor: '#ffcc00',
         startTime: 0,

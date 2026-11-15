@@ -31,9 +31,9 @@ export const makeEnemy = (overrides: Partial<Enemy> & { id: string }): Enemy => 
 });
 
 export const makeTower = (overrides: Partial<Tower> & { id: string; type: TowerType }): Tower => ({
-  gridPos: { col: 0, row: 0 },
-  x: 0,
-  y: 0,
+  // 自由制：塔站在連續世界座標（單位＝格），radius 是圓形佔位半徑
+  pos: { x: 0.5, y: 0.5 },
+  radius: 0.38,
   level: 1,
   upgradePath: null,
   rotation: 0,

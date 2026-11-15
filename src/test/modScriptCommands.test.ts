@@ -7,8 +7,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { applyModScriptCommands } from '@/mod-script/commands';
 import { useGameStore } from '@/store/gameStore';
-import { initializeGrid } from '@/store/gameStoreUtils';
-import { DEFAULT_PATH, DIFFICULTY_MODIFIERS } from '@/data/gameData';
+import { DEFAULT_PATH, DIFFICULTY_MODIFIERS, PATHS } from '@/data/gameData';
 import { makeEnemy } from '@/test/fixtures';
 import type { ModScriptCommand } from '@/types/modScript';
 import type { Tile } from '@/types/game';
@@ -19,7 +18,7 @@ const reset = (): void => {
   useGameStore.setState({
     scene: 'game',
     selectedPath: DEFAULT_PATH,
-    grid: initializeGrid(DEFAULT_PATH),
+    activeMap: PATHS[DEFAULT_PATH] ?? null,
     towers: [],
     enemies: [],
     projectiles: [],
