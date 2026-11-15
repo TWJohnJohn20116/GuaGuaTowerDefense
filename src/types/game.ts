@@ -1,6 +1,6 @@
 // 游戏核心类型定义
 
-import type { CustomScriptData } from './modScript';
+import type { CustomScriptData, ModSignature } from './modScript';
 
 // 遊戲難度
 export type GameDifficulty = 'easy' | 'normal' | 'hard' | 'nightmare' | 'impossible' | 'custom';
@@ -136,6 +136,13 @@ export interface Enemy {
   armorBonus?: number;
   // 護航光環：本幀由護航者光環寫入的額外裝甲
   escortArmor?: number;
+  /**
+   * 自訂敵人（mod）的原始 id。
+   *
+   * type 會被映到內建基底（normal／flyer…）以沿用引擎行為；
+   * 真正的外觀、名稱、數值一律走 getEnemyData(originType ?? type)。
+   */
+  originType?: string;
   // 法師敵人（teleport）：上次傳送時間戳
   lastTeleportTime?: number;
   // 進階地圖（叉路系統）
@@ -481,7 +488,8 @@ export interface PathConfig {
 
 // 波次配置
 export interface WaveConfig {
-  enemies: { type: EnemyType; count: number; delay: number }[];
+  /** 敵人類型：內建 EnemyType，或已啟用 mod 的自訂敵人 id */
+  enemies: { type: string; count: number; delay: number }[];
   reward: number;
 }
 
@@ -631,6 +639,8 @@ export interface Mod {
   content: ModContent;
   enabled: boolean;
   loadOrder: number;
+  /** 內容簽章（選填；有簽章才能搭配「僅簽章」信任模式） */
+  signature?: ModSignature;
 }
 
 // Mod 驗證結果

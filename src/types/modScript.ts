@@ -14,7 +14,10 @@ export type ModScriptHook =
   | 'onTowerPlaced'
   | 'onTick'
   | 'onGameOver'
-  | 'onVictory';
+  | 'onVictory'
+  | 'onTowerSold'
+  | 'onBossSpawn'
+  | 'onMoneyChanged';
 
 /** 腳本能力（最小權限原則：沒勾就不能做） */
 export type ModScriptPermission =
@@ -23,7 +26,14 @@ export type ModScriptPermission =
   | 'base.health'
   | 'enemy.spawn'
   | 'enemy.modify'
-  | 'log';
+  | 'log'
+  | 'storage';
+
+/** 腳本自訂狀態可存的值（只允許 JSON 純量，避免把函式／物件帶進存檔） */
+export type ScriptStateValue = string | number | boolean | null;
+
+/** 單支腳本的自訂狀態 */
+export type ScriptStateRecord = Record<string, ScriptStateValue>;
 
 /** 腳本可施加的狀態效果（StatusEffectType 的子集，避免跨檔循環） */
 export type ModScriptStatusEffect =
@@ -55,6 +65,7 @@ export type ModScriptCommand =
   | { kind: 'healBase'; amount: number }
   | { kind: 'damageBase'; amount: number }
   | { kind: 'spawnEnemy'; enemyType: string; count: number; intervalMs: number }
+  | { kind: 'setScriptState'; key: string; value: ScriptStateValue }
   | {
       kind: 'applyStatus';
       effect: ModScriptStatusEffect;
@@ -78,6 +89,8 @@ export interface ModScriptStateSnapshot {
   difficulty: string;
   pathName: string;
   elapsedMs: number;
+  /** 這支腳本自己的持久狀態（每支腳本看到的是自己那一份） */
+  scriptState: ScriptStateRecord;
 }
 
 /** 事件細節（依 hook 帶不同欄位） */
@@ -89,6 +102,17 @@ export interface ModScriptEventDetail {
   towerType?: string;
   row?: number;
   col?: number;
+  /** onMoneyChanged：本次變動量（正負） */
+  amount?: number;
+  /** onBossSpawn：生成的敵人 id */
+  enemyType?: string;
+}
+
+/** Mod 簽章（ECDSA P-256 + SHA-256；公鑰以 SPKI base64 夾帶） */
+export interface ModSignature {
+  alg: 'ECDSA-P256-SHA256';
+  publicKeySpkiB64: string;
+  valueB64: string;
 }
 
 /** Mod 內的一支腳本（存進 mod.content.scripts） */

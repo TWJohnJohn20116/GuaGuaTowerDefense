@@ -21,7 +21,7 @@ export async function applyModScriptCommands(
   if (commands.length === 0) return { applied: 0, skipped: 0 };
 
   const { useGameStore } = await import('@/store/gameStore');
-  const { ENEMY_DATA } = await import('@/data/gameData');
+  const { isKnownEnemyType } = await import('@/store/gameStoreUtils');
   const scriptStore = useModScriptStore.getState();
 
   let applied = 0;
@@ -65,8 +65,7 @@ export async function applyModScriptCommands(
         break;
       }
       case 'spawnEnemy': {
-        const known = Object.prototype.hasOwnProperty.call(ENEMY_DATA, command.enemyType);
-        if (!known) {
+        if (!isKnownEnemyType(command.enemyType)) {
           log('warn', `腳本想生成未知敵人「${command.enemyType}」，已忽略`);
           skipped += 1;
           break;
@@ -76,6 +75,11 @@ export async function applyModScriptCommands(
             useGameStore.getState().spawnEnemy(command.enemyType);
           }, i * command.intervalMs);
         }
+        applied += 1;
+        break;
+      }
+      case 'setScriptState': {
+        useModScriptStore.getState().setScriptState(source.scriptId, command.key, command.value);
         applied += 1;
         break;
       }

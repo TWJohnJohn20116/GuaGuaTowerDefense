@@ -12,6 +12,7 @@ const COMMAND_PERMISSION: Record<ModScriptCommand['kind'], ModScriptPermission> 
   damageBase: 'base.health',
   spawnEnemy: 'enemy.spawn',
   applyStatus: 'enemy.modify',
+  setScriptState: 'storage',
 };
 
 export function requiredPermission(kind: ModScriptCommand['kind']): ModScriptPermission {
@@ -44,6 +45,7 @@ const API_USAGE_RULES: ApiUsageRule[] = [
   { pattern: /api\s*\.\s*spawn\s*\./, permission: 'enemy.spawn' },
   { pattern: /api\s*\.\s*status\s*\./, permission: 'enemy.modify' },
   { pattern: /api\s*\.\s*log\s*\(/, permission: 'log' },
+  { pattern: /api\s*\.\s*store\s*\./, permission: 'storage' },
   { pattern: /api\s*\.\s*state\b/, permission: 'state.read' },
 ];
 

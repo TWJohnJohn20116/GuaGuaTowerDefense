@@ -15,6 +15,9 @@ export const MOD_SCRIPT_HOOKS: ModScriptHook[] = [
   'onTick',
   'onGameOver',
   'onVictory',
+  'onTowerSold',
+  'onBossSpawn',
+  'onMoneyChanged',
 ];
 
 /** 全部權限 */
@@ -25,6 +28,7 @@ export const MOD_SCRIPT_PERMISSIONS: ModScriptPermission[] = [
   'enemy.spawn',
   'enemy.modify',
   'log',
+  'storage',
 ];
 
 export const MOD_SCRIPT_LIMITS = {
@@ -50,6 +54,12 @@ export const MOD_SCRIPT_LIMITS = {
   logLimit: 200,
   /** onTick 的最小派發間隔（毫秒，遊戲時間） */
   tickIntervalMs: 500,
+  /** onMoneyChanged 的最小派發間隔（毫秒）：金錢變動很碎，一律節流 */
+  moneyNotifyIntervalMs: 250,
+  /** 單支腳本自訂狀態最多幾個鍵 */
+  maxScriptStateKeys: 32,
+  /** 單一狀態值的字串長度上限 */
+  maxScriptStateValueLength: 512,
 } as const;
 
 /** persist 鍵名（與 modStore 的 guagua-mods 分開，避免版本遷移互相干擾） */

@@ -18,6 +18,7 @@ import { MOD_SCRIPT_LIMITS } from './limits';
 import { hashString } from './rng';
 import type { HostToWorkerMessage, WorkerToHostMessage } from './protocol';
 import { applyModScriptCommands } from './commands';
+import { verifyModSignature } from './signing';
 
 interface RunnerEntry {
   script: CustomScriptData;
@@ -47,13 +48,27 @@ class ModScriptRuntime {
   private disabledIds = new Set<string>();
   private syncedSignature = '';
   private disposed = false;
+  /** 金錢變動監聽（onMoneyChanged 用；一次訂閱、全域節流） */
+  private moneyUnsub: (() => void) | null = null;
+  private lastMoneyNotify = 0;
+  /** modId → 是否可執行腳本（簽章模式下的驗簽快取） */
+  private trustCache = new Map<string, boolean>();
+  private trustPending = new Set<string>();
+  private lastPolicy = '';
 
   /** 依目前 mod 清單與總開關，重建 Worker 集合（內容沒變就跳過） */
   sync(): void {
     if (this.disposed) return;
     const enabled = useModScriptStore.getState().enabled;
     const mods = useModStore.getState().mods;
-    const signature = `${enabled ? '1' : '0'}:${mods
+    const policy = `${useModScriptStore.getState().trustMode}:${useModScriptStore
+      .getState()
+      .trustedKeyFingerprints.join(',')}`;
+    if (policy !== this.lastPolicy) {
+      this.lastPolicy = policy;
+      this.trustCache.clear();
+    }
+    const signature = `${enabled ? '1' : '0'}:${policy}:${mods
       .map((mod) => `${mod.metadata.id}:${mod.enabled ? 1 : 0}:${mod.loadOrder}`)
       .join(',')}:${mods
       .map((mod) => (mod.content.scripts ?? []).map((script) => `${script.id}@${signatureOf(script)}`).join('+'))
@@ -61,7 +76,12 @@ class ModScriptRuntime {
     if (signature === this.syncedSignature) return;
     this.syncedSignature = signature;
 
-    const desired = enabled ? toScriptList(mods) : [];
+    const desired = enabled
+      ? toScriptList(mods).filter((script) => {
+          const owner = mods.find((mod) => mod.metadata.id === script.modId);
+          return owner ? this.isModTrusted(owner) : true;
+        })
+      : [];
     const desiredIds = new Set(desired.map((script) => script.id));
 
     for (const [scriptId, entry] of this.entries) {
@@ -75,6 +95,8 @@ class ModScriptRuntime {
       if (this.entries.has(script.id) || this.disabledIds.has(script.id)) continue;
       this.spawn(script);
     }
+
+    if (this.entries.size > 0) this.ensureMoneyWatcher();
 
     for (const scriptId of this.disabledIds) {
       if (!desiredIds.has(scriptId)) this.disabledIds.delete(scriptId);
@@ -94,7 +116,75 @@ class ModScriptRuntime {
     this.disposed = true;
     for (const [scriptId, entry] of this.entries) this.terminate(scriptId, entry);
     this.entries.clear();
+    this.moneyUnsub?.();
+    this.moneyUnsub = null;
     this.publishStatuses();
+  }
+
+  /**
+   * 金錢變動的單一訂閱點。
+   *
+   * 不在每個 setState 現場插樁（那會散落在幾十處、且容易漏），
+   * 而是訂閱 store 的 money 欄位變化，再依 moneyNotifyIntervalMs 節流。
+   */
+  private ensureMoneyWatcher(): void {
+    if (this.moneyUnsub) return;
+    void import('@/store/gameStore')
+      .then(({ useGameStore }) => {
+        if (this.disposed || this.moneyUnsub) return;
+        this.moneyUnsub = useGameStore.subscribe((state, prevState) => {
+          if (state.money === prevState.money) return;
+          const now = Date.now();
+          if (now - this.lastMoneyNotify < MOD_SCRIPT_LIMITS.moneyNotifyIntervalMs) return;
+          this.lastMoneyNotify = now;
+          this.dispatch('onMoneyChanged', {
+            hook: 'onMoneyChanged',
+            amount: state.money - prevState.money,
+          });
+        });
+      })
+      .catch((error: unknown) => {
+        console.error('[mod-script] 金錢監聽建立失敗', error);
+      });
+  }
+
+  /**
+   * 信任判定：'all' 直接放行；'signed' 需「簽章有效 + 公鑰指紋已信任」。
+   * 驗簽是非同步的，第一次會先回 false 並在完成後重跑 sync()。
+   */
+  private isModTrusted(mod: Mod): boolean {
+    const cached = this.trustCache.get(mod.metadata.id);
+    if (cached !== undefined) return cached;
+    if (useModScriptStore.getState().trustMode === 'all') {
+      this.trustCache.set(mod.metadata.id, true);
+      return true;
+    }
+    if (this.trustPending.has(mod.metadata.id)) return false;
+    this.trustPending.add(mod.metadata.id);
+    void verifyModSignature(mod)
+      .then((result) => {
+        const trusted = useModScriptStore.getState().trustedKeyFingerprints;
+        const ok = result.status === 'valid' && !!result.fingerprint && trusted.includes(result.fingerprint);
+        this.trustCache.set(mod.metadata.id, ok);
+        this.trustPending.delete(mod.metadata.id);
+        if (!ok) {
+          useModScriptStore.getState().pushLog({
+            at: Date.now(),
+            level: 'warn',
+            message: result.status === 'unsigned'
+              ? '目前是「僅簽章」模式，此 mod 沒有簽章，腳本不會執行'
+              : `簽章驗證未通過（${result.status}${result.error ? `：${result.error}` : ''}）`,
+            scriptId: `trust:${mod.metadata.id}`,
+            scriptName: mod.metadata.name,
+          });
+        }
+        this.syncedSignature = '';
+        this.sync();
+      })
+      .catch(() => {
+        this.trustPending.delete(mod.metadata.id);
+      });
+    return false;
   }
 
   private spawn(script: CustomScriptData): void {
@@ -232,9 +322,14 @@ class ModScriptRuntime {
       return;
     }
     if (this.disposed) return;
+    const scriptStates = useModScriptStore.getState().scriptState;
     for (const entry of [...this.entries.values()]) {
       if (!entry.ready) continue;
       if (!entry.script.hooks.includes(hook)) continue;
+      const perScriptSnapshot: ModScriptStateSnapshot = {
+        ...snapshot,
+        scriptState: scriptStates[entry.script.id] ?? {},
+      };
       const throttle = entry.script.throttleMs ?? 0;
       if (throttle > 0 && entry.status.lastAt > 0 && Date.now() - entry.status.lastAt < throttle) continue;
       entry.requestId += 1;
@@ -243,7 +338,7 @@ class ModScriptRuntime {
         requestId: entry.requestId,
         hook,
         detail,
-        snapshot,
+        snapshot: perScriptSnapshot,
       };
       entry.worker.postMessage(message);
       this.armTimer(entry, MOD_SCRIPT_LIMITS.dispatchTimeoutMs, '事件處理逾時');
@@ -294,6 +389,8 @@ async function buildSnapshot(): Promise<ModScriptStateSnapshot> {
     difficulty: state.lastStartArgs?.difficulty ?? 'normal',
     pathName: state.selectedPath,
     elapsedMs: Date.now(),
+    // 每支腳本看到的是自己那份；派發時再由 dispatchAsync 覆寫
+    scriptState: {},
   };
 }
 

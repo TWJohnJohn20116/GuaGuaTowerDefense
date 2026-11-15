@@ -12,6 +12,8 @@ import type {
   ModScriptPermission,
   ModScriptStateSnapshot,
   ModScriptStatusEffect,
+  ScriptStateRecord,
+  ScriptStateValue,
 } from '@/types/modScript';
 import { MOD_SCRIPT_HOOKS, MOD_SCRIPT_LIMITS, SHADOWED_GLOBAL_NAMES } from './limits';
 import { createScriptRng } from './rng';
@@ -37,6 +39,11 @@ interface SandboxApi {
       value?: number,
       target?: { enemyType?: string },
     ) => void;
+  };
+  store: {
+    get: (key: string) => ScriptStateValue | undefined;
+    set: (key: string, value: ScriptStateValue) => void;
+    all: () => ScriptStateRecord;
   };
 }
 
@@ -144,6 +151,34 @@ export function createSandboxApi(host: SandboxHost): SandboxApi {
           ...(target.enemyType ? { enemyType: String(target.enemyType) } : {}),
         });
       },
+    },
+    store: {
+      get: (key) => state.scriptState[String(key)],
+      set: (key, value) => {
+        const name = String(key).slice(0, 64);
+        if (!name) {
+          host.warn('狀態鍵不可為空');
+          return;
+        }
+        const existingKeys = Object.keys(state.scriptState);
+        if (!existingKeys.includes(name) && existingKeys.length >= MOD_SCRIPT_LIMITS.maxScriptStateKeys) {
+          host.warn(`腳本狀態最多 ${MOD_SCRIPT_LIMITS.maxScriptStateKeys} 個鍵`);
+          return;
+        }
+        let normalized: ScriptStateValue;
+        if (typeof value === 'string') {
+          normalized = value.slice(0, MOD_SCRIPT_LIMITS.maxScriptStateValueLength);
+        } else if (typeof value === 'number') {
+          normalized = Number.isFinite(value) ? value : 0;
+        } else if (typeof value === 'boolean' || value === null) {
+          normalized = value;
+        } else {
+          host.warn('腳本狀態只接受字串／數字／布林／null');
+          return;
+        }
+        push({ kind: 'setScriptState', key: name, value: normalized });
+      },
+      all: () => ({ ...state.scriptState }),
     },
   };
 }
