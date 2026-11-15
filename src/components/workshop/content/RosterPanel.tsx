@@ -9,7 +9,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
-import { Btn, Empty, Num, SegHead, Toggle } from '@/components/hl';
+import { Btn, Empty, IconBtn, Num, SegHead, Toggle } from '@/components/hl';
 import { PlusIcon, TrashIcon, WarningIcon } from '@/components/ui/Icons';
 import { ENEMY_DATA, TOWER_DATA } from '@/data/gameData';
 import { enemyLabel } from '@/workshop/content/timeline';
@@ -124,8 +124,9 @@ export function RosterPanel({
         </ul>
       )}
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-y-auto xl:grid-cols-2">
-        <section className="flex min-h-0 flex-col gap-1">
+      {/* 面板固定 380px 寬，兩欄會把敵人名壓成一個字（實測 21px）→ 一律單欄 */}
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-y-auto">
+        <section className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
             <span className="arc-label">{assets.official}</span>
             <Num value={String(visibleOfficial.length)} size="sm" tone="muted" />
@@ -149,14 +150,14 @@ export function RosterPanel({
                   <span className="font-mono text-[10px] text-[var(--cn-ink-3)]">
                     {fillTemplate(c.references, { count: String(count) })}
                   </span>
-                  <Btn
-                    size="sm"
-                    variant={count > 0 ? 'ghost' : 'line'}
-                    icon={count > 0 ? <TrashIcon className="h-3.5 w-3.5" /> : <PlusIcon className="h-3.5 w-3.5" />}
-                    onClick={() => (count > 0 ? onRemoveEnemy(enemy.type) : onAddEnemy(enemy.type))}
-                    aria-label={count > 0 ? c.removeReference : c.addReference}
+                  <IconBtn
+                    label={count > 0 ? c.removeReference : c.addReference}
                     title={count > 0 ? c.removeReference : c.addReference}
-                  />
+                    className={count > 0 ? 'h-6 w-6 shrink-0' : 'h-6 w-6 shrink-0 border border-[var(--cn-line)]'}
+                    onClick={() => (count > 0 ? onRemoveEnemy(enemy.type) : onAddEnemy(enemy.type))}
+                  >
+                    {count > 0 ? <TrashIcon className="h-3.5 w-3.5" /> : <PlusIcon className="h-3.5 w-3.5" />}
+                  </IconBtn>
                 </div>
               );
             })
@@ -183,21 +184,21 @@ export function RosterPanel({
                   <span className="font-mono text-[10px] text-[var(--cn-ink-3)]">
                     {fillTemplate(c.references, { count: String(count) })}
                   </span>
-                  <Btn
-                    size="sm"
-                    variant={count > 0 ? 'ghost' : 'line'}
-                    icon={count > 0 ? <TrashIcon className="h-3.5 w-3.5" /> : <PlusIcon className="h-3.5 w-3.5" />}
-                    onClick={() => (count > 0 ? onRemoveEnemy(enemy.type) : onAddEnemy(enemy.type))}
-                    aria-label={count > 0 ? c.removeReference : c.addReference}
+                  <IconBtn
+                    label={count > 0 ? c.removeReference : c.addReference}
                     title={count > 0 ? c.removeReference : c.addReference}
-                  />
+                    className={count > 0 ? 'h-6 w-6 shrink-0' : 'h-6 w-6 shrink-0 border border-[var(--cn-line)]'}
+                    onClick={() => (count > 0 ? onRemoveEnemy(enemy.type) : onAddEnemy(enemy.type))}
+                  >
+                    {count > 0 ? <TrashIcon className="h-3.5 w-3.5" /> : <PlusIcon className="h-3.5 w-3.5" />}
+                  </IconBtn>
                 </div>
               );
             })
           )}
         </section>
 
-        <section className="flex min-h-0 flex-col gap-1">
+        <section className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
             <span className="arc-label">{assets.towers}</span>
             <Num value={String(officialTowers.length)} size="sm" tone="muted" />
