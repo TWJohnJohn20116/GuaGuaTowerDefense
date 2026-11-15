@@ -277,21 +277,30 @@ export function AssetEditorPanel({ assetId, onNavigate }: AssetEditorPanelProps)
           <SegHead label={s.art} />
           <input
             type="file"
-            accept="image/*"
+            accept="image/*,audio/*"
             onChange={(event) => {
               const file = event.target.files?.[0];
               if (!file) return;
+              const isAudio = file.type.startsWith('audio/');
               const reader = new FileReader();
               reader.onload = () => {
                 if (typeof reader.result === 'string') {
-                  patchData({ payload: reader.result, mime: file.type || 'image/png', artKind: 'icon' });
+                  patchData({
+                    payload: reader.result,
+                    mime: file.type || (isAudio ? 'audio/mpeg' : 'image/png'),
+                    // 依副檔名／MIME 自動分類：音效資產先前一律被存成 icon，導致上傳了也不會播
+                    artKind: isAudio ? 'sound' : 'icon',
+                  });
                 }
               };
               reader.readAsDataURL(file);
             }}
             className="font-mono text-[10.5px] text-[var(--cn-ink-2)]"
           />
-          {artData.payload && (
+          {artData.payload && artData.artKind === 'sound' && (
+            <audio controls src={artData.payload} className="w-full" />
+          )}
+          {artData.payload && artData.artKind !== 'sound' && (
             <img src={artData.payload} alt={asset.name} className="max-h-40 w-auto border border-[var(--cn-line)] object-contain" />
           )}
         </>

@@ -101,6 +101,27 @@ export function setAudioPrefsProvider(provider: () => AudioPrefs): void {
   readAudioPrefs = provider;
 }
 
+/**
+ * 播放自訂音效（data URL 或 blob URL）。
+ *
+ * 工坊的音效資產用這支試聽；刻意不進 playSfx 的快取池（那些是內建音效、以 id 索引
+ * 且共用 AudioContext），自訂音效用獨立 Audio 元素最省事。
+ */
+export function playDataUrlSound(src: string, volumeScale = 1): void {
+  if (typeof window === 'undefined' || !src) return;
+  const { soundEnabled, soundVolume } = readAudioPrefs();
+  if (!soundEnabled || soundVolume <= 0) return;
+  try {
+    const audio = new Audio(src);
+    audio.volume = Math.max(0, Math.min(1, soundVolume * volumeScale));
+    void audio.play().catch(() => {
+      /* 自動播放政策可能擋下；使用者按下播放鍵後就會正常 */
+    });
+  } catch (error) {
+    console.error('[audio] 無法播放自訂音效', error);
+  }
+}
+
 export function playSfx(
   id: SoundId,
   opts: { category: SfxCategory; volume?: number } = { category: 'misc' },
