@@ -1,7 +1,7 @@
 // 波次組編輯器 - 自訂敵人波次與生成順序
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { CustomWaveData, WaveConfig, EnemyType } from '@/types/game';
+import type { CustomWaveData, WaveConfig } from '@/types/game';
 import { ENEMY_DATA, GAME_CONSTANTS, WAVE_CONFIGS } from '@/data/gameData';
 import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';

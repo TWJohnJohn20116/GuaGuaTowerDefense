@@ -61,7 +61,7 @@ export function AbilityEncyclopediaLink({ ability, className }: { ability?: stri
   const { t } = useTranslation();
   const m = t.modEditorExt;
   if (!ability) return null;
-  const match = Object.entries(ENEMY_DATA).find(([, d]) => d.ability === ability);
+  const match = Object.entries(ENEMY_DATA).find(([, d]) => d?.ability === ability);
   if (!match) return null;
   return <EncyclopediaLinkButton tab="enemies" itemId={match[0]} label={m.ecLinkAbility} className={className} />;
 }

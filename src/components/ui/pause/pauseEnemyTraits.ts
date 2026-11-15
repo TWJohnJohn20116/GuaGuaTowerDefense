@@ -4,6 +4,7 @@
 
 import type { Enemy, EnemyData, EnemyType, StatusEffectType } from '@/types/game';
 import { ENEMY_DATA } from '@/data/gameData';
+import { resolveEnemyData } from '@/data/enemyDataProvider';
 import type { StringValuedKeys, Translations } from '@/i18n';
 
 export interface EnemyTraitTag {
@@ -93,7 +94,7 @@ export function groupFieldEnemies(enemies: Enemy[], t: Translations): EnemyTypeG
 
   return [...map.entries()]
     .map(([type, list]) => {
-      const data = ENEMY_DATA[type as keyof typeof ENEMY_DATA];
+      const data = resolveEnemyData(type);
       const totalHp = list.reduce((s, e) => s + e.health, 0);
       const totalMax = list.reduce((s, e) => s + e.maxHealth, 0);
       const toughest = [...list].sort((a, b) => b.health - a.health)[0];

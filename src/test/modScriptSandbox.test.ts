@@ -21,6 +21,7 @@ const snapshot: ModScriptStateSnapshot = {
   difficulty: 'normal',
   pathName: 'ch1_lv1',
   elapsedMs: 1000,
+  scriptState: {},
 };
 
 const ctx: ModScriptEventDetail = { hook: 'onWaveStart', wave: 3 };

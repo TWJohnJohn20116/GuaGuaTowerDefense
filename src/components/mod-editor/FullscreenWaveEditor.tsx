@@ -1,7 +1,7 @@
 // 全螢幕波次編輯器 - 大尺寸詳細編輯體驗
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { CustomWaveData, WaveConfig, EnemyType } from '@/types/game';
+import type { CustomWaveData, WaveConfig } from '@/types/game';
 import { ENEMY_DATA, GAME_CONSTANTS, WAVE_CONFIGS } from '@/data/gameData';
 import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';

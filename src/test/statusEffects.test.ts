@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { ENEMY_DATA, STATUS_EFFECTS } from '@/data/gameData';
-import type { EnemyType, StatusEffectType } from '@/types/game';
+import type { EnemyData, EnemyType, StatusEffectType } from '@/types/game';
 import {
   FROST_FROZEN_DAMAGE_MULT,
   FROST_SHATTER_DAMAGE,
@@ -19,6 +19,11 @@ import {
   POISON_TOXIN_DAMAGE_MULT,
   POISON_HEAL_MULT,
 } from '@/data/combatStatus';
+
+/** ENEMY_DATA 的索引簽名允許任意字串（自訂敵人），測試只跑真的有資料的列 */
+const ENEMY_ROWS = Object.entries(ENEMY_DATA).filter(
+  (entry): entry is [string, EnemyData] => entry[1] !== undefined,
+);
 
 describe('ENEMY_DATA', () => {
   it('should have all 22 enemy types defined', () => {
@@ -35,25 +40,25 @@ describe('ENEMY_DATA', () => {
   });
 
   it('should have valid health for all enemies', () => {
-    Object.values(ENEMY_DATA).forEach(enemy => {
+    ENEMY_ROWS.forEach(([, enemy]) => {
       expect(enemy.health).toBeGreaterThan(0);
     });
   });
 
   it('should have valid speed for all enemies', () => {
-    Object.values(ENEMY_DATA).forEach(enemy => {
+    ENEMY_ROWS.forEach(([, enemy]) => {
       expect(enemy.speed).toBeGreaterThan(0);
     });
   });
 
   it('should have valid reward for all enemies', () => {
-    Object.values(ENEMY_DATA).forEach(enemy => {
+    ENEMY_ROWS.forEach(([, enemy]) => {
       expect(enemy.reward).toBeGreaterThan(0);
     });
   });
 
   it('should have size between 10 and 60 for all enemies', () => {
-    Object.values(ENEMY_DATA).forEach(enemy => {
+    ENEMY_ROWS.forEach(([, enemy]) => {
       expect(enemy.size).toBeGreaterThanOrEqual(10);
       expect(enemy.size).toBeLessThanOrEqual(60);
     });
@@ -61,7 +66,7 @@ describe('ENEMY_DATA', () => {
 
   it('should have boss with highest health', () => {
     const bossHealth = ENEMY_DATA.boss.health;
-    Object.entries(ENEMY_DATA).forEach(([type, data]) => {
+    ENEMY_ROWS.forEach(([type, data]) => {
       if (type !== 'boss') {
         expect(data.health).toBeLessThanOrEqual(bossHealth);
       }
@@ -70,7 +75,7 @@ describe('ENEMY_DATA', () => {
 
   it('should have swarm with lowest health', () => {
     const swarmHealth = ENEMY_DATA.swarm.health;
-    Object.entries(ENEMY_DATA).forEach(([type, data]) => {
+    ENEMY_ROWS.forEach(([type, data]) => {
       if (type !== 'swarm') {
         expect(data.health).toBeGreaterThanOrEqual(swarmHealth);
       }
@@ -79,7 +84,7 @@ describe('ENEMY_DATA', () => {
 
   it('should have speedy with highest speed', () => {
     const speedySpeed = ENEMY_DATA.speedy.speed;
-    Object.entries(ENEMY_DATA).forEach(([type, data]) => {
+    ENEMY_ROWS.forEach(([type, data]) => {
       if (type !== 'speedy') {
         expect(data.speed).toBeLessThanOrEqual(speedySpeed);
       }
@@ -88,7 +93,7 @@ describe('ENEMY_DATA', () => {
 
   it('should have all abilities defined in their data', () => {
     const abilityTypes = ['flying', 'healing', 'spawning', 'shield', 'stealth', 'berserk', 'armored', 'teleport', 'miniboss', 'phase', 'explode', 'sabotage', 'swarm', 'jam', 'escort'];
-    const enemiesWithAbility = Object.entries(ENEMY_DATA).filter(([, data]) => data.ability);
+    const enemiesWithAbility = ENEMY_ROWS.filter(([, data]) => data.ability);
     // 檢查每個聲稱有能力的敵人都有對應的參數
     for (const [, data] of enemiesWithAbility) {
       const ability = data.ability!;
