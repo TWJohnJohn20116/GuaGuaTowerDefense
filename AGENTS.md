@@ -116,6 +116,9 @@ services → types（只能 import type 或由入口注入）
 - ❌ 不准手寫 `interface Translations`（歷史上有 4,077 行手抄造成 77 鍵不存在、UI 渲染 `undefined`）。
 - ❌ 使用者可見字串不准硬編碼中文（目前 445 條待清）；Dev 面板可延後但仍不算好習慣。
 - ✅ 動完 i18n 必跑 `npm run i18n:check`（`--strict`：語言檔不得有 zh-TW 沒有的鍵）。
+- ✅ **新文案一律開新的子命名空間**（`content.wave.*`、`content.detail`），不要重用既有鍵名。既有鍵可能還是字串，你加成物件就會讓 9 個語言檔同時 `TS2559`（`Type 'string' has no properties in common with…`），zh-TW 自己則是 `TS1117`（物件字面量重複屬性）。
+- ⚠️ **`i18n:check` 抓不到這件事**：它只比對鍵的存在與孤兒鍵。型別衝突是 `tsc` 抓的——改 locale 結構後不能只跑 i18n:check 就宣布沒問題，必須等 CI 的型別檢查。
+- ✅ 刪鍵前先 grep 一次 `.<鍵名>` 確認沒有任何引用（例：這輪清掉 6 個只寫不用的鍵）。
 
 ### 4.5 效能（改動前先讀 §6 地雷）
 
