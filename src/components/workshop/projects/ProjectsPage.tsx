@@ -8,7 +8,7 @@ import { useWorkshopStore } from '@/store/workshopStore';
 import { readBackups, writeBackup } from '@/workshop/backup';
 import { exportProjectFile, parseProjectFile } from '@/workshop/projectFile';
 import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
-import { Btn, Deck, Empty, Input, Num, SegHead } from '@/components/hl';
+import { Btn, Deck, Empty, IconBtn, Input, Num, SegHead } from '@/components/hl';
 import { PlusIcon, CopyIcon, TrashIcon, PlayIcon, MapIcon, DownloadIcon, UploadIcon } from '@/components/ui/Icons';
 
 export type StudioPage =
@@ -122,10 +122,13 @@ export function ProjectsPage({ onNavigate, onCreateTemplate }: ProjectsPageProps
         >
           {s.dashboard.newProject}
         </Btn>
-        <span className="arc-label ml-1">{s.dashboard.template}</span>
+        {/* 三組分開：建立 ｜ 從範本 ｜ 匯出匯入 —— 舊版五顆按鈕與一個標籤平排成一長串 */}
+        <span aria-hidden="true" className="h-5 w-[2px] shrink-0 rounded-full bg-[rgba(46,36,64,0.28)]" />
+        <span className="arc-label shrink-0">{s.dashboard.template}</span>
         <Btn size="sm" variant="line" onClick={() => onCreateTemplate('basic')}>{s.dashboard.templateBasic}</Btn>
         <Btn size="sm" variant="line" onClick={() => onCreateTemplate('boss')}>{s.dashboard.templateBoss}</Btn>
         <Btn size="sm" variant="line" onClick={() => onCreateTemplate('swarm')}>{s.dashboard.templateSwarm}</Btn>
+        <span aria-hidden="true" className="h-5 w-[2px] shrink-0 rounded-full bg-[rgba(46,36,64,0.28)]" />
 
         <span className="ml-auto flex items-center gap-1.5">
           <Btn size="sm" variant="line" icon={<DownloadIcon className="h-3.5 w-3.5" />} onClick={handleExport}>
@@ -202,27 +205,27 @@ export function ProjectsPage({ onNavigate, onCreateTemplate }: ProjectsPageProps
                   <span>·</span>
                   <span>{fillTemplate(s.dashboard.assetsCount, { count: String(project.assetRefs.length) })}</span>
                 </div>
-                <div className="mt-auto flex flex-wrap items-center gap-1.5">
-                  <Btn size="sm" variant="signal" icon={<PlayIcon className="h-3.5 w-3.5" />} onClick={() => open(project.id)}>
+                {/* 主行動吃滿寬度，其餘三個收成圖示鍵：四顆同尺寸平排看不出哪個是主要動作 */}
+                <div className="mt-auto flex items-center gap-1.5">
+                  <Btn size="sm" variant="signal" icon={<PlayIcon className="h-3.5 w-3.5" />} className="flex-1" onClick={() => open(project.id)}>
                     {s.dashboard.open}
                   </Btn>
-                  <Btn size="sm" variant="line" icon={<MapIcon className="h-3.5 w-3.5" />} onClick={() => { setActiveProject(project.id); onNavigate('playtest'); }}>
-                    {s.dashboard.playtest}
-                  </Btn>
-                  <Btn size="sm" variant="line" icon={<CopyIcon className="h-3.5 w-3.5" />} onClick={() => duplicateProject(project.id)}>
-                    {s.common.duplicate}
-                  </Btn>
-                  <Btn
-                    size="sm"
-                    variant="ghost"
-                    icon={<TrashIcon className="h-3.5 w-3.5" />}
+                  <IconBtn label={s.dashboard.playtest} className="h-8 w-8" onClick={() => { setActiveProject(project.id); onNavigate('playtest'); }}>
+                    <MapIcon className="h-3.5 w-3.5" />
+                  </IconBtn>
+                  <IconBtn label={s.common.duplicate} className="h-8 w-8" onClick={() => duplicateProject(project.id)}>
+                    <CopyIcon className="h-3.5 w-3.5" />
+                  </IconBtn>
+                  <IconBtn
+                    label={s.common.delete}
+                    className="h-8 w-8 text-[var(--cn-alert-deep)]"
                     onClick={() => {
                       if (!window.confirm(s.common.confirmDelete)) return;
                       deleteProject(project.id);
                     }}
                   >
-                    {s.common.delete}
-                  </Btn>
+                    <TrashIcon className="h-3.5 w-3.5" />
+                  </IconBtn>
                 </div>
               </Deck>
             );
