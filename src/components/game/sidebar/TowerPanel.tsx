@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { motion } from 'framer-motion';
-import { SPRING_SOFT, STAGGER_STEP } from '@/utils/motionTokens';
+import { AnimatePresence, motion } from 'framer-motion';
+import { FADE_OUT, SPRING_SOFT, STAGGER_STEP } from '@/utils/motionTokens';
 import { useGameStore } from '@/store/gameStore';
 import { useTutorialStore, INTERACTIVE_TUTORIAL_STEPS } from '@/store/tutorialStore';
 import { useModStore } from '@/store/modStore';
@@ -175,11 +175,13 @@ export const TowerPanel = () => {
       )}
 
       <div className={`grid min-h-0 flex-1 auto-rows-min content-start overflow-y-auto p-1.5 ${gridColsClass} ${gridGapClass}`}>
+        <AnimatePresence initial={false}>
         {filteredTowers.map((tower, i) => (
           <motion.div
             key={tower.id}
             initial={{ opacity: 0, x: -6 }}
             animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -6, transition: FADE_OUT }}
             transition={{ ...SPRING_SOFT, delay: Math.min(i, 10) * STAGGER_STEP }}
             className="relative h-full"
           >
@@ -190,6 +192,7 @@ export const TowerPanel = () => {
             />
           </motion.div>
         ))}
+        </AnimatePresence>
         {filteredTowers.length === 0 && (
           <div
             className="flex flex-col items-center gap-2 px-1 py-6 text-center"
@@ -283,11 +286,16 @@ export const TowerPanel = () => {
 
       {/* 進階選項：輪盤放不下，改成彈出的紙卡（點歯輪開啟） */}
       {createPortal(
-        showAdvanced ? (
-          <div
-            className="fixed inset-0 z-[9998] flex items-center justify-center bg-[rgba(46,36,64,0.45)] p-4"
-            onClick={() => setShowAdvanced(false)}
-          >
+        <AnimatePresence>
+          {showAdvanced && (
+            <motion.div
+              key="advanced-modal"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: FADE_OUT }}
+              className="fixed inset-0 z-[9998] flex items-center justify-center bg-[rgba(46,36,64,0.45)] p-4"
+              onClick={() => setShowAdvanced(false)}
+            >
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -310,8 +318,9 @@ export const TowerPanel = () => {
                 <AdvancedOptionsPanel show />
               </div>
             </motion.div>
-          </div>
-        ) : null,
+            </motion.div>
+          )}
+        </AnimatePresence>,
         document.body,
       )}
     </>

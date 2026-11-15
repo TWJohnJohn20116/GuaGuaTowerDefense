@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { useTutorialStore } from '@/store/tutorialStore';
 import { useTranslation } from '@/i18n';
 import { SearchIcon, CrossIcon } from '@/components/ui/Icons';
 import { BD_LABEL, BD_NUM, BD_SHEET } from '../hudBoard';
-import { FADE_FAST, SPRING_SOFT } from '@/utils/motionTokens';
+import { FADE_FAST, FADE_OUT, SPRING_SOFT } from '@/utils/motionTokens';
 
 /**
  * 戰況簇（無卡片）
@@ -102,18 +102,25 @@ export const TopStatsBar = () => {
         </button>
       </div>
 
-      {showStatsDialog && createPortal(
-        <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[rgba(46,36,64,0.55)] p-4"
-          onClick={() => setShowStatsDialog(false)}
-        >
-          <motion.div
-            className="w-full max-w-[460px]"
-            initial={{ opacity: 0, y: 14, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={SPRING_SOFT}
-            onClick={(e) => e.stopPropagation()}
-          >
+      {createPortal(
+        <AnimatePresence>
+          {showStatsDialog && (
+            <motion.div
+              key="stats-modal"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: FADE_OUT }}
+              className="fixed inset-0 z-[9999] flex items-center justify-center bg-[rgba(46,36,64,0.55)] p-4"
+              onClick={() => setShowStatsDialog(false)}
+            >
+              <motion.div
+                className="w-full max-w-[460px]"
+                initial={{ opacity: 0, y: 14, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.97, transition: FADE_OUT }}
+                transition={SPRING_SOFT}
+                onClick={(e) => e.stopPropagation()}
+              >
             <div className={`${BD_SHEET} flex max-h-[86vh] flex-col overflow-hidden`}>
               <header className="flex items-start gap-3 border-b-[3px] border-[var(--cn-line-soft)] px-4 py-3">
                 <div className="min-w-0 flex-1">
@@ -214,7 +221,9 @@ export const TopStatsBar = () => {
               </footer>
             </div>
           </motion.div>
-        </div>,
+            </motion.div>
+          )}
+        </AnimatePresence>,
         document.body,
       )}
     </>

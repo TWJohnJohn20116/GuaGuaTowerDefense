@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/Icons';
 import { Dot } from '@/components/hl';
 import { BD_LABEL, BD_SHEET } from '../hudBoard';
-import { SPRING_SNAPPY } from '@/utils/motionTokens';
+import { FADE_OUT, SPRING_SNAPPY } from '@/utils/motionTokens';
 
 /**
  * AI 自動戰鬥狀態（豎排標籤）
@@ -25,33 +25,38 @@ export const AIStatusHeader = () => {
 
   if (!autoBattleEnabled) return null;
 
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label={t.game.aiActive}
-        className="pointer-events-auto flex h-24 w-8 flex-col items-center justify-center gap-1.5 rounded-[var(--cn-r-sm)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] text-[var(--cn-ink-2)] shadow-[0_4px_0_var(--cn-line)] transition-[transform,box-shadow] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
-      >
-        <span
-          className="font-mono text-[9px] font-extrabold uppercase tracking-[0.22em]"
-          style={{ writingMode: 'vertical-rl' }}
-        >
-          {t.game.aiActive}
-        </span>
-        <span className="h-1.5 w-1.5 rounded-full bg-[var(--cn-sky)]" />
-      </button>
-    );
-  }
-
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: -8 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={SPRING_SNAPPY}
-      style={{ transformOrigin: 'top right' }}
-      className={`${BD_SHEET} pointer-events-auto w-full overflow-hidden`}
-    >
+    <AnimatePresence mode="wait" initial={false}>
+      {!open ? (
+        <motion.button
+          key="ai-tab"
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={t.game.aiActive}
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.92 }}
+          transition={SPRING_SNAPPY}
+          className="pointer-events-auto flex h-24 w-8 flex-col items-center justify-center gap-1.5 rounded-[var(--cn-r-sm)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] text-[var(--cn-ink-2)] shadow-[0_4px_0_var(--cn-line)] transition-[transform,box-shadow] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
+        >
+          <span
+            className="font-mono text-[9px] font-extrabold uppercase tracking-[0.22em]"
+            style={{ writingMode: 'vertical-rl' }}
+          >
+            {t.game.aiActive}
+          </span>
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--cn-sky)]" />
+        </motion.button>
+      ) : (
+        <motion.div
+          key="ai-panel"
+          initial={{ opacity: 0, scale: 0.95, y: -8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: -6, transition: FADE_OUT }}
+          transition={SPRING_SNAPPY}
+          style={{ transformOrigin: 'top right' }}
+          className={`${BD_SHEET} pointer-events-auto w-full overflow-hidden`}
+        >
       <header className="flex items-center gap-2 border-b-[3px] border-[var(--cn-line-soft)] px-2.5 py-1.5">
         <Dot tone="signal" pulse />
         <span className={`${BD_LABEL} text-[var(--cn-accent-text)]`}>{t.game.aiActive}</span>
@@ -111,6 +116,8 @@ export const AIStatusHeader = () => {
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
