@@ -33,13 +33,17 @@ export default function Workshop() {
   const s = t.studio;
   const [page, setPage] = useState<StudioPage>('projects');
   const [playtestLevelId, setPlaytestLevelId] = useState<string | null>(null);
-  // 側欄收合是「版面偏好」不是世界資料，所以放 localStorage，不進 workshopStore
+  // 側欄收合是「版面偏好」不是世界資料，所以放 localStorage，不進 workshopStore。
+  // 沒有存過偏好時：窄版（<1024px）預設收合——236px 的側欄在手機上會把主區擠成一條縫。
   const [railCollapsed, setRailCollapsed] = useState<boolean>(() => {
     try {
-      return window.localStorage.getItem(RAIL_COLLAPSED_KEY) === '1';
+      const stored = window.localStorage.getItem(RAIL_COLLAPSED_KEY);
+      if (stored === '1') return true;
+      if (stored === '0') return false;
     } catch {
-      return false;
+      // 私密模式讀不到 localStorage：直接走下面的視口判斷
     }
+    return window.matchMedia('(max-width: 1023px)').matches;
   });
 
   const toggleRail = () => {
