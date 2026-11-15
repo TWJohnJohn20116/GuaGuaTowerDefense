@@ -110,7 +110,7 @@ export function tickTowerSkills(
       : Math.max(tower.skill.activeUntil - now, 200);
     const applied = applySkillAuraToEnemies(
       nextEnemies,
-      tower.gridPos,
+      tower.pos,
       tower.skill.skillId,
       now,
       remaining,

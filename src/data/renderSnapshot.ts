@@ -80,8 +80,8 @@ export interface ProjectileRenderFrame {
 interface TowerRenderFrame {
   id: string;
   type: TowerType;
-  /** 直接沿用塔自身的 gridPos 參照（不複製、不配置），協同連線與 toWorld 都吃這個形狀 */
-  gridPos: { col: number; row: number };
+  /** 直接沿用塔自身的 pos 參照（不複製、不配置），協同連線與 toWorld 都吃這個形狀 */
+  pos: { x: number; y: number };
   level: number;
   rotation: number;
   health: number;
@@ -184,12 +184,12 @@ const createEmptyProjectileFrame = (): ProjectileRenderFrame => ({
   trailPoints: undefined,
 });
 
-const EMPTY_GRID_POS = { col: 0, row: 0 };
+const EMPTY_POS = { x: 0, y: 0 };
 
 const createEmptyTowerFrame = (): TowerRenderFrame => ({
   id: '',
   type: 'basic',
-  gridPos: EMPTY_GRID_POS,
+  pos: EMPTY_POS,
   level: 1,
   rotation: 0,
   health: 0,
@@ -326,7 +326,7 @@ export const writeRenderSnapshot = (
     const frame = out.towers[i];
     frame.id = tower.id;
     frame.type = tower.type;
-    frame.gridPos = tower.gridPos;
+    frame.pos = tower.pos;
     frame.level = tower.level;
     frame.rotation = tower.rotation;
     frame.health = tower.health;

@@ -15,13 +15,14 @@ import type {
   Enemy,
   EnemyType,
   GridPosition,
+  MapPoint,
   PathConfig,
-  Tile,
   Tower,
   TowerType,
 } from '@/types/game';
 import { TOWER_SKILLS } from '@/data/skillData';
 import { defaultTargetPriority } from '@/data/towerTargeting';
+import { DEFAULT_TOWER_RADIUS } from '@/data/mapGeometry';
 
 export const STRESS_DEFAULT_ENEMIES = 10_000;
 export const STRESS_DEFAULT_TOWERS = 100;
@@ -159,36 +160,19 @@ export const buildStressEnemies = ({
   return enemies;
 };
 
-/** 挑出可建造的空格（不含已有塔的格子），最多 count 個 */
-export const pickStressTowerPositions = (grid: Tile[][], count: number): GridPosition[] => {
-  if (count <= 0) return [];
-  const positions: GridPosition[] = [];
-
-  for (const row of grid) {
-    for (const tile of row) {
-      if (tile.type !== 'empty' || tile.towerId) continue;
-      positions.push({ col: tile.col, row: tile.row });
-      if (positions.length >= count) return positions;
-    }
-  }
-
-  return positions;
-};
-
 /** 依座標清單生成塔（等級 1、滿血、帶對應主動技能） */
-export const buildStressTowers = (positions: GridPosition[], idOffset = 0): Tower[] => {
+export const buildStressTowers = (positions: MapPoint[], idOffset = 0): Tower[] => {
   const placedAt = Date.now();
 
-  return positions.map((gridPos, i) => {
+  return positions.map((pos, i) => {
     const type = TOWER_CYCLE[i % TOWER_CYCLE.length];
     const skillType = TOWER_SKILLS[type];
 
     return {
       id: `${STRESS_TOWER_ID_PREFIX}${idOffset + i}`,
       type,
-      gridPos,
-      x: 0,
-      y: 0,
+      pos,
+      radius: DEFAULT_TOWER_RADIUS,
       level: 1,
       upgradePath: null,
       rotation: 0,

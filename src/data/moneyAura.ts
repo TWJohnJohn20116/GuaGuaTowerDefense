@@ -14,7 +14,7 @@ interface MoneyAura {
 
 interface MoneyAuraTower {
   type: string;
-  gridPos: { col: number; row: number };
+  pos: { x: number; y: number };
   level?: number;
 }
 
@@ -28,8 +28,8 @@ export function collectMoneyAuras(towers: MoneyAuraTower[]): MoneyAura[] {
     if (tower.type !== 'money') continue;
     const range = getMoneyAuraRange(tower.level ?? 1);
     auras.push({
-      x: tower.gridPos.col,
-      y: tower.gridPos.row,
+      x: tower.pos.x,
+      y: tower.pos.y,
       radiusSq: range * range,
     });
   }

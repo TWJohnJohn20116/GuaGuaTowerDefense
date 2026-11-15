@@ -112,9 +112,10 @@ export const TOWER_SYNERGIES: TowerSynergyDef[] = [
 export function toTowerRef(tower: {
   id: string;
   type: TowerType;
-  gridPos: { col: number; row: number };
+  pos: { x: number; y: number };
 }): TowerRef {
-  return { id: tower.id, type: tower.type, col: tower.gridPos.col, row: tower.gridPos.row };
+  // 協同系統仍以「格」為距離單位，自由座標直接當 col/row 用
+  return { id: tower.id, type: tower.type, col: tower.pos.x, row: tower.pos.y };
 }
 
 export function areOrthogonallyAdjacent(

@@ -8,7 +8,7 @@ export function getMatchSessionReset() {
     fusionSourceId: null,
     fusionFundsShort: null,
     fusionAnimations: [] as [],
-    hoveredTile: null,
+    hoverPoint: null,
     showTacticalView: false,
     shakeIntensity: 0,
   };

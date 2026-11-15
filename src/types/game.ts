@@ -21,9 +21,27 @@ export interface Position {
   y: number;
 }
 
+/**
+ * 地圖折線點（世界座標，單位＝格；1 單位 = tileSize 像素）。
+ *
+ * 欄位名沿用 col/row 是歷史包袱：地圖自由化後它已經不是格子索引，
+ * 允許 3.5 / 7.25 這種浮點值，代表「第 3.5 格寬的位置」。
+ * 塔的位置請用 MapPoint（x/y），兩者同一個單位系統。
+ */
 export interface GridPosition {
   col: number;
   row: number;
+}
+
+/**
+ * 世界座標點（單位＝格；1 單位 = tileSize 像素，可為浮點）。
+ *
+ * 這是地圖自由化後的座標型別：沒有格子、沒有 floor、沒有索引。
+ * 塔站在 pos，敵人站在 (x,y)，兩者可以直接相減算距離。
+ */
+export interface MapPoint {
+  x: number;
+  y: number;
 }
 
 // 敌人类型
@@ -396,9 +414,16 @@ export interface DeathAnimation {
 export interface Tower {
   id: string;
   type: TowerType;
-  gridPos: GridPosition;
-  x: number;
-  y: number;
+  /**
+   * 世界座標（單位＝格，可為浮點）。自由放置後沒有「格」可以吸附，
+   * 這個點就是塔的唯一位置真相；射程、索敵、碰撞全從這裡算。
+   */
+  pos: MapPoint;
+  /**
+   * 佔位半徑（單位＝格）。放置時用它做圓形碰撞：
+   * 與路徑折線距離 < 路徑半寬 + radius 就不能放，與其他塔圓心距離 < r1+r2 也不能放。
+   */
+  radius: number;
   level: number;
   upgradePath: UpgradePath;
   rotation: number;
@@ -485,8 +510,19 @@ export interface PathConfig {
   segments?: PathSegment[];            // 進階地圖用（叉路系統）
   startSegmentId?: string;             // 進階地圖起始路段 ID
   theme?: string;                      // 地圖自訂主題（缺省跟隨全域主題）
-  /** Mod 地圖障礙格子（不可建造） */
-  blockedCells?: GridPosition[];
+  /**
+   * 路徑寬度（單位＝格）。缺省 0.9。
+   * 放置判定用它算淨空（塔圓心到折線距離 < width/2 + 塔半徑 就不能放），
+   * 渲染用它決定路徑帶的粗細。沒有格子之後，寬度只能寫在這裡。
+   */
+  width?: number;
+  /**
+   * 地圖可用範圍（單位＝格）。缺省 15×11。
+   * 舊模型用 GRID_COLS × GRID_ROWS 固定，自由制下每張圖可以有自己的大小。
+   */
+  bounds?: { width: number; height: number };
+  /** 圓形禁建區（取代舊的 blockedCells 格子清單） */
+  blockedAreas?: MapPoint[];
 }
 
 // 波次配置
@@ -509,24 +545,8 @@ export interface WaveConfig {
   name?: string;
 }
 
-// 地图格子类型
-export type TileType = 'empty' | 'path' | 'start' | 'end' | 'blocked' | 'fork';
-
-// 地图格子
-export interface Tile {
-  type: TileType;
-  row: number;
-  col: number;
-  /**
-   * 這一格上駐紮的塔 id。
-   *
-   * 以前這裡存的是整份 Tower 複本，導致 `state.towers` 與 `grid[r][c].tower`
-   * 兩份真相、74 處手動雙寫（忘記同步就會出現「畫面上有、點不到」的幽靈塔）。
-   * 現在格子只記 id，塔的資料只有 `state.towers` 一份；
-   * 存取一律走 `@/store/gridTower`。
-   */
-  towerId: string | null;
-}
+// 地圖自由化：Tile / TileType / Tile[][] grid 已移除。
+// 位置真相是 Tower.pos（世界座標）與 PathConfig.waypoints（折線），不再有格子陣列。
 // 游戏场景
 export type GameScene =
   | 'mainMenu' | 'pathSelection' | 'talentTree' | 'game' | 'settings'
@@ -648,7 +668,8 @@ export interface CustomMapData extends PathConfig {
   modId: string;
   thumbnail?: string;
   /** 不可建造格子（障礙物繪製） */
-  blockedCells?: GridPosition[];
+  /** 圓形禁建區（取代舊的 blockedCells 格子清單） */
+  blockedAreas?: MapPoint[];
 }
 
 // 自訂波次 Mod
