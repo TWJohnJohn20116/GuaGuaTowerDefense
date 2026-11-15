@@ -17,6 +17,7 @@ import type {
 } from '@/types/modScript';
 import { MOD_SCRIPT_HOOKS, MOD_SCRIPT_LIMITS, SHADOWED_GLOBAL_NAMES } from './limits';
 import { createScriptRng } from './rng';
+import { SCRIPT_TOWER_MOD_MAX, SCRIPT_TOWER_MOD_MIN } from '@/data/scriptTowerMods';
 import { canRunCommand, requiredPermission } from './permissions';
 
 type ScriptHandler = (ctx: ModScriptEventDetail, api: SandboxApi) => void;
@@ -32,6 +33,13 @@ interface SandboxApi {
   money: { add: (amount: number) => void };
   base: { heal: (amount: number) => void; damage: (amount: number) => void };
   spawn: { enemy: (enemyType: string, count?: number, intervalMs?: number) => void };
+  score: { add: (amount: number) => void };
+  tower: {
+    /** scope 用塔種 id 或 '*'；stat 是 damage／range／fireRate；multiplier 是倍率 */
+    modify: (scope: string, stat: 'damage' | 'range' | 'fireRate', multiplier: number) => void;
+    upgrade: (row: number, col: number) => void;
+    sell: (row: number, col: number) => void;
+  };
   status: {
     apply: (
       effect: ModScriptStatusEffect,
@@ -77,6 +85,12 @@ function clamp(value: number, min: number, max: number): number {
 
 function isStatusEffect(value: string): value is ModScriptStatusEffect {
   return (STATUS_EFFECTS as readonly string[]).includes(value);
+}
+
+const TOWER_STATS = ['damage', 'range', 'fireRate'] as const;
+
+function isTowerStat(value: string): value is (typeof TOWER_STATS)[number] {
+  return (TOWER_STATS as readonly string[]).includes(value);
 }
 
 /** 建立一支腳本專屬的 api 物件（host 負責收指令與上限） */
@@ -134,6 +148,29 @@ export function createSandboxApi(host: SandboxHost): SandboxApi {
         const n = Math.round(clamp(finite(count, 1), 1, MOD_SCRIPT_LIMITS.maxSpawnCount));
         const gap = Math.round(clamp(finite(intervalMs, 200), 0, 10000));
         push({ kind: 'spawnEnemy', enemyType: String(enemyType), count: n, intervalMs: gap });
+      },
+    },
+    score: {
+      add: (amount) => {
+        const delta = Math.round(clamp(finite(amount, 0), -MOD_SCRIPT_LIMITS.maxMoneyDelta, MOD_SCRIPT_LIMITS.maxMoneyDelta));
+        if (delta === 0) return;
+        push({ kind: 'addScore', amount: delta });
+      },
+    },
+    tower: {
+      modify: (scope, stat, multiplier) => {
+        if (!isTowerStat(stat)) {
+          host.warn(`未知塔屬性：${String(stat)}`);
+          return;
+        }
+        const value = clamp(finite(multiplier, 1), SCRIPT_TOWER_MOD_MIN, SCRIPT_TOWER_MOD_MAX);
+        push({ kind: 'modifyTower', scope: String(scope || '*').slice(0, 32), stat, multiplier: value });
+      },
+      upgrade: (row, col) => {
+        push({ kind: 'upgradeTowerAt', row: Math.round(finite(row, 0)), col: Math.round(finite(col, 0)) });
+      },
+      sell: (row, col) => {
+        push({ kind: 'sellTowerAt', row: Math.round(finite(row, 0)), col: Math.round(finite(col, 0)) });
       },
     },
     status: {

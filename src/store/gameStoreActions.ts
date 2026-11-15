@@ -198,6 +198,11 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     });
 
     playUpgrade(); // 升級音
+    notifyModScripts('onTowerUpgraded', {
+      towerType: tower.type,
+      row: tower.gridPos.row,
+      col: tower.gridPos.col,
+    });
     return true;
   },
 
@@ -508,6 +513,11 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
             updatedSelectedTower = updatedTowers.find(t => t.id === towerId) || null;
           }
           set({ towers: updatedTowers, enemies: updatedEnemies, selectedTower: updatedSelectedTower });
+          notifyModScripts('onSkillUsed', {
+            towerType: tower.type,
+            row: tower.gridPos.row,
+            col: tower.gridPos.col,
+          });
           return true;
         }
         case 'repair': {

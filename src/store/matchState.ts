@@ -47,13 +47,15 @@ type MatchOwnedKey =
   | 'protocolHistory'
   | 'protocolNextTowerDiscount'
   | 'autoBattleStats'
-  | 'autoBattleLogs';
+  | 'autoBattleLogs'
+  | 'scriptTowerMods';
 
 export const createEmptyMatchState = (): Pick<GameStore, MatchOwnedKey> => ({
   previewMap: null,
   money: GAME_CONSTANTS.INITIAL_MONEY,
   health: GAME_CONSTANTS.INITIAL_HEALTH,
   score: 0,
+  scriptTowerMods: {},
 
   currentWave: 0,
   waveActive: false,

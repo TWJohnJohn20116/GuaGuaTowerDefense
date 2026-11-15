@@ -53,6 +53,8 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
     } else {
       set({ waveActive: true, currentWave: newWave, allEnemiesSpawned: false });
     }
+    // Mod 腳本：開波前（佇列已建立、尚未派發）
+    notifyModScripts('onWavePrepared', { wave: newWave });
     // Mod 腳本：開波事件
     notifyModScripts('onWaveStart', { wave: newWave });
     playWaveStart(); // 開波音
@@ -266,6 +268,7 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
     };
 
     set({ enemies: [...enemies, newEnemy] });
+    notifyModScripts('onEnemySpawned', { enemyType: requestedType, wave: currentWave });
 
     // Mod 腳本：Boss／精英生成事件
     if (enemyType === 'boss' || enemyType === 'miniboss') {

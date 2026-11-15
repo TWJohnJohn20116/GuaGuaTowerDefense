@@ -84,6 +84,8 @@ export interface GameStore {
   money: number;
   health: number;
   score: number;
+  /** 腳本對塔的增益／減益（action.modifyTower）；空物件＝沒有增益 */
+  scriptTowerMods: import('@/data/scriptTowerMods').ScriptTowerModMap;
   
   // 波次
   currentWave: number;

@@ -19,7 +19,17 @@ export type ModScriptHook =
   | 'onBossSpawn'
   | 'onMoneyChanged'
   /** 敵人抵達基地（漏怪）；detail 帶 enemyTypes 與 amount */
-  | 'onEnemyLeaked';
+  | 'onEnemyLeaked'
+  /** 塔升級成功 */
+  | 'onTowerUpgraded'
+  /** 敵人被生成 */
+  | 'onEnemySpawned'
+  /** 玩家啟用塔技能 */
+  | 'onSkillUsed'
+  /** Boss／精英被擊殺 */
+  | 'onBossKilled'
+  /** 波次開始前（生成佇列建立前） */
+  | 'onWavePrepared';
 
 /** 腳本能力（最小權限原則：沒勾就不能做） */
 export type ModScriptPermission =
@@ -28,6 +38,7 @@ export type ModScriptPermission =
   | 'base.health'
   | 'enemy.spawn'
   | 'enemy.modify'
+  | 'tower.modify'
   | 'log'
   | 'storage';
 
@@ -68,6 +79,17 @@ export type ModScriptCommand =
   | { kind: 'damageBase'; amount: number }
   | { kind: 'spawnEnemy'; enemyType: string; count: number; intervalMs: number }
   | { kind: 'setScriptState'; key: string; value: ScriptStateValue }
+  | { kind: 'addScore'; amount: number }
+  | {
+      kind: 'modifyTower';
+      /** 塔種 id，或 '*' 表示全部塔 */
+      scope: string;
+      stat: 'damage' | 'range' | 'fireRate';
+      /** 倍率（夾在 0.1~5） */
+      multiplier: number;
+    }
+  | { kind: 'upgradeTowerAt'; row: number; col: number }
+  | { kind: 'sellTowerAt'; row: number; col: number }
   | {
       kind: 'applyStatus';
       effect: ModScriptStatusEffect;

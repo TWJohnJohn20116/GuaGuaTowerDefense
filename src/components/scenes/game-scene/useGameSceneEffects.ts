@@ -592,6 +592,12 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
               });
               killedTypes.push(enemy.type);
             }
+            const bossTypes = killedEnemies
+              .filter((enemy) => enemy.type === 'boss' || enemy.type === 'miniboss')
+              .map((enemy) => enemy.type);
+            if (bossTypes.length > 0) {
+              notifyModScripts('onBossKilled', { enemyType: bossTypes[0], killCount: bossTypes.length });
+            }
             // 臨時局（工坊試玩）不寫成就與統計
             if (!useGameStore.getState().isPlaytest) {
               useAchievementStore.getState().batchOnEnemyKilled(kills, rewardTotal);

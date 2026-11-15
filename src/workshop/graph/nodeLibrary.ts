@@ -94,6 +94,11 @@ const EVENT_NODE_TYPES: readonly EventDefinition[] = [
   { type: 'event.bossSpawn', hook: 'onBossSpawn' },
   { type: 'event.moneyChanged', hook: 'onMoneyChanged' },
   { type: 'event.enemyLeaked', hook: 'onEnemyLeaked' },
+  { type: 'event.towerUpgraded', hook: 'onTowerUpgraded' },
+  { type: 'event.enemySpawned', hook: 'onEnemySpawned' },
+  { type: 'event.skillUsed', hook: 'onSkillUsed' },
+  { type: 'event.bossKilled', hook: 'onBossKilled' },
+  { type: 'event.wavePrepared', hook: 'onWavePrepared' },
 ];
 
 function eventSpec(definition: EventDefinition): GraphNodeSpec {
@@ -576,6 +581,68 @@ const ONCE_SPEC: GraphNodeSpec = {
   permissions: ['storage'],
 };
 
+/** 需要新指令的動作（塔增益／計分／座標升級與出售） */
+const TOWER_ACTION_SPECS: readonly GraphNodeSpec[] = [
+  {
+    type: 'action.addScore',
+    category: 'action',
+    labelKey: 'studio.graph.node.addScore',
+    descriptionKey: 'studio.graph.node.addScore.desc',
+    glyph: 'SC',
+    inputs: [FLOW_IN, port('amount', 'number', 'studio.graph.param.amount')],
+    outputs: [FLOW_OUT],
+    params: [numberParam('amount', 'studio.graph.param.amount', 10, -99999, 99999)],
+    permissions: ['economy'],
+  },
+  {
+    type: 'action.modifyTower',
+    category: 'action',
+    labelKey: 'studio.graph.node.modifyTower',
+    descriptionKey: 'studio.graph.node.modifyTower.desc',
+    glyph: 'MT',
+    inputs: [FLOW_IN],
+    outputs: [FLOW_OUT],
+    params: [
+      textParam('scope', 'studio.graph.param.towerScope', '*'),
+      selectParam('stat', 'studio.graph.param.towerStat', 'damage', [
+        { value: 'damage', labelKey: 'studio.graph.opt.damage' },
+        { value: 'range', labelKey: 'studio.graph.opt.range' },
+        { value: 'fireRate', labelKey: 'studio.graph.opt.fireRate' },
+      ]),
+      numberParam('multiplier', 'studio.graph.param.multiplier', 1.2, 0.1, 5, 0.05),
+    ],
+    permissions: ['tower.modify'],
+  },
+  {
+    type: 'action.upgradeTowerAt',
+    category: 'action',
+    labelKey: 'studio.graph.node.upgradeTowerAt',
+    descriptionKey: 'studio.graph.node.upgradeTowerAt.desc',
+    glyph: 'UT',
+    inputs: [FLOW_IN],
+    outputs: [FLOW_OUT],
+    params: [
+      numberParam('row', 'studio.graph.param.row', 0, 0, 999),
+      numberParam('col', 'studio.graph.param.col', 0, 0, 999),
+    ],
+    permissions: ['tower.modify', 'economy'],
+  },
+  {
+    type: 'action.sellTowerAt',
+    category: 'action',
+    labelKey: 'studio.graph.node.sellTowerAt',
+    descriptionKey: 'studio.graph.node.sellTowerAt.desc',
+    glyph: 'ST',
+    inputs: [FLOW_IN],
+    outputs: [FLOW_OUT],
+    params: [
+      numberParam('row', 'studio.graph.param.row', 0, 0, 999),
+      numberParam('col', 'studio.graph.param.col', 0, 0, 999),
+    ],
+    permissions: ['tower.modify', 'economy'],
+  },
+];
+
 const CLEAR_VAR_SPEC: GraphNodeSpec = {
   type: 'action.clearVar',
   category: 'action',
@@ -661,6 +728,7 @@ const NODE_LIBRARY: readonly GraphNodeSpec[] = [
   NOT_SPEC,
   ...STATE_COND_SPECS,
   ...ACTION_SPECS,
+  ...TOWER_ACTION_SPECS,
   CLEAR_VAR_SPEC,
   ...FLOW_SPECS,
   ONCE_SPEC,

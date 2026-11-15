@@ -210,6 +210,60 @@ describe('數值來源與運算', () => {
   });
 });
 
+const NEW_ACTIONS = ['action.addScore', 'action.modifyTower', 'action.upgradeTowerAt', 'action.sellTowerAt'] as const;
+const NEW_EVENTS: { type: string; hook: string }[] = [
+  { type: 'event.towerUpgraded', hook: 'onTowerUpgraded' },
+  { type: 'event.enemySpawned', hook: 'onEnemySpawned' },
+  { type: 'event.skillUsed', hook: 'onSkillUsed' },
+  { type: 'event.bossKilled', hook: 'onBossKilled' },
+  { type: 'event.wavePrepared', hook: 'onWavePrepared' },
+];
+
+describe('新動作節點（塔增益／計分／座標操作）', () => {
+  it('每個動作都能編進流程', () => {
+    for (const type of NEW_ACTIONS) {
+      const code = compileGraphCode(flowGraph(type));
+      expect(code, type).not.toContain('unsupported node');
+      expect(() => new Function(code)).not.toThrow();
+    }
+  });
+
+  it('modifyTower 產生 api.tower.modify 並收集 tower.modify 權限', () => {
+    const graph = flowGraph('action.modifyTower', { scope: 'sniper', stat: 'range', multiplier: 1.5 });
+    const compiled = compileGraph(graph);
+    expect(compiled.code).toContain("api.tower.modify('sniper', 'range', 1.5)");
+    expect(compiled.permissions).toContain('tower.modify');
+  });
+
+  it('非法 stat 會退回 damage（避免產生沙箱不認得的值）', () => {
+    const code = compileGraphCode(flowGraph('action.modifyTower', { stat: 'nonsense' }));
+    expect(code).toContain("'damage'");
+    expect(code).not.toContain('nonsense');
+  });
+
+  it('addScore 與座標操作產生對應 api 呼叫', () => {
+    expect(compileGraphCode(flowGraph('action.addScore', { amount: 25 }))).toContain('api.score.add(25)');
+    expect(compileGraphCode(flowGraph('action.upgradeTowerAt', { row: 3, col: 4 }))).toContain('api.tower.upgrade(3, 4)');
+    expect(compileGraphCode(flowGraph('action.sellTowerAt', { row: 1, col: 2 }))).toContain('api.tower.sell(1, 2)');
+  });
+});
+
+describe('新事件節點', () => {
+  it('每個事件都指向正確 hook 並產生處理函式', () => {
+    for (const entry of NEW_EVENTS) {
+      const spec = nodeSpec(entry.type);
+      expect(spec?.hook, entry.type).toBe(entry.hook);
+      const code = compileGraphCode(
+        makeGraph(
+          [makeNode('ev', entry.type), makeNode('log', 'action.log', { message: 'x' })],
+          [makeEdge('e1', 'ev', 'out', 'log', 'in')],
+        ),
+      );
+      expect(code, entry.type).toContain('function ' + entry.hook + '(ctx, api)');
+    }
+  });
+});
+
 describe('漏怪事件節點', () => {
   it('節點庫有 event.enemyLeaked 且指向 onEnemyLeaked', () => {
     const spec = nodeSpec('event.enemyLeaked');

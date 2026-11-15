@@ -335,6 +335,29 @@ function emitChain(ctx: EmitContext, nodeId: string, visited: Set<string>): void
       pushLine(ctx, '}');
       return;
     }
+    case 'action.addScore':
+      pushLine(ctx, 'api.score.add(' + amountExpression(ctx, node, 'amount', 10) + ');');
+      break;
+    case 'action.modifyTower': {
+      const scope = str(node.params.scope, '*').trim() || '*';
+      const rawStat = str(node.params.stat, 'damage');
+      const stat = rawStat === 'range' || rawStat === 'fireRate' ? rawStat : 'damage';
+      const multiplier = num(node.params.multiplier, 1.2);
+      pushLine(ctx, 'api.tower.modify(' + jsString(scope) + ', ' + jsString(stat) + ', ' + multiplier + ');');
+      break;
+    }
+    case 'action.upgradeTowerAt': {
+      const row = Math.round(num(node.params.row, 0));
+      const col = Math.round(num(node.params.col, 0));
+      pushLine(ctx, 'api.tower.upgrade(' + row + ', ' + col + ');');
+      break;
+    }
+    case 'action.sellTowerAt': {
+      const row = Math.round(num(node.params.row, 0));
+      const col = Math.round(num(node.params.col, 0));
+      pushLine(ctx, 'api.tower.sell(' + row + ', ' + col + ');');
+      break;
+    }
     case 'action.clearVar': {
       const key = jsString(storeKey(node));
       pushLine(ctx, 'api.store.set(' + key + ', null);');

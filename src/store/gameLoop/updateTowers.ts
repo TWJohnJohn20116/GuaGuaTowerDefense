@@ -16,6 +16,7 @@ import { applyPulseExposed, applyWindFear, getAntiAirMult, getBurnHuntMult, getE
 import { collectJammerAurasCached, getTowerJamFireRateMult } from '@/data/jammerAura';
 import { pickTowerTarget } from '@/data/towerTargeting';
 import { getTowerStatBonus } from '@/data/towerCombatStats';
+import { resolveScriptTowerMod } from '@/data/scriptTowerMods';
 import { getTowerUpgradeCost } from '@/data/towerUpgradeCost';
 
 /** 平滑轉向：把塔的 rotation 朝目標推近（無目標則維持原值） */
@@ -143,6 +144,9 @@ export const createUpdateTowers =
       }
     }
 
+    // 腳本增益（action.modifyTower）：每幀取一次，空物件時解析成本可忽略
+    const scriptTowerMods = get().scriptTowerMods;
+
     let updatedEnemies = [...enemies];
     let newProjectiles = [...projectiles];
     let hasNewProjectilesThisFrame = false;
@@ -164,7 +168,8 @@ export const createUpdateTowers =
         const towerData = getTowerData(tower.type);
         if (!towerData) continue;
         const synergyMods = getSynergyModsForTower(toTowerRef(tower), synergyRefs);
-        const range = towerData.range * getTowerStatBonus(tower).rangeMultiplier * talentRangeMult * protocolMods.rangeMult * synergyMods.rangeMult;
+        const scriptMod = resolveScriptTowerMod(scriptTowerMods, tower.type);
+        const range = towerData.range * getTowerStatBonus(tower).rangeMultiplier * talentRangeMult * protocolMods.rangeMult * synergyMods.rangeMult * scriptMod.range;
         const rangeSq = range * range;
         const tcol = tower.gridPos.col;
         const trow = tower.gridPos.row;
@@ -188,7 +193,8 @@ export const createUpdateTowers =
 
       const synergyMods = getSynergyModsForTower(toTowerRef(tower), synergyRefs);
       const statBonus = getTowerStatBonus(tower);
-      let fireRate = (towerData.fireRate || 1) * statBonus.fireRateMultiplier * talentAttackSpeedMult * inspireSpeedMult * protocolMods.fireRateMult * synergyMods.fireRateMult;
+      const scriptMod = resolveScriptTowerMod(scriptTowerMods, tower.type);
+      let fireRate = (towerData.fireRate || 1) * statBonus.fireRateMultiplier * talentAttackSpeedMult * inspireSpeedMult * protocolMods.fireRateMult * synergyMods.fireRateMult * scriptMod.fireRate;
       fireRate *= getTowerJamFireRateMult(tower.gridPos.col, tower.gridPos.row, jammerAuras);
       let skillDamageMultiplier = 1;
       let skillChainMultiplier = 1;
@@ -208,7 +214,7 @@ export const createUpdateTowers =
 
       const cooldown = 1000 / fireRate;
 
-      const range = towerData.range * statBonus.rangeMultiplier * talentRangeMult * protocolMods.rangeMult * synergyMods.rangeMult;
+      const range = towerData.range * statBonus.rangeMultiplier * talentRangeMult * protocolMods.rangeMult * synergyMods.rangeMult * scriptMod.range;
       const rangeSq = range * range;
       const tcol = tower.gridPos.col;
       const trow = tower.gridPos.row;
@@ -279,7 +285,7 @@ export const createUpdateTowers =
         }
 
         const rawDamage = towerData.damage || 0;
-        const baseDamage = rawDamage * statBonus.damageMultiplier * talentDamageMult * skillDamageMultiplier * synergyMods.damageMult * protocolMods.damageMult;
+        const baseDamage = rawDamage * statBonus.damageMultiplier * talentDamageMult * skillDamageMultiplier * synergyMods.damageMult * protocolMods.damageMult * scriptMod.damage;
         const totalCritChance = Math.min(1, (towerData.critChance || 0) + talentMods.criticalChance + protocolMods.critChanceAdd);
         const isCrit = totalCritChance > 0 && Math.random() < totalCritChance;
         const critMult = (towerData.critMultiplier || 2.0) + (talentMods.criticalDamage - 1);
@@ -343,7 +349,7 @@ export const createUpdateTowers =
 
       // 火焰塔：持續噴射傷害（不發射子彈）+ 施加燃燒效果
       if (towerData.flameEffect && towerData.damagePerSecond && target) {
-        const dps = towerData.damagePerSecond * statBonus.damageMultiplier * talentDamageMult * synergyMods.damageMult * protocolMods.damageMult;
+        const dps = towerData.damagePerSecond * statBonus.damageMultiplier * talentDamageMult * synergyMods.damageMult * protocolMods.damageMult * scriptMod.damage;
         const flameDamage = dps * (deltaTime / 1000);
         const burnDps = dps * 0.3;
         const burnDuration = 3000;
@@ -412,7 +418,7 @@ export const createUpdateTowers =
 
       // 計算傷害（含等級加成）
       const rawDamage = towerData.damage || towerData.damagePerSecond || 0;
-      const baseDamage = rawDamage * statBonus.damageMultiplier * talentDamageMult * skillDamageMultiplier * synergyMods.damageMult * protocolMods.damageMult;
+      const baseDamage = rawDamage * statBonus.damageMultiplier * talentDamageMult * skillDamageMultiplier * synergyMods.damageMult * protocolMods.damageMult * scriptMod.damage;
 
       // 暴擊（塔暴擊 + 天賦暴擊累加）
       const totalCritChance = Math.min(1, (towerData.critChance || 0) + talentMods.criticalChance + protocolMods.critChanceAdd);

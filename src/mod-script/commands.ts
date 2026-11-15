@@ -4,10 +4,16 @@
  * 所有數值都已由沙箱夾限；這裡再檢查一次「敵人類型存在」，避免腳本亂丟未知 id。
  */
 import type { ModScriptCommand } from '@/types/modScript';
-import type { StatusEffect } from '@/types/game';
+import type { StatusEffect, Tower } from '@/types/game';
+import { applyScriptTowerMod } from '@/data/scriptTowerMods';
 import { PROTOCOL_HEALTH_CAP_BONUS } from '@/data/tacticalProtocolData';
 import { useModScriptStore } from '@/store/modScriptStore';
 import { MOD_SCRIPT_LIMITS } from './limits';
+
+/** 依格子座標找塔（腳本指令用；座標是 (col,row) 但呼叫端習慣 row,col，這裡統一收 row,col） */
+function findTowerAt(towers: readonly Tower[], row: number, col: number): Tower | undefined {
+  return towers.find((tower) => tower.gridPos.row === row && tower.gridPos.col === col);
+}
 
 interface ApplyCommandResult {
   applied: number;
@@ -80,6 +86,47 @@ export async function applyModScriptCommands(
       }
       case 'setScriptState': {
         useModScriptStore.getState().setScriptState(source.scriptId, command.key, command.value);
+        applied += 1;
+        break;
+      }
+      case 'addScore': {
+        useGameStore.setState((state) => ({ score: Math.max(0, state.score + command.amount) }));
+        applied += 1;
+        break;
+      }
+      case 'modifyTower': {
+        useGameStore.setState((state) => ({
+          scriptTowerMods: applyScriptTowerMod(
+            state.scriptTowerMods,
+            command.scope,
+            command.stat,
+            command.multiplier,
+          ),
+        }));
+        applied += 1;
+        break;
+      }
+      case 'upgradeTowerAt': {
+        const target = findTowerAt(useGameStore.getState().towers, command.row, command.col);
+        if (!target) {
+          log('warn', `座標 (${command.col}, ${command.row}) 沒有塔，升級指令已忽略`);
+          skipped += 1;
+          break;
+        }
+        // 腳本升級：Lv2 需要路線，未指定時預設 A 路線
+        const upgraded = useGameStore.getState().upgradeTower(target, target.upgradePath ?? 'A');
+        if (upgraded) applied += 1;
+        else skipped += 1;
+        break;
+      }
+      case 'sellTowerAt': {
+        const target = findTowerAt(useGameStore.getState().towers, command.row, command.col);
+        if (!target) {
+          log('warn', `座標 (${command.col}, ${command.row}) 沒有塔，出售指令已忽略`);
+          skipped += 1;
+          break;
+        }
+        useGameStore.getState().sellTower(target);
         applied += 1;
         break;
       }

@@ -74,7 +74,8 @@ export const useGameStore = create<GameStore>()(
   money: GAME_CONSTANTS.INITIAL_MONEY,
   health: GAME_CONSTANTS.INITIAL_HEALTH,
   score: 0,
-  
+  scriptTowerMods: {},
+
   currentWave: 0,
   waveActive: false,
   enemiesRemaining: 0,

@@ -19,6 +19,11 @@ export const MOD_SCRIPT_HOOKS: ModScriptHook[] = [
   'onTowerSold',
   'onBossSpawn',
   'onMoneyChanged',
+  'onTowerUpgraded',
+  'onEnemySpawned',
+  'onSkillUsed',
+  'onBossKilled',
+  'onWavePrepared',
 ];
 
 /** 全部權限 */
@@ -28,6 +33,7 @@ export const MOD_SCRIPT_PERMISSIONS: ModScriptPermission[] = [
   'base.health',
   'enemy.spawn',
   'enemy.modify',
+  'tower.modify',
   'log',
   'storage',
 ];

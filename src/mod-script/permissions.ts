@@ -13,6 +13,10 @@ const COMMAND_PERMISSION: Record<ModScriptCommand['kind'], ModScriptPermission> 
   spawnEnemy: 'enemy.spawn',
   applyStatus: 'enemy.modify',
   setScriptState: 'storage',
+  addScore: 'economy',
+  modifyTower: 'tower.modify',
+  upgradeTowerAt: 'tower.modify',
+  sellTowerAt: 'tower.modify',
 };
 
 export function requiredPermission(kind: ModScriptCommand['kind']): ModScriptPermission {
@@ -43,6 +47,8 @@ const API_USAGE_RULES: ApiUsageRule[] = [
   { pattern: /api\s*\.\s*money\s*\./, permission: 'economy' },
   { pattern: /api\s*\.\s*base\s*\./, permission: 'base.health' },
   { pattern: /api\s*\.\s*spawn\s*\./, permission: 'enemy.spawn' },
+  { pattern: /api\s*\.\s*score\s*\./, permission: 'economy' },
+  { pattern: /api\s*\.\s*tower\s*\./, permission: 'tower.modify' },
   { pattern: /api\s*\.\s*status\s*\./, permission: 'enemy.modify' },
   { pattern: /api\s*\.\s*log\s*\(/, permission: 'log' },
   { pattern: /api\s*\.\s*store\s*\./, permission: 'storage' },
