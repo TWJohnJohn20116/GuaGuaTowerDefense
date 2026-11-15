@@ -107,7 +107,67 @@ function onWaveStart(ctx, api) {
 - `src/test/modScriptRng.test.ts`：同 seed 同序列、`int` 範圍、`pick` 邊界。
 - `src/test/modValidationScript.test.ts`：空程式碼／語法錯／無 hook／缺權限／ID 重複。
 
-## 8. 已知未做（下一步）
+## 8. 之後補完的五項（2026-11-15 第二輪）
+
+### 8.1 三個新 hook
+
+| hook | 觸發點 | 節流 |
+|---|---|---|
+| `onTowerSold` | `sellTower()` 成功後（帶 refund `amount`） | 無 |
+| `onBossSpawn` | `spawnEnemy()` 生成 boss／miniboss（含自訂敵人映回的基底） | 無 |
+| `onMoneyChanged` | 訂閱 store 的 `money` 欄位，不是逐處插樁 | 250ms（`moneyNotifyIntervalMs`） |
+
+金錢事件刻意用「單一訂閱點 + 節流」：金錢在一次結算裡可能被改很多次，逐筆派發會把 Worker 塞爆。
+
+### 8.2 腳本自訂狀態槽
+
+- `api.store.get(key)` / `set(key, value)` / `all()`，需要 `storage` 權限。
+- 只接受 JSON 純量（string / number / boolean / null），字串上限 512 字元、最多 32 個鍵。
+- 存在 `modScriptStore.scriptState`，跟隨 `guagua-mod-scripts` persist；重開程式仍在。
+- 編輯器提供「清除腳本狀態（n 鍵）」按鈕。
+
+### 8.3 語法高亮與自動完成（無新依賴）
+
+- `scriptHighlight.ts`：自己寫的小 tokenizer（註解／字串／數字／關鍵字／api／函式名），
+  契約是「token 串接後必須等於原文」，有單元測試守住。
+- `ScriptCodeEditor.tsx`：`<pre>` 疊層上色 + 透明 textarea 輸入 + 捲動同步；
+  `Ctrl+Space` 開自動完成（20 個 API 入口，右側標需要哪個權限）。
+- 刻意**沒有**引入 CodeMirror／Monaco：專案規則要求新增依賴前先問，而這裡的需求用 150 行就夠。
+
+### 8.4 簽章與信任
+
+- `signing.ts`：ECDSA P-256 + SHA-256，公鑰以 SPKI base64 夾帶在 `mod.signature`。
+- `canonicalizeMod`：遞迴鍵排序、略過 `signature`；前端與 CLI 必須用同一份規則。
+- CLI：`node scripts/mod-sign.mjs keygen|sign|verify`（Node 端用 `ieee-p1363`，否則 WebCrypto 驗不過）。
+- 信任模式：`all`（預設，本機自寫）／`signed`（簽章有效且公鑰指紋已被信任）。
+  編輯器顯示簽章狀態、指紋，並可「信任這把金鑰」。
+- 驗簽快取：`modId → bool`，信任模式或指紋清單變更時整批失效。
+
+### 8.5 Tauri CSP
+
+`app.security.csp` 從 `null` 收窄成白名單：
+
+- `script-src 'self' 'unsafe-eval' blob:`（`new Function` 與 Worker 需要）
+- `worker-src 'self' blob:`
+- `connect-src` 只放行 `ipc:`、`http://ipc.localhost`、Jamendo／Freesound／GitHub API
+- `img-src`／`media-src` 允許 `data:`、`blob:`、`https:`（封面圖與音樂串流）
+
+**回滾**：把 `src-tauri/tauri.conf.json` 的 `security.csp` 改回 `null` 即可。
+改 CSP 後一定要實際啟動桌面版點過一輪（音樂、更新檢查、圖片、腳本 Worker），
+CSP 錯誤在 webview 裡通常只表現成白畫面或資源靜默失敗。
+
+### 8.6 自訂敵人可生成
+
+- `getEnemyData(type)`：內建優先 → 已啟用 mod 的自訂敵人 → 退回 `normal`（永不放 undefined 進戰鬥）。
+- `inferEnemyBaseType(data)`：把 `ability`（flying／healing／shield…）映回內建基底 type，
+  讓引擎既有的能力分支照常運作。
+- `Enemy.originType` 記住原始 mod id；外觀、名稱、數值一律走 `getEnemyData(originType ?? type)`。
+- data 層（`enemyVisibility`、`renderSnapshot`）不能 import store，所以用
+  `enemyDataProvider` 注入解析器（與 audio prefs 的注入模式一致）。
+- 波次編輯器的敵人選擇器多了 `MOD` 群組；`WaveConfig.enemies[].type` 放寬為 `string`。
+- 腳本 `api.spawn.enemy` 現在接受自訂敵人 id（`isKnownEnemyType` 驗證）。
+
+## 9. 已知未做（下一步）
 
 1. 腳本專屬 CSP 與簽章（開放下載他人 mod 前必須）。
 2. 更細的 hook：`onTowerSold`、`onBossSpawn`、`onMoneyChanged`（後者要節流，否則高頻）。
