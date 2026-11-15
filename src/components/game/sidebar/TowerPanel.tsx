@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useGameStore } from '@/store/gameStore';
 import { useTutorialStore, INTERACTIVE_TUTORIAL_STEPS } from '@/store/tutorialStore';
 import { useModStore } from '@/store/modStore';
@@ -12,10 +13,9 @@ import {
   TargetIcon,
   RobotIcon, GearIcon, UndoIcon, RedoIcon, PinIcon,
 } from '@/components/ui/Icons';
-import { AIStatusHeader } from './AIStatusHeader';
 import { AdvancedOptionsPanel } from './AdvancedOptionsPanel';
 import { canRedoPlacement, canUndoPlacement } from '@/store/placementHistory';
-import { BD_LABEL } from '../hudBoard';
+import { BD_LABEL, BD_SHEET } from '../hudBoard';
 
 /**
  * 左側塔輪盤（棋盤語彙）
@@ -139,8 +139,6 @@ export const TowerPanel = () => {
 
   return (
     <>
-      <AIStatusHeader />
-
       {showCategories && (
         <div className="flex flex-col border-b border-[var(--bd-line)]">
           {([
@@ -275,7 +273,36 @@ export const TowerPanel = () => {
         </div>
       )}
 
-      {showToolbar && <AdvancedOptionsPanel show={showAdvanced} />}
+      {/* 進階選項：輪盤放不下，改成彈出的紙卡（點歯輪開啟） */}
+      {createPortal(
+        showAdvanced ? (
+          <div
+            className="fixed inset-0 z-[9998] flex items-center justify-center bg-[rgba(46,36,64,0.45)] p-4"
+            onClick={() => setShowAdvanced(false)}
+          >
+            <div
+              className={`${BD_SHEET} flex max-h-[80vh] w-full max-w-[360px] flex-col overflow-hidden`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <header className="flex items-center justify-between gap-2 border-b-[3px] border-[var(--cn-line-soft)] px-3 py-2">
+                <span className={BD_LABEL}>{t.game.moreOptions}</span>
+                <button
+                  type="button"
+                  aria-label={t.common.close}
+                  onClick={() => setShowAdvanced(false)}
+                  className="flex h-6 w-6 items-center justify-center rounded-full border-[2px] border-[var(--cn-line)] text-[var(--cn-ink-3)] transition-colors hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)]"
+                >
+                  <span className="text-[11px] font-extrabold leading-none">×</span>
+                </button>
+              </header>
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                <AdvancedOptionsPanel show />
+              </div>
+            </div>
+          </div>
+        ) : null,
+        document.body,
+      )}
     </>
   );
 };

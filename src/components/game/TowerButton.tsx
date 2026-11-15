@@ -182,7 +182,7 @@ export const TowerButton = ({
         <div className={`flex h-full flex-col items-center justify-between gap-1 ${displayMode === 'compact' ? 'relative' : ''}`}>
           <TowerPreview towerId={towerId} size={sizeCfg.preview} />
 
-          {displayMode === 'compact' && (
+          {!isLocked && displayMode === 'compact' && (
             <div className="absolute bottom-0 right-0">
               <CostBadge
                 cost={displayCost}
@@ -192,7 +192,7 @@ export const TowerButton = ({
             </div>
           )}
 
-          {displayMode !== 'compact' && (
+          {!isLocked && displayMode !== 'compact' && (
             <>
               <div className={`${sizeCfg.nameSize} w-full truncate text-center font-medium leading-tight text-[var(--bd-ink)]`}>
                 {towerData.name}
@@ -205,7 +205,7 @@ export const TowerButton = ({
             </>
           )}
 
-          {displayMode === 'detailed' && (
+          {!isLocked && displayMode === 'detailed' && (
             <div className="grid w-full grid-cols-3 gap-px bg-[var(--bd-line)]">
               {[
                 { label: t.game.towerTooltipDamage, value: String(towerData.damage) },
@@ -235,8 +235,8 @@ export const TowerButton = ({
         )}
 
         {isLocked && (
-          <span className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-[var(--cn-r-md)] bg-[color-mix(in_oklab,var(--cn-paper)_74%,transparent)]">
-            <LockIcon className="h-4 w-4 text-[var(--cn-ink-4)]" />
+          <span className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-[var(--cn-r-md)] bg-[var(--cn-paper)]">
+            <LockIcon className="h-4 w-4 text-[var(--cn-ink-3)]" />
           </span>
         )}
 
