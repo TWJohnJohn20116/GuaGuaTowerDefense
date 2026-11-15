@@ -9,12 +9,13 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 import { useWorkshopStore } from '@/store/workshopStore';
-import { Btn, Deck, Empty, Num, SegHead } from '@/components/hl';
+import { Btn, Deck, Empty, Input, Num, SegHead } from '@/components/hl';
 import { WarningIcon } from '@/components/ui/Icons';
 import { ENEMY_DATA } from '@/data/gameData';
 import { RosterPanel, type RosterAsset } from '@/components/workshop/content/RosterPanel';
 import { WaveInspector } from '@/components/workshop/content/WaveInspector';
 import { WaveTimeline } from '@/components/workshop/content/WaveTimeline';
+import { DEFAULT_WAVE_FORMULA, describeFormula, generateWaves } from '@/workshop/content/waveFormula';
 import {
   appendBlock,
   buildCurve,
@@ -52,6 +53,7 @@ export function ContentPage({ projectId }: ContentPageProps) {
     levelId && levels.some((item) => item.id === levelId) ? levelId : levels[0]?.id ?? null;
 
   const [waveIndex, setWaveIndex] = useState<number | null>(null);
+  const [formula, setFormula] = useState(DEFAULT_WAVE_FORMULA);
   const [blockId, setBlockId] = useState<string | null>(null);
 
   const level = pickedLevelId ? getLevel(projectId, pickedLevelId) : null;
@@ -174,6 +176,62 @@ export function ContentPage({ projectId }: ContentPageProps) {
           </div>
         }
       />
+
+      <Deck className="flex flex-wrap items-end gap-2 p-2">
+        <span className="arc-label shrink-0">{c.formula.title}</span>
+        <label className="flex flex-col gap-0.5">
+          <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.formula.waves}</span>
+          <Input
+            type="number"
+            min={1}
+            max={200}
+            value={formula.waves}
+            onChange={(event) => setFormula((prev) => ({ ...prev, waves: Number(event.target.value) || 1 }))}
+            className="h-7 w-16 px-1 text-right font-mono text-[11px]"
+          />
+        </label>
+        <label className="flex flex-col gap-0.5">
+          <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.formula.growth}</span>
+          <Input
+            type="number"
+            min={0}
+            max={50}
+            value={formula.countGrowth}
+            onChange={(event) => setFormula((prev) => ({ ...prev, countGrowth: Number(event.target.value) || 0 }))}
+            className="h-7 w-16 px-1 text-right font-mono text-[11px]"
+          />
+        </label>
+        <label className="flex flex-col gap-0.5">
+          <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.formula.bossEvery}</span>
+          <Input
+            type="number"
+            min={0}
+            max={50}
+            value={formula.bossEvery}
+            onChange={(event) => setFormula((prev) => ({ ...prev, bossEvery: Number(event.target.value) || 0 }))}
+            className="h-7 w-16 px-1 text-right font-mono text-[11px]"
+          />
+        </label>
+        <label className="flex flex-col gap-0.5">
+          <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.formula.bossCount}</span>
+          <Input
+            type="number"
+            min={1}
+            max={20}
+            value={formula.bossCount}
+            onChange={(event) => setFormula((prev) => ({ ...prev, bossCount: Number(event.target.value) || 1 }))}
+            className="h-7 w-16 px-1 text-right font-mono text-[11px]"
+          />
+        </label>
+        <Btn
+          size="sm"
+          variant="signal"
+          onClick={() => commit(configsToTimelineWaves(generateWaves(formula)))}
+        >
+          {c.formula.generate}
+        </Btn>
+        <span className="arc-micro">{describeFormula(formula)}</span>
+      </Deck>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_380px]">
         <Deck className="flex min-h-0 flex-col gap-2 p-3">

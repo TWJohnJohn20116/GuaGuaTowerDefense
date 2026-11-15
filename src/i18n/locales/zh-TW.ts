@@ -670,6 +670,14 @@ export const zhTW = {
       },
     },
     content: {
+      formula: {
+        title: '波次公式',
+        waves: '波數',
+        growth: '每波增加',
+        bossEvery: '每幾波出王',
+        bossCount: '王數量',
+        generate: '依公式生成',
+      },
       title: '內容',
       timeline: '波次時間軸',
       roster: '陣容',
