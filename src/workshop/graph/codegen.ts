@@ -127,6 +127,67 @@ function valueExpression(ctx: EmitContext, node: GraphNode, stack: readonly stri
       return '(api.state.enemyCount ' + compareOp(node.params.op) + ' ' + Math.round(num(node.params.count, 0)) + ')';
     case 'cond.money':
       return '(api.state.money ' + compareOp(node.params.op) + ' ' + Math.round(num(node.params.amount, 0)) + ')';
+    case 'cond.and': {
+      const [a, b] = operands(['a', 'b'], [1, 1]);
+      return '(' + a + ' && ' + b + ')';
+    }
+    case 'cond.or': {
+      const [a, b] = operands(['a', 'b'], [0, 0]);
+      return '(' + a + ' || ' + b + ')';
+    }
+    case 'cond.not': {
+      const [a] = operands(['a'], [1]);
+      return '(!' + a + ')';
+    }
+    case 'cond.wave':
+      return '(api.state.wave ' + compareOp(node.params.op) + ' ' + Math.round(num(node.params.value, 1)) + ')';
+    case 'cond.health':
+      return '(api.state.health ' + compareOp(node.params.op) + ' ' + Math.round(num(node.params.value, 1)) + ')';
+    case 'cond.towerCount':
+      return '(api.state.towerCount ' + compareOp(node.params.op) + ' ' + Math.round(num(node.params.value, 1)) + ')';
+    case 'cond.elapsed':
+      return '((api.state.elapsedMs / 1000) ' + compareOp(node.params.op) + ' ' + num(node.params.seconds, 60) + ')';
+    case 'cond.enemyType': {
+      const type = str(node.params.enemyType, 'grunt').trim() || 'grunt';
+      return '((api.state.enemiesByType[' + jsString(type) + '] ?? 0) ' + compareOp(node.params.op) + ' ' + Math.round(num(node.params.value, 1)) + ')';
+    }
+    case 'cond.difficulty': {
+      const difficulty = str(node.params.difficulty, 'normal').trim() || 'normal';
+      const op = str(node.params.op, '===') === '!==' ? '!==' : '===';
+      return '(api.state.difficulty ' + op + ' ' + jsString(difficulty) + ')';
+    }
+    case 'cond.endless':
+      return '(api.state.endless === ' + (str(node.params.value, 'true') === 'true' ? 'true' : 'false') + ')';
+    case 'cond.varCompare':
+      return '(Number(api.store.get(' + jsString(storeKey(node)) + ') ?? 0) ' + compareOp(node.params.op) + ' ' + num(node.params.value, 0) + ')';
+    case 'num.wave':
+      return 'api.state.wave';
+    case 'num.health':
+      return 'api.state.health';
+    case 'num.money':
+      return 'api.state.money';
+    case 'num.towerCount':
+      return 'api.state.towerCount';
+    case 'num.enemyCount':
+      return 'api.state.enemyCount';
+    case 'num.elapsedSec':
+      return '(api.state.elapsedMs / 1000)';
+    case 'num.min': {
+      const [a, b] = operands(['a', 'b'], [0, 0]);
+      return 'Math.min(' + a + ', ' + b + ')';
+    }
+    case 'num.max': {
+      const [a, b] = operands(['a', 'b'], [0, 0]);
+      return 'Math.max(' + a + ', ' + b + ')';
+    }
+    case 'num.clamp': {
+      const [value, low, high] = operands(['value', 'min', 'max'], [0, 0, 100]);
+      return 'Math.min(Math.max(' + value + ', ' + low + '), ' + high + ')';
+    }
+    case 'num.round': {
+      const [value] = operands(['value'], [0]);
+      return 'Math.round(' + value + ')';
+    }
     default:
       return '0';
   }
@@ -270,6 +331,24 @@ function emitChain(ctx: EmitContext, nodeId: string, visited: Set<string>): void
       const edges = flowEdges(ctx.graph, node.id, 'out');
       if (edges.length === 0) pushLine(ctx, '/* empty */');
       for (const edge of edges) emitChain(ctx, edge.to, visited);
+      ctx.depth -= 1;
+      pushLine(ctx, '}');
+      return;
+    }
+    case 'action.clearVar': {
+      const key = jsString(storeKey(node));
+      pushLine(ctx, 'api.store.set(' + key + ', null);');
+      break;
+    }
+    case 'flow.once': {
+      const index = nextCounter(ctx);
+      const key = jsString('__graphOnce' + index);
+      pushLine(ctx, 'if (api.store.get(' + key + ') !== 1) {');
+      ctx.depth += 1;
+      pushLine(ctx, 'api.store.set(' + key + ', 1);');
+      const onceEdges = flowEdges(ctx.graph, node.id, 'out');
+      if (onceEdges.length === 0) pushLine(ctx, '/* empty */');
+      for (const edge of onceEdges) emitChain(ctx, edge.to, visited);
       ctx.depth -= 1;
       pushLine(ctx, '}');
       return;

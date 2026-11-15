@@ -408,6 +408,234 @@ const VALUE_SPECS: readonly GraphNodeSpec[] = [
   },
 ];
 
+/* ------------------------------------------------- 第二輪新增節點
+ *
+ * 這一整批都是「純 UI／編譯」：只讀 ModScriptStateSnapshot、只用既有 7 種指令，
+ * 不需要動執行期、不需要新權限（除了變數讀寫沿用 storage）。
+ */
+
+const BOOL_A = port('a', 'boolean', 'studio.graph.port.a');
+const BOOL_B = port('b', 'boolean', 'studio.graph.port.b');
+const NUM_A = port('a', 'number', 'studio.graph.port.a');
+const NUM_B = port('b', 'number', 'studio.graph.port.b');
+
+const AND_SPEC: GraphNodeSpec = {
+  type: 'cond.and',
+  category: 'condition',
+  labelKey: 'studio.graph.node.condAnd',
+  descriptionKey: 'studio.graph.node.condAnd.desc',
+  glyph: '&&',
+  inputs: [BOOL_A, BOOL_B],
+  outputs: [BOOL_VALUE],
+  params: [],
+};
+
+const OR_SPEC: GraphNodeSpec = {
+  type: 'cond.or',
+  category: 'condition',
+  labelKey: 'studio.graph.node.condOr',
+  descriptionKey: 'studio.graph.node.condOr.desc',
+  glyph: '||',
+  inputs: [BOOL_A, BOOL_B],
+  outputs: [BOOL_VALUE],
+  params: [],
+};
+
+const NOT_SPEC: GraphNodeSpec = {
+  type: 'cond.not',
+  category: 'condition',
+  labelKey: 'studio.graph.node.condNot',
+  descriptionKey: 'studio.graph.node.condNot.desc',
+  glyph: '!',
+  inputs: [BOOL_A],
+  outputs: [BOOL_VALUE],
+  params: [],
+};
+
+/** 讀快照的條件：門檻比對一律「運算子 + 數值」兩個參數 */
+function thresholdParams(valueKey: string, labelKey: string, value: number, min: number, max: number): GraphParamSpec[] {
+  return [
+    selectParam('op', 'studio.graph.param.op', '>=', COMPARE_OPTIONS),
+    numberParam(valueKey, labelKey, value, min, max),
+  ];
+}
+
+const STATE_COND_SPECS: readonly GraphNodeSpec[] = [
+  {
+    type: 'cond.wave',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condWave',
+    descriptionKey: 'studio.graph.node.condWave.desc',
+    glyph: 'WV',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: thresholdParams('value', 'studio.graph.param.wave', 3, 1, 999),
+  },
+  {
+    type: 'cond.health',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condHealth',
+    descriptionKey: 'studio.graph.node.condHealth.desc',
+    glyph: 'HP',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: thresholdParams('value', 'studio.graph.param.health', 10, 0, 9999),
+  },
+  {
+    type: 'cond.towerCount',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condTowerCount',
+    descriptionKey: 'studio.graph.node.condTowerCount.desc',
+    glyph: 'TC',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: thresholdParams('value', 'studio.graph.param.count', 5, 0, 999),
+  },
+  {
+    type: 'cond.elapsed',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condElapsed',
+    descriptionKey: 'studio.graph.node.condElapsed.desc',
+    glyph: 'TM',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: thresholdParams('seconds', 'studio.graph.param.seconds', 60, 0, 99999),
+  },
+  {
+    type: 'cond.enemyType',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condEnemyType',
+    descriptionKey: 'studio.graph.node.condEnemyType.desc',
+    glyph: 'ET',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: [
+      textParam('enemyType', 'studio.graph.param.enemyType', 'grunt'),
+      selectParam('op', 'studio.graph.param.op', '>=', COMPARE_OPTIONS),
+      numberParam('value', 'studio.graph.param.count', 1, 0, 999),
+    ],
+  },
+  {
+    type: 'cond.difficulty',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condDifficulty',
+    descriptionKey: 'studio.graph.node.condDifficulty.desc',
+    glyph: 'DF',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: [
+      textParam('difficulty', 'studio.graph.param.difficulty', 'normal'),
+      selectParam('op', 'studio.graph.param.op', '===', [
+        { value: '===', labelKey: 'studio.graph.op.eq' },
+        { value: '!==', labelKey: 'studio.graph.op.ne' },
+      ]),
+    ],
+  },
+  {
+    type: 'cond.endless',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condEndless',
+    descriptionKey: 'studio.graph.node.condEndless.desc',
+    glyph: 'EN',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: [
+      selectParam('value', 'studio.graph.param.expect', 'true', [
+        { value: 'true', labelKey: 'studio.graph.opt.yes' },
+        { value: 'false', labelKey: 'studio.graph.opt.no' },
+      ]),
+    ],
+  },
+  {
+    type: 'cond.varCompare',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condVarCompare',
+    descriptionKey: 'studio.graph.node.condVarCompare.desc',
+    glyph: 'VC',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: [
+      textParam('key', 'studio.graph.param.storeKey', 'counter'),
+      selectParam('op', 'studio.graph.param.op', '>=', COMPARE_OPTIONS),
+      numberParam('value', 'studio.graph.param.value', 1, -99999, 99999),
+    ],
+    permissions: ['storage'],
+  },
+];
+
+const ONCE_SPEC: GraphNodeSpec = {
+  type: 'flow.once',
+  category: 'flow',
+  labelKey: 'studio.graph.node.once',
+  descriptionKey: 'studio.graph.node.once.desc',
+  glyph: 'ON',
+  inputs: [FLOW_IN],
+  outputs: [FLOW_OUT],
+  params: [],
+  permissions: ['storage'],
+};
+
+const CLEAR_VAR_SPEC: GraphNodeSpec = {
+  type: 'action.clearVar',
+  category: 'action',
+  labelKey: 'studio.graph.node.clearVar',
+  descriptionKey: 'studio.graph.node.clearVar.desc',
+  glyph: 'CV',
+  inputs: [FLOW_IN],
+  outputs: [FLOW_OUT],
+  params: [textParam('key', 'studio.graph.param.storeKey', '')],
+  permissions: ['storage'],
+};
+
+/** 讀快照的數值來源：沒有任何參數，接了就有值 */
+function stateValueSpec(type: string, labelKey: string, glyph: string): GraphNodeSpec {
+  return {
+    type,
+    category: 'value',
+    labelKey: 'studio.graph.node.' + labelKey,
+    descriptionKey: 'studio.graph.node.' + labelKey + '.desc',
+    glyph,
+    inputs: [],
+    outputs: [NUM_VALUE],
+    params: [],
+  };
+}
+
+function mathSpec(
+  type: string,
+  labelKey: string,
+  glyph: string,
+  inputs: GraphPort[],
+): GraphNodeSpec {
+  return {
+    type,
+    category: 'value',
+    labelKey: 'studio.graph.node.' + labelKey,
+    descriptionKey: 'studio.graph.node.' + labelKey + '.desc',
+    glyph,
+    inputs,
+    outputs: [NUM_VALUE],
+    params: [],
+  };
+}
+
+const STATE_VALUE_SPECS: readonly GraphNodeSpec[] = [
+  stateValueSpec('num.wave', 'numWave', 'NW'),
+  stateValueSpec('num.health', 'numHealth', 'NH'),
+  stateValueSpec('num.money', 'numMoney', 'NM'),
+  stateValueSpec('num.towerCount', 'numTowerCount', 'NT'),
+  stateValueSpec('num.enemyCount', 'numEnemyCount', 'NE'),
+  stateValueSpec('num.elapsedSec', 'numElapsedSec', 'NS'),
+  mathSpec('num.min', 'numMin', 'MN', [NUM_A, NUM_B]),
+  mathSpec('num.max', 'numMax', 'MX', [NUM_A, NUM_B]),
+  mathSpec('num.clamp', 'numClamp', 'CL', [
+    port('value', 'number', 'studio.graph.port.value'),
+    port('min', 'number', 'studio.graph.param.min'),
+    port('max', 'number', 'studio.graph.param.max'),
+  ]),
+  mathSpec('num.round', 'numRound', 'RD', [port('value', 'number', 'studio.graph.port.value')]),
+];
+
 const JS_SPEC: GraphNodeSpec = {
   type: 'js.node',
   category: 'js',
@@ -427,9 +655,16 @@ const NODE_LIBRARY: readonly GraphNodeSpec[] = [
   COMPARE,
   ENEMY_COUNT,
   MONEY_COND,
+  AND_SPEC,
+  OR_SPEC,
+  NOT_SPEC,
+  ...STATE_COND_SPECS,
   ...ACTION_SPECS,
+  CLEAR_VAR_SPEC,
   ...FLOW_SPECS,
+  ONCE_SPEC,
   ...VALUE_SPECS,
+  ...STATE_VALUE_SPECS,
   JS_SPEC,
 ];
 
