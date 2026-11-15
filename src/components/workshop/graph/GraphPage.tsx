@@ -11,7 +11,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type React from 'react';
 import { useTranslation } from '@/i18n';
 import { useWorkshopStore } from '@/store/workshopStore';
-import { Btn, Chip } from '@/components/hl/controls';
+import { Btn, Chip, Input } from '@/components/hl/controls';
 import { Deck, Empty, SegHead } from '@/components/hl/surface';
 import { SelectableRow } from '@/components/ui/SelectableRow';
 import type { AssetRef, WorkshopAsset, WorkshopScriptData } from '@/types/workshop';
@@ -88,6 +88,7 @@ export function GraphPage({ projectId, levelId }: GraphPageProps): React.ReactEl
   const [panel, setPanel] = useState<'table' | 'code'>('table');
   const [selection, setSelection] = useState<GraphSelection>({ nodes: [], edges: [] });
   const [paletteType, setPaletteType] = useState<string>('action.addMoney');
+  const [paletteQuery, setPaletteQuery] = useState('');
   const [addCount, setAddCount] = useState(0);
 
   const scopeRefId =
@@ -301,10 +302,22 @@ export function GraphPage({ projectId, levelId }: GraphPageProps): React.ReactEl
       </Deck>
 
       <div className="flex min-h-0 flex-1 gap-2">
-        <Deck className="flex w-[196px] shrink-0 flex-col gap-2 overflow-y-auto p-2">
+        <Deck className="flex w-[236px] shrink-0 flex-col gap-2 overflow-y-auto p-2">
           <SegHead label={studioText(t, 'studio.graph.palette.title')} />
+          <Input
+            value={paletteQuery}
+            onChange={(event) => setPaletteQuery(event.target.value)}
+            placeholder={studioText(t, 'studio.graph.palette.search')}
+            className="h-7 w-full px-1.5 text-[11px]"
+          />
           {PALETTE_CATEGORIES.map((entry) => {
-            const specs = nodeSpecsByCategory(entry.category);
+            const query = paletteQuery.trim().toLowerCase();
+            const specs = nodeSpecsByCategory(entry.category).filter((spec) => {
+              if (!query) return true;
+              const label = studioText(t, spec.labelKey).toLowerCase();
+              const desc = spec.descriptionKey ? studioText(t, spec.descriptionKey).toLowerCase() : '';
+              return label.includes(query) || desc.includes(query) || spec.type.toLowerCase().includes(query);
+            });
             if (specs.length === 0) return null;
             return (
               <div key={entry.category} className="flex flex-col gap-1">
@@ -317,15 +330,39 @@ export function GraphPage({ projectId, levelId }: GraphPageProps): React.ReactEl
                     active={paletteType === spec.type}
                     onClick={() => addFromPalette(spec.type)}
                     tone="coral"
-                    className="gap-2 rounded-[9px] border-2 px-2 py-1 text-[12px] font-extrabold"
+                    title={spec.type}
+                    className="items-start gap-2 rounded-[9px] border-2 px-2 py-1 text-left"
                   >
-                    <span className="w-6 shrink-0 text-center font-mono text-[10px]">{spec.glyph}</span>
-                    <span className="min-w-0 truncate">{studioText(t, spec.labelKey)}</span>
+                    <span className="w-6 shrink-0 pt-0.5 text-center font-mono text-[10px]">{spec.glyph}</span>
+                    <span className="flex min-w-0 flex-col">
+                      <span className="truncate text-[11.5px] font-extrabold">
+                        {studioText(t, spec.labelKey)}
+                      </span>
+                      {spec.descriptionKey && (
+                        <span className="line-clamp-2 text-[9.5px] font-normal leading-tight text-[var(--cn-ink-3)]">
+                          {studioText(t, spec.descriptionKey)}
+                        </span>
+                      )}
+                    </span>
                   </SelectableRow>
                 ))}
               </div>
             );
           })}
+          {paletteQuery.trim().length > 0 &&
+            PALETTE_CATEGORIES.every(
+              (entry) =>
+                !nodeSpecsByCategory(entry.category).some((spec) => {
+                  const query = paletteQuery.trim().toLowerCase();
+                  const label = studioText(t, spec.labelKey).toLowerCase();
+                  const desc = spec.descriptionKey ? studioText(t, spec.descriptionKey).toLowerCase() : '';
+                  return label.includes(query) || desc.includes(query) || spec.type.toLowerCase().includes(query);
+                }),
+            ) && (
+              <p className="font-mono text-[10px] text-[var(--cn-ink-3)]">
+                {studioText(t, 'studio.graph.palette.noMatch')}
+              </p>
+            )}
         </Deck>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">

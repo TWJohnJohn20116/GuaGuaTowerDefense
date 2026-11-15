@@ -262,6 +262,8 @@ export const zhTW = {
       },
       palette: {
         title: '節點庫',
+        search: '搜尋節點…',
+        noMatch: '沒有符合的節點',
         events: '事件',
         conditions: '條件',
         actions: '動作',
