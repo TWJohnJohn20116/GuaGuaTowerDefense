@@ -494,6 +494,19 @@ export interface WaveConfig {
   /** 敵人類型：內建 EnemyType，或已啟用 mod 的自訂敵人 id */
   enemies: { type: string; count: number; delay: number }[];
   reward: number;
+  /**
+   * 血量倍率（絕對值）：敵人基礎血量 × 此值，缺省＝1。
+   * 只乘在生成時的 health/maxHealth，不動速度與賞金。
+   */
+  hpScale?: number;
+  /** 該波組內生成間隔（毫秒）：覆寫全域 ENEMY_SPAWN_DELAY，缺省＝用全域常數 */
+  intervalMs?: number;
+  /** false＝停用：編譯期歸零（不生成、不給獎勵），波數仍保留，缺省＝啟用 */
+  enabled?: boolean;
+  /** 章節標籤：只影響工坊編輯器分組顯示，引擎不讀 */
+  chapter?: string;
+  /** 作者自訂波次名稱；缺省＝「第 N 波」 */
+  name?: string;
 }
 
 // 地图格子类型
