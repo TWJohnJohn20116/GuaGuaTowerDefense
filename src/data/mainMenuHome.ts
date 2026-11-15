@@ -1,74 +1,113 @@
 /**
- * 主選單 · 版面規格
+ * 主選單 · 版面規格（同心拼貼）
  *
- * 版面是「左欄招牌 + 右欄 bento 入口牆 + 底部遙測帶」。
- * bento = 12 欄網格、卡片跨不同欄數，行與行之間才有大小節奏；
- * 全部等寬的網格看起來整齊，但沒有主次，久了就死板。
+ * 骨架：品牌條橫貫頂部 → 中央 Hero 舞台（開始遊戲，6 欄 × 2 列）→
+ * 左右各一窄欄放兩塊快捷磚（上：金幣／天賦，下：成就／戰績）→
+ * 底部三群入口帶（戰鬥 5 欄／收藏 4 欄／後勤 3 欄）→ 最底一條細基線。
  *
- * 跨欄數只能用靜態類名（JIT 掃不到 `lg:col-span-${n}` 這種拼接），
- * 所以這裡放的是「欄數 → 類名」的對照表，元件端只查表不拼字串。
+ * 為什麼不是等寬網格：等寬只有整齊，沒有主次。玩家第一眼必須落在「開始遊戲」，
+ * 所以主行動拿走畫面正中央最大的一塊，入口退到四周與下方。
+ *
+ * 為什麼跨欄一律查表：Tailwind JIT 掃不到 `lg:col-start-${n}` 這種拼接，
+ * 動態類名必須以完整字串存在原始碼裡，否則 build 後那條 CSS 根本不存在。
  */
 
-/** 左欄招牌：桌機固定 392，行動版自動滿寬 */
-export const HOME_RAIL_CLASS =
-  'relative flex w-auto shrink-0 flex-col overflow-hidden rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] shadow-[0_5px_0_-1px_rgba(46,36,64,0.18)] lg:w-[392px]';
+/** 拼貼外框：窄螢幕單欄，桌機 12 欄 × 4 列（品牌／快捷與 Hero／快捷與 Hero／三群帶） */
+export const HOME_SHELL_CLASS =
+  'grid min-h-0 flex-1 grid-cols-1 content-start gap-2.5 overflow-y-auto lg:grid-cols-12 lg:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)_auto] lg:content-stretch lg:overflow-hidden';
 
-/** 右欄 bento 網格：窄螢幕 2 欄、桌機 12 欄 */
-export const HOME_GRID_CLASS =
-  'grid min-h-0 flex-1 auto-rows-[minmax(148px,auto)] grid-cols-2 gap-3 overflow-visible p-1 lg:auto-rows-fr lg:grid-cols-12 lg:overflow-y-auto';
+/** 品牌條：橫貫 12 欄，窄螢幕最上 */
+export const HOME_BRAND_CLASS = 'order-1 lg:order-none lg:col-span-12';
 
-/** 跨欄數：12 欄網格上的欄數 */
-type HomeEntrySpan = 2 | 3 | 4 | 5;
+/** Hero 舞台：桌機正中央 6 欄 × 2 列；窄螢幕排在品牌之後 */
+export const HOME_HERO_CLASS =
+  'order-2 min-h-0 lg:order-none lg:col-start-4 lg:col-end-10 lg:row-start-2 lg:row-end-4';
 
-/** 跨欄數 → 靜態類名（2/3 = 直式小磚，4/5 = 橫式大磚） */
-export const HOME_SPAN_CLASS: Record<HomeEntrySpan, string> = {
-  2: 'lg:col-span-2',
-  3: 'lg:col-span-3',
-  4: 'lg:col-span-4',
-  5: 'lg:col-span-5',
-};
+/** 快捷欄共同基底：桌機跨 2 列，窄螢幕兩欄並排 */
+const QUICK_COL_BASE = 'order-3 grid min-h-0 grid-cols-2 gap-2.5 lg:order-none lg:flex lg:flex-col lg:gap-2.5';
 
-/** 卡片尺寸檔：4 欄以上用橫式大磚，3 欄以下用直式小磚 */
-export type HomeEntrySize = 'tile' | 'compact';
+/** 左快捷欄（金幣／成就） */
+export const HOME_QUICK_LEFT_CLASS = QUICK_COL_BASE + ' lg:col-start-1 lg:col-end-4 lg:row-start-2 lg:row-end-4';
+
+/** 右快捷欄（天賦／戰績）：窄螢幕接在左欄之後 */
+export const HOME_QUICK_RIGHT_CLASS =
+  QUICK_COL_BASE + ' order-4 lg:order-none lg:col-start-10 lg:col-end-13 lg:row-start-2 lg:row-end-4';
+
+/** 三群入口帶：橫貫 12 欄 */
+export const HOME_GROUPS_CLASS = 'order-5 min-h-0 lg:order-none lg:col-span-12';
 
 /**
- * 入口順序 = 畫面順序，刻意排成三行：
- *   第 1 行 5 + 4 + 3（金幣／天賦／成就：有數值、會變動的優先）
- *   第 2 行 3 + 3 + 3 + 3（收藏與資料）
- *   第 3 行 4 + 4 + 2 + 2（紀錄與工具，跨度收窄收尾）
- * 三行都是 12 欄，但每行內部的切割不同，視線不會一路平滑到底。
+ * 三群：11 個入口全留，但高頻的 4 個（商店／天賦／成就／統計）升格成 Hero 環繞的快捷磚，
+ * 群組內不重複出現 —— 同一個目的地放兩塊磚，等於叫玩家猜差別在哪。
+ *
+ * span 是三群帶內部的 12 欄切割（5 + 4 + 3 = 12），刻意不等寬。
  */
-export const HOME_ENTRY_SCENES = [
+export type HomeGroupId = 'battle' | 'collection' | 'system';
+
+/** 群組磚的場景（快捷四塊不在群組內，避免同一目的地放兩塊磚） */
+export type HomeGroupScene =
+  | 'workshop'
+  | 'replay'
+  | 'tutorial'
+  | 'encyclopedia'
+  | 'skins'
+  | 'changelog'
+  | 'settings';
+
+export interface HomeEntryGroup {
+  id: HomeGroupId;
+  scenes: readonly HomeGroupScene[];
+  span: 5 | 4 | 3;
+}
+
+export const HOME_ENTRY_GROUPS: readonly HomeEntryGroup[] = [
+  { id: 'battle', scenes: ['workshop', 'replay', 'tutorial'], span: 5 },
+  { id: 'collection', scenes: ['encyclopedia', 'skins'], span: 4 },
+  { id: 'system', scenes: ['changelog', 'settings'], span: 3 },
+];
+
+/** 快捷磚的場景（Hero 環繞那四塊） */
+export const HOME_QUICK_SCENES = ['shop', 'talentTree', 'achievements', 'statistics'] as const;
+
+export type HomeQuickScene = (typeof HOME_QUICK_SCENES)[number];
+
+/** 全部入口場景 */
+export type HomeEntryScene = HomeQuickScene | HomeGroupScene;
+
+/**
+ * 鍵盤焦點序列 = 視覺閱讀序：開始遊戲（預設）→ 左欄 → 右欄 → 三群帶。
+ * 'start' 不是場景，是 Hero 上那顆開始遊戲。
+ */
+export const HOME_FOCUS_ORDER = [
+  'start',
   'shop',
-  'talentTree',
   'achievements',
-  'encyclopedia',
-  'skins',
-  'workshop',
+  'talentTree',
   'statistics',
+  'workshop',
   'replay',
   'tutorial',
+  'encyclopedia',
+  'skins',
   'changelog',
   'settings',
 ] as const;
 
-export type HomeEntryScene = (typeof HOME_ENTRY_SCENES)[number];
+export type HomeFocusTarget = (typeof HOME_FOCUS_ORDER)[number];
 
-/** 每個入口在 12 欄網格上的跨欄數（總和 36 = 3 行 × 12 欄） */
-export const HOME_ENTRY_SPAN: Record<HomeEntryScene, HomeEntrySpan> = {
-  shop: 5,
-  talentTree: 4,
-  achievements: 3,
-  encyclopedia: 3,
-  skins: 3,
-  workshop: 3,
-  statistics: 3,
-  replay: 4,
-  tutorial: 4,
-  changelog: 2,
-  settings: 2,
+/** 三群帶內部的 12 欄切割 → 靜態類名（Tailwind 掃不到拼接字串） */
+export const HOME_GROUP_SPAN_CLASS: Record<5 | 4 | 3, string> = {
+  5: 'lg:col-span-5',
+  4: 'lg:col-span-4',
+  3: 'lg:col-span-3',
 };
 
-export function homeEntrySize(scene: HomeEntryScene): HomeEntrySize {
-  return HOME_ENTRY_SPAN[scene] >= 4 ? 'tile' : 'compact';
-}
+/** 群組內部磚數 → 靜態欄數類名（窄螢幕一律 2 欄，桌機按群組寬度排滿） */
+export const HOME_GROUP_COLS_CLASS: Record<5 | 4 | 3, string> = {
+  5: 'grid-cols-2 lg:grid-cols-3',
+  4: 'grid-cols-2',
+  3: 'grid-cols-2',
+};
+
+/** 焦點環：桌機與窄螢幕共用同一圈，只換顏色 */
+export const HOME_FOCUS_RING = 'outline-none focus-visible:ring-4 focus-visible:ring-[var(--cn-signal)]/45';

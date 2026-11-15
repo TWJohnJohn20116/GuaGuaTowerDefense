@@ -26,7 +26,7 @@ const DevPanel = lazy(() =>
   import('@/components/ui/DevPanel').then((m) => ({ default: m.DevPanel })),
 );
 
-// 主選單也走 lazy：它連同 menu 專屬資料（挑戰清單、MenuHomeRail…）約 100 KB，
+// 主選單也走 lazy：它連同 menu 專屬資料（挑戰清單、MenuHomeHero…）約 100 KB，
 // 但 App 已經有 <Suspense>，多一次本地 chunk 讀取對桌面程式沒有體感成本（TD-24）。
 const MainMenu = lazy(() => import('@/components/scenes/MainMenu'));
 

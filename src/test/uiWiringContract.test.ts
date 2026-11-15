@@ -200,10 +200,11 @@ describe('場景接線', () => {
     expect(gameOver).not.toMatch(/\['frost', 'poison', 'lightning'\]/);
   });
 
-  it('主選單用 rail／bento 版面元件，不再有粒子層', () => {
+  it('主選單用 Hero／快捷磚／三群帶，不再有粒子層', () => {
     const mainMenu = source('../components/scenes/MainMenu.tsx');
-    expect(mainMenu).toMatch(/MenuHomeRail/);
-    expect(mainMenu).toMatch(/MenuHomeGrid/);
+    expect(mainMenu).toMatch(/MenuHomeHero/);
+    expect(mainMenu).toMatch(/MenuHomeQuick/);
+    expect(mainMenu).toMatch(/MenuHomeGroups/);
     expect(mainMenu).not.toMatch(/MenuBento/);
     expect(mainMenu).not.toMatch(/MenuStartHub/);
     expect(mainMenu).not.toMatch(/particleCount/);

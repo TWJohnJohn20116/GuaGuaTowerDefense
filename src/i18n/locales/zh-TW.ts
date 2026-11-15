@@ -72,6 +72,28 @@ export const zhTW = {
       streakPendingWith: '連續 {count} 天 · 今日待完成',
       claimableCount: '待領 {count}',
     },
+    groups: {
+      battle: '戰鬥',
+      collection: '收藏',
+      system: '後勤',
+    },
+    hero: {
+      kicker: 'operations',
+      tagline: 'tower defense',
+      hintEnter: 'ENTER 開始',
+      hintSave: '本機存檔',
+      hintRender: '2D / 3D',
+      quickCoins: '金幣',
+      quickTalent: '天賦',
+      quickAchievements: '成就',
+      quickRecords: '戰績',
+      quickWinRate: '勝率',
+      quickBestWave: '最高波',
+      quickGames: '場次',
+      readyTag: '可點',
+      tutorialSub: '規則與操作',
+      settingsSub: '音效與顯示',
+    },
   },
 
   studio: {

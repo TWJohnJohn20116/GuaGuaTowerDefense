@@ -49,6 +49,7 @@ export function MenuHomeCard({
   tone = 'ink',
   size = 'compact',
   icon,
+  focusId,
   focused,
   onSelect,
   onFocus,
@@ -60,6 +61,8 @@ export function MenuHomeCard({
   tone?: 'signal' | 'vital' | 'caution' | 'ink';
   size?: HomeEntrySize;
   icon: React.ReactNode;
+  /** 鍵盤導覽用的穩定錨點（MainMenu 以 data-focus-id 找元素） */
+  focusId?: string;
   focused: boolean;
   onSelect: () => void;
   onFocus: () => void;
@@ -71,6 +74,7 @@ export function MenuHomeCard({
   return (
     <button
       type="button"
+      data-focus-id={focusId}
       onClick={onSelect}
       onMouseEnter={onFocus}
       onFocus={onFocus}
@@ -82,20 +86,21 @@ export function MenuHomeCard({
           : 'border-[var(--cn-line-soft)] bg-[var(--cn-card)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)] hover:-translate-y-1 hover:border-[var(--cn-line)] hover:shadow-[0_8px_0_var(--cn-line)]',
       ].join(' ')}
     >
-      {/* 角落色塊 */}
-      <span
-        aria-hidden="true"
-        className={`pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-[0.13] ${DECO[index % DECO.length]}`}
-      />
-
-      {/* 極淡大序號：撐住高卡片中間那片留白，不當文字讀 */}
-      <span
-        aria-hidden="true"
-        className={`pointer-events-none absolute -bottom-2 right-2 hidden select-none font-mono font-black leading-none tracking-tighter text-[var(--cn-ink)] opacity-[0.05] lg:block ${
-          isTile ? 'text-[72px]' : 'text-[52px]'
-        }`}
-      >
-        {order}
+      {/* 裝飾層：角落色塊與大序號都刻意超出邊界，統一包在 overflow-hidden 裡，
+          否則絕對定位的溢出會計入 scroll 區，被稽核誤判成文字截斷 */}
+      <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* 裝飾圓必須完整留在邊界內：負 offset 與 transform 都會被計入 scrollable
+            overflow，wrapper 的 scrollWidth 一旦被撐大，稽核就判成文字截斷 */}
+        <span
+          className={`absolute right-0 top-0 h-24 w-24 rounded-bl-full opacity-[0.13] ${DECO[index % DECO.length]}`}
+        />
+        <span
+          className={`absolute bottom-1 right-2 hidden select-none font-mono font-black leading-none tracking-tighter text-[var(--cn-ink)] opacity-[0.05] lg:block ${
+            isTile ? 'text-[72px]' : 'text-[52px]'
+          }`}
+        >
+          {order}
+        </span>
       </span>
 
       <span
