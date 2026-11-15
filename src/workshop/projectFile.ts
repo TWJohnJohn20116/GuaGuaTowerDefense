@@ -14,6 +14,8 @@ export interface ProjectFile {
   formatVersion: number;
   project: WorkshopProject;
   assets: WorkshopAsset[];
+  /** 戰役進度（完成過的關卡）；舊檔沒有這個欄位也能讀 */
+  completedLevels?: string[];
   savedAt: string;
 }
 
@@ -45,12 +47,17 @@ export function collectProjectAssets(
   return [...wanted].map((id) => byId.get(id)).filter((asset): asset is WorkshopAsset => Boolean(asset));
 }
 
-export function exportProjectFile(project: WorkshopProject, allAssets: readonly WorkshopAsset[]): string {
+export function exportProjectFile(
+  project: WorkshopProject,
+  allAssets: readonly WorkshopAsset[],
+  completedLevels: readonly string[] = [],
+): string {
   const file: ProjectFile = {
     magic: PROJECT_FILE_MAGIC,
     formatVersion: PROJECT_FILE_VERSION,
     project,
     assets: collectProjectAssets(project, allAssets),
+    completedLevels: [...completedLevels],
     savedAt: new Date().toISOString(),
   };
   return JSON.stringify(file, null, 2);

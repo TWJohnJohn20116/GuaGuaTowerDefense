@@ -19,6 +19,7 @@ import { TOWER_DATA } from '@/data/gameData';
 import { MOD_SCRIPT_HOOKS, MOD_SCRIPT_PERMISSIONS } from '@/mod-script/limits';
 import { Btn, Deck, Empty, Input, SegHead, Toggle } from '@/components/hl';
 import { ScriptCodeEditor } from '@/components/mod-editor/ScriptCodeEditor';
+import { TowerModelEditor } from './TowerModelEditor';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 
 const ABILITIES = ['none', 'flying', 'healing', 'spawning', 'shield', 'stealth', 'berserk', 'armored', 'teleport', 'miniboss', 'swarm', 'phase', 'explode', 'jam', 'escort'] as const;
@@ -176,6 +177,13 @@ export function AssetEditorPanel({ assetId }: AssetEditorPanelProps) {
               <NumField label={s.chainCount} value={towerData.chainCount ?? 3} onChange={(chainCount) => patchData({ chainCount })} />
             )}
           </div>
+
+          <TowerModelEditor
+            towerId={towerData.baseType}
+            color={towerData.color}
+            model={towerData.custom3d}
+            onChange={(custom3d) => patchData({ custom3d })}
+          />
         </>
       )}
 

@@ -15,6 +15,8 @@ import {
   type GgmodIssue,
   type GgmodThumbnail,
 } from '@/workshop/package/format';
+import { restoreFromGgmod } from '@/workshop/package/restore';
+import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
 import { packProject, serializeGgmod, type PackAssetSource, type PackProjectSource } from '@/workshop/package/pack';
 import { unpackGgmod, type UnpackResult } from '@/workshop/package/unpack';
 import {
@@ -99,7 +101,7 @@ function downloadText(fileName: string, text: string): void {
   URL.revokeObjectURL(url);
 }
 
-function packedProject(source: WorkshopProject, levelId?: string): PackProjectSource {
+function packedProject(source: WorkshopProject, levelId?: string, completedLevels: readonly string[] = []): PackProjectSource {
   return {
     id: source.id,
     name: source.name,
@@ -115,6 +117,8 @@ function packedProject(source: WorkshopProject, levelId?: string): PackProjectSo
       assetRefs: source.assetRefs,
       // 引用版本快照：來源 id + 版本，重建時才對得回工坊資產
       assetVersions: source.assetRefs.map((ref) => ({ assetId: ref.assetId, version: ref.version })),
+      // 戰役進度跟著作品走：換機器匯入後不用重打
+      progress: [...completedLevels],
     },
     thumbnail: parseThumbnail(source.thumbnail),
   };
@@ -129,6 +133,8 @@ export function PublishPanel({ projectId, levelId }: PublishPanelProps) {
   const assets = useWorkshopStore((state) => state.assets);
   const updateProject = useWorkshopStore((state) => state.updateProject);
   const createProject = useWorkshopStore((state) => state.createProject);
+  const upsertAsset = useWorkshopStore((state) => state.upsertAsset);
+  const completedIds = useWorkshopProgressStore((state) => state.completed[projectId] ?? []);
 
   const [signingKey, setSigningKey] = useState<GgmodSigningKey | null>(null);
   const [keyTrusted, setKeyTrusted] = useState(false);
@@ -177,8 +183,12 @@ export function PublishPanel({ projectId, levelId }: PublishPanelProps) {
   /** 即時打包預覽：UI 的大小統計與錯誤都來自它，不是猜的 */
   const preview = useMemo(() => {
     if (!project) return null;
-    return packProject({ project: packedProject(project, levelId), assets: assetSources, generator: 'guagua-studio' });
-  }, [project, assetSources, levelId]);
+    return packProject({
+      project: packedProject(project, levelId, completedIds),
+      assets: assetSources,
+      generator: 'guagua-studio',
+    });
+  }, [project, assetSources, levelId, completedIds]);
 
   const translationSource = useMemo(() => {
     if (!project) return {};
@@ -267,20 +277,23 @@ export function PublishPanel({ projectId, levelId }: PublishPanelProps) {
     [p],
   );
 
-  /** 匯入只重建專案殼（metadata／縮圖）；資產與關卡還原需要 store 的匯入 action */
+  /** 匯入：還原資產、關卡、引用與戰役進度（不再只是專案殼） */
   const handleRestoreProject = useCallback(() => {
     if (!imported) return;
     const id = createProject(imported.file.project.name);
+    const payload = restoreFromGgmod(imported.file, id);
+    for (const asset of payload.assets) upsertAsset(asset);
     updateProject(id, {
-      description: imported.file.project.description,
-      version: imported.file.project.version,
-      author: imported.file.project.author,
-      license: isLicense(imported.file.project.license) ? imported.file.project.license : 'all-rights-reserved',
+      ...payload.project,
+      id,
       thumbnail: imported.file.thumbnail ? toDataUrl(imported.file.thumbnail) : '',
-      signature: imported.file.signature,
     });
+    if (payload.completedLevels.length > 0) {
+      const progress = useWorkshopProgressStore.getState();
+      for (const levelId of payload.completedLevels) progress.markCompleted(id, levelId);
+    }
     setNotice({ tone: 'ok', text: p.importOk });
-  }, [imported, createProject, updateProject, p]);
+  }, [imported, createProject, updateProject, upsertAsset, p]);
 
   const handleThumbnail = useCallback(
     (file: File) => {

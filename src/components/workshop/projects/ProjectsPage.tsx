@@ -7,6 +7,7 @@ import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { readBackups, writeBackup } from '@/workshop/backup';
 import { exportProjectFile, parseProjectFile } from '@/workshop/projectFile';
+import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
 import { Btn, Deck, Empty, Input, Num, SegHead } from '@/components/hl';
 import { PlusIcon, CopyIcon, TrashIcon, PlayIcon, MapIcon, DownloadIcon, UploadIcon } from '@/components/ui/Icons';
 
@@ -29,6 +30,7 @@ export function ProjectsPage({ onNavigate, onCreateTemplate }: ProjectsPageProps
   const setActiveProject = useWorkshopStore((state) => state.setActiveProject);
   const updateProject = useWorkshopStore((state) => state.updateProject);
   const upsertAsset = useWorkshopStore((state) => state.upsertAsset);
+  const markCompleted = useWorkshopProgressStore((state) => state.markCompleted);
 
   const [name, setName] = useState('');
   const [message, setMessage] = useState<string | null>(null);
@@ -45,7 +47,8 @@ export function ProjectsPage({ onNavigate, onCreateTemplate }: ProjectsPageProps
 
   const handleExport = (): void => {
     if (!active) return;
-    const json = exportProjectFile(active, assets);
+    const completedIds = useWorkshopProgressStore.getState().completed[active.id] ?? [];
+    const json = exportProjectFile(active, assets, completedIds);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
@@ -74,6 +77,9 @@ export function ProjectsPage({ onNavigate, onCreateTemplate }: ProjectsPageProps
       for (const asset of parsed.file.assets) upsertAsset(asset);
       const createdId = createProject(project.name);
       updateProject(createdId, { ...project, id: createdId });
+      for (const levelId of parsed.file.completedLevels ?? []) {
+        if (project.levels.some((level) => level.id === levelId)) markCompleted(createdId, levelId);
+      }
       setActiveProject(createdId);
       writeBackup(useWorkshopStore.getState().projects, useWorkshopStore.getState().assets, true);
       setMessage(s.dashboard.imported);
