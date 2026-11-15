@@ -25,5 +25,8 @@ export const FADE_FAST: Transition = { duration: 0.12, ease: EASE_OUT };
 /** 退場一律比進場快 */
 export const FADE_OUT: Transition = { duration: 0.09, ease: EASE_OUT };
 
+/** 彈出：從標籤位置飛到畫面中央，帶輕微回彈（iOS 感） */
+export const SPRING_POP: Transition = { type: 'spring', stiffness: 380, damping: 24, mass: 0.8 };
+
 /** 清單逐項進場的間隔 */
 export const STAGGER_STEP = 0.022;

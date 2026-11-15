@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, type ComponentType } from 'react';
-import { MotionConfig } from 'framer-motion';
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
+import { FADE_OUT, SPRING_SOFT } from '@/utils/motionTokens';
 import { useGameStore } from '@/store/gameStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useDevStore } from '@/store/devStore';
@@ -153,9 +154,21 @@ function App() {
   return (
     <MotionConfig reducedMotion={animationsEnabled ? 'never' : 'always'}>
       <div className="w-full h-full overflow-hidden no-select">
-        <Suspense fallback={<Loading />}>
-          <Scene />
-        </Suspense>
+        {/* 場景轉場：所有 19 個場景共用同一套入退場，不再硬切 */}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={activeScene ?? 'mainMenu'}
+            className="h-full w-full"
+            initial={{ opacity: 0, y: 10, scale: 0.996 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.998, transition: FADE_OUT }}
+            transition={SPRING_SOFT}
+          >
+            <Suspense fallback={<Loading />}>
+              <Scene />
+            </Suspense>
+          </motion.div>
+        </AnimatePresence>
         <AchievementNotification />
         <UpdateNotification />
         {/* 調適介面：左下角「調適」按鈕，任何場景都可打開（lazy，載入完成才出現） */}

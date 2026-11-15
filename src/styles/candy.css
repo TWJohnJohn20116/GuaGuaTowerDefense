@@ -422,7 +422,12 @@
 
   /* ------------------------------ chip ------------------------------- */
 
+  /* 分類／頁籤 chip：有過渡才不會「瞬間變色」 */
   .arc-chip {
+    transition:
+      background-color var(--cn-t-fast) var(--cn-ease-out),
+      border-color var(--cn-t-fast) var(--cn-ease-out),
+      transform var(--cn-t-fast) var(--cn-ease-out);
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
