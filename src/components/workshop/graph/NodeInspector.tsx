@@ -23,6 +23,7 @@ export interface NodeInspectorProps {
   issues: readonly GraphIssue[];
   onChangeParam: (nodeId: string, key: string, value: GraphParamValue) => void;
   onChangeJs: (nodeId: string, js: string) => void;
+  onChangeNote: (nodeId: string, note: string) => void;
   onToggleEnabled: (nodeId: string, enabled: boolean) => void;
   onDelete: (nodeId: string) => void;
   onClose: () => void;
@@ -218,6 +219,7 @@ export function NodeInspector({
   issues,
   onChangeParam,
   onChangeJs,
+  onChangeNote,
   onToggleEnabled,
   onDelete,
   onClose,
@@ -268,6 +270,15 @@ export function NodeInspector({
       <p className="text-[12px] font-semibold leading-[1.6] text-[var(--cn-ink-2)]">
         {studioText(t, spec.descriptionKey)}
       </p>
+
+      <label className="flex flex-col gap-1">
+        <span className="arc-label">{studioText(t, 'studio.graph.inspector.note')}</span>
+        <Input
+          value={node.note ?? ''}
+          onChange={(event) => onChangeNote(node.id, event.target.value)}
+          className={FIELD_CLASS}
+        />
+      </label>
 
       <IssueList issues={issues} nodeId={node.id} />
 

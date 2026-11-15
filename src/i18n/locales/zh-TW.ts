@@ -278,6 +278,7 @@ export const zhTW = {
         enabled: '啟用',
         close: '關閉',
         params: '參數',
+        note: '備註（不影響產生程式碼）',
         inputs: '輸入埠',
         delete: '刪除節點',
         hint: '改動即時生效',

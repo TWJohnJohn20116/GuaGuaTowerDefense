@@ -28,6 +28,7 @@ import {
   toWorkshopScriptGraph,
   toggleRuleRow,
   updateRowJs,
+  updateRowNote,
   updateRowParam,
 } from '@/workshop/graph/ruleTable';
 import { GraphCanvas } from './GraphCanvas';
@@ -444,6 +445,7 @@ export function GraphPage({ projectId, levelId }: GraphPageProps): React.ReactEl
             issues={[...validation.errors, ...validation.warnings]}
             onChangeParam={(nodeId, key, value) => applyGraph(updateRowParam(graph, nodeId, key, value))}
             onChangeJs={(nodeId, js) => applyGraph(updateRowJs(graph, nodeId, js))}
+            onChangeNote={(nodeId, note) => applyGraph(updateRowNote(graph, nodeId, note))}
             onToggleEnabled={(nodeId, enabled) => applyGraph(toggleRuleRow(graph, nodeId, enabled))}
             onDelete={(nodeId) => {
               applyGraph(removeRuleRow(graph, nodeId));

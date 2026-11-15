@@ -313,6 +313,15 @@ export function updateRowParam(
   return next;
 }
 
+/** 更新節點備註（純註解，不影響產生程式碼與規則表行為） */
+export function updateRowNote(graph: RuleGraph, nodeId: string, note: string): RuleGraph {
+  const next = cloneGraph(graph);
+  for (const node of next.nodes) {
+    if (node.id === nodeId) node.note = note;
+  }
+  return next;
+}
+
 export function updateRowJs(graph: RuleGraph, nodeId: string, js: string): RuleGraph {
   const next = cloneGraph(graph);
   for (const node of next.nodes) {
