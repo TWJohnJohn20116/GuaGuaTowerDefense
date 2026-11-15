@@ -7,7 +7,7 @@
 // - grid 是工坊編輯器的畫布尺寸，引擎不吃，不外流。
 
 import type { CustomMapData } from '@/types/game';
-import type { WorkshopAssetProvenance, WorkshopMapAsset } from '@/types/workshop';
+import type { WorkshopAssetProvenance, WorkshopMapAsset, WorkshopMapData } from '@/types/workshop';
 import { runtimeAssetId } from '@/workshop/ids';
 
 interface CompiledMap {
@@ -16,7 +16,9 @@ interface CompiledMap {
 }
 
 export function compileMap(projectId: string, asset: WorkshopMapAsset): CompiledMap {
-  const data = asset.data;
+  // 型別上 data 是必填，但舊存檔／半寫入的資產在 localStorage 裡可能是 undefined。
+  // 這裡退成空物件而不是直接讀 data.difficulty —— 否則整個試玩與平衡面板會一起白屏。
+  const data: Partial<WorkshopMapData> = asset.data ?? {};
   const id = runtimeAssetId(projectId, asset.id);
 
   const map: CustomMapData = {
