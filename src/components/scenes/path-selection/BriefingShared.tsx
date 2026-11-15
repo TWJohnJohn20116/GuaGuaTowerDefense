@@ -11,6 +11,7 @@
  */
 
 import type { ReactNode } from 'react';
+import { boundsOf } from '@/data/mapGeometry';
 import type { PathConfig } from '@/types/game';
 import { Empty, Segments, StatCell } from '@/components/hl';
 import { PathPreview } from './PathPreview';
@@ -101,7 +102,7 @@ export function BriefingHero({
       <div className="flex flex-col justify-center gap-2 border-b-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] p-3 lg:border-b-0 lg:border-r-[3px]">
         <PathPreview pathConfig={path} size="normal" className="w-full shrink-0" />
         <div className="flex items-center justify-between rounded-[var(--cn-r-sm)] border-2 border-[var(--cn-line-soft)] bg-[var(--cn-card)] px-2 py-1 text-[10px] font-extrabold text-[var(--cn-ink-3)]">
-          <span>grid 15 × 11</span>
+          <span>{boundsOf(path).width} × {boundsOf(path).height}</span>
           <span className="font-mono uppercase tracking-[0.06em]">{path.category ?? 'path'}</span>
         </div>
       </div>
