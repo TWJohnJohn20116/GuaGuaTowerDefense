@@ -697,7 +697,7 @@
 │   ├── main.tsx                <span class="m"># React 入口；注入音效偏好 provider</span>
 │   ├── App.tsx                 <span class="m"># 場景分派表（唯一真相）+ 全域浮層</span>
 │   ├── <span class="d">components/</span>             <span class="m"># 464 檔 · 全部畫面</span>
-│   │   ├── <span class="d">scenes/</span>             <span class="m"># 22 場景 + 23 個子資料夾</span>
+│   │   ├── <span class="d">scenes/</span>             <span class="m"># 16 個場景入口 + 17 個子資料夾</span>
 │   │   │   ├── GameScene.tsx         <span class="m">#   戰鬥組裝（2D/3D、暫停、對話）</span>
 │   │   │   ├── <span class="d">game-scene/</span>        <span class="m">#   渲染與迴圈副作用（26 檔）</span>
 │   │   │   │   ├── GameCanvas.tsx        <span class="m"># 雙層畫布 + 點擊互動</span>
@@ -707,15 +707,15 @@
 │   │   │   │   └── <span class="d">three/</span>              <span class="m"># Three.js 3D 視圖（11 檔）</span>
 │   │   │   ├── <span class="d">main-menu/</span> <span class="d">path-selection/</span> <span class="d">encyclopedia/</span>
 │   │   │   ├── <span class="d">settings/</span> <span class="d">replay/</span> <span class="d">statistics/</span> <span class="d">skin-system/</span>
-│   │   │   ├── <span class="d">talent/</span> <span class="d">shop/</span> <span class="d">achievement-observatory/</span>
-│   │   │   ├── <span class="d">daily-challenge/</span> <span class="d">mutator-challenge/</span> <span class="d">tutorial/</span>
-│   │   │   ├── <span class="d">mod-editor-scene/</span> <span class="d">mod-manager/</span> <span class="d">map-editor/</span>
-│   │   │   └── <span class="d">creative-workshop/</span> <span class="d">changelog-scene/</span> <span class="d">game-end/</span> <span class="d">campaign-end/</span> <span class="d">memorial/</span>
+│   │   │   ├── <span class="d">talent/</span> <span class="d">shop/</span> <span class="d">achievement-gallery/</span> <span class="d">achievement-observatory/</span>
+│   │   │   ├── <span class="d">tutorial/</span> <span class="d">changelog-scene/</span> <span class="d">game-end/</span>
+│   │   │   └── <span class="d">mod-editor-scene/</span> <span class="d">mod-manager/</span>
 │   │   ├── <span class="d">game/</span>              <span class="m"># 戰鬥 HUD：Sidebar、WaveBanner、塔模型</span>
 │   │   ├── <span class="d">ui/</span>                <span class="m"># 共用元件：SceneShell、Modal、Tabs、DevPanel</span>
 │   │   ├── <span class="d">hl/</span>                <span class="m"># HARDLINE：方角、無陰影、單一強調色</span>
-│   │   └── <span class="d">mod-editor/</span>        <span class="m"># Mod 編輯器元件（58 檔）</span>
-│   ├── <span class="d">store/</span>                 <span class="m"># 47 檔 · Zustand 狀態</span>
+│   │   ├── <span class="d">workshop/</span>          <span class="m"># 創作工坊 8 頁（專案／關卡／內容／規則／資產／模型／試玩／發佈）</span>
+│   │   └── <span class="d">mod-editor/</span>        <span class="m"># 3 檔共用工具：ScriptCodeEditor／modValidation／scriptHighlight</span>
+│   ├── <span class="d">store/</span>                 <span class="m"># 46 檔 · Zustand 狀態</span>
 │   │   ├── gameStore.ts              <span class="m">#   局內世界總組裝</span>
 │   │   ├── gameStoreTypes.ts          <span class="m">#   GameStore 介面（299 行，唯一契約）</span>
 │   │   ├── gameStoreActions.ts        <span class="m">#   建塔／升級／出售／融合／技能</span>
@@ -725,7 +725,7 @@
 │   │   ├── gridTower.ts              <span class="m">#   格子 ↔ 塔 id 唯一入口</span>
 │   │   ├── matchState.ts             <span class="m">#   開局／重開共用空白狀態工廠</span>
 │   │   └── achievementStore* / statsStore / replayStore / talentStore …
-│   ├── <span class="d">data/</span>                  <span class="m"># 214 檔 · 純資料與純函式</span>
+│   ├── <span class="d">data/</span>                  <span class="m"># 108 檔 · 純資料與純函式</span>
 │   │   ├── <span class="d">gameData/</span>             <span class="m">#   towerData / enemyData / pathData / waveData</span>
 │   │   ├── <span class="d">campaignData/</span>         <span class="m">#   17 章 + 81 關卡檔</span>
 │   │   ├── <span class="d">achievements/</span>         <span class="m">#   11 個成就資料檔（607 筆）</span>
@@ -734,7 +734,7 @@
 │   │   ├── tacticalProtocolData.ts / officialWaveSets.ts
 │   │   ├── mutatorChallengeData.ts / dailyChallengeData.ts
 │   │   └── skillData.ts / fusionRecipes.ts / towerSynergyData.ts …
-│   ├── <span class="d">services/</span>              <span class="m"># 22 檔 · 有副作用的 I/O</span>
+│   ├── <span class="d">services/</span>              <span class="m"># 23 檔 · 有副作用的 I/O</span>
 │   │   ├── audioService.ts / musicService.ts
 │   │   ├── <span class="d">music/</span> <span class="d">sfx/</span> <span class="d">audioCache/</span>
 │   │   └── updateService.ts / settingsExportService.ts / settingsFileDb.ts
@@ -743,11 +743,13 @@
 │   │   ├── enemyRenderer.ts / enemySpriteCache.ts
 │   │   ├── frameLoopGuard.ts         <span class="m">#   幀護欄：單幀異常不掉局</span>
 │   │   └── perfMonitor.ts
-│   ├── <span class="d">i18n/</span>                  <span class="m"># 10 語言，zh-TW 為基準</span>
+│   ├── <span class="d">workshop/</span>              <span class="m"># 44 檔 · 工坊核心：文件模型／編譯管線／節點圖／封裝簽章</span>
+│   ├── <span class="d">mod-script/</span>            <span class="m"># 10 檔 · Mod 腳本沙箱：hook／command／權限／限額</span>
+│   ├── <span class="d">i18n/</span>                  <span class="m"># 10 語言，zh-TW 4,968 鍵為基準</span>
 │   ├── <span class="d">types/</span>                 <span class="m"># game.ts（19KB 核心型別）等</span>
 │   ├── <span class="d">hooks/</span>                 <span class="m"># useAchievementTracking / useReplayRecorder</span>
 │   ├── <span class="d">styles/</span>                <span class="m"># index.css + hardline.css</span>
-│   └── <span class="d">test/</span>                  <span class="m"># 160 個測試檔（含 fixtures.ts）</span>
+│   └── <span class="d">test/</span>                  <span class="m"># 166 個測試檔（含 fixtures.ts）</span>
 │
 ├── <span class="d">src-tauri/</span>                  <span class="m"># 桌面外殼</span>
 │   ├── src/main.rs             <span class="m">#   13 行：3 外掛 + run</span>
