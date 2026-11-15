@@ -11,6 +11,7 @@ import {
   addPreviewTower,
   addWaypoint,
   blockedPathConflicts,
+  addWaypoint,
   canPlacePreviewTower,
   createEmptyDraft,
   createStarterDraft,
@@ -303,6 +304,33 @@ describe('validateDraft', () => {
 
     const starter = createStarterDraft();
     expect(validateDraft(starter), '骨架草稿應完全合法：' + JSON.stringify(validateDraft(starter))).toEqual([]);
+  });
+});
+
+describe('自由拖點', () => {
+  it('浮點座標是合法位置（不再要求整數格）', () => {
+    const draft = createEmptyDraft();
+    const added = addWaypoint(draft, { col: 3.37, row: 4.62 });
+    expect(added.changed, '浮點路徑點應被接受').toBe(true);
+    expect(added.draft.waypoints[0]).toEqual({ col: 3.37, row: 4.62 });
+  });
+
+  it('障礙筆刷吸附半格，不會堆出重疊圓', () => {
+    const draft = createEmptyDraft();
+    const painted = paintBlocked(draft, [{ col: 2.2, row: 3.9 }], true);
+    expect(painted.draft.blocked[0]).toEqual({ col: 2, row: 4 });
+  });
+
+  it('塔可以放在路徑旁，壓在路徑上會被拒絕（幾何判定）', () => {
+    const draft = createStarterDraft();
+    const mr = midRowOf(draft);
+
+    const beside = canPlacePreviewTower(draft, { col: 3, row: mr + 2 });
+    expect(beside.ok, '路徑旁 2 格應可放塔').toBe(true);
+
+    const onPath = canPlacePreviewTower(draft, { col: 3, row: mr });
+    expect(onPath.ok, '路徑上不可放塔').toBe(false);
+    expect(onPath.issue?.code).toBe('towerOnPath');
   });
 });
 
