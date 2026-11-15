@@ -31,6 +31,8 @@ export const DEV_TAB_SEARCH_ENTRIES: Record<DevSearchTab, DevSearchEntry[]> = {
     { title: '天賦控制', keywords: ['talent', 'tree', 'skill', '天賦', '技能'] },
     { title: '商店金幣', keywords: ['shop', 'coin', 'gold', 'currency', '商店', '金幣'] },
     { title: '持久化資料', keywords: ['unlock', 'persistence', 'localstorage', 'tower', '解鎖', '塔', '存檔'] },
+    { title: '場景快速跳轉', keywords: ['scene', 'jump', 'goto', '場景', '跳轉', '切換'] },
+    { title: '存檔操作', keywords: ['save', 'storage', 'export', 'clear', '存檔', '匯出', '清除'] },
   ],
   combat: [
     { title: '生成敵人', keywords: ['enemy', 'spawn', 'monster', '敵人', '生成', '怪物'] },
@@ -52,6 +54,7 @@ export const DEV_TAB_SEARCH_ENTRIES: Record<DevSearchTab, DevSearchEntry[]> = {
     { title: '實體計數', keywords: ['entity', 'count', 'enemy', 'tower', 'projectile', '實體', '計數', '數量'] },
     { title: '計時', keywords: ['timer', 'time', 'duration', '計時', '時長', '計時器'] },
     { title: '效能', keywords: ['perf', 'performance', 'fps', '效能', '幀率'] },
+    { title: '即時效能', keywords: ['perf', 'fps', 'frame', '效能', '幀率', '取樣'] },
     { title: '塔分布', keywords: ['tower', 'distribution', 'stats', '塔', '分布', '統計'] },
   ],
 };

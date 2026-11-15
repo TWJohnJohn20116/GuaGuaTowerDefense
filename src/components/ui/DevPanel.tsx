@@ -14,6 +14,9 @@ import { CombatSection } from './dev-panel/CombatSection';
 import { VisualSection } from './dev-panel/VisualSection';
 import { ToolsSection } from './dev-panel/ToolsSection';
 import { InfoSection } from './dev-panel/InfoSection';
+import { SceneJumpSection } from './dev-panel/SceneJumpSection';
+import { SaveSection } from './dev-panel/SaveSection';
+import { PerfSection } from './dev-panel/PerfSection';
 import { DevSearchContext } from './dev-panel/common';
 import { IconBtn } from '@/components/hl';
 import { DEV_TAB_SEARCH_ENTRIES, pickDevTabForQuery, tabHasMatch } from '@/data/devSearch';
@@ -421,8 +424,19 @@ export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
                         {resolvedTab === 'state' && <StateSection />}
                         {resolvedTab === 'combat' && <CombatSection />}
                         {resolvedTab === 'visual' && <VisualSection />}
-                        {resolvedTab === 'tools' && <ToolsSection />}
-                        {resolvedTab === 'info' && <InfoSection />}
+                        {resolvedTab === 'tools' && (
+                          <>
+                            <SceneJumpSection />
+                            <SaveSection />
+                            <ToolsSection />
+                          </>
+                        )}
+                        {resolvedTab === 'info' && (
+                          <>
+                            <PerfSection />
+                            <InfoSection />
+                          </>
+                        )}
                         {searchMiss && (
                           <p className="px-2 py-8 text-center text-[11px] font-bold tracking-widest text-[var(--arc-ink-4)]">
                             {t.dev.searchEmpty}
