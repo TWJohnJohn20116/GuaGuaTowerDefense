@@ -6,7 +6,7 @@
 import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 import { useWorkshopStore } from '@/store/workshopStore';
-import type { AssetRef, WorkshopLevel, WorkshopScoreRule } from '@/types/workshop';
+import type { AssetRef, WorkshopArtAsset, WorkshopLevel, WorkshopScoreRule } from '@/types/workshop';
 import { Btn, Chip, Deck, Empty, Input, SegHead, Toggle } from '@/components/hl';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
@@ -54,7 +54,9 @@ export function LevelSettingsPanel({ projectId, levelId }: LevelSettingsPanelPro
   const towerAssets = listAssets('tower');
   const ruleSetAssets = listAssets('ruleSet');
   // 關卡 BGM 只接受「音效」類美術資產（上傳音檔時會自動標成 sound）
-  const soundAssets = listAssets('art').filter((asset) => asset.data.artKind === 'sound');
+  const soundAssets = listAssets('art').filter(
+    (asset): asset is WorkshopArtAsset => asset.kind === 'art' && asset.data.artKind === 'sound',
+  );
 
   if (!level) return <Empty title={s.noLevel} />;
 
