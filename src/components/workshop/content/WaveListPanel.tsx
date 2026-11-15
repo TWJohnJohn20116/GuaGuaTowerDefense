@@ -330,43 +330,45 @@ export function WaveListPanel({
                   <span className="arc-label">{c.batchTitle}</span>
                   <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchHint}</span>
                 </div>
-                <div className="flex flex-wrap items-end gap-1">
-                  <label className="flex flex-col gap-0.5">
-                    <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchRewardAdd}</span>
-                    <Input value={batchReward} onChange={(event) => setBatchReward(event.target.value)} className="h-6 w-14 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                {/* 2×2 網格：標籤左、輸入右，套用整列 —— 舊版 flex-wrap 在窄面板會把套用擠到下一行左側 */}
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                  <label className="flex min-w-0 items-center gap-1.5">
+                    <span className="w-[38px] shrink-0 font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchRewardAdd}</span>
+                    <Input value={batchReward} onChange={(event) => setBatchReward(event.target.value)} className="h-6 min-w-0 flex-1 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
                   </label>
-                  <label className="flex flex-col gap-0.5">
-                    <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchHpMul}</span>
-                    <Input value={batchHp} onChange={(event) => setBatchHp(event.target.value)} className="h-6 w-14 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                  <label className="flex min-w-0 items-center gap-1.5">
+                    <span className="w-[38px] shrink-0 font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchHpMul}</span>
+                    <Input value={batchHp} onChange={(event) => setBatchHp(event.target.value)} className="h-6 min-w-0 flex-1 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
                   </label>
-                  <label className="flex flex-col gap-0.5">
-                    <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchCountMul}</span>
-                    <Input value={batchCount} onChange={(event) => setBatchCount(event.target.value)} className="h-6 w-14 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                  <label className="flex min-w-0 items-center gap-1.5">
+                    <span className="w-[38px] shrink-0 font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchCountMul}</span>
+                    <Input value={batchCount} onChange={(event) => setBatchCount(event.target.value)} className="h-6 min-w-0 flex-1 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
                   </label>
-                  <label className="flex flex-col gap-0.5">
-                    <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchInterval}</span>
+                  <label className="flex min-w-0 items-center gap-1.5">
+                    <span className="w-[38px] shrink-0 font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchInterval}</span>
                     <Input
                       value={batchInterval}
                       placeholder="—"
                       onChange={(event) => setBatchInterval(event.target.value)}
-                      className="h-6 w-16 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                      className="h-6 min-w-0 flex-1 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     />
                   </label>
-                  <Btn
-                    size="sm"
-                    variant="signal"
-                    onClick={() =>
-                      onBatch({
-                        rewardAdd: Number.parseInt(batchReward, 10) || 0,
-                        hpScaleMul: Number.parseFloat(batchHp) || 1,
-                        countMul: Number.parseFloat(batchCount) || 1,
-                        intervalMs: batchInterval.trim() === '' ? undefined : Number.parseInt(batchInterval, 10) || undefined,
-                      })
-                    }
-                  >
-                    {c.batchApply}
-                  </Btn>
                 </div>
+                <Btn
+                  size="sm"
+                  variant="signal"
+                  className="mt-2 w-full"
+                  onClick={() =>
+                    onBatch({
+                      rewardAdd: Number.parseInt(batchReward, 10) || 0,
+                      hpScaleMul: Number.parseFloat(batchHp) || 1,
+                      countMul: Number.parseFloat(batchCount) || 1,
+                      intervalMs: batchInterval.trim() === '' ? undefined : Number.parseInt(batchInterval, 10) || undefined,
+                    })
+                  }
+                >
+                  {c.batchApply}
+                </Btn>
               </div>
             )}
             <p className="arc-label text-[var(--cn-ink-3)]">{c.listHint}</p>
