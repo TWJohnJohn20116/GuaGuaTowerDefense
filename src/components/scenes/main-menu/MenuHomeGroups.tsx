@@ -109,7 +109,7 @@ export function MenuHomeGroups({
         {HOME_ENTRY_GROUPS.map((group) => (
           <div
             key={group.id}
-            className={['flex min-h-0 flex-col gap-1.5', HOME_GROUP_SPAN_CLASS[group.span]].join(' ')}
+            className={['flex flex-col gap-1.5', HOME_GROUP_SPAN_CLASS[group.span]].join(' ')}
           >
             <header className="flex items-center gap-2">
               <Dot tone={GROUP_TONE[group.id]} />
@@ -119,7 +119,7 @@ export function MenuHomeGroups({
                 {group.scenes.length}
               </span>
             </header>
-            <div className={['grid min-h-0 flex-1 gap-2', HOME_GROUP_COLS_CLASS[group.span]].join(' ')}>
+            <div className={['grid flex-1 gap-2', HOME_GROUP_COLS_CLASS[group.span]].join(' ')}>
               {group.scenes.map((scene, i) => (
                 <MenuHomeCard
                   key={scene}
