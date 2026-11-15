@@ -4,7 +4,8 @@
 // 重設計檔案共用。各塔只需聚焦在「炮管 / 噴嘴 / 發射器」這些特色部位的設計,
 // 共用部份從此處取用以保證視覺語言一致 (相同邊距、相同陰影、相同光感)。
 
-export const NORDIC_DARK = '#1a1d24';
+/** 暗部／輪廓：與 UI 的墨線同一個顏色，塔才不會像另一個世界來的 */
+export const NORDIC_DARK = '#2e2440';
 export const NORDIC_WHITE = '#f4f7fb';
 const NORDIC_LINE = 'rgba(255,255,255,0.35)';
 const NORDIC_LINE_SOFT = 'rgba(255,255,255,0.18)';
@@ -34,9 +35,15 @@ export const drawNordicBase = (
 ): void => {
   if (radius <= 0) return;
 
+  // 紙板底座：墨色外輪廓 → 白卡盤 → 糖果色內盤 → 3px 墨線
   ctx.beginPath();
-  ctx.arc(cx, cy, radius + 4, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius + 5.5, 0, Math.PI * 2);
   ctx.fillStyle = NORDIC_DARK;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius + 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff';
   ctx.fill();
 
   ctx.beginPath();
@@ -44,8 +51,8 @@ export const drawNordicBase = (
   ctx.fillStyle = color;
   ctx.fill();
 
-  ctx.strokeStyle = NORDIC_LINE;
-  ctx.lineWidth = 1.25;
+  ctx.strokeStyle = NORDIC_DARK;
+  ctx.lineWidth = 3;
   ctx.stroke();
 
   if (ringCount >= 1) {

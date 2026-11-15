@@ -80,8 +80,8 @@ export const drawEyes = (
   ctx.arc(x + ex, y - ey, eyeR, 0, Math.PI * 2);
   ctx.fill();
 
-  // 瞳孔
-  ctx.fillStyle = '#111111';
+  // 瞳孔（墨色，與描邊同一色）
+  ctx.fillStyle = '#2e2440';
   if (o.slit) {
     // 細長瞳孔（忍者風格）
     [-1, 1].forEach(dir => {
@@ -117,13 +117,18 @@ export const drawEyes = (
   }
 };
 
-/** 繪製白色描邊 */
+/**
+ * 繪製墨色描邊（紙片風格）
+ *
+ * 原本是白色細邊，在淺色紙底上等於看不見。現在統一成 UI 的墨色、
+ * 線寬至少 2px，敵人與塔才會是同一種「貼紙」而不是另一套畫風。
+ */
 export const drawStroke = (
   ctx: CanvasRenderingContext2D,
-  alpha = 0.4,
-  width = 1.5
+  alpha = 1,
+  width = 2.5
 ) => {
-  ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
-  ctx.lineWidth = width;
+  ctx.strokeStyle = `rgba(46,36,64,${Math.max(0.78, alpha)})`;
+  ctx.lineWidth = Math.max(2, width);
   ctx.stroke();
 };
