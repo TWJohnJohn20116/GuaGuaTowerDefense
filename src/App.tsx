@@ -99,6 +99,8 @@ function App() {
   // 不必重新載入（Vite dev 對原始碼送 no-cache，每次重載要抓上千個模組，單頁 4–5 秒）。
   useEffect(() => {
     if (!import.meta.env.DEV) return;
+    // 視覺驗證鉤子：讓截圖腳本可以真的開波／放塔，而不是只拍空盤
+    Reflect.set(window, '__guaguaStore', useGameStore);
     const apply = () => {
       const target =
         window.location.hash.replace(/^#/, '') ||

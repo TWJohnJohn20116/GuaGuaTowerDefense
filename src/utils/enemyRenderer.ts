@@ -90,6 +90,14 @@ export const drawEnemyModel = (
   time: number
 ) => {
   ctx.save();
+  // 貼紙底影：讓敵人從紙面立起來（與 UI 的硬投影同一個語言）
+  ctx.globalAlpha = 0.16;
+  ctx.fillStyle = '#2e2440';
+  ctx.beginPath();
+  ctx.ellipse(x, y + radius * 0.74, radius * 0.92, radius * 0.3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
   const renderer = (enemyType && ENEMY_RENDERERS[enemyType]) || drawDefault;
   renderer(ctx, x, y, radius, color, time);
   ctx.restore();

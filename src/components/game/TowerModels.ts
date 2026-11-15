@@ -62,6 +62,16 @@ export const drawTowerModel = (
 ): void => {
   if (params.radius <= 0) return;
 
+  // 貼紙底影：塔也要「站在」紙面上，而不是浮著
+  const { ctx, cx, cy, radius } = params;
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = '#2e2440';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + radius * 0.8, radius * 0.96, radius * 0.34, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
   if (skinModelSetId) {
     const drawer = getSkinDrawer(skinModelSetId, params.level);
     if (drawer) {
