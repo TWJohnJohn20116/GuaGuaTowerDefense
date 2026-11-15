@@ -1,7 +1,7 @@
 // 遊戲迴圈：敵人移動、狀態效果、Saboteur 破壞塔、特殊能力（治療/狂暴/傳送/飛行/護盾再生）
 import { PATHS, ENEMY_DATA } from '@/data/gameData';
 import type { StatusEffect, Enemy, GridPosition } from '@/types/game';
-import { isEnemyPhased } from '../gameStoreUtils';
+import { getEnemyData, isEnemyPhased } from '../gameStoreUtils';
 import { clearTowerIds } from '@/store/gridTower';
 import type { GetState, SetState } from './shared';
 import { loopFlags } from './shared';
@@ -174,7 +174,7 @@ export const createUpdateEnemies =
     const healerAuras: { id: string; x: number; y: number; radiusSq: number; amount: number }[] = [];
     for (const e of enemies) {
       if (e.health <= 0) continue;
-      const d = ENEMY_DATA[e.type];
+      const d = getEnemyData(e.originType ?? e.type);
       if (d?.ability === 'healing' && d.healAmount && d.healRadius && !isAbilitySuppressed(e, now)) {
         const r = d.healRadius / 50;
         healerAuras.push({ id: e.id, x: e.x, y: e.y, radiusSq: r * r, amount: d.healAmount });
@@ -185,7 +185,7 @@ export const createUpdateEnemies =
       // 整幀單次解析所有狀態效果（取代多次 find() / filter()）
       const fx = analyzeEffects(enemy.effects, now);
       let updatedEffects = fx.updatedEffects;
-      const data = ENEMY_DATA[enemy.type];
+      const data = getEnemyData(enemy.originType ?? enemy.type);
       const phased = isEnemyPhased(enemy, now);
       const shatter = phased ? 0 : getFreezeShatterDamage(enemy.effects, now);
       if (shatter > 0) {
@@ -588,7 +588,7 @@ export const createUpdateEnemies =
 
       // 護盾再生（燃燒中完全停止）
       if (e.maxShield && (e.shield ?? 0) < e.maxShield) {
-        const regen = (ENEMY_DATA[e.type]?.shieldRegen ?? 0) * getShieldRegenMult(e.effects, now);
+        const regen = (getEnemyData(e.originType ?? e.type).shieldRegen ?? 0) * getShieldRegenMult(e.effects, now);
         if (regen > 0) e.shield = Math.min(e.maxShield, (e.shield ?? 0) + regen * deltaSec);
       }
     }

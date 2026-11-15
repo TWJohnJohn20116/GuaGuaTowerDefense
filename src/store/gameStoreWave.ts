@@ -4,7 +4,7 @@ import {
   PATHS, ENEMY_DATA,
   generateEndlessWaveConfig 
 } from '@/data/gameData';
-import { generateId } from './gameStoreUtils';
+import { generateId, getEnemyData, inferEnemyBaseType } from './gameStoreUtils';
 import type { GameStore } from './gameStoreTypes';
 import { playWaveStart, playLeak, playGameOver } from '@/services/audioService';
 import {
@@ -192,10 +192,15 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
   },
 
   spawnEnemy: (type: string) => {
-    const { enemies, selectedPath, difficultyModifiers, activeProtocol } = get();
+    const { enemies, selectedPath, difficultyModifiers, activeProtocol, currentWave } = get();
     const path = PATHS[selectedPath];
-    const enemyType = type as EnemyType;
-    const enemyData = ENEMY_DATA[enemyType];
+    // 自訂敵人：用 mod id 解析資料，type 映回內建基底（沿用引擎能力分支）
+    const requestedType = type;
+    const enemyData = getEnemyData(requestedType);
+    const isBuiltin = Boolean(ENEMY_DATA[requestedType as EnemyType]);
+    const enemyType: EnemyType = isBuiltin
+      ? (requestedType as EnemyType)
+      : inferEnemyBaseType(enemyData);
     
     // 應用難度修飾器
     const modifiedHealth = Math.round(enemyData.health * difficultyModifiers.enemyHealthMult);
@@ -248,11 +253,17 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
       reward: protocolReward,
       size: enemyData.size,
       spawnTime: Date.now(),
+      ...(isBuiltin ? {} : { originType: requestedType }),
       currentSegmentId: segmentId,
       segmentWaypointIndex: segWpIndex,
       ...(shieldAmount ? { shield: shieldAmount, maxShield: shieldAmount } : {}),
     };
 
     set({ enemies: [...enemies, newEnemy] });
+
+    // Mod 腳本：Boss／精英生成事件
+    if (enemyType === 'boss' || enemyType === 'miniboss') {
+      notifyModScripts('onBossSpawn', { enemyType, wave: currentWave });
+    }
   },
 });

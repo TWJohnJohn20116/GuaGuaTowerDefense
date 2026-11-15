@@ -1,7 +1,7 @@
 // 遊戲迴圈：投射物更新（追蹤、命中、穿透、連鎖、Splash、風塔擊退）
 import type { Projectile, Enemy, StatusEffect } from '@/types/game';
-import { PATHS, ENEMY_DATA } from '@/data/gameData';
-import { applyDamageToEnemy, isEnemyPhased } from '../gameStoreUtils';
+import { PATHS } from '@/data/gameData';
+import { applyDamageToEnemy, getEnemyData, isEnemyPhased } from '../gameStoreUtils';
 import { computeWindKnockback } from '../gameStoreWindHelper';
 import { useTutorialStore, INTERACTIVE_TUTORIAL_STEPS } from '../tutorialStore';
 import { useStatsStore } from '../statsStore';
@@ -71,7 +71,7 @@ function applyHitStatusEffects(
   now: number,
 ): void {
   applySlowAndPoison(effects, proj.effects, now);
-  applyFrostSilenceToJammer(effects, proj.towerType, ENEMY_DATA[enemyType as keyof typeof ENEMY_DATA]?.ability, now);
+  applyFrostSilenceToJammer(effects, proj.towerType, getEnemyData(enemyType).ability, now);
   applySniperMark(effects, proj.towerType, now);
   applyLaserExposed(effects, proj.towerType, now);
   applyLightningWeakness(effects, proj.towerType, now);
@@ -204,7 +204,7 @@ function handleInstantHit(
       addDamageText(target.x, target.y, out.dealt, proj.isCrit, fullyAbsorbed ? '#60a5fa' : proj.color);
       addImpactParticles(target.x, target.y, proj.color, proj.isCrit ? 8 : 4);
 
-      applyHitStatusEffects(newEffects, proj, target.type, now);
+      applyHitStatusEffects(newEffects, proj, target.originType ?? target.type, now);
 
       // 連鎖閃電（使用 spatial hash 加速）
       if (proj.effects?.chain) {
@@ -361,11 +361,11 @@ function handleDirectHit(proj: Projectile, target: Enemy, ctx: ProjStepCtx): voi
   if (proj.towerType === 'sniper') addShake(proj.isCrit ? 2.5 : 0.8);
   if (proj.towerType === 'shotgun') addShake(0.3); // 多發子彈同時命中會疊加
 
-  applyHitStatusEffects(newEffects, proj, target.type, now);
+  applyHitStatusEffects(newEffects, proj, target.originType ?? target.type, now);
 
   // 風塔擊退效果：將敵人吹離路徑（飛行敵人不受擊退——其直線飛行不依賴路徑）
   let windDisplacedData: ReturnType<typeof computeWindKnockback> | null = null;
-  const targetFlying = ENEMY_DATA[target.type]?.ability === 'flying';
+  const targetFlying = getEnemyData(target.originType ?? target.type).ability === 'flying';
   if (proj.effects?.wind && !target.isDisplaced && !targetFlying) {
     const knockDist = proj.effects.wind.knockbackDistance;
     const windPath = PATHS[get().selectedPath];

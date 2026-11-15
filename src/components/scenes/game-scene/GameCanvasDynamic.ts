@@ -7,7 +7,7 @@
 
 import { drawEnemyModel } from '@/utils/enemyRenderer';
 import { getEnemySprite } from '@/utils/enemySpriteCache';
-import { getEnemyVisuals, getTowerVisuals, getTowerData } from '@/store/gameStoreUtils';
+import { getEnemyData, getEnemyVisuals, getTowerVisuals, getTowerData } from '@/store/gameStoreUtils';
 import { ENEMY_DATA } from '@/data/gameData';
 import type { RenderSnapshot } from '@/data/renderSnapshot';
 import { drawTowerModel } from '@/components/game/TowerModels';
@@ -603,12 +603,12 @@ function drawEnemies(
   // x/y/size/healthRatio/ghostFade/abilitySuppressed 都由純函式層算好，這裡不再回查 store。
   for (let frameIndex = 0; frameIndex < enemyCount; frameIndex++) {
     const enemy = frames[frameIndex];
-    const enemyData = ENEMY_DATA[enemy.type];
+    const enemyData = getEnemyData(enemy.originType ?? enemy.type);
     const x = offsetX + enemy.x * tileSize + tileSize / 2;
     const y = offsetY + enemy.y * tileSize + tileSize / 2;
     const radius = (enemy.size / 50) * tileSize * 0.4;
 
-    const enemyVisuals = getEnemyVisuals(enemy.type);
+    const enemyVisuals = getEnemyVisuals(enemy.type, enemy.originType);
     const enemyRadius = radius * enemyVisuals.modelScale;
 
     // 出生動畫：縮放彈入 + 淡入 + 擴散光環（spawnAgeMs < 0 = 沒有出生時間，視為動畫已結束）

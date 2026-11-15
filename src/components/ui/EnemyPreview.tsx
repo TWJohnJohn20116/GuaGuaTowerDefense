@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useMemo } from 'react';
 import { drawEnemyModel } from '@/utils/enemyRenderer';
-import { ENEMY_DATA } from '@/data/gameData';
+import { getEnemyData } from '@/store/gameStoreUtils';
 
 /**
  * 敵人 Canvas 預覽元件 - 傳入 enemyId 即可顯示獨特敵人模型
@@ -17,7 +17,7 @@ const EnemyPreview = ({
   size?: number;
   animate?: boolean;
 }) => {
-  const enemyData = useMemo(() => ENEMY_DATA[enemyId as keyof typeof ENEMY_DATA], [enemyId]);
+  const enemyData = useMemo(() => getEnemyData(enemyId), [enemyId]);
   const color = colorOverride || enemyData?.color || '#ef4444';
 
   const canvasRef = useRef<HTMLCanvasElement>(null);

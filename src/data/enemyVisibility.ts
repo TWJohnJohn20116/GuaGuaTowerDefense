@@ -1,4 +1,4 @@
-import { ENEMY_DATA } from '@/data/gameData';
+import { resolveEnemyData } from '@/data/enemyDataProvider';
 
 /**
  * 敵人隱身 / 相位週期判定（純函式）
@@ -14,11 +14,11 @@ const STEALTH_FADE_MS = 250;
 
 /** 敵人目前是否處於隱身狀態（塔無法鎖定為主目標） */
 export const isEnemyStealthed = (
-  enemy: { type: string; health: number; spawnTime?: number },
+  enemy: { type: string; originType?: string; health: number; spawnTime?: number },
   now: number,
 ): boolean => {
   if (enemy.health <= 0) return false;
-  const data = ENEMY_DATA[enemy.type as keyof typeof ENEMY_DATA];
+  const data = resolveEnemyData(enemy.originType ?? enemy.type);
   if (data?.ability !== 'stealth') return false;
   const dur = data.stealthDuration ?? 3000;
   const cd = data.stealthCooldown ?? 5000;
@@ -31,11 +31,11 @@ export const isEnemyStealthed = (
  * 非隱身型敵人恆回傳 0。
  */
 export const getEnemyStealthFade = (
-  enemy: { type: string; health: number; spawnTime?: number },
+  enemy: { type: string; originType?: string; health: number; spawnTime?: number },
   now: number,
 ): number => {
   if (enemy.health <= 0) return 0;
-  const data = ENEMY_DATA[enemy.type as keyof typeof ENEMY_DATA];
+  const data = resolveEnemyData(enemy.originType ?? enemy.type);
   if (data?.ability !== 'stealth') return 0;
   const dur = data.stealthDuration ?? 3000;
   const cd = data.stealthCooldown ?? 5000;
@@ -57,11 +57,11 @@ export const getEnemyStealthFade = (
 
 /** 敵人目前是否處於相位狀態（無法鎖定且免疫傷害） */
 export const isEnemyPhased = (
-  enemy: { type: string; health: number; spawnTime?: number },
+  enemy: { type: string; originType?: string; health: number; spawnTime?: number },
   now: number,
 ): boolean => {
   if (enemy.health <= 0) return false;
-  const data = ENEMY_DATA[enemy.type as keyof typeof ENEMY_DATA];
+  const data = resolveEnemyData(enemy.originType ?? enemy.type);
   if (data?.ability !== 'phase') return false;
   const dur = data.phaseDuration ?? 2000;
   const cd = data.phaseCooldown ?? 4000;
@@ -71,11 +71,11 @@ export const isEnemyPhased = (
 
 /** 相位視覺強度 0~1（0=實體、1=完全相位），含平滑過渡。非相位型敵人恆回傳 0。 */
 export const getEnemyPhaseFade = (
-  enemy: { type: string; health: number; spawnTime?: number },
+  enemy: { type: string; originType?: string; health: number; spawnTime?: number },
   now: number,
 ): number => {
   if (enemy.health <= 0) return 0;
-  const data = ENEMY_DATA[enemy.type as keyof typeof ENEMY_DATA];
+  const data = resolveEnemyData(enemy.originType ?? enemy.type);
   if (data?.ability !== 'phase') return 0;
   const dur = data.phaseDuration ?? 2000;
   const cd = data.phaseCooldown ?? 4000;

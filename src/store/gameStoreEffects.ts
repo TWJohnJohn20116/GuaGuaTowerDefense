@@ -1,8 +1,8 @@
 import type { GameStore } from './gameStoreTypes';
 import type { Enemy, DeathShard, DamageText, ImpactParticle, DeathAnimation } from '@/types/game';
-import { ENEMY_DATA } from '@/data/gameData';
+
 import { pruneFusionAnimations, pruneSellAnimations, pruneUpgradeAnimations } from '@/data/fxLifetime';
-import { getEnemyVisuals } from './gameStoreUtils';
+import { getEnemyData, getEnemyVisuals } from './gameStoreUtils';
 
 type GetState = () => GameStore;
 type SetState = (partial: Partial<GameStore> | ((state: GameStore) => Partial<GameStore>)) => void;
@@ -168,8 +168,8 @@ export const createEffectActions = (get: GetState, set: SetState) => ({
   },
 
   addDeathAnimation: (enemy: Enemy) => {
-    const enemyData = ENEMY_DATA[enemy.type];
-    const visuals = getEnemyVisuals(enemy.type);
+    const enemyData = getEnemyData(enemy.originType ?? enemy.type);
+    const visuals = getEnemyVisuals(enemy.type, enemy.originType);
     const isBoss = enemy.type === 'boss' || enemy.type === 'miniboss';
     const isElite = enemy.type === 'elite' || enemy.type === 'berserker' || enemy.type === 'mage';
     const duration = isBoss ? DEATH_DURATION_BOSS : isElite ? DEATH_DURATION_ELITE : DEATH_DURATION_NORMAL;

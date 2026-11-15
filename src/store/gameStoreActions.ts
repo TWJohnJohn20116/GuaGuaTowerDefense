@@ -233,6 +233,14 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     // 浮動金錢文字（出售退款）
     get().addMoneyText(tower.gridPos.col, tower.gridPos.row, sellPrice, true);
 
+    // Mod 腳本：賣塔事件
+    notifyModScripts('onTowerSold', {
+      towerType: tower.type,
+      amount: sellPrice,
+      row: tower.gridPos.row,
+      col: tower.gridPos.col,
+    });
+
     // 追蹤成就
     getAchievementStore().then(store => {
       store.getState().onTowerSold(sellPrice);

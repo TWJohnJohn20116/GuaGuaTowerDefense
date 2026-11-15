@@ -24,8 +24,8 @@ import {
   WARP_TRAP_STUN_DURATION,
   EMP_PULSE_DAMAGE,
 } from '@/data/playerSkillData';
-import { GAME_CONSTANTS, PATHS, ENEMY_DATA } from '@/data/gameData';
-import { isEnemyPhased } from './gameStoreUtils';
+import { GAME_CONSTANTS, PATHS } from '@/data/gameData';
+import { getEnemyData, isEnemyPhased } from './gameStoreUtils';
 import { useShopStore } from './shopStore';
 import { playSkill } from '@/services/audioService';
 import { applyEmpPulse } from '@/utils/empPulse';
@@ -348,7 +348,7 @@ export const createPlayerSkillActions = (get: GetState, set: SetState) => ({
           e.health > 0 &&
           !e.isDisplaced &&
           !isEnemyPhased(e, now) &&
-          ENEMY_DATA[e.type]?.ability !== 'flying',
+          getEnemyData(e.originType ?? e.type).ability !== 'flying',
       );
       if (candidates.length === 0 || !path) {
         set({

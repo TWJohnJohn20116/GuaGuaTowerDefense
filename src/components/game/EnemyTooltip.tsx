@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { HeartIcon, SnowflakeIcon, SkullIcon, SparklesIcon, Tornado2Icon, EyeIcon, ShieldIcon, FlameIcon } from '@/components/ui/Icons';
-import { ENEMY_DATA } from '@/data/gameData';
-import { isEnemyStealthed, isEnemyPhased } from '@/store/gameStoreUtils';
+
+import { getEnemyData, isEnemyStealthed, isEnemyPhased } from '@/store/gameStoreUtils';
 import type { Enemy } from '@/types/game';
 import EnemyPreview from '@/components/ui/EnemyPreview';
 import { useTranslation } from '@/i18n';
@@ -10,7 +10,7 @@ export const EnemyTooltip = ({ enemy, x, y }: { enemy: Enemy | null; x: number; 
   const { t } = useTranslation();
   if (!enemy) return null;
 
-  const enemyData = ENEMY_DATA[enemy.type];
+  const enemyData = getEnemyData(enemy.originType ?? enemy.type);
   const healthPercent = (enemy.health / enemyData.health) * 100;
 
   const slowEffect = enemy.effects.find(e => e.type === 'slow');

@@ -1,8 +1,10 @@
 import type { 
-  PathConfig, TowerType, TowerData, Tile, TileType, KeyBindings, GridPosition, Mod, Custom3DModel
+  PathConfig, TowerType, TowerData, Tile, TileType, KeyBindings, GridPosition, Mod, Custom3DModel,
+  EnemyData, EnemyType
 } from '@/types/game';
 import { GAME_CONSTANTS, PATHS, TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
 import { useModStore } from './modStore';
+import { setEnemyDataResolver } from '@/data/enemyDataProvider';
 import { getArmorTakenMult, getDamageTakenMult, type CombatEffectLike } from '@/data/combatStatus';
 import {
   getEnemyPhaseFade,
@@ -139,19 +141,99 @@ const buildEnemyVisuals = (enemyType: string, mods: Mod[]): ModVisuals => {
   return DEFAULT_ENEMY_VISUALS;
 };
 
-export const getEnemyVisuals = (enemyType: string): ModVisuals => {
+/**
+ * 敵人視覺參數。
+ * 自訂敵人 spawn 時 type 會被映到內建基底（normal／flyer…），真正的外觀要看 originType，
+ * 所以 cache key 必須把兩者一起算，否則同型不同 mod 敵人會互相蓋掉。
+ */
+export const getEnemyVisuals = (enemyType: string, originType?: string): ModVisuals => {
   const mods = useModStore.getState().mods;
   if (mods !== enemyVisualsModsRef) {
     enemyVisualsCache.clear();
     enemyVisualsModsRef = mods;
   }
 
-  const cached = enemyVisualsCache.get(enemyType);
+  const lookup = originType ?? enemyType;
+  const cacheKey = `${enemyType}|${lookup}`;
+  const cached = enemyVisualsCache.get(cacheKey);
   if (cached) return cached;
 
-  const visuals = buildEnemyVisuals(enemyType, mods);
-  enemyVisualsCache.set(enemyType, visuals);
+  const visuals = buildEnemyVisuals(lookup, mods);
+  enemyVisualsCache.set(cacheKey, visuals);
   return visuals;
+};
+
+// ============ Mod 敵人解析 ============
+const modEnemyDataCache = new Map<string, EnemyData>();
+let cachedEnemyModsRef: Mod[] | null = null;
+
+const buildModEnemyData = (mods: Mod[], enemyId: string): EnemyData | null => {
+  for (const mod of mods) {
+    if (!mod.enabled) continue;
+    const enemy = mod.content.enemies?.find((item) => item.id === enemyId);
+    if (!enemy) continue;
+    return {
+      ...enemy,
+      name: enemy.name || enemyId,
+      description: enemy.description ?? '',
+      ability: enemy.ability,
+    };
+  }
+  return null;
+};
+
+/**
+ * 取得敵人資料：內建優先、其次已啟用 mod 的自訂敵人，最後退回 normal。
+ *
+ * 回傳值可能是共用的常數物件（內建）或快取物件（mod），呼叫端只能讀、不可改。
+ */
+export const getEnemyData = (type: string): EnemyData => {
+  const builtin = ENEMY_DATA[type as EnemyType];
+  if (builtin) return builtin;
+  const mods = useModStore.getState().mods;
+  if (mods !== cachedEnemyModsRef) {
+    cachedEnemyModsRef = mods;
+    modEnemyDataCache.clear();
+  }
+  const cached = modEnemyDataCache.get(type);
+  if (cached) return cached;
+  const resolved = buildModEnemyData(mods, type) ?? ENEMY_DATA.normal;
+  modEnemyDataCache.set(type, resolved);
+  return resolved;
+};
+
+// data 層（隱身／相位、renderSnapshot）透過注入解析自訂敵人，不反向 import store
+setEnemyDataResolver(getEnemyData);
+
+/** 這個 id 是否可生成（內建或已啟用 mod 的自訂敵人） */
+export const isKnownEnemyType = (type: string): boolean => {
+  if (ENEMY_DATA[type as EnemyType]) return true;
+  const mods = useModStore.getState().mods;
+  return mods.some(
+    (mod) => mod.enabled && (mod.content.enemies ?? []).some((enemy) => enemy.id === type),
+  );
+};
+
+/**
+ * 自訂敵人要掛在哪個內建 type 上。
+ *
+ * 引擎的能力分支是看 EnemyData.ability（飛行、治療、護盾…），不是看 type；
+ * type 主要影響模型與部分硬判斷，所以把 ability 映回對應基底即可。
+ */
+export const inferEnemyBaseType = (data: EnemyData): EnemyType => {
+  switch (data.ability) {
+    case 'flying': return 'flyer';
+    case 'healing': return 'healer';
+    case 'spawning': return 'spawner';
+    case 'shield': return 'shield';
+    case 'stealth': return 'stealth';
+    case 'teleport': return 'mage';
+    case 'explode': return 'bomber';
+    case 'jam': return 'jammer';
+    case 'escort': return 'escort';
+    case 'swarm': return 'swarm';
+    default: return 'normal';
+  }
 };
 
 // ============ 隱身 / 相位週期判定 ============
@@ -215,7 +297,7 @@ export const applyDamageToEnemy = (
   if (!opts?.ignoreArmor) {
     // 基礎裝甲（依敵人 type）+ 突變挑戰 per-enemy 裝甲加成；破甲會削掉一部分
     const armor = (
-      (ENEMY_DATA[enemy.type as keyof typeof ENEMY_DATA]?.armorValue ?? 0)
+      (getEnemyData(enemy.originType ?? enemy.type).armorValue ?? 0)
       + (enemy.armorBonus ?? 0)
       + (enemy.escortArmor ?? 0)
     ) * getArmorTakenMult(enemy.effects, now);

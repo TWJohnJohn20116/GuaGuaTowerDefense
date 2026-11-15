@@ -1,7 +1,7 @@
 import type { Enemy, EnemyType, Projectile, StatusEffect, Tower, TowerType } from '@/types/game';
 import { getEnemyPhaseFade, getEnemyStealthFade } from '@/data/enemyVisibility';
 import { isJammerSuppressed } from '@/data/jammerAura';
-import { ENEMY_DATA } from '@/data/gameData';
+import { resolveEnemyData } from './enemyDataProvider';
 
 /**
  * 渲染 snapshot 契約（純函式層）
@@ -268,7 +268,7 @@ export const writeRenderSnapshot = (
 
     frame.id = enemy.id;
     frame.type = enemy.type;
-    frame.baseColor = ENEMY_DATA[enemy.type]?.color ?? '#ffffff';
+    frame.baseColor = resolveEnemyData(enemy.originType ?? enemy.type).color;
     frame.x = enemy.x;
     frame.y = enemy.y;
     frame.size = enemy.size;

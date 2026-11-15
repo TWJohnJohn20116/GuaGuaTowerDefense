@@ -262,10 +262,6 @@ export function validateModContent(
           pushError(fillTemplate(v(m, 'valWaveUnknownEnemy'), {
             name: wsName, wave: waveNum, group: String(gi + 1), type: eg.type,
           }), tabFlag);
-        } else if (!ENEMY_DATA[eg.type as keyof typeof ENEMY_DATA]) {
-          pushWarning(fillTemplate(v(m, 'valWaveCustomEnemy'), {
-            name: wsName, wave: waveNum, type: eg.type,
-          }), tabFlag);
         }
         if (eg.count <= 0) {
           pushError(fillTemplate(v(m, 'valWaveEnemyCount'), { name: wsName, wave: waveNum }), tabFlag);

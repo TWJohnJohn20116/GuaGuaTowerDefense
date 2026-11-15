@@ -5,7 +5,7 @@ import { useStatsStore } from '@/store/statsStore';
 import { useAchievementStore } from '@/store/achievementStore';
 import { PATHS, WAVE_CONFIGS, GAME_CONSTANTS, ENEMY_DATA, generateEndlessWaveConfig } from '@/data/gameData';
 import { getSegmentMap } from '@/store/gameLoop/pathHelpers';
-import { generateId, getTowerData } from '@/store/gameStoreUtils';
+import { generateId, getEnemyData, getTowerData } from '@/store/gameStoreUtils';
 import { clearTowerIds } from '@/store/gridTower';
 import { createFrameLoopGuard } from '@/utils/frameLoopGuard';
 import { requestSellTower } from '@/store/sellConfirm';
@@ -471,7 +471,7 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
           const spawnedChildren: Enemy[] = [];
           const towerBombDamage: Record<string, number> = {};
           for (const e of killedEnemies) {
-            const deadData = ENEMY_DATA[e.type];
+            const deadData = getEnemyData(e.originType ?? e.type);
 
             // 生產敵人：死亡時分裂出小型敵人（繼承死亡位置與路徑進度）
             if (deadData?.spawnOnDeath) {
@@ -562,7 +562,7 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
             for (let i = 0; i < killedEnemies.length; i++) {
               const e = killedEnemies[i];
               const count = e.type === 'boss' ? 30 : (e.type === 'elite' ? 15 : 8);
-              const enemyData = ENEMY_DATA[e.type];
+              const enemyData = getEnemyData(e.originType ?? e.type);
               const color = enemyData?.color || '#ef4444';
               addImpactParticles(e.x, e.y, color, count);
               addDeathAnimation(e);
