@@ -4,11 +4,11 @@ import { useShopStore } from '@/store/shopStore';
 import { useTalentStore } from '@/store/talentStore';
 import { useAchievementStore } from '@/store/achievementStore';
 import { getCatalogAchievements } from '@/store/achievementStoreCheck';
-import { useStatsStore } from '@/store/statsStore';
+import { useWorkshopStore } from '@/store/workshopStore';
 import { useTranslation } from '@/i18n';
 import type { HomeFocusTarget } from '@/data/mainMenuHome';
 import { HOME_QUICK_LEFT_CLASS, HOME_QUICK_RIGHT_CLASS } from '@/data/mainMenuHome';
-import { ChartIcon, ShopIcon, TreeIcon, TrophyIcon } from '@/components/ui/Icons';
+import { ShopIcon, TreeIcon, TrophyIcon, WrenchIcon } from '@/components/ui/Icons';
 
 /**
  * 主選單 · Hero 環繞的快捷磚
@@ -88,8 +88,7 @@ export function MenuHomeQuickRight({ focused, onFocus }: QuickProps) {
   const { t } = useTranslation();
   const setScene = useGameStore((s) => s.setScene);
   const talentPoints = useTalentStore((s) => s.talentPoints);
-  const globalStats = useStatsStore((s) => s.globalStats);
-  const personalBests = useStatsStore((s) => s.personalBests);
+  const projects = useWorkshopStore((s) => s.projects);
 
   return (
     <div className={HOME_QUICK_RIGHT_CLASS}>
@@ -107,18 +106,18 @@ export function MenuHomeQuickRight({ focused, onFocus }: QuickProps) {
         onFocus={() => onFocus('talentTree')}
         onSelect={() => setScene('talentTree')}
       />
-      <RecordTile
-        id="statistics"
-        label={t.mainMenu.hero.quickRecords}
-        hint={t.mainMenu.hero.quickRecordsHint}
-        rows={[
-          { k: t.mainMenu.hero.quickWinRate, v: Math.round(globalStats.winRate * 100) + '%' },
-          { k: t.mainMenu.hero.quickBestWave, v: String(personalBests.highestWave) },
-          { k: t.mainMenu.hero.quickGames, v: String(globalStats.totalGamesPlayed) },
-        ]}
-        focused={focused === 'statistics'}
-        onFocus={() => onFocus('statistics')}
-        onSelect={() => setScene('statistics')}
+      <QuickTile
+        id="workshop"
+        label={t.mainMenu.workshop}
+        value={projects.length}
+        unit={t.mainMenu.hero.projectUnit}
+        hint={t.mainMenu.hero.quickWorkshopHint}
+        icon={<WrenchIcon className="h-52 w-52" />}
+        tone="plain"
+        flex="lg:flex-[1]"
+        focused={focused === 'workshop'}
+        onFocus={() => onFocus('workshop')}
+        onSelect={() => setScene('workshop')}
       />
     </div>
   );

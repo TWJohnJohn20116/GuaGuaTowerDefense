@@ -1,5 +1,6 @@
 import type React from 'react';
 import { useGameStore } from '@/store/gameStore';
+import { useStatsStore } from '@/store/statsStore';
 import { useTranslation } from '@/i18n';
 import type { HomeFocusTarget, HomeGroupId, HomeGroupScene } from '@/data/mainMenuHome';
 import {
@@ -14,11 +15,11 @@ import { MenuHomeCard } from './MenuHomeCard';
 import {
   BooksIcon,
   ClipboardIcon,
+  ChartIcon,
   GearIcon,
   OpenBookIcon,
   PaletteIcon,
   PlayIcon,
-  WrenchIcon,
 } from '@/components/ui/Icons';
 
 /** 群組燈號：三群各一個語意色，標題列就看得出來這是哪一類 */
@@ -46,15 +47,22 @@ export function MenuHomeGroups({
 }) {
   const { t } = useTranslation();
   const setScene = useGameStore((s) => s.setScene);
+  const globalStats = useStatsStore((s) => s.globalStats);
+  const personalBests = useStatsStore((s) => s.personalBests);
 
   const rows: Record<
     HomeGroupScene,
     { label: string; sub: string; icon: React.ReactNode; tone: 'ink' }
   > = {
-    workshop: {
-      label: t.mainMenu.workshop,
-      sub: t.mainMenu.workshopDesc,
-      icon: <WrenchIcon className="h-5 w-5" />,
+    statistics: {
+      label: t.mainMenu.hero.quickRecords,
+      sub:
+        Math.round(globalStats.winRate * 100) +
+        '% · ' +
+        t.mainMenu.hero.quickBestWave +
+        ' ' +
+        personalBests.highestWave,
+      icon: <ChartIcon className="h-5 w-5" />,
       tone: 'ink',
     },
     replay: {

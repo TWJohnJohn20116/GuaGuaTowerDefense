@@ -94,6 +94,8 @@ export const zhTW = {
       quickTalentHint: '分配天賦',
       quickAchievementsHint: '查看成就',
       quickRecordsHint: '查看統計',
+      quickWorkshopHint: '開始創作',
+      projectUnit: '專案',
       readyTag: '可點',
       tutorialSub: '規則與操作',
       settingsSub: '音效與顯示',

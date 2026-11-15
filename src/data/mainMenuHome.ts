@@ -46,7 +46,7 @@ export type HomeGroupId = 'battle' | 'collection' | 'system';
 
 /** 群組磚的場景（快捷四塊不在群組內，避免同一目的地放兩塊磚） */
 export type HomeGroupScene =
-  | 'workshop'
+  | 'statistics'
   | 'replay'
   | 'tutorial'
   | 'encyclopedia'
@@ -61,13 +61,13 @@ export interface HomeEntryGroup {
 }
 
 export const HOME_ENTRY_GROUPS: readonly HomeEntryGroup[] = [
-  { id: 'battle', scenes: ['workshop', 'replay', 'tutorial'], span: 5 },
+  { id: 'battle', scenes: ['statistics', 'replay', 'tutorial'], span: 5 },
   { id: 'collection', scenes: ['encyclopedia', 'skins'], span: 4 },
   { id: 'system', scenes: ['changelog', 'settings'], span: 3 },
 ];
 
 /** 快捷磚的場景（Hero 環繞那四塊） */
-export const HOME_QUICK_SCENES = ['shop', 'talentTree', 'achievements', 'statistics'] as const;
+export const HOME_QUICK_SCENES = ['shop', 'talentTree', 'achievements', 'workshop'] as const;
 
 export type HomeQuickScene = (typeof HOME_QUICK_SCENES)[number];
 
@@ -86,8 +86,8 @@ export const HOME_FOCUS_ORDER = [
   'shop',
   'achievements',
   'talentTree',
-  'statistics',
   'workshop',
+  'statistics',
   'replay',
   'tutorial',
   'encyclopedia',
