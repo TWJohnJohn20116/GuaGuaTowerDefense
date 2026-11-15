@@ -4,7 +4,7 @@
  *  - 四層材質：metal 機身 / trim 暗色金屬件 / accent 主色 / glow 強發光件
  *  - 通用細節：底座裙邊 + 接地發光環 + 鉚釘環、頸環、天線警示燈；小裝飾件不投影控制陰影開銷
  *  - 等級進化：等級差異呈現在模型本體（武器件 / 核心件漸進強化，各塔 Lv2-Lv5 形態不同）
- *  - userData.spinPart：持續旋轉部件（風塔葉片、雷射懸浮環等）由渲染迴圈驅動
+ *  - userData.spinParts（另留 spinPart 相容）：持續旋轉部件（風塔葉片、雷射懸浮環、自訂塔多個自轉件）
  *  - userData.floatPart：浮動部件（冰晶、立幣等），Model3DPreview 預覽時上下漂浮
  *
  * 邊界約束：地塊視覺尺寸 0.94×0.94（半寬 0.47）。所有部件（含旋轉掃過範圍與
@@ -13,7 +13,7 @@
  */
 
 import * as THREE from 'three';
-import type { Custom3DModel } from '@/types/game';
+import type { Custom3DModel, Custom3DPart } from '@/types/game';
 
 // ===== 共享幾何體（模組級單例，全塔共用；dispose 時不銷毀） =====
 // 段數取高細分（圓柱 44~48、球 36x26、環管 16x56 級別）消除低面數稜角感；
@@ -79,38 +79,53 @@ const G = {
 export const TOWER_PART_SHAPES: Record<string, THREE.BufferGeometry> = G;
 
 // ===== 材質工廠（每塔實例化，dispose 時銷毀） =====
+/**
+ * 標記「本模型擁有」的材質：disposeTowerModel 只釋放帶此標記的材質。
+ * 這些工廠每次呼叫都新建一份（僅在同一模型內共用），跨模型共享的單例材質不帶標記，不會被誤放。
+ */
+const owned = <T extends THREE.Material>(m: T): T => {
+  m.userData.owned = true;
+  return m;
+};
+
 const metalMat = () =>
-  new THREE.MeshStandardMaterial({ color: 0x232936, roughness: 0.55, metalness: 0.5 });
+  owned(new THREE.MeshStandardMaterial({ color: 0x232936, roughness: 0.55, metalness: 0.5 }));
 
 const trimMat = () =>
-  new THREE.MeshStandardMaterial({ color: 0x141821, roughness: 0.35, metalness: 0.8 });
+  owned(new THREE.MeshStandardMaterial({ color: 0x141821, roughness: 0.35, metalness: 0.8 }));
 
 const accentMat = (color: number) =>
-  new THREE.MeshStandardMaterial({
-    color,
-    roughness: 0.38,
-    metalness: 0.35,
-    emissive: color,
-    emissiveIntensity: 0.3,
-  });
+  owned(
+    new THREE.MeshStandardMaterial({
+      color,
+      roughness: 0.38,
+      metalness: 0.35,
+      emissive: color,
+      emissiveIntensity: 0.3,
+    }),
+  );
 
 const glowMat = (color: number) =>
-  new THREE.MeshStandardMaterial({
-    color,
-    roughness: 0.25,
-    metalness: 0.1,
-    emissive: color,
-    emissiveIntensity: 1.0,
-  });
+  owned(
+    new THREE.MeshStandardMaterial({
+      color,
+      roughness: 0.25,
+      metalness: 0.1,
+      emissive: color,
+      emissiveIntensity: 1.0,
+    }),
+  );
 
 const goldMat = () =>
-  new THREE.MeshStandardMaterial({
-    color: 0xf59e0b,
-    roughness: 0.35,
-    metalness: 0.6,
-    emissive: 0xf59e0b,
-    emissiveIntensity: 0.3,
-  });
+  owned(
+    new THREE.MeshStandardMaterial({
+      color: 0xf59e0b,
+      roughness: 0.35,
+      metalness: 0.6,
+      emissive: 0xf59e0b,
+      emissiveIntensity: 0.3,
+    }),
+  );
 
 // ===== 建構輔助 =====
 type Ctx = {
@@ -598,10 +613,63 @@ export interface TowerModelOptions {
   custom3d?: Custom3DModel;
 }
 
+// ===== 自訂部件模型（3D 模型編輯器產生）=====
+/** 部件節點索引：partId → 部件節點（hidden 部件是空 Group），編輯器 gizmo 定位／選取框用 */
+type PartNodeMap = Record<string, THREE.Object3D>;
+type PartMats = Record<Custom3DPart['material'], THREE.MeshStandardMaterial>;
+
+/** 解析 CSS 色字串；解析失敗（含未知色名）回傳 null，由呼叫端回退材質預設色 */
+function parsePartColor(input: string | undefined): THREE.Color | null {
+  const raw = input?.trim();
+  if (!raw) return null;
+  const v = raw.toLowerCase();
+  const ok = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/.test(v)
+    || /^(?:rgb|rgba|hsl|hsla)\([^()]*\)$/.test(v)
+    || Object.prototype.hasOwnProperty.call(THREE.Color.NAMES, v);
+  if (!ok) return null;
+  try {
+    return new THREE.Color(raw);
+  } catch {
+    return null;
+  }
+}
+
+/** 材質：先取 material 角色材質；有 color／emissive／opacity 覆蓋時建立並快取專屬材質 */
+function partMaterial(p: Custom3DPart, mats: PartMats, cache: Map<string, THREE.MeshStandardMaterial>): THREE.MeshStandardMaterial {
+  const base = mats[p.material] ?? mats.accent;
+  const color = parsePartColor(p.color);
+  const emissive = typeof p.emissive === 'number' && Number.isFinite(p.emissive) ? Math.max(0, Math.min(3, p.emissive)) : undefined;
+  const opacity = typeof p.opacity === 'number' && Number.isFinite(p.opacity) ? Math.max(0, Math.min(1, p.opacity)) : 1;
+  if (!color && emissive === undefined && opacity >= 1) return base;
+  // 相同覆蓋組合共用一份材質，避免每部件一份造成材質爆炸
+  const key = [p.material, p.color ?? '', p.emissive ?? '', p.opacity ?? ''].join('|');
+  const cached = cache.get(key);
+  if (cached) return cached;
+  const mat = base.clone();
+  if (color) {
+    mat.color.copy(color);
+    mat.emissive.copy(color);
+  }
+  if (emissive !== undefined) mat.emissiveIntensity = emissive;
+  if (opacity < 1) {
+    mat.transparent = true;
+    mat.opacity = opacity;
+    mat.depthWrite = false;
+  }
+  mat.userData.owned = true;
+  cache.set(key, mat);
+  return mat;
+}
+
+/** 每軸縮放夾限 0.2~3；sx／sy／sz 缺省時回退舊欄位 scale */
+function partAxisScale(v: number | undefined, fallback: number): number {
+  return Math.max(0.2, Math.min(3, typeof v === 'number' && Number.isFinite(v) ? v : fallback));
+}
+
 /**
- * 依自訂部件資料組裝塔模型（3D 模型編輯器同款管線）。
- * 部件全掛在 inner 之下；spin 部件集中到 spinGroup（遊戲內繞 Y 自轉）。
- * XZ 超出地塊半寬（0.47）時整體等比收縮回界內。
+ * 依自訂部件資料組裝塔模型（3D 模型編輯器同款管線）：部件依 parentId 成樹（父件不存在／指向
+ * 自己／循環 → 根層），hidden 只建空群組，變換取 sx/sy/sz（缺省回退 scale），材質可覆蓋並
+ * 快取，自轉部件各自包一層 Group 收進 userData.spinParts；XZ 超出地塊半寬 0.47 時整體收縮。
  */
 export function buildCustomTowerModel(
   model: Custom3DModel,
@@ -613,51 +681,81 @@ export function buildCustomTowerModel(
   if (opts.glowIntensity !== undefined) {
     glow.emissiveIntensity = 0.2 + Math.max(0, Math.min(1, opts.glowIntensity)) * 1.6;
   }
-  const mats: Record<string, THREE.Material> = {
-    metal: metalMat(),
-    trim: trimMat(),
-    accent: accentMat(color),
-    glow,
-    gold: goldMat(),
-  };
-  const spinGroup = new THREE.Group();
-  let hasSpin = false;
+  const mats: PartMats = { metal: metalMat(), trim: trimMat(), accent: accentMat(color), glow, gold: goldMat() };
+  const overrides = new Map<string, THREE.MeshStandardMaterial>();
 
+  // 1) 節點：每個部件一個（hidden 也建，只是用空 Group），id 重複者只取第一個
+  const nodes: PartNodeMap = {};
+  const byId = new Map<string, Custom3DPart>();
   for (const p of model.parts) {
+    if (!p || typeof p.id !== 'string' || p.id === '' || byId.has(p.id)) continue;
+    byId.set(p.id, p);
     const geo = G[p.shape as keyof typeof G];
-    if (!geo) continue;
-    const mesh = new THREE.Mesh(geo, mats[p.material] ?? mats.accent);
-    mesh.position.set(p.x, p.y, p.z);
-    mesh.rotation.set(p.rx, p.ry, p.rz);
-    const s = Math.max(0.2, Math.min(3, p.scale || 1));
-    mesh.scale.setScalar(s);
-    mesh.castShadow = true;
+    const node: THREE.Object3D = !p.hidden && geo
+      ? new THREE.Mesh(geo, partMaterial(p, mats, overrides))
+      : new THREE.Group();
+    if (node instanceof THREE.Mesh) node.castShadow = true;
+    node.userData.partId = p.id;
+    const base = p.scale || 1;
+    node.position.set(p.x, p.y, p.z);
+    node.rotation.set(p.rx, p.ry, p.rz);
+    node.scale.set(partAxisScale(p.sx, base), partAxisScale(p.sy, base), partAxisScale(p.sz, base));
+    nodes[p.id] = node;
+  }
+
+  // 2) 父件：不存在／指向自己／形成循環 → 當根層（沿父鏈上溯偵測，最多走部件數步）
+  const parentOf = new Map<string, string>();
+  for (const [id, p] of byId) {
+    const pid = typeof p.parentId === 'string' ? p.parentId : '';
+    if (!pid || pid === id || !byId.has(pid)) continue;
+    let cur = pid;
+    let cyclic = false;
+    for (let step = 0; step <= byId.size; step++) {
+      if (cur === id) { cyclic = true; break; }
+      const up = byId.get(cur);
+      const next = up && typeof up.parentId === 'string' ? up.parentId : '';
+      if (!next || next === cur || !byId.has(next)) break;
+      cur = next;
+    }
+    if (!cyclic) parentOf.set(id, pid);
+  }
+
+  // 3) 掛載：父件先存在即可（順序無關）；spin 部件多包一層自轉 Group
+  const spinParts: THREE.Object3D[] = [];
+  for (const [id, p] of byId) {
+    const node = nodes[id];
+    const pid = parentOf.get(id);
+    const holder = pid ? nodes[pid] : g;
     if (p.spin) {
-      hasSpin = true;
-      spinGroup.add(mesh);
+      const spin = new THREE.Group();
+      spin.userData.partId = id;
+      spin.userData.spin = 1.2;
+      spin.add(node);
+      holder.add(spin);
+      spinParts.push(spin);
     } else {
-      g.add(mesh);
+      holder.add(node);
     }
   }
-  if (hasSpin) {
-    spinGroup.userData.spin = 1.2;
-    g.add(spinGroup);
-    g.userData.spinPart = spinGroup;
+  if (spinParts.length > 0) {
+    g.userData.spinParts = spinParts;
+    g.userData.spinPart = spinParts[0];
   }
+  g.userData.partNodes = nodes;
 
-  // 越界保護：XZ 半徑超過地塊半寬時整體收縮
+  // 越界保護：XZ 半徑超過地塊半寬時整體收縮（全 hidden／空模型時 Box3 為空，跳過）
   const box = new THREE.Box3().setFromObject(g);
-  const r = Math.max(
-    Math.abs(box.min.x), Math.abs(box.max.x),
-    Math.abs(box.min.z), Math.abs(box.max.z),
-  );
-  if (r > 0.47) {
-    const k = 0.47 / r;
-    g.scale.setScalar(k);
-    const outer = new THREE.Group();
-    outer.add(g);
-    outer.userData.spinPart = g.userData.spinPart;
-    return outer;
+  if (!box.isEmpty()) {
+    const r = Math.max(Math.abs(box.min.x), Math.abs(box.max.x), Math.abs(box.min.z), Math.abs(box.max.z));
+    if (r > 0.47) {
+      g.scale.setScalar(0.47 / r);
+      const outer = new THREE.Group();
+      outer.add(g);
+      outer.userData.spinPart = g.userData.spinPart;
+      outer.userData.spinParts = g.userData.spinParts;
+      outer.userData.partNodes = nodes;
+      return outer;
+    }
   }
 
   return g;
@@ -766,13 +864,17 @@ export function buildTowerModel(
   return g;
 }
 
-/** 銷毀塔模型的所有材質（幾何體為共享單例，不銷毀） */
+/** 銷毀塔模型自己建立的材質（userData.owned）；共享幾何體與跨模型單例材質不動，同一材質只放一次 */
 export function disposeTowerModel(group: THREE.Group): void {
+  const seen = new Set<THREE.Material>();
   group.traverse((obj) => {
-    if (obj instanceof THREE.Mesh) {
-      const m = obj.material as THREE.Material | THREE.Material[];
-      if (Array.isArray(m)) m.forEach((mm) => mm.dispose());
-      else m?.dispose();
+    if (!(obj instanceof THREE.Mesh)) return;
+    const m = obj.material as THREE.Material | THREE.Material[];
+    const list = Array.isArray(m) ? m : [m];
+    for (const mat of list) {
+      if (!mat || seen.has(mat)) continue;
+      seen.add(mat);
+      if (mat.userData.owned === true) mat.dispose();
     }
   });
 }

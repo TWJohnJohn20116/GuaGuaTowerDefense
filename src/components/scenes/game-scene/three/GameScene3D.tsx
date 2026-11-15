@@ -622,9 +622,15 @@ export function GameScene3D() {
         // 等級越高越高大：高度全幅增長，XZ 不放大以確保不超出 0.94 地塊（模型基礎半徑 ≤ 0.47）
         const levelScale = towerLevelScale(t.level);
         g.scale.set(1, levelScale, 1);
-        // 持續旋轉部件（風塔葉片 / 雷射懸浮環 / 冰晶）
-        const spinPart = g.userData.spinPart as THREE.Object3D | undefined;
-        if (spinPart) spinPart.rotation.y += (spinPart.userData.spin || 1) * dtSec;
+        // 持續旋轉部件（風塔葉片 / 雷射懸浮環 / 冰晶）：自訂塔可有多個，優先逐個旋轉
+        const spinParts = g.userData.spinParts as THREE.Object3D[] | undefined;
+        if (spinParts && spinParts.length > 0) {
+          for (const part of spinParts) part.rotation.y += (part.userData.spin || 1) * dtSec;
+        } else {
+          // 舊模型只有單一 spinPart，保持相容
+          const spinPart = g.userData.spinPart as THREE.Object3D | undefined;
+          if (spinPart) spinPart.rotation.y += (spinPart.userData.spin || 1) * dtSec;
+        }
       }
       for (const [id, g] of towerGroups) {
         if (!aliveTower.has(id)) {

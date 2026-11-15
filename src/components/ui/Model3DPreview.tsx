@@ -5,7 +5,7 @@
  *  - 光照與遊戲 3D 視圖一致（環境光 + 暖色主光 + 冷色輪緣光）
  *  - 圓形展示台接陰影，背景透明融入卡片底色
  *  - 滑鼠 / 觸控拖曳旋轉，閒置後自動緩轉
- *  - 支援 userData.spinPart（風塔葉片等持續旋轉部件）與 userData.floatPart（浮動動畫）
+ *  - 支援 userData.spinParts／spinPart（風塔葉片、自訂塔多個自轉部件）與 userData.floatPart（浮動動畫）
  *
  * 封裝元件：
  *  - Tower3DPreview：依 towerId + level 用遊戲同款 buildTowerModel 建模
@@ -160,7 +160,10 @@ export function Model3DPreview({
     // ===== 渲染迴圈 =====
     const clock = new THREE.Clock();
     let raf = 0;
+    // 自訂塔可能有多個自轉部件：優先取 spinParts 陣列，舊模型回退單一 spinPart
+    const spinParts = model.userData?.spinParts as THREE.Object3D[] | undefined;
     const spinPart = model.userData?.spinPart as THREE.Object3D | undefined;
+    const spinList: THREE.Object3D[] = spinParts && spinParts.length > 0 ? spinParts : spinPart ? [spinPart] : [];
     const floatPart = model.userData?.floatPart as THREE.Object3D | undefined;
     const floatBaseY = floatPart?.position.y ?? 0;
 
@@ -173,7 +176,9 @@ export function Model3DPreview({
       }
       pivot.rotation.y = yaw;
       pivot.rotation.x = pitch;
-      if (spinPart) spinPart.rotation.y += dt * ((spinPart.userData?.spin as number) ?? 1);
+      for (let i = 0; i < spinList.length; i++) {
+        spinList[i].rotation.y += dt * ((spinList[i].userData?.spin as number) ?? 1);
+      }
       if (floatPart) floatPart.position.y = floatBaseY + Math.sin(t * 2.2) * 0.05;
       renderer.render(scene, camera);
       raf = requestAnimationFrame(loop);
