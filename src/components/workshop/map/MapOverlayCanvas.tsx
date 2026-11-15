@@ -176,9 +176,10 @@ const localPoint = (canvas: HTMLCanvasElement, clientX: number, clientY: number)
 
 const pointAt = (geom: MapGeometry, x: number, y: number): GridPoint | null => {
   if (geom.tileSize <= 0) return null;
+  // 自由制：直接換算成連續格座標，不 floor——拖曳可以停在格與格之間
   const point: GridPoint = {
-    col: Math.floor((x - geom.offsetX) / geom.tileSize),
-    row: Math.floor((y - geom.offsetY) / geom.tileSize),
+    col: (x - geom.offsetX) / geom.tileSize,
+    row: (y - geom.offsetY) / geom.tileSize,
   };
   return isInside(point, geom.cols, geom.rows) ? point : null;
 };

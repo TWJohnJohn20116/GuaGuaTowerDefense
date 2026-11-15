@@ -7,6 +7,11 @@
  * 座標語彙沿用 GAME_CONSTANTS.GRID_COLS / GRID_ROWS 的 (col,row)，與 PathConfig.waypoints 一致。
  */
 import { GAME_CONSTANTS } from '@/data/gameData';
+import {
+  DEFAULT_PATH_WIDTH,
+  DEFAULT_TOWER_RADIUS,
+  distanceToPolyline,
+} from '@/data/mapGeometry';
 import type { GridPosition, MapPoint } from '@/types/game';
 
 /** 編輯器內使用的格座標（與 GridPosition 同構，但名稱更短） */
@@ -86,8 +91,17 @@ export const pointKey = key;
 
 export const samePoint = (a: GridPoint, b: GridPoint): boolean => a.col === b.col && a.row === b.row;
 
+/**
+ * 是否在地圖範圍內。
+ * 自由制允許浮點（3.5, 7.25），只要落在 [0, cols) × [0, rows) 就是合法位置；
+ * 舊版要求整數，等於把「只能拖到格點」寫進了資料層。
+ */
 export const isInside = (p: GridPoint, cols: number, rows: number): boolean =>
-  Number.isInteger(p.col) && Number.isInteger(p.row) && p.col >= 0 && p.col < cols && p.row >= 0 && p.row < rows;
+  Number.isFinite(p.col) && Number.isFinite(p.row) &&
+  p.col >= 0 && p.col < cols && p.row >= 0 && p.row < rows;
+
+/** 障礙圓心吸附到半格：自由拖曳但不讓筆刷堆出滿地重疊圓 */
+const snapHalf = (v: number): number => Math.round(v * 2) / 2;
 
 /** 四鄰相接（不含對角），拖曳後的路徑必須維持這個關係 */
 const isAdjacent = (a: GridPoint, b: GridPoint): boolean =>
@@ -189,16 +203,21 @@ export function expandPathCells(waypoints: GridPoint[]): GridPoint[] {
   for (let i = 0; i < waypoints.length - 1; i++) {
     const from = waypoints[i];
     const to = waypoints[i + 1];
-    let { col, row } = from;
+    // 自由制：路徑點可能是浮點。膨脹是給 UI 與斷裂檢查用的整數取樣，
+    // 先四捨五入再走 L 型，避免浮點讓 while 永遠到不了終點。
+    let col = Math.round(from.col);
+    let row = Math.round(from.row);
+    const toCol = Math.round(to.col);
+    const toRow = Math.round(to.row);
     // 保險上限：避免資料壞掉時無限迴圈（最短路徑不可能超過 cols+rows 步）
     let guard = 0;
     while (guard <= GAME_CONSTANTS.GRID_COLS + GAME_CONSTANTS.GRID_ROWS + 2) {
       push({ col, row });
-      if (col === to.col && row === to.row) break;
-      if (row < to.row) row++;
-      else if (row > to.row) row--;
-      else if (col < to.col) col++;
-      else if (col > to.col) col--;
+      if (col === toCol && row === toRow) break;
+      if (row < toRow) row++;
+      else if (row > toRow) row--;
+      else if (col < toCol) col++;
+      else if (col > toCol) col--;
       guard++;
     }
   }
@@ -327,6 +346,23 @@ export function setSegmentNext(draft: MapDraft, id: string, next: string[]): Dra
   };
 }
 
+/** 草稿的所有折線（主路徑 + 各路段），給幾何判定用 */
+const draftPolylines = (draft: MapDraft): GridPoint[][] => {
+  const all = [draft.waypoints, ...(draft.segments ?? []).map((segment) => segment.waypoints)];
+  return all.filter((wps) => wps.length >= 2);
+};
+
+/** 塔或障礙圓心到最近路徑的距離（格單位） */
+const clearanceToPath = (draft: MapDraft, point: GridPoint): number => {
+  const center = { x: point.col + 0.5, y: point.row + 0.5 };
+  let best = Infinity;
+  for (const line of draftPolylines(draft)) {
+    const d = distanceToPolyline(center, line);
+    if (d < best) best = d;
+  }
+  return best;
+};
+
 export function pathCellKeys(draft: MapDraft): Set<string> {
   const keys = new Set(expandPathCells(draft.waypoints).map(key));
   // 叉路地圖：其他路段走過的格子也算路徑（畫格子與障礙衝突判定都要看全部）
@@ -339,17 +375,23 @@ export function pathCellKeys(draft: MapDraft): Set<string> {
 // ===== 障礙格 =====
 
 export function toggleBlocked(draft: MapDraft, point: GridPoint): DraftOpResult {
-  if (!isInside(point, draft.cols, draft.rows)) {
+  const snapped = { col: snapHalf(point.col), row: snapHalf(point.row) };
+  if (!isInside(snapped, draft.cols, draft.rows)) {
     return { draft, changed: false, issue: { code: 'outOfBounds', at: point } };
   }
-  const exists = draft.blocked.some((p) => samePoint(p, point));
-  const blocked = exists ? draft.blocked.filter((p) => !samePoint(p, point)) : [...draft.blocked, point];
+  const exists = draft.blocked.some((p) => samePoint(p, snapped));
+  const blocked = exists
+    ? draft.blocked.filter((p) => !samePoint(p, snapped))
+    : [...draft.blocked, snapped];
   return { draft: { ...draft, blocked }, changed: true };
 }
 
 /** 筆刷：一次塗整批格（拖曳塗抹），已塗的格不會重複加入 */
 export function paintBlocked(draft: MapDraft, points: GridPoint[], blocked: boolean): DraftOpResult {
-  const valid = points.filter((p) => isInside(p, draft.cols, draft.rows));
+  // 筆刷先吸附半格再過濾：自由拖曳不會堆出滿地重疊圓
+  const valid = points
+    .map((p) => ({ col: snapHalf(p.col), row: snapHalf(p.row) }))
+    .filter((p) => isInside(p, draft.cols, draft.rows));
   if (valid.length === 0) return { draft, changed: false };
   const set = new Set(draft.blocked.map(key));
   let changed = false;
@@ -382,20 +424,25 @@ export const isBlocked = (draft: MapDraft, point: GridPoint): boolean =>
 
 /** 障礙格與路徑重疊的格子：UI 要即時標紅 */
 export function blockedPathConflicts(draft: MapDraft): GridPoint[] {
-  const pathKeys = pathCellKeys(draft);
-  return draft.blocked.filter((p) => pathKeys.has(key(p)));
+  // 自由制：障礙是圓心，壓到路徑就看距離，不再比對格集合
+  const clearance = DEFAULT_PATH_WIDTH / 2 + DEFAULT_TOWER_RADIUS;
+  return draft.blocked.filter((p) => clearanceToPath(draft, p) < clearance);
 }
 
 // ===== 預覽塔 =====
 
 export function previewTowerAt(draft: MapDraft, point: GridPoint): PreviewTower | null {
-  return draft.towers.find((t) => t.col === point.col && t.row === point.row) ?? null;
+  // 自由制：座標是連續值，用半格容差取代精確相等
+  return draft.towers.find(
+    (t) => Math.abs(t.col - point.col) < 0.5 && Math.abs(t.row - point.row) < 0.5,
+  ) ?? null;
 }
 
 /** 這一格能不能擺預覽塔（不考慮金錢：工坊不開局、不扣錢） */
 export function canPlacePreviewTower(draft: MapDraft, point: GridPoint): { ok: boolean; issue?: MapIssue } {
   if (!isInside(point, draft.cols, draft.rows)) return { ok: false, issue: { code: 'outOfBounds', at: point } };
-  if (pathCellKeys(draft).has(key(point))) return { ok: false, issue: { code: 'towerOnPath', at: point } };
+  const clearance = DEFAULT_PATH_WIDTH / 2 + DEFAULT_TOWER_RADIUS;
+  if (clearanceToPath(draft, point) < clearance) return { ok: false, issue: { code: 'towerOnPath', at: point } };
   if (isBlocked(draft, point)) return { ok: false, issue: { code: 'towerOnBlocked', at: point } };
   if (previewTowerAt(draft, point)) return { ok: false, issue: { code: 'towerOverlap', at: point } };
   return { ok: true };
@@ -524,7 +571,8 @@ const readAreas = (v: unknown): GridPoint[] => {
     if (!item || typeof item !== 'object') continue;
     const rec = item as Record<string, unknown>;
     if (typeof rec.x !== 'number' || typeof rec.y !== 'number') continue;
-    out.push({ col: Math.round(rec.x - 0.5), row: Math.round(rec.y - 0.5) });
+    // 保留浮點：障礙圓心可以落在半格上
+    out.push({ col: rec.x - 0.5, row: rec.y - 0.5 });
   }
   return out;
 };
