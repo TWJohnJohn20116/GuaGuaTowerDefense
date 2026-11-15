@@ -18,12 +18,13 @@
  *   CDP 版：3 場景約 5–7s（只付一次瀏覽器冷啟動）
  */
 import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createShots } from './visual-shots.mjs';
+import { killTree, removeProfileDir, sweepStaleProfiles } from './visual-browser.mjs';
 import { planSheet } from './visual-sheet.mjs';
 import {
   baselinePath,
@@ -190,7 +191,12 @@ async function launchBrowser(browser) {
 
   const wsUrl = await new Promise((resolve, reject) => {
     let buf = '';
-    const timer = setTimeout(() => reject(new Error('瀏覽器 DevTools 沒起來（20s）')), 20000);
+    // 逾時也要收掉剛 spawn 的瀏覽器：不殺就留一支沒有視窗的孤兒，重跑幾次疊成一片
+    const timer = setTimeout(() => {
+      killTree(child);
+      removeProfileDir(userDir);
+      reject(new Error('瀏覽器 DevTools 沒起來（20s）'));
+    }, 20000);
     child.stderr.on('data', (d) => {
       buf += d.toString();
       const m = buf.match(/DevTools listening on (ws:\/\/\S+)/);
@@ -204,7 +210,11 @@ async function launchBrowser(browser) {
   const ws = new WebSocket(wsUrl);
   await new Promise((resolve, reject) => {
     ws.addEventListener('open', resolve, { once: true });
-    ws.addEventListener('error', () => reject(new Error('CDP WebSocket 連線失敗')), { once: true });
+    ws.addEventListener('error', () => {
+      killTree(child);
+      removeProfileDir(userDir);
+      reject(new Error('CDP WebSocket 連線失敗'));
+    }, { once: true });
   });
 
   let seq = 0;
@@ -614,6 +624,9 @@ try {
   if (!(await waitForServer(baseUrl))) throw new Error(`dev server 沒起來：${baseUrl}`);
   serverMs = Date.now() - t0;
 
+  const swept = sweepStaleProfiles();
+  if (swept) log(`清掉 ${swept} 份過期的瀏覽器 profile（上一輪中斷留下的）`);
+
   log('啟動瀏覽器（單一實例，多分頁）…');
   cdp = await launchBrowser(browserPath);
 
@@ -856,10 +869,13 @@ ${rows}`,
 } finally {
   try {
     cdp?.ws.close();
-    cdp?.child.kill();
-    if (cdp) rmSync(cdp.userDir, { recursive: true, force: true });
   } catch {
-    /* 清理失敗不影響結果 */
+    /* ws 已經關了，不影響收尾 */
   }
-  vite?.kill();
+  if (cdp) killTree(cdp.child);
+  if (vite) killTree(vite);
+  // Chrome 放掉 profile 的檔案鎖要一點時間，一次 rmSync 失敗就會永遠留在 %TEMP%
+  if (cdp) {
+    for (let attempt = 0; attempt < 5 && !removeProfileDir(cdp.userDir); attempt++) await sleep(300);
+  }
 }
