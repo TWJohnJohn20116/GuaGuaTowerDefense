@@ -132,6 +132,7 @@ services → types（只能 import type 或由入口注入）
 
 - ✅ 測試是行為斷言（真的呼叫 action、真的跑一幀），不是讀原始碼比對字串。
 - ✅ fixture 用 `src/test/fixtures.ts`（`makeEnemy` / `makeTower` / `makeSkill`），不要 `as Enemy` 硬轉。
+- ✅ `src/workshop/**` 這類純函式的測試要**自造 lookup／fixture**（例：`const lookup = (type) => ({ health: 100, reward: 10 })`），不要依賴 `ENEMY_DATA` 的平衡值。否則調一次數值就打紅一堆行為測試，最後大家會去改測試而不是改程式。
 - ❌ 不新增死 export／死檔案：加完 export 若沒人用，就別加（TD-18 刪掉 7 個死檔、TD-19 清空 444 個零引用 export 後，現況是 **0 個零引用 export、0 個死檔**；只要不是給外部用的，就不要加 `export`）。
   - 判定方式：數的是「定義檔以外的出現次數」，不是「檔內有沒有用到」。檔內自用卻標了 `export` 的一律收成模組私有。
   - 刪整段宣告**只准用 TypeScript AST 定位**（`getFullStart()`／`getEnd()`）；用括號配對數深度曾在 `types/game.ts` 把 `GameState` 與 `GameScene` 一起吃掉，commit 後來整批 revert。
