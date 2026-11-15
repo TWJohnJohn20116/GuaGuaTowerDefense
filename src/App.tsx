@@ -150,6 +150,14 @@ function App() {
   const activeScene: GameScene | null = testScene ?? scene;
   const Scene = activeScene ? SCENE_COMPONENTS[activeScene] ?? MainMenu : MainMenu;
 
+  // dev-only 預覽：?preview=loading 直接渲染載入畫面，方便截圖驗證（正式版不會走到這裡）
+  if (
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).get('preview') === 'loading'
+  ) {
+    return <Loading progress={42} />;
+  }
+
   return (
     <MotionConfig reducedMotion={animationsEnabled ? 'never' : 'always'}>
       <div className="w-full h-full overflow-hidden no-select">
