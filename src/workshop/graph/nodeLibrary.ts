@@ -919,6 +919,35 @@ function mathSpec(
   };
 }
 
+const MATH_EXTRA_SPECS: readonly GraphNodeSpec[] = [
+  mathSpec('num.mod', 'numMod', 'MD', [NUM_A, NUM_B]),
+  mathSpec('num.pow', 'numPow', 'PW', [NUM_A, NUM_B]),
+  mathSpec('num.abs', 'numAbs', 'AB', [port('value', 'number', 'studio.graph.port.value')]),
+  mathSpec('num.floor', 'numFloor', 'FL', [port('value', 'number', 'studio.graph.port.value')]),
+  mathSpec('num.ceil', 'numCeil', 'CE', [port('value', 'number', 'studio.graph.port.value')]),
+  {
+    type: 'num.randomFloat',
+    category: 'value',
+    labelKey: 'studio.graph.node.numRandomFloat',
+    descriptionKey: 'studio.graph.node.numRandomFloat.desc',
+    glyph: 'RF',
+    inputs: [],
+    outputs: [NUM_VALUE],
+    params: [],
+  },
+  stateValueSpec('num.maxWaves', 'numMaxWaves', 'MW'),
+  {
+    type: 'num.enemiesOfType',
+    category: 'value',
+    labelKey: 'studio.graph.node.numEnemiesOfType',
+    descriptionKey: 'studio.graph.node.numEnemiesOfType.desc',
+    glyph: 'EO',
+    inputs: [],
+    outputs: [NUM_VALUE],
+    params: [textParam('enemyType', 'studio.graph.param.enemyType', 'grunt')],
+  },
+];
+
 const STATE_VALUE_SPECS: readonly GraphNodeSpec[] = [
   stateValueSpec('num.wave', 'numWave', 'NW'),
   stateValueSpec('num.health', 'numHealth', 'NH'),
@@ -968,6 +997,7 @@ const NODE_LIBRARY: readonly GraphNodeSpec[] = [
   ONCE_SPEC,
   ...VALUE_SPECS,
   ...STATE_VALUE_SPECS,
+  ...MATH_EXTRA_SPECS,
   ...TEXT_SPECS,
   JS_SPEC,
 ];

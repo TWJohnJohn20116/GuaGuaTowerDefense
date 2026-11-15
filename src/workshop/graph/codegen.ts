@@ -264,6 +264,34 @@ function valueExpression(ctx: EmitContext, node: GraphNode, stack: readonly stri
       const [value, low, high] = operands(['value', 'min', 'max'], [0, 0, 100]);
       return 'Math.min(Math.max(' + value + ', ' + low + '), ' + high + ')';
     }
+    case 'num.mod': {
+      const [a, b] = operands(['a', 'b'], [0, 1]);
+      return '(' + b + ' === 0 ? 0 : ' + a + ' % ' + b + ')';
+    }
+    case 'num.pow': {
+      const [a, b] = operands(['a', 'b'], [1, 1]);
+      return 'Math.pow(' + a + ', ' + b + ')';
+    }
+    case 'num.abs': {
+      const [value] = operands(['value'], [0]);
+      return 'Math.abs(' + value + ')';
+    }
+    case 'num.floor': {
+      const [value] = operands(['value'], [0]);
+      return 'Math.floor(' + value + ')';
+    }
+    case 'num.ceil': {
+      const [value] = operands(['value'], [0]);
+      return 'Math.ceil(' + value + ')';
+    }
+    case 'num.randomFloat':
+      return 'api.rng()';
+    case 'num.maxWaves':
+      return 'api.state.maxWaves';
+    case 'num.enemiesOfType': {
+      const type = str(node.params.enemyType, 'grunt').trim() || 'grunt';
+      return '(api.state.enemiesByType[' + jsString(type) + '] ?? 0)';
+    }
     case 'num.round': {
       const [value] = operands(['value'], [0]);
       return 'Math.round(' + value + ')';
