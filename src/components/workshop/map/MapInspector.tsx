@@ -6,6 +6,7 @@
  */
 import { Btn, Deck, Empty, Field, IconBtn, SegHead, StatCell } from '@/components/hl';
 import { CrossIcon } from '@/components/ui/Icons';
+import { SelectableRow } from '@/components/ui/SelectableRow';
 import { useTranslation } from '@/i18n';
 import { TOWER_DATA } from '@/data/gameData';
 import { getTowerData } from '@/store/gameStoreUtils';
@@ -112,16 +113,13 @@ export function MapInspector({
             const data = getTowerData(type);
             const active = selectedTowerType === type;
             return (
-              <button
+              <SelectableRow
                 key={type}
-                type="button"
+                active={active}
                 onClick={() => onSelectTowerType(type)}
-                className={[
-                  'flex flex-col items-center gap-1 rounded-[12px] border-[3px] px-1.5 py-2 transition-colors duration-100',
-                  active
-                    ? 'border-[var(--cn-line)] bg-[var(--cn-sun-soft)]'
-                    : 'border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] hover:border-[var(--cn-line)]',
-                ].join(' ')}
+                variant="card"
+                tone="sun"
+                className="items-center gap-1 rounded-[12px] border-[3px] px-1.5 py-2"
               >
                 <span
                   className="h-3.5 w-3.5 rounded-full border-2 border-[var(--cn-line)]"
@@ -130,7 +128,7 @@ export function MapInspector({
                 <span className="line-clamp-1 text-[11px] font-extrabold text-[var(--cn-ink-2)]">
                   {data?.name ?? type}
                 </span>
-              </button>
+              </SelectableRow>
             );
           })}
         </div>
@@ -159,10 +157,10 @@ export function MapInspector({
                     : 'border-[var(--cn-line-soft)] bg-[var(--cn-card-2)]',
                 ].join(' ')}
               >
-                <button
-                  type="button"
+                <SelectableRow
+                  variant="bare"
                   onClick={() => onSelectWaypoint(active ? null : index)}
-                  className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                  className="gap-2"
                 >
                   <span className="arc-num text-[11px] text-[var(--cn-ink-3)]">{index + 1}</span>
                   <span className="arc-num text-[12px] text-[var(--cn-ink)]">
@@ -171,7 +169,7 @@ export function MapInspector({
                   <span className="arc-label ml-auto">
                     {index === 0 ? s.panel.start : index === draft.waypoints.length - 1 ? s.panel.end : s.panel.mid}
                   </span>
-                </button>
+                </SelectableRow>
                 <IconBtn
                   label={t.studio.common.delete}
                   className="h-5 w-5 shrink-0 text-[var(--cn-alarm-text)]"
@@ -210,10 +208,10 @@ export function MapInspector({
                     : 'border-[var(--cn-line-soft)] bg-[var(--cn-card-2)]',
                 ].join(' ')}
               >
-                <button
-                  type="button"
+                <SelectableRow
+                  variant="bare"
                   onClick={() => onSelectTower(active ? null : tower.id)}
-                  className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                  className="gap-2"
                 >
                   <span
                     className="h-2.5 w-2.5 shrink-0 rounded-full border-2 border-[var(--cn-line)]"
@@ -225,7 +223,7 @@ export function MapInspector({
                   <span className="arc-num ml-auto text-[11px] text-[var(--cn-ink-3)]">
                     ({tower.col}, {tower.row})
                   </span>
-                </button>
+                </SelectableRow>
                 <IconBtn
                   label={t.studio.common.delete}
                   className="h-5 w-5 shrink-0 text-[var(--cn-alarm-text)]"

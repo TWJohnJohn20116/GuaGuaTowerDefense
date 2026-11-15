@@ -8,6 +8,7 @@ import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 import { Btn, Deck, Empty, Field, Input, Num, SegHead } from '@/components/hl';
 import { PlusIcon, TrashIcon, WarningIcon } from '@/components/ui/Icons';
+import { SelectableRow } from '@/components/ui/SelectableRow';
 import {
   SPAWN_INTERVAL_MS,
   blockEndMs,
@@ -120,18 +121,18 @@ export function WaveInspector({
                       : 'border-[var(--cn-line-soft)] bg-[var(--cn-card)]',
                   ].join(' ')}
                 >
-                  <button
-                    type="button"
+                  <SelectableRow
+                    variant="bare"
+                    active={selected}
                     onClick={() => onSelectBlock(block.id)}
-                    aria-pressed={selected}
-                    className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+                    className="gap-1.5"
                   >
                     {missing && <WarningIcon className="h-3.5 w-3.5 shrink-0 text-[var(--cn-alert-deep)]" />}
                     <span className="truncate text-[11.5px] font-semibold text-[var(--cn-ink)]">
                       {enemyLabel(block.type, enemyNames)}
                     </span>
                     {missing && <span className="arc-label text-[var(--cn-alert-deep)]">{c.missingAsset}</span>}
-                  </button>
+                  </SelectableRow>
 
                   <label className="flex items-center gap-1">
                     <span className="arc-label">{c.count}</span>

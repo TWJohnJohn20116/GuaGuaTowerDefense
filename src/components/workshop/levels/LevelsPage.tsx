@@ -11,6 +11,7 @@ import { resolveLevelLocks, type LevelLockState } from '@/workshop/progress';
 import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
 import { Btn, Deck, Empty, Num } from '@/components/hl';
 import { PlusIcon, TrashIcon, MapIcon, SettingsIcon } from '@/components/ui/Icons';
+import { SelectableRow } from '@/components/ui/SelectableRow';
 
 interface LevelsPageProps {
   projectId: string;
@@ -73,15 +74,12 @@ export function LevelsPage({ projectId }: LevelsPageProps) {
             <p className="p-2 text-center font-mono text-[10.5px] text-[var(--cn-ink-3)]">{s.noLevels}</p>
           ) : (
             levels.map((level) => (
-              <button
+              <SelectableRow
                 key={level.id}
-                type="button"
+                active={level.id === selectedId}
                 onClick={() => setSelectedId(level.id)}
-                className={`mb-1 flex w-full items-center gap-2 border px-2 py-1.5 text-left transition-colors ${
-                  level.id === selectedId
-                    ? 'border-[var(--cn-line-mid)] bg-[var(--cn-card)] text-[var(--cn-ink)]'
-                    : 'border-transparent text-[var(--cn-ink-2)] hover:bg-[var(--cn-card-2)]'
-                }`}
+                tone="line"
+                className="mb-1 gap-2 border px-2 py-1.5"
               >
                 <MapIcon className="h-3.5 w-3.5 shrink-0 text-[var(--cn-ink-3)]" />
                 <span className="min-w-0 flex-1 truncate text-[12px]">{level.name}</span>
@@ -91,7 +89,7 @@ export function LevelsPage({ projectId }: LevelsPageProps) {
                 {locks.get(level.id)?.locked && (
                   <span className="shrink-0 font-mono text-[9.5px] text-[var(--cn-caution-text)]">{s.locked}</span>
                 )}
-              </button>
+              </SelectableRow>
             ))
           )}
         </div>

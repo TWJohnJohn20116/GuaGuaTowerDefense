@@ -10,6 +10,7 @@ import { useTranslation } from '@/i18n';
 import { Btn, IconBtn, Toggle } from '@/components/hl/controls';
 import { Deck, Empty, SegHead } from '@/components/hl/surface';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+import { SelectableRow } from '@/components/ui/SelectableRow';
 import type { GraphIssue } from '@/workshop/graph/validate';
 import type { RuleGraph } from '@/workshop/graph/model';
 import { findNode, studioText } from '@/workshop/graph/model';
@@ -147,13 +148,13 @@ export function RuleTablePanel({
                 >
                   event
                 </span>
-                <button
-                  type="button"
-                  className="min-w-0 flex-1 truncate text-left text-[13px] font-extrabold text-[var(--cn-ink)]"
+                <SelectableRow
+                  variant="bare"
+                  className="truncate text-[13px] font-extrabold text-[var(--cn-ink)]"
                   onClick={() => onSelect(eventRow.nodeId)}
                 >
                   {studioText(t, eventRow.labelKey)}
-                </button>
+                </SelectableRow>
                 {eventNode && (
                   <Toggle
                     on={eventNode.enabled !== false}
@@ -194,9 +195,9 @@ export function RuleTablePanel({
                     >
                       {row.category}
                     </span>
-                    <button
-                      type="button"
-                      className="min-w-0 flex-1 truncate text-left text-[12.5px] font-extrabold text-[var(--cn-ink)]"
+                    <SelectableRow
+                      variant="bare"
+                      className="truncate text-[12.5px] font-extrabold text-[var(--cn-ink)]"
                       onClick={() => onSelect(row.nodeId)}
                     >
                       {studioText(t, row.labelKey)}
@@ -210,7 +211,7 @@ export function RuleTablePanel({
                           {studioText(t, 'studio.graph.table.unanalyzable')}
                         </span>
                       )}
-                    </button>
+                    </SelectableRow>
                     <IconBtn
                       label={studioText(t, 'studio.graph.table.moveUp')}
                       className="h-7 w-7"

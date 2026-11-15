@@ -8,6 +8,7 @@ import { useWorkshopStore } from '@/store/workshopStore';
 import type { WorkshopAssetKind } from '@/types/workshop';
 import { Btn, Empty, Input, Num, SegHead } from '@/components/hl';
 import { PlusIcon, TrashIcon } from '@/components/ui/Icons';
+import { SelectableRow } from '@/components/ui/SelectableRow';
 import { AssetEditorPanel } from './AssetEditorPanel';
 
 const KINDS: WorkshopAssetKind[] = ['tower', 'enemy', 'map', 'ruleSet', 'script', 'art'];
@@ -100,15 +101,13 @@ export function AssetsPage({ onNavigate }: { onNavigate?: (page: 'levels' | 'rul
                 const used = usage.get(asset.id) ?? 0;
                 const active = asset.id === activeId;
                 return (
-                  <button
+                  <SelectableRow
                     key={asset.id}
-                    type="button"
+                    active={active}
                     onClick={() => setSelectedId(asset.id)}
-                    className={`flex flex-col gap-1.5 border p-2.5 text-left transition-colors ${
-                      active
-                        ? 'border-[var(--cn-signal-text)] bg-[var(--cn-card)]'
-                        : 'border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] hover:border-[var(--cn-line)]'
-                    }`}
+                    variant="card"
+                    tone="signal"
+                    className="gap-1.5 border p-2.5"
                   >
                     <span className="truncate text-[12.5px] font-semibold text-[var(--cn-ink)]">{asset.name}</span>
                     <span className="flex items-center gap-2 font-mono text-[10px] text-[var(--cn-ink-3)]">
@@ -116,7 +115,7 @@ export function AssetsPage({ onNavigate }: { onNavigate?: (page: 'levels' | 'rul
                       <span>·</span>
                       <span>{fillTemplate(s.usedBy, { count: String(used) })}</span>
                     </span>
-                  </button>
+                  </SelectableRow>
                 );
               })}
             </div>

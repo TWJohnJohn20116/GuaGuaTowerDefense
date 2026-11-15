@@ -15,6 +15,7 @@ import type { WorkshopTowerAsset } from '@/types/workshop';
 import type { Custom3DModel, Custom3DPart } from '@/types/game';
 import { Btn, Empty, SegHead } from '@/components/hl';
 import { ColorPicker } from '@/components/ui/ColorPicker';
+import { SelectableRow } from '@/components/ui/SelectableRow';
 import {
   addPart,
   createModelHistory,
@@ -308,21 +309,17 @@ export function ModelsPage() {
           <SegHead label={s.towerList} />
           <div className="max-h-32 shrink-0 overflow-y-auto">
             {towers.map((tower) => (
-              <button
+              <SelectableRow
                 key={tower.id}
-                type="button"
+                active={tower.id === assetId}
                 onClick={() => setAssetId(tower.id)}
-                className={[
-                  'flex w-full items-center gap-1 border px-1 py-[3px] text-left text-[10.5px]',
-                  tower.id === assetId
-                    ? 'border-[var(--cn-signal)] bg-[var(--cn-signal-soft)] text-[var(--cn-ink)]'
-                    : 'border-transparent text-[var(--cn-ink-2)] hover:border-[var(--cn-line-soft)]',
-                ].join(' ')}
+                tone="signalSoft"
+                className="gap-1 border px-1 py-[3px] text-[10.5px]"
               >
                 <span className="h-2 w-2 shrink-0 border border-[var(--cn-line)]" style={{ background: tower.data.color }} />
                 <span className="min-w-0 flex-1 truncate">{tower.name}</span>
                 <span className="shrink-0 font-mono text-[9px] text-[var(--cn-ink-3)]">{tower.data.baseType}</span>
-              </button>
+              </SelectableRow>
             ))}
           </div>
 

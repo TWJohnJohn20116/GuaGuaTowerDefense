@@ -10,6 +10,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import type React from 'react';
 import { useTranslation } from '@/i18n';
+import { Chip } from '@/components/hl';
 import type {
   GraphEdge,
   GraphNode,
@@ -821,18 +822,11 @@ export function GraphCanvas({
       className="relative h-full min-h-[420px] w-full overflow-hidden rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] outline-hidden focus-visible:ring-3 focus-visible:ring-[var(--cn-signal-text)]"
       style={{ touchAction: 'none' }}
     >
-      <button
-        type="button"
-        onClick={() => setSnapEnabled((value) => !value)}
-        title={studioText(t, 'studio.graph.canvas.snapHint')}
-        className={`absolute right-2 top-2 z-10 rounded-[8px] border-2 px-2 py-0.5 font-mono text-[10px] transition-colors ${
-          snapEnabled
-            ? 'border-[var(--cn-signal-text)] bg-[var(--cn-coral-soft)] text-[var(--cn-signal-text)]'
-            : 'border-[var(--cn-line)] bg-[var(--cn-card)] text-[var(--cn-ink-3)]'
-        }`}
-      >
-        {studioText(t, snapEnabled ? 'studio.graph.canvas.snapOn' : 'studio.graph.canvas.snapOff')}
-      </button>
+      <span title={studioText(t, 'studio.graph.canvas.snapHint')} className="absolute right-2 top-2 z-10">
+        <Chip active={snapEnabled} onClick={() => setSnapEnabled((value) => !value)} className="font-mono text-[10px]">
+          {studioText(t, snapEnabled ? 'studio.graph.canvas.snapOn' : 'studio.graph.canvas.snapOff')}
+        </Chip>
+      </span>
 
       <svg
         ref={svgRef}

@@ -13,6 +13,7 @@ import { useTranslation } from '@/i18n';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { Btn, Chip } from '@/components/hl/controls';
 import { Deck, Empty, SegHead } from '@/components/hl/surface';
+import { SelectableRow } from '@/components/ui/SelectableRow';
 import type { AssetRef, WorkshopAsset, WorkshopScriptData } from '@/types/workshop';
 import type { GraphNodeCategory, RuleGraph } from '@/workshop/graph/model';
 import { cloneGraph, emptyGraph, nextEdgeId, studioText } from '@/workshop/graph/model';
@@ -311,20 +312,16 @@ export function GraphPage({ projectId, levelId }: GraphPageProps): React.ReactEl
                   {studioText(t, entry.labelKey)}
                 </span>
                 {specs.map((spec) => (
-                  <button
+                  <SelectableRow
                     key={spec.type}
-                    type="button"
+                    active={paletteType === spec.type}
                     onClick={() => addFromPalette(spec.type)}
-                    className={[
-                      'flex items-center gap-2 rounded-[9px] border-2 px-2 py-1 text-left text-[12px] font-extrabold transition-colors',
-                      paletteType === spec.type
-                        ? 'border-[var(--cn-signal-text)] bg-[var(--cn-coral-soft)] text-[var(--cn-signal-text)]'
-                        : 'border-transparent bg-[var(--cn-card-2)] text-[var(--cn-ink-2)] hover:border-[var(--cn-line)]',
-                    ].join(' ')}
+                    tone="coral"
+                    className="gap-2 rounded-[9px] border-2 px-2 py-1 text-[12px] font-extrabold"
                   >
                     <span className="w-6 shrink-0 text-center font-mono text-[10px]">{spec.glyph}</span>
                     <span className="min-w-0 truncate">{studioText(t, spec.labelKey)}</span>
-                  </button>
+                  </SelectableRow>
                 ))}
               </div>
             );
