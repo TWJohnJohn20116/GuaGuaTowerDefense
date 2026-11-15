@@ -95,6 +95,8 @@
   --arc-ink-4: var(--cn-ink-4);
   --arc-gold: var(--cn-coral);
   --arc-gold-2: var(--cn-coral-deep);
+  /* 語意色的舊別名指向「文字安全」階：這些 token 幾乎都用在 text-*，
+     舊值（亮黃／亮綠／亮紅）在白底只有 2–3:1，直接當文字看不清楚 */
   --arc-gold-ink: #ffffff;
   --arc-gold-veil: var(--cn-coral-soft);
   --arc-gold-edge: var(--cn-coral);
@@ -102,10 +104,10 @@
   --arc-cyan-dim: var(--cn-sky-deep);
   --arc-cyan-edge: var(--cn-sky);
   --arc-cyan-veil: var(--cn-sky-soft);
-  --arc-alert: var(--cn-alert);
-  --arc-vital: var(--cn-mint);
-  --arc-caution: var(--cn-sun-deep);
-  --arc-reach: var(--cn-grape);
+  --arc-alert: var(--cn-alarm-text);
+  --arc-vital: var(--cn-vital-text);
+  --arc-caution: var(--cn-caution-text);
+  --arc-reach: var(--cn-reach-text);
   --arc-cut: 0px;
   --arc-bevel: 5px;
   --arc-ease: var(--cn-ease);

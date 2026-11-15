@@ -53,7 +53,7 @@ const BADGE_TONE: Record<BadgeTone, string> = {
   signal: 'border-[var(--cn-coral)] text-[var(--cn-signal-text)] bg-[var(--cn-coral-soft)]',
   vital: 'border-[var(--cn-mint)] text-[var(--cn-mint-deep)] bg-[var(--cn-mint-soft)]',
   reach: 'border-[var(--cn-grape)] text-[var(--cn-grape-deep)] bg-[var(--cn-grape-soft)]',
-  caution: 'border-[var(--cn-sun)] text-[var(--cn-sun-deep)] bg-[var(--cn-sun-soft)]',
+  caution: 'border-[var(--cn-sun)] text-[var(--cn-caution-text)] bg-[var(--cn-sun-soft)]',
   alarm: 'border-[var(--cn-alert)] text-[var(--cn-alert-deep)] bg-[var(--cn-alert-soft)]',
   muted: 'border-[var(--cn-line-soft)] text-[var(--cn-ink-3)] bg-[var(--cn-card)]',
 };

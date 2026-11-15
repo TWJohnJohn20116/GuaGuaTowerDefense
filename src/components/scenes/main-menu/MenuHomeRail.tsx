@@ -219,7 +219,7 @@ function AlertRow({
       ? 'text-[var(--cn-signal-text)]'
       : tone === 'vital'
         ? 'text-[var(--cn-mint-deep)]'
-        : 'text-[var(--cn-sun-deep)]';
+        : 'text-[var(--cn-caution-text)]';
   return (
     <button
       type="button"

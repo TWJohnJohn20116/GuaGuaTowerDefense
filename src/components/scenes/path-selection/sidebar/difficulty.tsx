@@ -29,7 +29,7 @@ export interface DifficultyMeta {
 const TONE_TEXT: Record<DifficultyTone, string> = {
   vital: 'text-[var(--cn-mint-deep)]',
   reach: 'text-[var(--cn-grape-deep)]',
-  caution: 'text-[var(--cn-sun-deep)]',
+  caution: 'text-[var(--cn-caution-text)]',
   alarm: 'text-[var(--cn-alert-deep)]',
 };
 

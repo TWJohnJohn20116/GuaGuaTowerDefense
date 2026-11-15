@@ -101,7 +101,7 @@ export const buildUpgradeGuides = (t: Translations) => [
     title: t.tutorial.upgradeGuides.pathATitle,
     description: t.tutorial.upgradeGuides.pathADesc,
     icon: '⚔️',
-    color: 'text-[var(--cn-alert)]',
+    color: 'text-[var(--cn-alarm-text)]',
     benefits: [...t.tutorial.upgradeGuides.pathABenefits],
   },
   {
@@ -211,10 +211,10 @@ interface TowerGuideEntry {
 }
 
 const TOWER_ROLES_VISUAL: Record<TowerRole, { icon: string; color: string }> = {
-  damage: { icon: '⚔️', color: 'text-[var(--cn-alert)]' },
+  damage: { icon: '⚔️', color: 'text-[var(--cn-alarm-text)]' },
   control: { icon: '❄️', color: 'text-[var(--cn-sky-deep)]' },
   aoe: { icon: '💥', color: 'text-[var(--cn-signal-text)]' },
-  economy: { icon: '💰', color: 'text-[var(--cn-sun-deep)]' },
+  economy: { icon: '💰', color: 'text-[var(--cn-caution-text)]' },
 };
 
 export const buildTowerRoles = (t: Translations): Record<TowerRole, { label: string; icon: string; color: string; description: string }> => ({
@@ -328,7 +328,7 @@ const ENEMY_ROLES_VISUAL: Record<EnemyRole, { icon: string; color: string }> = {
   speed:   { icon: '💨', color: 'text-[var(--cn-mint-deep)]' },
   tank:    { icon: '🛡️', color: 'text-[var(--cn-sky-deep)]' },
   special: { icon: '✨', color: 'text-[var(--cn-grape-deep)]' },
-  boss:    { icon: '👑', color: 'text-[var(--cn-sun-deep)]' },
+  boss:    { icon: '👑', color: 'text-[var(--cn-caution-text)]' },
 };
 
 export const buildEnemyRoles = (t: Translations): Record<EnemyRole, { label: string; icon: string; color: string; description: string }> => ({

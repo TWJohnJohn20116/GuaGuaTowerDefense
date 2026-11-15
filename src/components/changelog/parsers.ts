@@ -172,7 +172,7 @@ export const getChangeTypeBadge = (title: string): { text: string; color: string
     return { text: '新功能', color: 'bg-[var(--cn-mint-soft)] text-[var(--cn-mint-deep)]' };
   }
   if (lowerTitle.includes('修復') || lowerTitle.includes('bug')) {
-    return { text: '修復', color: 'bg-[var(--cn-alert-soft)] text-[var(--cn-alert)]' };
+    return { text: '修復', color: 'bg-[var(--cn-alert-soft)] text-[var(--cn-alarm-text)]' };
   }
   if (lowerTitle.includes('優化') || lowerTitle.includes('改進')) {
     return { text: '優化', color: 'bg-[var(--cn-sky-soft)] text-[var(--cn-sky-deep)]' };

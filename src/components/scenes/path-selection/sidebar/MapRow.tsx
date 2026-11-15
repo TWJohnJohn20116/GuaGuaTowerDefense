@@ -95,7 +95,7 @@ function MapRowComponent({ map, selected, onClick, index }: MapRowProps) {
 
         {isHiddenCampaignMap(map.key) && (
           <span
-            className="shrink-0 rounded-[4px] border border-[var(--cn-sun)] bg-[var(--cn-sun-soft)] px-1 font-mono text-[8.5px] font-extrabold leading-[13px] text-[var(--cn-sun-deep)]"
+            className="shrink-0 rounded-[4px] border border-[var(--cn-sun)] bg-[var(--cn-sun-soft)] px-1 font-mono text-[8.5px] font-extrabold leading-[13px] text-[var(--cn-caution-text)]"
             title={c.levelLocked}
           >
             9
@@ -116,7 +116,7 @@ function MapRowComponent({ map, selected, onClick, index }: MapRowProps) {
       </button>
 
       {hiddenHint && (
-        <p className="border-t border-dashed border-[var(--cn-line-soft)] px-3 py-1.5 text-[10px] font-semibold leading-relaxed text-[var(--cn-sun-deep)]">
+        <p className="border-t border-dashed border-[var(--cn-line-soft)] px-3 py-1.5 text-[10px] font-semibold leading-relaxed text-[var(--cn-caution-text)]">
           {hiddenHint}
         </p>
       )}

@@ -24,7 +24,7 @@ const TONE: Record<'signal' | 'vital' | 'caution' | 'ink', { tile: string; badge
     badge: 'bg-[var(--cn-mint)] text-white',
   },
   caution: {
-    tile: 'bg-[var(--cn-sun-soft)] text-[var(--cn-sun-deep)]',
+    tile: 'bg-[var(--cn-sun-soft)] text-[var(--cn-caution-text)]',
     badge: 'bg-[var(--cn-sun)] text-[var(--cn-ink)]',
   },
   ink: {
