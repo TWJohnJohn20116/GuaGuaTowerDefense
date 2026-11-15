@@ -1,4 +1,4 @@
-import type { GridPosition } from '@/types/game';
+import type { MapPoint } from '@/types/game';
 
 interface SellAnim {
   id: string;

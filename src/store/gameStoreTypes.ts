@@ -1,6 +1,6 @@
 import type { 
   GameScene, Enemy, Tower, Projectile, 
-  GridPosition, MapPoint, TowerType, TargetPriority, KeyAction, KeyBindings,
+  MapPoint, TowerType, TargetPriority, KeyAction, KeyBindings,
   TowerData, UpgradePath, GameDifficulty, DifficultyModifiers,
   DamageText, ImpactParticle, DeathAnimation, PathConfig
 } from '@/types/game';

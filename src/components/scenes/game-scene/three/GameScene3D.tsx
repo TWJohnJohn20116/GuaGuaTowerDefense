@@ -33,7 +33,7 @@ import {
   resolveWalkLookDelta,
   resolveWalkZoomDelta,
 } from '@/data/cameraControlSpeeds';
-import { resolveDisplayedTileType, shouldShowEnemyPathFx } from '@/data/enemyPathVisibility';
+import { shouldShowEnemyPathFx } from '@/data/enemyPathVisibility';
 import { createRenderSnapshot, towerLevelScale, writeRenderSnapshot } from '@/data/renderSnapshot';
 import { createFrameLoopGuard } from '@/utils/frameLoopGuard';
 import { createWalkers3D, createPlayerWalker, type Walkers3D, type PlayerWalker } from './walker3d';
@@ -75,23 +75,6 @@ const cssColor = (c: string | undefined): number => {
     return new THREE.Color(c || '#ffffff').getHex();
   } catch {
     return 0xffffff;
-  }
-};
-
-/** 地塊底色：type → 主題場地色（棋盤格用 emptyAlt） */
-const tileBaseColor = (type: string, checker: boolean, board: ReturnType<typeof getBoard3DColors>): number => {
-  switch (type) {
-    case 'path':
-    case 'fork':
-      return cssColor(board.path);
-    case 'start':
-      return cssColor(board.start);
-    case 'end':
-      return cssColor(board.end);
-    case 'blocked':
-      return cssColor(board.blocked);
-    default:
-      return cssColor(checker ? board.emptyAlt : board.empty);
   }
 };
 
@@ -734,9 +717,6 @@ export function GameScene3D() {
       const pathFx = shouldShowEnemyPathFx(showEnemyPath);
       pathLinesGroup.visible = useDevStore.getState().showPath && pathFx;
       environment.setPathFlowVisible(pathFx);
-      for (const rec of pathSensitiveTiles) {
-        applyTileDisplay(rec.mesh, rec.type, rec.row, rec.col, showEnemyPath);
-      }
 
       // 環境氛圍動畫（路徑流光 / 塵埃 / 信標環 / 邊界呼吸）
       environment.update(now, dtSec);

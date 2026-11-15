@@ -1,6 +1,6 @@
 // 塔防操作：放置、升級、出售、撤銷、技能、屬性等
 import type { 
-  Tower, GridPosition, TowerData, UpgradePath, TargetPriority 
+  Tower, MapPoint, TowerData, UpgradePath, TargetPriority 
 } from '@/types/game';
 import { GAME_CONSTANTS } from '@/data/gameData';
 import {

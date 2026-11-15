@@ -9,6 +9,14 @@ import { EmpIcon, LinkIcon2, SparklesIcon } from '@/components/ui/Icons';
 import { countActiveSynergyKinds, previewPlacementSynergies, toTowerRef } from '@/data/towerSynergyData';
 import { collectJammerAurasCached, listJammedTowerIds } from '@/data/jammerAura';
 import { ENEMY_DATA } from '@/data/gameData';
+import {
+  DEFAULT_TOWER_RADIUS,
+  circlesOverlap,
+  isBlockedAt,
+  isInsideBounds,
+  pathClearance,
+  pathWidthOf,
+} from '@/data/mapGeometry';
 
 const CHIP =
   'inline-flex items-center gap-1.5 rounded-[10px] border-[2px] border-[var(--cn-line)] border-l-[6px] bg-[var(--cn-card)] px-2.5 py-1 font-mono text-[9.5px] font-extrabold uppercase tracking-[0.06em] shadow-[0_3px_0_var(--cn-line)]';

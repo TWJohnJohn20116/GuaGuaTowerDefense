@@ -1,8 +1,8 @@
 import type { 
-  PathConfig, TowerType, TowerData, Tile, TileType, KeyBindings, GridPosition, Mod, Custom3DModel,
+  TowerType, TowerData, KeyBindings, Mod, Custom3DModel,
   EnemyData, EnemyType, CustomTowerData, UpgradePath
 } from '@/types/game';
-import { GAME_CONSTANTS, PATHS, TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
+import { TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
 import { useModStore } from './modStore';
 import { setEnemyDataResolver } from '@/data/enemyDataProvider';
 import { getArmorTakenMult, getDamageTakenMult, type CombatEffectLike } from '@/data/combatStatus';

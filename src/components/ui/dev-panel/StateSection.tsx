@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { WAVE_CONFIGS, generateEndlessWaveConfig, ENEMY_DATA, DIFFICULTY_MODIFIERS, PATHS } from '@/data/gameData';
-import { initializeGrid } from '@/store/gameStoreUtils';
 import type { GameDifficulty } from '@/types/game';
 import { useTranslation } from '@/i18n';
 import { CoinIcon, HeartIcon, StarIcon, WaveIcon, EyeIcon, WarningIcon, MapIcon, InfinityIcon } from '@/components/ui/Icons';
@@ -148,7 +147,7 @@ const PathControl = () => {
     if (!PATHS[newPath]) return;
     useGameStore.setState({
       selectedPath: newPath,
-      grid: initializeGrid(newPath),
+      activeMap: PATHS[newPath] ?? null,
       towers: [],
       enemies: [],
       projectiles: [],

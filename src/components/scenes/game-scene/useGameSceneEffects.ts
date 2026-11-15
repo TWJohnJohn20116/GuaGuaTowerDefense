@@ -562,9 +562,6 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
               ? (aliveTowers.find(t => t.id === st.selectedTower!.id) || null)
               : null;
             if (aliveTowers.length < damagedTowers.length) {
-              const deadIds = new Set(
-                damagedTowers.filter(t => t.health <= 0).map(t => t.id),
-              );
               useGameStore.setState({
                 towers: aliveTowers,
                 selectedTower: nextSelected,

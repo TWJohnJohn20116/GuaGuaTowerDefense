@@ -7,7 +7,7 @@
  * 座標語彙沿用 GAME_CONSTANTS.GRID_COLS / GRID_ROWS 的 (col,row)，與 PathConfig.waypoints 一致。
  */
 import { GAME_CONSTANTS } from '@/data/gameData';
-import type { GridPosition, Tile, TileType } from '@/types/game';
+import type { GridPosition, MapPoint } from '@/types/game';
 
 /** 編輯器內使用的格座標（與 GridPosition 同構，但名稱更短） */
 export interface GridPoint {
@@ -509,7 +509,8 @@ export interface SerializedMapDraft {
   cols: number;
   rows: number;
   waypoints: GridPosition[];
-  blockedCells: GridPosition[];
+  /** 圓形禁建區（圓心座標，單位＝格；取代舊的格子清單） */
+  blockedAreas: MapPoint[];
   towers: { id: string; type: string; col: number; row: number }[];
   /** 叉路地圖的路段（普通地圖不寫這個欄位） */
   segments?: { id: string; next: string[]; waypoints: GridPosition[] }[];
@@ -522,7 +523,7 @@ export function serializeDraft(draft: MapDraft): SerializedMapDraft {
     cols: draft.cols,
     rows: draft.rows,
     waypoints: draft.waypoints.map((p) => ({ col: p.col, row: p.row })),
-    blockedCells: draft.blocked.map((p) => ({ col: p.col, row: p.row })),
+    blockedAreas: draft.blocked.map((p) => ({ x: p.col + 0.5, y: p.row + 0.5 })),
     towers: draft.towers.map((t) => ({ id: t.id, type: t.type, col: t.col, row: t.row })),
     ...(segments.length > 0
       ? {
@@ -544,7 +545,21 @@ const readPoint = (v: unknown): GridPoint | null => {
   const row = rec.row;
   if (typeof col !== 'number' || typeof row !== 'number') return null;
   if (!Number.isFinite(col) || !Number.isFinite(row)) return null;
-  return { col: Math.trunc(col), row: Math.trunc(row) };
+  // 自由制：路徑點可以是浮點（斜線／曲線），不再截成整數
+  return { col, row };
+};
+
+/** 圓形禁建區 → 編輯器用的格點（取最近的格中心） */
+const readAreas = (v: unknown): GridPoint[] => {
+  if (!Array.isArray(v)) return [];
+  const out: GridPoint[] = [];
+  for (const item of v) {
+    if (!item || typeof item !== 'object') continue;
+    const rec = item as Record<string, unknown>;
+    if (typeof rec.x !== 'number' || typeof rec.y !== 'number') continue;
+    out.push({ col: Math.round(rec.x - 0.5), row: Math.round(rec.y - 0.5) });
+  }
+  return out;
 };
 
 const readPoints = (v: unknown): GridPoint[] => {
@@ -579,7 +594,10 @@ export function readMapDraft(source: unknown): MapDraft {
   const rows = typeof mapSource.rows === 'number' ? Math.max(1, Math.trunc(mapSource.rows)) : base.rows;
 
   const waypoints = readPoints(mapSource.waypoints);
-  const blocked = readPoints(mapSource.blockedCells ?? mapSource.blocked);
+  const blocked = [
+    ...readPoints(mapSource.blockedCells ?? mapSource.blocked),
+    ...readAreas(mapSource.blockedAreas),
+  ];
 
   const rawTowers = mapSource.towers;
   const towers: PreviewTower[] = [];

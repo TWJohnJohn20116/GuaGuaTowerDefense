@@ -12,7 +12,7 @@ import { ENEMY_DATA } from '@/data/gameData';
 import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import type { RenderSnapshot } from '@/data/renderSnapshot';
 import { drawTowerModel } from '@/components/game/TowerModels';
-import type { TowerType, Tower, Enemy, Projectile, GridPosition, DamageText, ImpactParticle, DeathAnimation } from '@/types/game';
+import type { TowerType, Tower, Enemy, Projectile, MapPoint, DamageText, ImpactParticle, DeathAnimation } from '@/types/game';
 import type { PlayerSkillAnimation } from '@/store/gameStoreTypes';
 import { drawUpgradeAnimations } from './GameCanvasUpgradeFx';
 import { drawSellAnimations as drawSellAnimationsFx, drawPlaceParticles, drawBuildText } from './GameCanvasPlaceFx';

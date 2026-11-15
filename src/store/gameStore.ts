@@ -259,8 +259,7 @@ export const useGameStore = create<GameStore>()(
               waypoints: modMap.waypoints,
               segments: modMap.segments,
               startSegmentId: modMap.startSegmentId,
-              // 舊 mod 地圖仍用格子清單；載入時轉成圓形禁建區（圓心取格中心）
-              blockedAreas: (modMap.blockedCells ?? []).map((c) => ({ x: c.col + 0.5, y: c.row + 0.5 })),
+              blockedAreas: modMap.blockedAreas ?? [],
             };
             break;
           }

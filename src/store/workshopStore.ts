@@ -56,7 +56,7 @@ const DEFAULT_ENEMY_DATA: WorkshopEnemyData = {
 const DEFAULT_MAP_DATA: WorkshopMapData = {
   difficulty: 'normal',
   waypoints: [],
-  blockedCells: [],
+  blockedAreas: [],
   grid: { cols: 16, rows: 12 },
 };
 

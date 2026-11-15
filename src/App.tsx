@@ -110,7 +110,7 @@ function App() {
       useDevStore.getState().setTestScene(null);
       // 視覺驗證／除錯：直跳 game 時若還沒有對局，就開一局，
       // 否則 canvas 沒有地圖，截圖只會拍到一張空紙（過去的驗證一直在驗空畫面）。
-      if (target === 'game' && useGameStore.getState().grid.length === 0) {
+      if (target === 'game' && useGameStore.getState().towers.length === 0) {
         void useGameStore.getState().startGame(Object.keys(PATHS)[0], 'normal', false, 15);
       }
     };

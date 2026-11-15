@@ -1,5 +1,5 @@
 // 塔融合動畫繪製模組 - 雙塔合體時的爆裂特效
-import type { GridPosition } from '@/types/game';
+import type { MapPoint } from '@/types/game';
 import { fusionBurstText } from '@/data/fusionBurstLabel';
 
 interface FusionAnim {

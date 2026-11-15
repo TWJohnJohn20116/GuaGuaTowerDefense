@@ -33,7 +33,6 @@ import {
   removePreviewTower,
   removeWaypoint,
   serializeDraft,
-  toTileGrid,
   validateDraft,
   type DraftOpResult,
   type GridPoint,

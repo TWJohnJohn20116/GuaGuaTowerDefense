@@ -4,12 +4,11 @@
 // 流暢度：內部 requestAnimationFrame 迴圈每幀讀取 playheadRef，
 // 透過 replayPlayback 在相鄰快照間做實體插值繪製（顯示器幀率，遠超 24 FPS）。
 import { useRef, useEffect, useMemo } from 'react';
-import { GAME_CONSTANTS, TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
+import { PATHS, TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
 import { drawField } from '@/components/game/PathRenderer';
 import { boundsOf } from '@/data/mapGeometry';
 import { drawTowerModel } from '@/components/game/TowerModels';
 import { drawEnemyModel } from '@/utils/enemyRenderer';
-import { initializeGrid } from '@/store/gameStoreUtils';
 import { useSettingsStore } from '@/store/settingsStore';
 import { shouldDrawReplayEnemyHealthBar } from '@/data/replayCanvasDisplay';
 import { healthBarColorCss } from '@/data/healthBarColor';
@@ -203,7 +202,7 @@ export function ReplayCanvas({
         animationRef.current = null;
       }
     };
-  }, [snapshots, mapId, width, height, grid, events, playheadRef]);
+  }, [snapshots, mapId, width, height, mapPath, events, playheadRef]);
 
   return (
     <canvas

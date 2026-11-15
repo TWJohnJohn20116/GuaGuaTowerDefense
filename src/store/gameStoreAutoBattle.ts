@@ -69,7 +69,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
     const placementGateMaybeOpen = now - state.autoBattleLastDecision >= 300;
     if (!skillGateOpen && !playerSkillGateOpen && !skipGateOpen && !placementGateMaybeOpen) return;
     
-    const { money, towers, grid, selectedPath, enemies, health, currentWave, difficultyModifiers } = state;
+    const { money, towers, selectedPath, enemies, health, currentWave, difficultyModifiers } = state;
     
     // 獲取當前地圖配置
     const pathConfig = PATHS[selectedPath];
@@ -676,7 +676,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
 
         const sName = strategy === 'balanced' ? '平衡' : strategy === 'economy' ? '經濟' : strategy === 'aggressive' ? '積極' : '防守';
         get().addAutoBattleLog('analysis', `融合 ${aData.name} + ${bData.name} → ${resData.name}`,
-          `花費 $${best.cost} | 位置 (${srcGridPos.col}, ${srcGridPos.row}) | 評分 ${best.score.toFixed(1)}`,
+          `花費 $${best.cost} | 位置 (${srcPos.x.toFixed(1)}, ${srcPos.y.toFixed(1)}) | 評分 ${best.score.toFixed(1)}`,
           [
             `[ 策略 ] ${sName} - 融合決策`,
             `[ 資源 ] 資金 $${curMoney + best.cost} (可用 $${effMoney + best.cost})`,
@@ -1008,7 +1008,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         thinkingSteps.push(`[ 需求 ] 缺乏: ${compNeeds.map(n => n.split('（')[0]).join(', ')}`);
       }
       thinkingSteps.push(`[ 權衡 ] 放置優先 (掃描 ${scores.length} 個空位)`);
-      thinkingSteps.push(`[ 選擇 ] ${placeTowerData.name} @ (${bestPos.col}, ${bestPos.row}) | 評分 ${bestPos.score.toFixed(1)}`);
+      thinkingSteps.push(`[ 選擇 ] ${placeTowerData.name} @ (${bestPos.x.toFixed(1)}, ${bestPos.y.toFixed(1)}) | 評分 ${bestPos.score.toFixed(1)}`);
       if (selectedType !== bestPos.bestTowerType) {
         thinkingSteps.push(`         (註: 預算不足, 由 ${bestPos.bestTowerType} 降級)`);
       }
@@ -1018,7 +1018,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
       thinkingSteps.push(`[ 執行 ] ✓ 建造完成 | 花費 $${placeCost}`);
       
       get().addAutoBattleLog('place', `放置 ${placeTowerData.name}`,
-        `花費 $${placeCost} | 位置 (${bestPos.col}, ${bestPos.row}) | 評分 ${bestPos.score.toFixed(1)}${reasonParts.length > 0 ? ` | ${reasonParts.join(', ')}` : ''}`, thinkingSteps);
+        `花費 $${placeCost} | 位置 (${bestPos.x.toFixed(1)}, ${bestPos.y.toFixed(1)}) | 評分 ${bestPos.score.toFixed(1)}${reasonParts.length > 0 ? ` | ${reasonParts.join(', ')}` : ''}`, thinkingSteps);
       
       achievementQueue.push({ type: 'place', towerType: selectedType, cost: placeCost, wave: currentWave });
     }
