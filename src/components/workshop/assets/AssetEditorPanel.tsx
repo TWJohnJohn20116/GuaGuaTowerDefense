@@ -27,6 +27,8 @@ const TOWER_BASE_TYPES = Object.keys(TOWER_DATA);
 
 interface AssetEditorPanelProps {
   assetId: string;
+  /** 地圖／規則集要回各自的頁面編輯 */
+  onNavigate?: (page: 'levels' | 'rules') => void;
 }
 
 function NumField({ label, value, onChange, step = 1 }: { label: string; value: number; onChange: (next: number) => void; step?: number }) {
@@ -73,7 +75,7 @@ function SelectField({ label, value, options, onChange }: { label: string; value
   );
 }
 
-export function AssetEditorPanel({ assetId }: AssetEditorPanelProps) {
+export function AssetEditorPanel({ assetId, onNavigate }: AssetEditorPanelProps) {
   const { t } = useTranslation();
   const s = t.studio.assets.editor;
   const asset = useWorkshopStore((state) => state.assets.find((item) => item.id === assetId));
@@ -276,8 +278,17 @@ export function AssetEditorPanel({ assetId }: AssetEditorPanelProps) {
       )}
 
       {(asset.kind === 'map' || asset.kind === 'ruleSet') && (
-        <Deck tone="sunken" className="p-2 text-[11px] text-[var(--cn-ink-2)]">
-          {asset.kind === 'map' ? s.editInLevels : s.editInRules}
+        <Deck tone="sunken" className="flex flex-col items-start gap-2 p-2 text-[11px] text-[var(--cn-ink-2)]">
+          <span>{asset.kind === 'map' ? s.editInLevels : s.editInRules}</span>
+          {onNavigate && (
+            <Btn
+              size="sm"
+              variant="line"
+              onClick={() => onNavigate(asset.kind === 'map' ? 'levels' : 'rules')}
+            >
+              {s.gotoEdit}
+            </Btn>
+          )}
         </Deck>
       )}
 

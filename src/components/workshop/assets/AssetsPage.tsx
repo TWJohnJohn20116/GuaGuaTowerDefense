@@ -12,7 +12,7 @@ import { AssetEditorPanel } from './AssetEditorPanel';
 
 const KINDS: WorkshopAssetKind[] = ['tower', 'enemy', 'map', 'ruleSet', 'script', 'art'];
 
-export function AssetsPage() {
+export function AssetsPage({ onNavigate }: { onNavigate?: (page: 'levels' | 'rules') => void } = {}) {
   const { t } = useTranslation();
   const s = t.studio.assets;
   const projects = useWorkshopStore((state) => state.projects);
@@ -142,7 +142,7 @@ export function AssetsPage() {
                 </Btn>
               </div>
               <div className="min-h-0 flex-1">
-                <AssetEditorPanel assetId={activeId} />
+                <AssetEditorPanel assetId={activeId} onNavigate={onNavigate} />
               </div>
             </>
           ) : (

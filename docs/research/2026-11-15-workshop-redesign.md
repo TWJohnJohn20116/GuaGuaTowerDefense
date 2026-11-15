@@ -125,4 +125,21 @@ Mod 形狀的執行期內容（現有 CustomTowerData / CustomEnemyData / Custom
 1. 每個純函式模組（compile / graph / timeline / package / map edit model）都有 vitest 單元測試。
 2. CI：typecheck、i18n、棘輪、建置、體積預算、710+ 測試。
 3. 視覺驗證：七個頁面逐一截圖並看圖（空白、對比、溢出、窄版）。
-4. 手動：桌面版跑一次 CSP（音樂／更新／圖片／腳本 Worker）。
+4. 手動：桌面版跑一次 CSP（音樂／更新／圖片／腳本 Worker）。清單見 `2026-11-15-desktop-csp-checklist.md`。
+
+## 13. 第二、三輪補完（2026-11-15 晚）
+
+- `.ggmod` 匯入**完整還原**：資產、關卡、引用、勝負條件、戰役進度（`package/restore.ts`，有 pack→unpack→restore round-trip 測試）。
+- 塔的**自訂 3D 模型編輯器**接回資產頁（部件形狀／材質／位置／旋轉／縮放／自轉＋Tower3DPreview 即時預覽）。
+- 專案資訊可改名／描述；`.ggproject` 工作檔含引用資產與完成進度；自動備份（20 秒節流、3 份、可還原）。
+- 規則圖與地圖 **undo/redo**（按鈕＋Ctrl+Z／Ctrl+Shift+Z，切換作用域清歷史）。
+- 關卡排序、解鎖前置、試玩選關、戰役進度條；臨時局勝利自動標記完成。
+- `components/mod-editor/**` 由 64 檔清到 3 檔（只留 modValidation／ScriptCodeEditor／scriptHighlight）。
+- 煙霧測試＋封包 round-trip＋`scripts/csp-check.mjs` 靜態檢核。
+
+### 仍然不做（刻意或受限）
+
+- 桌面版 CSP 實機驗證：受 §13.9 限制，只能由使用者依清單執行。
+- 瀏覽器流程級 E2E：目前是資料路徑測試＋人工截圖。
+- 其他語系翻譯：只維護 zh-TW，其餘回退繁中。
+- undo 歷史不落地（重載即清空）。

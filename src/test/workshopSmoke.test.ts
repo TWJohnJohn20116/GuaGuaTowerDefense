@@ -65,6 +65,48 @@ describe('studio smoke（資料路徑）', () => {
     expect(parsed.file.assets.some((asset) => asset.id === towerId)).toBe(true);
   });
 
+
+  it('打包 → 解包 → 還原：關卡、資產與進度都回來', async () => {
+    const { packProject, serializeGgmod } = await import('@/workshop/package/pack');
+    const { unpackGgmod } = await import('@/workshop/package/unpack');
+    const { restoreFromGgmod } = await import('@/workshop/package/restore');
+
+    const level = {
+      id: 'l1',
+      name: '第一關',
+      waves: [{ enemies: [{ type: 'normal', count: 3, delay: 0 }], reward: 10 }],
+      winConditions: { surviveWaves: 5 },
+    };
+    const packed = packProject({
+      project: {
+        id: 'p1',
+        name: '作品',
+        version: '1.0.0',
+        levelIds: ['l1'],
+        data: {
+          levels: [level],
+          progress: ['l1'],
+          assetRefs: [{ assetId: 'a1', version: '1.0.0' }],
+        },
+      },
+      assets: [
+        { assetId: 'a1', kind: 'tower', name: '塔', version: '1.0.0', data: { damage: 5 }, dependsOn: [] },
+      ],
+    });
+    expect(packed.ok).toBe(true);
+    if (!packed.ok) return;
+
+    const raw = serializeGgmod(packed.value);
+    const unpacked = await unpackGgmod(raw);
+    expect(unpacked.ok).toBe(true);
+    if (!unpacked.ok) return;
+
+    const payload = restoreFromGgmod(unpacked.value.file, 'restored');
+    expect(payload.project.levels).toHaveLength(1);
+    expect(payload.assets.map((asset) => asset.id)).toEqual(['a1']);
+    expect(payload.completedLevels).toEqual(['l1']);
+  });
+
   it('壞掉的專案檔會被擋下（不是靜默接受）', () => {
     expect(parseProjectFile('not json').ok).toBe(false);
     expect(parseProjectFile(JSON.stringify({ magic: 'nope' })).ok).toBe(false);

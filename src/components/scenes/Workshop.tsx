@@ -146,7 +146,7 @@ export default function Workshop() {
             ) : (
               <>
                 {page === 'projects' && <ProjectsPage onNavigate={setPage} onCreateTemplate={createTemplate} />}
-                {page === 'assets' && <AssetsPage />}
+                {page === 'assets' && <AssetsPage onNavigate={setPage} />}
                 {page === 'levels' && activeProject && <LevelsPage projectId={activeProject.id} />}
                 {page === 'content' && activeProject && <ContentPage projectId={activeProject.id} />}
                 {page === 'rules' && activeProject && <GraphPage projectId={activeProject.id} />}

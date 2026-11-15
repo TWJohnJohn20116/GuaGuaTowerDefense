@@ -409,6 +409,7 @@ export const zhTW = {
         scale: '縮放',
         editInLevels: '地圖請到「關卡 → 地圖」用真實渲染編輯。',
         editInRules: '規則集請到「規則」頁編輯（專案層或關卡層）。',
+        gotoEdit: '前往編輯',
       },
     },
     levels: {
