@@ -4,6 +4,7 @@
  * 只編輯「目前選取的單一部件」。旋轉以度顯示（內部存弧度），
  * 縮放同時提供單軸（sx/sy/sz）與等比（scale，會一次寫入三軸）。
  */
+import type { ReactNode } from 'react';
 import { useTranslation } from '@/i18n';
 import type { Custom3DPart } from '@/types/game';
 import { Btn, Input, SegHead, Toggle } from '@/components/hl';
@@ -13,11 +14,15 @@ const DEG = 180 / Math.PI;
 
 interface ModelInspectorProps {
   part: Custom3DPart | null;
+  /** 模型已有部件時，未選取的提示要改成「去選一個」，而不是「先建一個」 */
+  hasParts: boolean;
   shapes: string[];
   parentName: string | null;
   onPatch: (patch: Partial<Custom3DPart>) => void;
   onUnparent: () => void;
   onFocus: () => void;
+  /** 場景控制（背景／環境光）：放在捲動區尾端，避免浮在面板上方造成遮擋 */
+  footer?: ReactNode;
 }
 
 function Num({
@@ -48,16 +53,19 @@ function Num({
   );
 }
 
-export function ModelInspector({ part, shapes, parentName, onPatch, onUnparent, onFocus }: ModelInspectorProps) {
+export function ModelInspector({ part, hasParts, shapes, parentName, onPatch, onUnparent, onFocus, footer }: ModelInspectorProps) {
   const { t } = useTranslation();
   const s = t.studio.models;
 
   if (!part) {
     return (
-      <div className="flex h-full flex-col gap-2 p-2">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2">
         <SegHead label={s.parts} />
-        <p className="font-mono text-[10px] leading-relaxed text-[var(--cn-ink-3)]">{s.emptyHint}</p>
-        <p className="mt-auto font-mono text-[9px] leading-relaxed text-[var(--cn-ink-3)]">{s.hintSelect}</p>
+        <p className="font-mono text-[10px] leading-relaxed text-[var(--cn-ink-3)]">
+          {hasParts ? s.selectPartHint : s.emptyHint}
+        </p>
+        <p className="font-mono text-[9px] leading-relaxed text-[var(--cn-ink-3)]">{s.hintSelect}</p>
+        {footer && <div className="mt-auto shrink-0 border-t border-[var(--cn-line-soft)] pt-2">{footer}</div>}
       </div>
     );
   }
@@ -67,7 +75,7 @@ export function ModelInspector({ part, shapes, parentName, onPatch, onUnparent, 
   const sz = part.sz ?? part.scale;
 
   return (
-    <div className="flex h-full flex-col gap-2 overflow-y-auto p-2">
+    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2">
       <SegHead
         label={s.transform}
         right={<Btn size="sm" variant="ghost" onClick={onFocus}>{s.focus}</Btn>}
@@ -181,6 +189,8 @@ export function ModelInspector({ part, shapes, parentName, onPatch, onUnparent, 
           <Btn size="sm" variant="ghost" onClick={onUnparent}>{s.unparent}</Btn>
         )}
       </div>
+
+      {footer && <div className="shrink-0 border-t border-[var(--cn-line-soft)] pt-2">{footer}</div>}
     </div>
   );
 }

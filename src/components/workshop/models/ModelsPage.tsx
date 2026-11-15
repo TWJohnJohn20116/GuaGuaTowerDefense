@@ -21,7 +21,6 @@ import {
   mirrorPart,
   modelStats,
   normalizeModel,
-  outOfBounds,
   parseModel,
   removePart,
   reparent,
@@ -135,7 +134,7 @@ export function ModelsPage() {
   }, [model.parts, selectedPart]);
 
   const stats = useMemo(() => modelStats(model), [model]);
-  const bounds = useMemo(() => outOfBounds(model), [model]);
+  const [overflow, setOverflow] = useState(false);
 
   const patchSelected = (patch: Partial<Custom3DPart>): void => {
     if (!selectedPart) return;
@@ -298,7 +297,7 @@ export function ModelsPage() {
         onImport={importModel}
         onExport={exportModel}
         stats={stats}
-        outOfBounds={bounds.exceeded}
+        outOfBounds={overflow}
         disabled={selectedIds.length === 0}
       />
 
@@ -377,6 +376,7 @@ export function ModelsPage() {
             onTransform={(id, patch, phase) => {
               if (phase === 'commit') apply(updatePart(model, id, patch));
             }}
+            onOverflow={setOverflow}
           />
           <div className="pointer-events-none absolute bottom-1 left-1 right-1 flex items-center justify-between gap-2 font-mono text-[9px] text-white/45">
             <span className="truncate">{s.hintSelect}</span>
@@ -384,37 +384,40 @@ export function ModelsPage() {
           </div>
         </div>
 
-        <div className="flex w-[252px] shrink-0 flex-col gap-1 border border-[var(--cn-line-soft)]">
+        <div className="flex min-h-0 w-[252px] shrink-0 flex-col border border-[var(--cn-line-soft)]">
           <ModelInspector
             part={selectedPart}
+            hasParts={model.parts.length > 0}
             shapes={shapes}
             parentName={parentName}
             onPatch={patchSelected}
             onUnparent={() => selectedPart && reparentPart(selectedPart.id, null)}
             onFocus={() => setFocusNonce((value) => value + 1)}
+            footer={(
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                  <span className="arc-label w-12 shrink-0">{s.background}</span>
+                  <input
+                    type="color"
+                    value={background}
+                    onChange={(event) => setBackground(event.target.value)}
+                    className="h-5 w-8 border border-[var(--cn-line)] bg-transparent"
+                  />
+                  <span className="arc-label ml-2 shrink-0">{s.ambient}</span>
+                  <input
+                    type="range"
+                    min={0.2}
+                    max={2.2}
+                    step={0.1}
+                    value={ambient}
+                    onChange={(event) => setAmbient(Number(event.target.value))}
+                    className="min-w-0 flex-1"
+                  />
+                </div>
+                {notice && <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{notice}</span>}
+              </div>
+            )}
           />
-          <div className="mt-auto flex flex-col gap-1 border-t border-[var(--cn-line-soft)] p-1.5">
-            <div className="flex items-center gap-1">
-              <span className="arc-label w-12 shrink-0">{s.background}</span>
-              <input
-                type="color"
-                value={background}
-                onChange={(event) => setBackground(event.target.value)}
-                className="h-5 w-8 border border-[var(--cn-line)] bg-transparent"
-              />
-              <span className="arc-label ml-2 shrink-0">{s.ambient}</span>
-              <input
-                type="range"
-                min={0.2}
-                max={2.2}
-                step={0.1}
-                value={ambient}
-                onChange={(event) => setAmbient(Number(event.target.value))}
-                className="min-w-0 flex-1"
-              />
-            </div>
-            {notice && <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{notice}</span>}
-          </div>
         </div>
       </div>
     </div>

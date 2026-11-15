@@ -748,12 +748,16 @@ export function buildCustomTowerModel(
   if (!box.isEmpty()) {
     const r = Math.max(Math.abs(box.min.x), Math.abs(box.max.x), Math.abs(box.min.z), Math.abs(box.max.z));
     if (r > 0.47) {
-      g.scale.setScalar(0.47 / r);
+      const shrink = 0.47 / r;
+      g.scale.setScalar(shrink);
+      // 讓編輯器知道「這個模型被自動縮小了」（1 = 沒有縮），不要用估算值猜
+      g.userData.shrink = shrink;
       const outer = new THREE.Group();
       outer.add(g);
       outer.userData.spinPart = g.userData.spinPart;
       outer.userData.spinParts = g.userData.spinParts;
       outer.userData.partNodes = nodes;
+      outer.userData.shrink = shrink;
       return outer;
     }
   }

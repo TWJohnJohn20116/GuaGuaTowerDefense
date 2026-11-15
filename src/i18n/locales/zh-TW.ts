@@ -489,6 +489,7 @@ export const zhTW = {
       clearModel: '清空模型',
       emptyModel: '這個模型還沒有部件',
       emptyHint: '從模板開始，或新增第一個部件。',
+      selectPartHint: '在部件樹或 3D 視窗中選一個部件開始編輯。',
       hintSelect: '左鍵選取 · 右鍵旋轉視角 · 中鍵平移 · 滾輪縮放',
       hintKeys: '1 移動 · 2 旋轉 · 3 縮放 · X/Y/Z 鎖軸 · F 聚焦 · Del 刪除 · Ctrl+Z 復原',
       outOfBounds: '超出地塊範圍，遊戲內會自動縮小',

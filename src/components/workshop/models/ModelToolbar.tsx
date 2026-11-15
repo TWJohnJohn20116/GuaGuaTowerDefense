@@ -146,7 +146,7 @@ export function ModelToolbar(props: ModelToolbarProps) {
           <span>{s.partCount.replace('{count}', String(props.stats.partCount))}</span>
           <span>{s.drawCalls.replace('{count}', String(props.stats.drawCalls))}</span>
           {props.stats.spinCount > 0 && <span>{s.spinCount.replace('{count}', String(props.stats.spinCount))}</span>}
-          {props.outOfBounds && <span className="text-[var(--cn-alert)]">{s.outOfBounds}</span>}
+          {props.outOfBounds && <span className="text-[var(--cn-signal-text)]">{s.outOfBounds}</span>}
         </span>
       </div>
     </div>

@@ -51,6 +51,8 @@ export interface ModelViewportProps {
   focusNonce: number;
   onSelect: (ids: string[], additive: boolean) => void;
   onTransform: (id: string, patch: Partial<Custom3DPart>, phase: TransformPhase) => void;
+  /** 模型因超出地塊而被自動縮小時回報 true（依實際渲染結果，不是估算） */
+  onOverflow?: (overflow: boolean) => void;
 }
 
 const AXIS_COLOR: Record<GizmoAxis, number> = { x: 0xe5484d, y: 0x46a758, z: 0x3b82f6 };
@@ -187,7 +189,8 @@ export function ModelViewport(props: ModelViewportProps) {
     const height = container.clientHeight || 420;
     renderer.setSize(width, height);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // three 已移除 PCFSoftShadowMap（會退回 PCF 並印警告），直接用 PCF
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.domElement.style.display = 'block';
     renderer.domElement.style.touchAction = 'none';
     renderer.domElement.style.cursor = 'default';
@@ -365,6 +368,9 @@ export function ModelViewport(props: ModelViewportProps) {
           if (id && !stage.partNodes.has(id)) stage.partNodes.set(id, object);
         });
       }
+
+      const shrink = (group.userData.shrink as number | undefined) ?? 1;
+      propsRef.current.onOverflow?.(shrink < 0.999);
 
       if (shading !== 'solid') {
         const override = shading === 'wireframe' ? wireMat : normalMat;
