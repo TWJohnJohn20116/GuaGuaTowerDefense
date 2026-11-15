@@ -36,7 +36,7 @@ const Settings = lazy(() => import('@/components/scenes/Settings'));
 const Tutorial = lazy(() => import('@/components/scenes/Tutorial'));
 const Encyclopedia = lazy(() => import('@/components/scenes/Encyclopedia'));
 const Changelog = lazy(() => import('@/components/scenes/Changelog'));
-const CreativeWorkshop = lazy(() => import('@/components/scenes/CreativeWorkshop'));
+const Workshop = lazy(() => import('@/components/scenes/Workshop'));
 const Achievements = lazy(() => import('@/components/scenes/Achievements'));
 const Skins = lazy(() => import('@/components/scenes/Skins'));
 const Shop = lazy(() => import('@/components/scenes/Shop'));
@@ -64,7 +64,7 @@ const SCENE_COMPONENTS: Record<GameScene, ComponentType> = {
   tutorial: Tutorial,
   encyclopedia: Encyclopedia,
   changelog: Changelog,
-  workshop: CreativeWorkshop,
+  workshop: Workshop,
   achievements: Achievements,
   skins: Skins,
   shop: Shop,
