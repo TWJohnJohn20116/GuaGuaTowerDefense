@@ -7,7 +7,8 @@ import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 import { useWorkshopStore } from '@/store/workshopStore';
 import type { AssetRef, WorkshopLevel, WorkshopScoreRule } from '@/types/workshop';
-import { Btn, Deck, Empty, Input, SegHead, Toggle } from '@/components/hl';
+import { Btn, Chip, Deck, Empty, Input, SegHead, Toggle } from '@/components/hl';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
 
 interface LevelSettingsPanelProps {
@@ -88,18 +89,19 @@ export function LevelSettingsPanel({ projectId, levelId }: LevelSettingsPanelPro
       </div>
 
       <SegHead label={s.unlockAfter} />
-      <select
+      <CustomSelect
         value={level.requiresLevelId ?? ''}
-        onChange={(event) => patch({ requiresLevelId: event.target.value || null })}
-        className="h-7 w-full border border-[var(--cn-line)] bg-[var(--cn-card)] px-1.5 font-mono text-[11.5px] text-[var(--cn-ink)]"
-      >
-        <option value="">{s.noneUnlock}</option>
-        {(project?.levels ?? [])
-          .filter((item) => item.id !== level.id)
-          .map((item) => (
-            <option key={item.id} value={item.id}>{item.name}</option>
-          ))}
-      </select>
+        onChange={(value) => patch({ requiresLevelId: value || null })}
+        options={[
+          { value: '', label: s.noneUnlock },
+          ...(project?.levels ?? [])
+            .filter((item) => item.id !== level.id)
+            .map((item) => ({ value: item.id, label: item.name })),
+        ]}
+        size="sm"
+        position="inline"
+        className="w-full"
+      />
 
       <SegHead label={s.winConditions} />
       <div className="flex flex-col">
@@ -148,10 +150,9 @@ export function LevelSettingsPanel({ projectId, levelId }: LevelSettingsPanelPro
       </div>
 
       <SegHead label={s.ruleSetRef} />
-      <select
+      <CustomSelect
         value={level.ruleSetRef?.assetId ?? ''}
-        onChange={(event) => {
-          const assetId = event.target.value;
+        onChange={(assetId) => {
           if (!assetId) {
             patch({ ruleSetRef: null });
             return;
@@ -159,13 +160,14 @@ export function LevelSettingsPanel({ projectId, levelId }: LevelSettingsPanelPro
           const asset = ruleSetAssets.find((item) => item.id === assetId);
           patch({ ruleSetRef: { assetId, version: asset?.version ?? '1.0.0' } });
         }}
-        className="h-7 w-full border border-[var(--cn-line)] bg-[var(--cn-card)] px-1.5 font-mono text-[11.5px] text-[var(--cn-ink)]"
-      >
-        <option value="">{s.none}</option>
-        {ruleSetAssets.map((asset) => (
-          <option key={asset.id} value={asset.id}>{asset.name}</option>
-        ))}
-      </select>
+        options={[
+          { value: '', label: s.none },
+          ...ruleSetAssets.map((asset) => ({ value: asset.id, label: asset.name })),
+        ]}
+        size="sm"
+        position="inline"
+        className="w-full"
+      />
 
       <SegHead label={s.towerRefs} />
       {towerAssets.length === 0 ? (
@@ -175,14 +177,14 @@ export function LevelSettingsPanel({ projectId, levelId }: LevelSettingsPanelPro
           {towerAssets.map((asset) => {
             const active = towerRefs.some((ref) => ref.assetId === asset.id);
             return (
-              <button
+              <Chip
                 key={asset.id}
-                type="button"
+                active={active}
                 onClick={() => toggleTower(asset.id)}
-                className={`border px-1.5 py-1 text-left text-[11px] ${active ? 'border-[var(--cn-signal-text)] text-[var(--cn-signal-text)]' : 'border-[var(--cn-line)] text-[var(--cn-ink-3)]'}`}
+                className="justify-start text-[11px]"
               >
                 {asset.name}
-              </button>
+              </Chip>
             );
           })}
         </div>

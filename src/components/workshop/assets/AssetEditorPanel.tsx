@@ -17,9 +17,10 @@ import type {
 } from '@/types/workshop';
 import { TOWER_DATA } from '@/data/gameData';
 import { MOD_SCRIPT_HOOKS, MOD_SCRIPT_PERMISSIONS } from '@/mod-script/limits';
-import { Btn, Deck, Empty, Input, SegHead, Toggle } from '@/components/hl';
+import { Btn, Chip, Deck, Empty, Input, SegHead, Toggle } from '@/components/hl';
 import { ScriptCodeEditor } from '@/components/mod-editor/ScriptCodeEditor';
 import { ColorPicker } from '@/components/ui/ColorPicker';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 
 const ABILITIES = ['none', 'flying', 'healing', 'spawning', 'shield', 'stealth', 'berserk', 'armored', 'teleport', 'miniboss', 'swarm', 'phase', 'explode', 'jam', 'escort'] as const;
@@ -77,18 +78,17 @@ function ColorRow({ label, color, onChange }: { label: string; color: string; on
 
 function SelectField({ label, value, options, onChange }: { label: string; value: string; options: readonly string[]; onChange: (next: string) => void }) {
   return (
-    <label className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1">
       <span className="arc-label">{label}</span>
-      <select
+      <CustomSelect
         value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-7 w-full border border-[var(--cn-line)] bg-[var(--cn-card)] px-1.5 font-mono text-[11.5px] text-[var(--cn-ink)]"
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>{option}</option>
-        ))}
-      </select>
-    </label>
+        onChange={onChange}
+        options={options.map((option) => ({ value: option, label: option }))}
+        size="sm"
+        position="inline"
+        className="w-full"
+      />
+    </div>
   );
 }
 
@@ -235,14 +235,14 @@ export function AssetEditorPanel({ assetId, onNavigate }: AssetEditorPanelProps)
             {MOD_SCRIPT_HOOKS.map((hook) => {
               const active = scriptData.hooks.includes(hook);
               return (
-                <button
+                <Chip
                   key={hook}
-                  type="button"
+                  active={active}
                   onClick={() => patchData({ hooks: active ? scriptData.hooks.filter((item) => item !== hook) : [...scriptData.hooks, hook] })}
-                  className={`border px-1.5 py-1 text-left font-mono text-[10px] ${active ? 'border-[var(--cn-signal-text)] text-[var(--cn-signal-text)]' : 'border-[var(--cn-line)] text-[var(--cn-ink-3)]'}`}
+                  className="justify-start font-mono text-[10px]"
                 >
                   {hook}
-                </button>
+                </Chip>
               );
             })}
           </div>
@@ -251,14 +251,14 @@ export function AssetEditorPanel({ assetId, onNavigate }: AssetEditorPanelProps)
             {MOD_SCRIPT_PERMISSIONS.map((permission) => {
               const active = scriptData.permissions.includes(permission);
               return (
-                <button
+                <Chip
                   key={permission}
-                  type="button"
+                  active={active}
                   onClick={() => patchData({ permissions: active ? scriptData.permissions.filter((item) => item !== permission) : [...scriptData.permissions, permission] })}
-                  className={`border px-1.5 py-1 text-left font-mono text-[10px] ${active ? 'border-[var(--cn-signal-text)] text-[var(--cn-signal-text)]' : 'border-[var(--cn-line)] text-[var(--cn-ink-3)]'}`}
+                  className="justify-start font-mono text-[10px]"
                 >
                   {permission}
-                </button>
+                </Chip>
               );
             })}
           </div>

@@ -10,7 +10,8 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from '@/i18n';
 import type { Custom3DModel, Custom3DPart } from '@/types/game';
-import { Btn, Input } from '@/components/hl';
+import { Btn, IconBtn, Input } from '@/components/hl';
+import { ChevronDownIcon, ChevronRightIcon, EyeIcon, LockIcon } from '@/components/ui/Icons';
 
 export type MirrorAxis = 'x' | 'z';
 
@@ -137,16 +138,21 @@ export function ModelTree({
           ].join(' ')}
           style={{ paddingLeft: 4 + depth * 12 }}
         >
-          <span
-            className="w-3 shrink-0 text-center font-mono text-[9px] text-[var(--cn-ink-3)]"
+          <IconBtn
+            label={isCollapsed ? s.expand : s.collapse}
+            className="h-3 w-3 shrink-0"
             onClick={(event) => {
               if (children.length === 0) return;
               event.stopPropagation();
               toggleCollapse(part.id);
             }}
           >
-            {children.length > 0 ? (isCollapsed ? '▸' : '▾') : '·'}
-          </span>
+            {children.length > 0
+              ? (isCollapsed
+                ? <ChevronRightIcon className="h-2.5 w-2.5" />
+                : <ChevronDownIcon className="h-2.5 w-2.5" />)
+              : null}
+          </IconBtn>
           {renaming && renaming.id === part.id ? (
             <Input
               autoFocus
@@ -169,28 +175,26 @@ export function ModelTree({
             <span className="min-w-0 flex-1 truncate">{part.name ?? part.shape}</span>
           )}
           <span className="shrink-0 font-mono text-[9px] text-[var(--cn-ink-3)]">{part.material}</span>
-          <button
-            type="button"
-            aria-label={s.hidden}
+          <IconBtn
+            label={s.hidden}
+            className={part.hidden ? 'h-4 w-4 shrink-0 opacity-40' : 'h-4 w-4 shrink-0'}
             onClick={(event) => {
               event.stopPropagation();
               onToggleHidden(part.id);
             }}
-            className="shrink-0 px-0.5 text-[10px] text-[var(--cn-ink-3)] hover:text-[var(--cn-ink)]"
           >
-            {part.hidden ? '◌' : '◉'}
-          </button>
-          <button
-            type="button"
-            aria-label={s.locked}
+            <EyeIcon className="h-2.5 w-2.5" />
+          </IconBtn>
+          <IconBtn
+            label={s.locked}
+            className={part.locked ? 'h-4 w-4 shrink-0 text-[var(--cn-signal-text)]' : 'h-4 w-4 shrink-0'}
             onClick={(event) => {
               event.stopPropagation();
               onToggleLocked(part.id);
             }}
-            className="shrink-0 px-0.5 text-[10px] text-[var(--cn-ink-3)] hover:text-[var(--cn-ink)]"
           >
-            {part.locked ? '▣' : '▢'}
-          </button>
+            <LockIcon className="h-2.5 w-2.5" />
+          </IconBtn>
         </div>
         {!isCollapsed && children.map((child) => row(child, depth + 1))}
       </div>

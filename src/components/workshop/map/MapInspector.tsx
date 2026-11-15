@@ -4,7 +4,8 @@
  * 顯示：統計、驗證問題、路徑點清單、預覽塔清單、儲存狀態。
  * 所有操作都回呼給 MapWorkbench —— 這一層不持有草稿，也不 import store。
  */
-import { Btn, Deck, Empty, Field, SegHead, StatCell } from '@/components/hl';
+import { Btn, Deck, Empty, Field, IconBtn, SegHead, StatCell } from '@/components/hl';
+import { CrossIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
 import { TOWER_DATA } from '@/data/gameData';
 import { getTowerData } from '@/store/gameStoreUtils';
@@ -171,14 +172,14 @@ export function MapInspector({
                     {index === 0 ? s.panel.start : index === draft.waypoints.length - 1 ? s.panel.end : s.panel.mid}
                   </span>
                 </button>
-                <button
-                  type="button"
+                <IconBtn
+                  label={t.studio.common.delete}
+                  className="h-5 w-5 shrink-0 text-[var(--cn-alarm-text)]"
                   onClick={() => onRemoveWaypoint(index)}
                   disabled={draft.waypoints.length <= 2}
-                  className="rounded-[8px] px-1.5 py-0.5 text-[11px] font-extrabold text-[var(--cn-alarm-text)] disabled:opacity-30"
                 >
-                  x
-                </button>
+                  <CrossIcon className="h-3 w-3" />
+                </IconBtn>
               </div>
             );
           })}
@@ -225,13 +226,13 @@ export function MapInspector({
                     ({tower.col}, {tower.row})
                   </span>
                 </button>
-                <button
-                  type="button"
+                <IconBtn
+                  label={t.studio.common.delete}
+                  className="h-5 w-5 shrink-0 text-[var(--cn-alarm-text)]"
                   onClick={() => onRemoveTower(tower.id)}
-                  className="rounded-[8px] px-1.5 py-0.5 text-[11px] font-extrabold text-[var(--cn-alarm-text)]"
                 >
-                  x
-                </button>
+                  <CrossIcon className="h-3 w-3" />
+                </IconBtn>
               </div>
             );
           })}

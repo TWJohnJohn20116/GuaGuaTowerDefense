@@ -9,6 +9,7 @@ import type React from 'react';
 import { useTranslation } from '@/i18n';
 import { Btn, IconBtn, Input, Toggle } from '@/components/hl/controls';
 import { Deck, Empty, Rule, SegHead } from '@/components/hl/surface';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import type { GraphIssue } from '@/workshop/graph/validate';
 import type { GraphNode, GraphParamSpec, GraphParamValue, RuleGraph } from '@/workshop/graph/model';
 import { findNode, studioText } from '@/workshop/graph/model';
@@ -110,17 +111,17 @@ function ParamField({
     return (
       <label className="flex flex-col gap-1">
         <span className="arc-label">{label}</span>
-        <select
-          className={FIELD_CLASS}
+        <CustomSelect
           value={typeof value === 'string' ? value : String(spec.default)}
-          onChange={(event) => onChange(event.target.value)}
-        >
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {studioText(t, option.labelKey)}
-            </option>
-          ))}
-        </select>
+          onChange={onChange}
+          options={options.map((option) => ({
+            value: option.value,
+            label: studioText(t, option.labelKey),
+          }))}
+          size="sm"
+          position="inline"
+          className="w-full"
+        />
       </label>
     );
   }

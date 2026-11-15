@@ -9,6 +9,7 @@ import { useTranslation } from '@/i18n';
 import { useWorkshopStore } from '@/store/workshopStore';
 import type { WorkshopProject } from '@/types/workshop';
 import { Btn, Deck, Empty, Field, Input, Num, SegHead, Toggle } from '@/components/hl';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import {
   GGMOD_EXTENSION,
   type GgmodFile,
@@ -455,20 +456,16 @@ export function PublishPanel({ projectId, levelId }: PublishPanelProps) {
             />
           </Field>
           <Field label={p.license}>
-            <select
+            <CustomSelect
               value={project.license}
-              onChange={(e) => {
-                const next = e.target.value;
+              onChange={(next) => {
                 if (isLicense(next)) updateProject(project.id, { license: next });
               }}
-              className="h-8 rounded-[10px] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] px-2 text-[12px] font-bold text-[var(--cn-ink)]"
-            >
-              {LICENSES.map((license) => (
-                <option key={license} value={license}>
-                  {license}
-                </option>
-              ))}
-            </select>
+              options={LICENSES.map((license) => ({ value: license, label: license }))}
+              size="sm"
+              position="inline"
+              className="w-44"
+            />
           </Field>
         </Deck>
 

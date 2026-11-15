@@ -7,6 +7,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { SceneShell } from '@/components/ui/SceneShell';
 import { Num, Rail, RailItem, TopBar, Btn, Deck } from '@/components/hl';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import { WrenchIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
 import { useWorkshopStore } from '@/store/workshopStore';
@@ -158,23 +159,21 @@ export default function Workshop() {
                     <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
                       <div className="flex items-center gap-2">
                         <span className="arc-label">{s.playtest.level}</span>
-                        <select
+                        <CustomSelect
                           value={playtestLevelId ?? ''}
-                          onChange={(event) => setPlaytestLevelId(event.target.value || null)}
-                          className="h-7 w-56 border border-[var(--cn-line)] bg-[var(--cn-card)] px-1.5 font-mono text-[11.5px] text-[var(--cn-ink)]"
-                        >
-                          {activeProject.levels.map((level) => {
+                          onChange={(value) => setPlaytestLevelId(value || null)}
+                          options={activeProject.levels.map((level) => {
                             const lock = locks.get(level.id);
                             const done = completedIds.includes(level.id);
-                            return (
-                              <option key={level.id} value={level.id} disabled={lock?.locked === true}>
-                                {level.name}
-                                {done ? ' ✓' : ''}
-                                {lock?.locked ? '（未解鎖）' : ''}
-                              </option>
-                            );
+                            return {
+                              value: level.id,
+                              label: level.name + (done ? ' ✓' : '') + (lock?.locked ? '（未解鎖）' : ''),
+                              disabled: lock?.locked === true,
+                            };
                           })}
-                        </select>
+                          size="sm"
+                          className="w-56"
+                        />
                         <span className="ml-auto font-mono text-[10.5px] text-[var(--cn-ink-3)]">
                           {s.progress.completed} {completedIds.length}/{activeProject.levels.length}
                         </span>

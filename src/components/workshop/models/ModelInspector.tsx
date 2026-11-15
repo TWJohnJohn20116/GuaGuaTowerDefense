@@ -7,8 +7,10 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from '@/i18n';
 import type { Custom3DPart } from '@/types/game';
-import { Btn, Input, SegHead, Toggle } from '@/components/hl';
+import { Btn, IconBtn, Input, SegHead, Toggle } from '@/components/hl';
+import { CrossIcon } from '@/components/ui/Icons';
 import { ColorPicker } from '@/components/ui/ColorPicker';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 const MATERIALS: Custom3DPart['material'][] = ['metal', 'trim', 'accent', 'glow', 'gold'];
 const DEG = 180 / Math.PI;
@@ -127,31 +129,29 @@ export function ModelInspector({ part, hasParts, shapes, parentName, onPatch, on
 
       <SegHead label={s.appearance} />
 
-      <label className="flex flex-col gap-0.5">
+      <div className="flex flex-col gap-0.5">
         <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{s.shape}</span>
-        <select
+        <CustomSelect
           value={part.shape}
-          onChange={(event) => onPatch({ shape: event.target.value })}
-          className="h-6 w-full border border-[var(--cn-line)] bg-[var(--cn-card)] px-1 font-mono text-[10px]"
-        >
-          {shapes.map((shape) => (
-            <option key={shape} value={shape}>{shape}</option>
-          ))}
-        </select>
-      </label>
+          onChange={(shape) => onPatch({ shape })}
+          options={shapes.map((shape) => ({ value: shape, label: shape }))}
+          size="sm"
+          position="inline"
+          className="w-full"
+        />
+      </div>
 
-      <label className="flex flex-col gap-0.5">
+      <div className="flex flex-col gap-0.5">
         <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{s.material}</span>
-        <select
+        <CustomSelect
           value={part.material}
-          onChange={(event) => onPatch({ material: event.target.value as Custom3DPart['material'] })}
-          className="h-6 w-full border border-[var(--cn-line)] bg-[var(--cn-card)] px-1 font-mono text-[10px]"
-        >
-          {MATERIALS.map((material) => (
-            <option key={material} value={material}>{material}</option>
-          ))}
-        </select>
-      </label>
+          onChange={(material) => onPatch({ material })}
+          options={MATERIALS.map((material) => ({ value: material, label: material }))}
+          size="sm"
+          position="inline"
+          className="w-full"
+        />
+      </div>
 
       <span className="arc-label">{s.color}</span>
       <div className="flex items-center gap-1">
@@ -166,7 +166,9 @@ export function ModelInspector({ part, hasParts, shapes, parentName, onPatch, on
           className="h-6 min-w-0 flex-1 px-1 font-mono text-[10px]"
         />
         {part.color !== undefined && (
-          <Btn size="sm" variant="ghost" onClick={() => onPatch({ color: undefined })}>×</Btn>
+          <IconBtn label={s.colorAuto} className="h-6 w-6 shrink-0" onClick={() => onPatch({ color: undefined })}>
+            <CrossIcon className="h-3 w-3" />
+          </IconBtn>
         )}
       </div>
 

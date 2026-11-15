@@ -9,6 +9,7 @@ import type React from 'react';
 import { useTranslation } from '@/i18n';
 import { Btn, IconBtn, Toggle } from '@/components/hl/controls';
 import { Deck, Empty, SegHead } from '@/components/hl/surface';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import type { GraphIssue } from '@/workshop/graph/validate';
 import type { RuleGraph } from '@/workshop/graph/model';
 import { findNode, studioText } from '@/workshop/graph/model';
@@ -69,17 +70,17 @@ function AddRowControl({
 
   return (
     <div className="flex items-center gap-2 pl-4 pt-1">
-      <select
-        className="arc-field h-9 min-w-0 flex-1 text-[12px] font-bold"
+      <CustomSelect
+        className="min-w-0 flex-1"
         value={selected}
-        onChange={(event) => setSelected(event.target.value)}
-      >
-        {options.map((option) => (
-          <option key={option.type} value={option.type}>
-            {studioText(t, option.labelKey)}
-          </option>
-        ))}
-      </select>
+        onChange={setSelected}
+        options={options.map((option) => ({
+          value: option.type,
+          label: studioText(t, option.labelKey),
+        }))}
+        size="sm"
+        position="inline"
+      />
       <Btn
         variant="line"
         size="sm"
