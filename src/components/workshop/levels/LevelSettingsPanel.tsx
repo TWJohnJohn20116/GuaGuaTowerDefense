@@ -8,6 +8,7 @@ import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 import { useWorkshopStore } from '@/store/workshopStore';
 import type { AssetRef, WorkshopLevel, WorkshopScoreRule } from '@/types/workshop';
 import { Btn, Deck, Empty, Input, SegHead, Toggle } from '@/components/hl';
+import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
 
 interface LevelSettingsPanelProps {
   projectId: string;
@@ -45,6 +46,10 @@ export function LevelSettingsPanel({ projectId, levelId }: LevelSettingsPanelPro
   const updateLevel = useWorkshopStore((state) => state.updateLevel);
   const listAssets = useWorkshopStore((state) => state.listAssets);
   const project = useWorkshopStore((state) => state.getProject(projectId));
+  const completedIds = useWorkshopProgressStore((state) => state.completed[projectId] ?? []);
+  const markCompleted = useWorkshopProgressStore((state) => state.markCompleted);
+  const unmarkCompleted = useWorkshopProgressStore((state) => state.unmarkCompleted);
+  const resetProject = useWorkshopProgressStore((state) => state.resetProject);
   const towerAssets = listAssets('tower');
   const ruleSetAssets = listAssets('ruleSet');
 
@@ -186,6 +191,32 @@ export function LevelSettingsPanel({ projectId, levelId }: LevelSettingsPanelPro
       <Deck tone="sunken" className="p-2 font-mono text-[10px] text-[var(--cn-ink-3)]">
         {fillTemplate(s.hint, { count: String(towerRefs.length) })}
       </Deck>
+
+      <SegHead label={s.progressTitle} />
+      <div className="flex flex-wrap items-center gap-2">
+        <Btn
+          size="sm"
+          variant={completedIds.includes(level.id) ? 'signal' : 'line'}
+          onClick={() => {
+            if (completedIds.includes(level.id)) unmarkCompleted(projectId, level.id);
+            else markCompleted(projectId, level.id);
+          }}
+        >
+          {completedIds.includes(level.id) ? s.unmarkDone : s.markDone}
+        </Btn>
+        <Btn
+          size="sm"
+          variant="ghost"
+          onClick={() => {
+            if (window.confirm(s.resetConfirm)) resetProject(projectId);
+          }}
+        >
+          {s.resetProgress}
+        </Btn>
+        <span className="font-mono text-[10px] text-[var(--cn-ink-3)]">
+          {fillTemplate(s.progressCount, { done: String(completedIds.length), total: String(project?.levels.length ?? 0) })}
+        </span>
+      </div>
     </div>
   );
 }

@@ -7,6 +7,8 @@ import { useWorkshopStore } from '@/store/workshopStore';
 import { createDefaultLevel } from '@/workshop/levels/defaults';
 import { MapWorkbench } from '@/components/workshop/map/MapWorkbench';
 import { LevelSettingsPanel } from './LevelSettingsPanel';
+import { resolveLevelLocks, type LevelLockState } from '@/workshop/progress';
+import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
 import { Btn, Deck, Empty, Num } from '@/components/hl';
 import { PlusIcon, TrashIcon, MapIcon, SettingsIcon } from '@/components/ui/Icons';
 
@@ -27,6 +29,13 @@ export function LevelsPage({ projectId }: LevelsPageProps) {
   const [tab, setTab] = useState<LevelTab>('map');
 
   const levels = useMemo(() => project?.levels ?? [], [project]);
+  const completedIds = useWorkshopProgressStore((state) =>
+    state.completed[projectId] ?? [],
+  );
+  const locks = useMemo(
+    () => (project ? resolveLevelLocks(project, completedIds) : new Map<string, LevelLockState>()),
+    [project, completedIds],
+  );
 
   useEffect(() => {
     if (levels.length === 0) {
@@ -76,6 +85,12 @@ export function LevelsPage({ projectId }: LevelsPageProps) {
               >
                 <MapIcon className="h-3.5 w-3.5 shrink-0 text-[var(--cn-ink-3)]" />
                 <span className="min-w-0 flex-1 truncate text-[12px]">{level.name}</span>
+                {completedIds.includes(level.id) && (
+                  <span className="shrink-0 font-mono text-[10px] text-[var(--cn-vital-text)]">✓</span>
+                )}
+                {locks.get(level.id)?.locked && (
+                  <span className="shrink-0 font-mono text-[9.5px] text-[var(--cn-caution-text)]">{s.locked}</span>
+                )}
               </button>
             ))
           )}

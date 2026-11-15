@@ -415,6 +415,7 @@ export const zhTW = {
       tabSettings: '設定',
       moveUp: '上移',
       moveDown: '下移',
+      locked: '未解鎖',
       settings: {
         title: '關卡設定',
         noLevel: '先選一個關卡',
@@ -423,6 +424,12 @@ export const zhTW = {
         winConditions: '勝負條件',
         unlockAfter: '解鎖前置關卡',
         noneUnlock: '（無，一開始就能玩）',
+        progressTitle: '戰役進度',
+        markDone: '標記為已完成',
+        unmarkDone: '取消完成標記',
+        resetProgress: '重設此專案進度',
+        resetConfirm: '確定要清空這個專案的完成紀錄？',
+        progressCount: '已完成 {done}/{total}',
         surviveWaves: '守住波數',
         surviveSeconds: '守住秒數',
         baseHealth: '基地生命',
@@ -664,6 +671,12 @@ export const zhTW = {
       importPack: '匯入翻譯包',
       missingKeys: '{count} 個未翻譯鍵',
       extraKeys: '{count} 個多餘鍵',
+    },
+    progress: {
+      completed: '已完成',
+      locked: '這一關還沒解鎖',
+      requires: '需要先完成：',
+      gotoRequired: '前往前置關卡',
     },
     warnings: {
       title: '編譯警告',
