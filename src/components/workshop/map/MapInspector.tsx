@@ -4,13 +4,14 @@
  * 顯示：統計、驗證問題、路徑點清單、預覽塔清單、儲存狀態。
  * 所有操作都回呼給 MapWorkbench —— 這一層不持有草稿，也不 import store。
  */
-import { Btn, Deck, Empty, Field, IconBtn, SegHead, StatCell } from '@/components/hl';
+import { Btn, Chip, Deck, Empty, Field, IconBtn, SegHead, StatCell } from '@/components/hl';
 import { CrossIcon } from '@/components/ui/Icons';
 import { SelectableRow } from '@/components/ui/SelectableRow';
 import { useTranslation } from '@/i18n';
 import { TOWER_DATA } from '@/data/gameData';
 import { getTowerData } from '@/store/gameStoreUtils';
 import type { TowerType } from '@/types/game';
+import { segmentList } from '@/workshop/map/editModel';
 import type { GridPoint, MapDraft, MapIssue } from '@/workshop/map/editModel';
 
 export type SaveState = 'idle' | 'saved' | 'error' | 'scratch';
@@ -27,6 +28,13 @@ export interface MapInspectorProps {
   onClearBlocked: () => void;
   onClearTowers: () => void;
   onSelectTower: (id: string | null) => void;
+  /** 叉路地圖：升級／新增／切換／刪除路段、指定起點、設定下一段 */
+  onEnableSegments: () => void;
+  onAddSegment: () => void;
+  onSelectSegment: (id: string) => void;
+  onRemoveSegment: (id: string) => void;
+  onSetStartSegment: (id: string) => void;
+  onSetSegmentNext: (id: string, next: string[]) => void;
   issues: MapIssue[];
   conflicts: GridPoint[];
   cellCount: number;
@@ -49,6 +57,12 @@ export function MapInspector({
   onClearBlocked,
   onClearTowers,
   onSelectTower,
+  onEnableSegments,
+  onAddSegment,
+  onSelectSegment,
+  onRemoveSegment,
+  onSetStartSegment,
+  onSetSegmentNext,
   issues,
   conflicts,
   cellCount,
@@ -70,6 +84,10 @@ export function MapInspector({
         return s.issue.pathBroken;
       case 'blockedOnPath':
         return s.issue.blockedOnPath;
+      case 'segmentStartMissing':
+        return s.issue.segmentStartMissing;
+      case 'segmentNextMissing':
+        return s.issue.segmentNextMissing;
       case 'towerOnPath':
         return s.issue.towerOnPath;
       case 'towerOnBlocked':
@@ -107,6 +125,86 @@ export function MapInspector({
       </Deck>
 
       <Deck className="p-3">
+        <SegHead
+          label={s.panel.segments}
+          right={(
+            <Btn
+              size="sm"
+              variant="line"
+              onClick={(draft.segments ?? []).length === 0 ? onEnableSegments : onAddSegment}
+            >
+              {(draft.segments ?? []).length === 0 ? s.panel.enableSegments : s.panel.addSegment}
+            </Btn>
+          )}
+        />
+        {(draft.segments ?? []).length === 0 ? (
+          <p className="mb-3 font-mono text-[10px] leading-relaxed text-[var(--cn-ink-3)]">
+            {s.panel.segmentsHint}
+          </p>
+        ) : (
+          <div className="mb-3 flex flex-col gap-1">
+            {segmentList(draft).map((segment) => {
+              const editing = segment.id === draft.activeSegmentId;
+              const isStart = segment.id === draft.startSegmentId;
+              return (
+                <div key={segment.id} className="flex flex-col gap-1 border border-[var(--cn-line-soft)] p-1">
+                  <div className="flex items-center gap-1">
+                    <SelectableRow
+                      variant="bare"
+                      active={editing}
+                      onClick={() => onSelectSegment(segment.id)}
+                      className="gap-1.5"
+                    >
+                      <span className="font-mono text-[10.5px] font-bold">{segment.id}</span>
+                      <span className="arc-label">
+                        {s.panel.segmentPoints.replace('{count}', String(segment.waypoints.length))}
+                      </span>
+                      {isStart && (
+                        <span className="arc-label text-[var(--cn-signal-text)]">{s.panel.segmentStart}</span>
+                      )}
+                    </SelectableRow>
+                    {!isStart && (
+                      <Btn size="sm" variant="ghost" onClick={() => onSetStartSegment(segment.id)}>
+                        {s.panel.setStart}
+                      </Btn>
+                    )}
+                    <IconBtn
+                      label={s.panel.removeSegment}
+                      className="h-6 w-6 shrink-0"
+                      onClick={() => onRemoveSegment(segment.id)}
+                    >
+                      <CrossIcon className="h-3 w-3" />
+                    </IconBtn>
+                  </div>
+                  {editing && (
+                    <div className="flex flex-wrap items-center gap-1">
+                      <span className="arc-label">{s.panel.nextSegments}</span>
+                      {segmentList(draft)
+                        .filter((other) => other.id !== segment.id)
+                        .map((other) => (
+                          <Chip
+                            key={other.id}
+                            active={segment.next.includes(other.id)}
+                            onClick={() =>
+                              onSetSegmentNext(
+                                segment.id,
+                                segment.next.includes(other.id)
+                                  ? segment.next.filter((id) => id !== other.id)
+                                  : [...segment.next, other.id],
+                              )
+                            }
+                          >
+                            {other.id}
+                          </Chip>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         <SegHead label={s.panel.towerPalette} right={<span className="arc-micro">{s.panel.towerHint}</span>} />
         <div className="mt-3 grid grid-cols-3 gap-1.5">
           {TOWER_TYPES.map((type) => {

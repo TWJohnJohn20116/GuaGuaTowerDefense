@@ -40,6 +40,14 @@ import {
   type MapIssueCode,
 } from '@/workshop/map/editModel';
 import { MapInspector, type SaveState } from './MapInspector';
+import {
+  addSegment,
+  enableSegments,
+  removeSegment,
+  selectSegment,
+  setSegmentNext,
+  setStartSegment,
+} from '@/workshop/map/editModel';
 import { MapOverlayCanvas } from './MapOverlayCanvas';
 import { MapToolbar, type MapTool } from './MapToolbar';
 import { useMapPlayback } from './useMapPlayback';
@@ -178,6 +186,26 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
     setDraft(result.draft);
     setHistoryVersion((value) => value + 1);
   }, []);
+
+  // 叉路地圖：全部走 applyOp，才會有復原／重做
+  const handleEnableSegments = useCallback(() => applyOp((current) => enableSegments(current)), [applyOp]);
+  const handleAddSegment = useCallback(() => applyOp((current) => addSegment(current)), [applyOp]);
+  const handleSelectSegment = useCallback(
+    (id: string) => applyOp((current) => selectSegment(current, id)),
+    [applyOp],
+  );
+  const handleRemoveSegment = useCallback(
+    (id: string) => applyOp((current) => removeSegment(current, id)),
+    [applyOp],
+  );
+  const handleSetStartSegment = useCallback(
+    (id: string) => applyOp((current) => setStartSegment(current, id)),
+    [applyOp],
+  );
+  const handleSetSegmentNext = useCallback(
+    (id: string, next: string[]) => applyOp((current) => setSegmentNext(current, id, next)),
+    [applyOp],
+  );
 
   const undo = useCallback(() => {
     const previous = historyRef.current.pop();
@@ -530,6 +558,12 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
           cellCount={cellCount}
           canSave={canSave}
           saveState={level ? saveState : 'scratch'}
+          onEnableSegments={handleEnableSegments}
+          onAddSegment={handleAddSegment}
+          onSelectSegment={handleSelectSegment}
+          onRemoveSegment={handleRemoveSegment}
+          onSetStartSegment={handleSetStartSegment}
+          onSetSegmentNext={handleSetSegmentNext}
           onSave={handleSave}
         />
       </div>
