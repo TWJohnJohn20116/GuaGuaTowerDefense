@@ -163,6 +163,7 @@ export function AssetEditorPanel({ assetId, onNavigate }: AssetEditorPanelProps)
   const enemyData = asset.kind === 'enemy' ? (asset.data as WorkshopEnemyData) : null;
   const scriptData = asset.kind === 'script' ? (asset.data as WorkshopScriptData) : null;
   const artData = asset.kind === 'art' ? (asset.data as WorkshopArtData) : null;
+  const mapData = asset.kind === 'map' ? asset.data : null;
 
   const branchLevelRow = (level: number): UpgradeBranchRow =>
     towerData?.upgradeBranches?.levels[level - 1] ?? IDENTITY_BRANCH;
@@ -420,6 +421,26 @@ export function AssetEditorPanel({ assetId, onNavigate }: AssetEditorPanelProps)
           {artData.payload && artData.artKind !== 'sound' && (
             <img src={artData.payload} alt={asset.name} className="max-h-40 w-auto border border-[var(--cn-line)] object-contain" />
           )}
+        </>
+      )}
+
+      {mapData && (
+        <>
+          <SegHead label={s.mapTheme} />
+          <CustomSelect
+            value={mapData.theme ?? ''}
+            onChange={(theme) => patchData({ theme: theme || undefined })}
+            options={[
+              { value: '', label: s.mapThemeDefault },
+              { value: 'moss', label: s.mapThemeMoss },
+              { value: 'ash', label: s.mapThemeAsh },
+              { value: 'frost', label: s.mapThemeFrost },
+              { value: 'ember', label: s.mapThemeEmber },
+            ]}
+            size="sm"
+            position="inline"
+            className="w-full"
+          />
         </>
       )}
 
