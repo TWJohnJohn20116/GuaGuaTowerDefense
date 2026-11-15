@@ -555,8 +555,26 @@ export interface Custom3DPart {
   rx: number;
   ry: number;
   rz: number;
-  /** 等比縮放（0.2~3） */
+  /** 等比縮放（0.2~3）；舊資料唯一縮放欄位，sx/sy/sz 缺省時回退此值 */
   scale: number;
+  /** 非等比縮放（缺省時三者都取 scale） */
+  sx?: number;
+  sy?: number;
+  sz?: number;
+  /** 覆蓋顏色（CSS 色字串；缺省用材質角色預設色） */
+  color?: string;
+  /** 自發光強度覆蓋 0~3（缺省用材質角色預設） */
+  emissive?: number;
+  /** 不透明度 0~1（缺省 1；<1 時啟用透明混合） */
+  opacity?: number;
+  /** 部件顯示名稱（部件樹用；缺省顯示 shape） */
+  name?: string;
+  /** 隱藏：不渲染本體，但子部件仍渲染（等同空群組） */
+  hidden?: boolean;
+  /** 鎖定：編輯器不可選取／拖曳 */
+  locked?: boolean;
+  /** 父部件 id（null/undefined = 根層）；父件變換帶動子件 */
+  parentId?: string | null;
   /** 加入持續旋轉組（遊戲內繞 Y 軸自轉） */
   spin?: boolean;
 }
