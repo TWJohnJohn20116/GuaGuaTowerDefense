@@ -17,19 +17,19 @@ import type { HomeEntrySize } from '@/data/mainMenuHome';
 const TONE: Record<'signal' | 'vital' | 'caution' | 'ink', { tile: string; badge: string }> = {
   signal: {
     tile: 'bg-[var(--cn-coral-soft)] text-[var(--cn-signal-text)]',
-    badge: 'bg-[var(--cn-coral)] text-white',
+    badge: 'bg-[var(--cn-cta)] text-[var(--cn-on-cta)]',
   },
   vital: {
     tile: 'bg-[var(--cn-mint-soft)] text-[var(--cn-mint-deep)]',
-    badge: 'bg-[var(--cn-mint)] text-white',
+    badge: 'bg-[var(--cn-fill-success)] text-[var(--cn-on-fill)]',
   },
   caution: {
     tile: 'bg-[var(--cn-sun-soft)] text-[var(--cn-caution-text)]',
-    badge: 'bg-[var(--cn-sun)] text-[var(--cn-ink)]',
+    badge: 'bg-[var(--cn-sun)] text-[var(--cn-on-sun)]',
   },
   ink: {
-    tile: 'bg-[var(--cn-sky-soft)] text-[var(--cn-sky-deep)]',
-    badge: 'bg-[var(--cn-sky)] text-white',
+    tile: 'bg-[var(--cn-card-2)] text-[var(--cn-ink-2)]',
+    badge: 'bg-[var(--cn-fill-sky)] text-[var(--cn-on-fill)]',
   },
 };
 

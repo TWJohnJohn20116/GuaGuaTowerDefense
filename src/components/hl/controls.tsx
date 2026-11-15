@@ -60,7 +60,7 @@ export function Btn({
       {icon}
       {children}
       {kbd && (
-        <span className="ml-1 rounded-[7px] border-2 border-[var(--cn-line)] bg-[var(--cn-sun)] px-1.5 py-0.5 font-mono text-[10px] font-extrabold leading-none text-[var(--cn-ink)]">
+        <span className="ml-1 rounded-[7px] border-2 border-[var(--cn-line)] bg-[var(--cn-sun)] px-1.5 py-0.5 font-mono text-[10px] font-extrabold leading-none text-[var(--cn-on-sun)]">
           {kbd}
         </span>
       )}

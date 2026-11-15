@@ -92,7 +92,7 @@ function SceneShellHeader({
       <div className="flex min-w-0 flex-col justify-center gap-0.5">
         <span className="arc-title truncate text-[21px] leading-tight">{title}</span>
         {subtitle && (
-          <span className="truncate rounded-full bg-[var(--cn-sky-soft)] px-2 py-0.5 text-[10.5px] font-extrabold text-[var(--cn-sky-deep)]">
+          <span className="truncate rounded-full bg-[var(--cn-coral-soft)] px-2 py-0.5 text-[10.5px] font-extrabold text-[var(--cn-accent-text)]">
             {subtitle}
           </span>
         )}

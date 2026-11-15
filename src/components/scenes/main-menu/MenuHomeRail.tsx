@@ -79,7 +79,7 @@ export function MenuHomeRail() {
         </div>
 
         {/* 金幣獎章：整欄最大的一塊色，數值直接當圖形用 */}
-        <div className="relative overflow-hidden rounded-[18px] border-[3px] border-[var(--cn-line)] bg-[var(--cn-sun)] px-4 py-2.5 shadow-[0_4px_0_var(--cn-sun-deep)] lg:py-3">
+        <div className="relative overflow-hidden rounded-[18px] border-[3px] border-[var(--cn-line)] bg-[var(--cn-sun)] px-4 py-2.5 text-[var(--cn-on-sun)] shadow-[0_4px_0_var(--cn-sun-deep)] lg:py-3">
           <span
             aria-hidden="true"
             className="pointer-events-none absolute -bottom-6 -right-4 h-20 w-20 rounded-full border-[6px] border-[var(--cn-ink)]/10"
@@ -88,7 +88,7 @@ export function MenuHomeRail() {
             aria-hidden="true"
             className="pointer-events-none absolute -bottom-1 -right-0 h-11 w-11 rounded-full border-[6px] border-[var(--cn-ink)]/10"
           />
-          <span className="block font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--cn-ink)]/70">
+          <span className="block font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--cn-on-sun)]/70">
             {t.mainMenu.coinsUnit}
           </span>
           <span className="arc-num block text-[26px] leading-none lg:text-[32px]">

@@ -16,6 +16,8 @@
   --cn-accent-text: var(--cn-coral-deep);
   --cn-cta: var(--cn-coral-deep);
   --cn-on-cta: #ffffff;
+  /* 黃底上的字永遠用深色（深色主題的 --cn-ink 是亮色，壓黃底只有 1.2:1） */
+  --cn-on-sun: #2e2440;
 
   --cn-signal-text: var(--cn-coral-deep);
   --cn-vital-text: #0b7d52;
@@ -46,6 +48,8 @@
   --cn-sun-deep: #ffd93d;
   --cn-grape-deep: #c4a6ff;
   --cn-alert-deep: #ff8fa3;
+
+  --cn-on-sun: #161320;
 
   --cn-signal-text: var(--cn-accent-text);
   --cn-vital-text: #4ade80;
