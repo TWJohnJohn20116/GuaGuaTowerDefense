@@ -13,7 +13,7 @@ import { ShopIcon, TreeIcon, TrophyIcon, WrenchIcon } from '@/components/ui/Icon
 /**
  * 主選單 · Hero 環繞的快捷磚
  *
- * 四塊磚環著中央舞台：左欄「金幣 → 成就」、右欄「天賦 → 戰績」。
+ * 四塊磚環著中央舞台：左欄「金幣 → 成就」、右欄「天賦 → 工坊」。
  * 高度刻意不等（flex-[1.25] / flex-[1]），左右也不對稱，
  * 這樣拼貼才不會退化成另一種等寬網格。
  *
@@ -206,61 +206,6 @@ function QuickTile({
 
         <span className="font-mono text-[10px] uppercase tracking-[0.1em] opacity-60">{hint}</span>
       </span>
-    </button>
-  );
-}
-
-/** 戰績磚：三行細列撐滿整塊高度（justify-between），不做單一數字 */
-function RecordTile({
-  id,
-  label,
-  hint,
-  rows,
-  focused,
-  onFocus,
-  onSelect,
-}: {
-  id: HomeFocusTarget;
-  label: string;
-  hint: string;
-  rows: { k: string; v: string }[];
-  focused: boolean;
-  onFocus: () => void;
-  onSelect: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      data-focus-id={id}
-      onClick={onSelect}
-      onMouseEnter={onFocus}
-      onFocus={onFocus}
-      className={[
-        'group relative flex min-h-[92px] min-w-0 flex-col justify-between gap-2 overflow-hidden rounded-[18px] border-[3px] px-4 py-3.5 text-left',
-        'transition-[transform,border-color] duration-[160ms]',
-        TONE.plain,
-        'lg:flex-[1]',
-        focused ? '-translate-y-1 border-[var(--cn-line)]' : 'hover:-translate-y-1 hover:border-[var(--cn-line)]',
-      ].join(' ')}
-    >
-      <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <span className="absolute inset-0 flex items-center justify-center opacity-[0.09]">
-          <ChartIcon className="h-52 w-52" />
-        </span>
-      </span>
-
-      <span className="relative arc-label">{label}</span>
-
-      <span className="relative flex flex-1 flex-col justify-evenly gap-1">
-        {rows.map((r) => (
-          <span key={r.k} className="flex items-baseline justify-between gap-2">
-            <span className="truncate text-[11.5px] font-semibold text-[var(--cn-ink-3)]">{r.k}</span>
-            <span className="arc-num shrink-0 text-[15px] leading-none text-[var(--cn-ink)]">{r.v}</span>
-          </span>
-        ))}
-      </span>
-
-      <span className="relative font-mono text-[10px] uppercase tracking-[0.1em] opacity-60">{hint}</span>
     </button>
   );
 }
