@@ -143,25 +143,34 @@ export function Rail({
         className,
       ].join(' ')}
     >
-      {(label || onToggleCollapsed) && (
-        <div
-          className={
-            collapsed
-              ? 'flex justify-center pb-1 pt-1.5'
-              : 'flex items-center gap-1 pb-1 pl-2.5 pr-0.5 pt-1.5'
-          }
+      {collapsed && onToggleCollapsed ? (
+        // 收合時切換鍵要「長得像這條側欄裡的一個控制項」：與 RailItem 同一組圓角與 3px 線，
+        // 否則一顆孤立的小箭頭會像是掉在側欄頂端的雜物（實機回報過）
+        <button
+          type="button"
+          aria-label={expandLabel ?? ''}
+          title={expandLabel ?? ''}
+          onClick={onToggleCollapsed}
+          className={[
+            'mb-1 flex h-9 w-full shrink-0 items-center justify-center rounded-[14px]',
+            'border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] text-[var(--cn-ink-3)]',
+            'transition-[border-color,color,background-color] duration-[160ms]',
+            'hover:border-[var(--cn-line)] hover:bg-[var(--cn-card)] hover:text-[var(--cn-ink)]',
+          ].join(' ')}
         >
-          {!collapsed && label && <span className="arc-label min-w-0 flex-1 truncate">{label}</span>}
-          {onToggleCollapsed && (
-            <IconBtn
-              label={collapsed ? expandLabel ?? '' : collapseLabel ?? ''}
-              className="h-6 w-6 shrink-0"
-              onClick={onToggleCollapsed}
-            >
-              {collapsed ? <ChevronRightIcon className="h-3.5 w-3.5" /> : <ChevronLeftIcon className="h-3.5 w-3.5" />}
-            </IconBtn>
-          )}
-        </div>
+          <ChevronRightIcon className="h-4 w-4" />
+        </button>
+      ) : (
+        (label || onToggleCollapsed) && (
+          <div className="flex items-center gap-1 pb-1 pl-2.5 pr-0.5 pt-1.5">
+            {label && <span className="arc-label min-w-0 flex-1 truncate">{label}</span>}
+            {onToggleCollapsed && (
+              <IconBtn label={collapseLabel ?? ''} className="h-6 w-6 shrink-0" onClick={onToggleCollapsed}>
+                <ChevronLeftIcon className="h-3.5 w-3.5" />
+              </IconBtn>
+            )}
+          </div>
+        )
       )}
       <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">{children}</div>
       {foot && !collapsed && <div className="border-t-[3px] border-[var(--cn-line-soft)] p-2 pt-2.5">{foot}</div>}
