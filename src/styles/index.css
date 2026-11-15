@@ -510,3 +510,63 @@
   animation: none !important;
   transition: none !important;
 }
+
+/* ============ 開發者工具 · 深色終端主題 ============ */
+/*
+ * 只換變數、不動子元件：common.tsx 與五個分頁全部走 var(--arc-*) / var(--cn-*)，
+ * 在面板根節點覆蓋這組值，2,800 多行子元件就整體變深色，不必逐檔改 class。
+ * 數值刻意壓在 #07090d–#171c26 之間，對比度留給文字（ink-1 對 deck 約 14:1）。
+ */
+.dev-shell {
+  --arc-void: #07090d;
+  --arc-void-2: #0b0e14;
+  --arc-deck: #0b0e14;
+  --arc-deck-2: #10141c;
+  --arc-deck-3: #171c26;
+  --arc-line: #2a3140;
+  --arc-line-strong: #3a4356;
+  --arc-line-hot: #4a5570;
+  --arc-ink: #e6edf3;
+  --arc-ink-2: #b8c2cf;
+  --arc-ink-3: #8b95a5;
+  --arc-ink-4: #7d8798;
+  --arc-gold: #f0b429;
+  --arc-gold-2: #ffd93d;
+  --arc-gold-ink: #1a1405;
+  --arc-cyan: #58c4dd;
+  --arc-cyan-dim: #2f7f92;
+  --arc-alert: #ff5d73;
+  --arc-vital: #3fd68a;
+  --arc-caution: #ffb627;
+  --arc-reach: #6f8cff;
+
+  --cn-paper: #07090d;
+  --cn-paper-2: #0b0e14;
+  --cn-card: #10141c;
+  --cn-card-2: #0b0e14;
+  --cn-line: #2a3140;
+  --cn-line-soft: #1e2430;
+  --cn-ink: #e6edf3;
+  --cn-ink-2: #b8c2cf;
+  --cn-ink-3: #8b95a5;
+  --cn-ink-4: #7d8798;
+  --cn-grape-soft: #1a1f2b;
+  --cn-grape-deep: #b8c2cf;
+  --cn-grape: #3a4356;
+  --cn-sun: #ffb627;
+  --cn-on-sun: #1a1405;
+}
+
+.dev-shell ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dev-shell ::-webkit-scrollbar-thumb {
+  background: #2a3140;
+  border-radius: 4px;
+}
+
+.dev-shell ::-webkit-scrollbar-track {
+  background: transparent;
+}
