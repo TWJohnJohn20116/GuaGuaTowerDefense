@@ -7,6 +7,7 @@
 import type { ModScriptHook, ModScriptPermission } from '@/types/modScript';
 import type { GraphEdge, GraphNode, GraphPort, GraphPortKind, RuleGraph } from './model';
 import { GRAPH_NODE_LIMIT, GRAPH_STATE_FIELDS, GRAPH_STATUS_EFFECTS } from './model';
+import { MOD_SCRIPT_PERMISSIONS } from '@/mod-script/limits';
 import { nodeSpec } from './nodeLibrary';
 
 type GraphIssueSeverity = 'error' | 'warning';
@@ -55,16 +56,13 @@ interface GraphValidation {
   issuesByNode: Record<string, 'error' | 'warning'>;
 }
 
-/** 沙箱的全部權限；JS 節點無法靜態分析，保守起見全部要求 */
-const ALL_PERMISSIONS: readonly ModScriptPermission[] = [
-  'state.read',
-  'economy',
-  'base.health',
-  'enemy.spawn',
-  'enemy.modify',
-  'log',
-  'storage',
-];
+/**
+ * 沙箱的全部權限；JS 節點無法靜態分析，保守起見全部要求。
+ *
+ * 刻意吃 limits.ts 的同一份清單：先前這裡手抄了一份，新增權限時漏掉，
+ * 導致 collectPermissions 把新權限過濾掉（節點明明要求了卻不顯示）。
+ */
+const ALL_PERMISSIONS: readonly ModScriptPermission[] = MOD_SCRIPT_PERMISSIONS;
 
 /** 這幾個參數是空的就算錯誤（其餘空白只是無效果） */
 const REQUIRED_PARAMS: readonly { type: string; key: string }[] = [
