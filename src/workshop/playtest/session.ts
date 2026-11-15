@@ -98,7 +98,7 @@ export function stopPlaytestSession(): void {
   if (game.isPlaytest) {
     game.exitPlaytest();
   }
-  useGameStore.setState({ grid: [] });
+  useGameStore.setState({ activeMap: null });
   clearPlaytestWaveSets();
   stopCustomBgm();
   endIsolation();

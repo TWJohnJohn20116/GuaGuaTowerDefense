@@ -32,8 +32,7 @@ export function compileMap(projectId: string, asset: WorkshopMapAsset): Compiled
     category: data.category ?? 'normal',
     // 壞掉的存檔（waypoints 不是陣列）不讓整份編譯炸掉，退成空路徑
     waypoints: Array.isArray(data.waypoints) ? data.waypoints : [],
-    // 工坊存檔仍用格點（編輯器方便手繪），編譯時轉成圓形禁建區
-    blockedAreas: (data.blockedCells ?? []).map((c) => ({ x: c.col + 0.5, y: c.row + 0.5 })),
+    blockedAreas: data.blockedAreas ?? [],
   };
 
   // 叉路地圖（進階）才有 segments／startSegmentId；普通地圖保持 undefined

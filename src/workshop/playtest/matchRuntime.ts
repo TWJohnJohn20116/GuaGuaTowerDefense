@@ -231,7 +231,6 @@ function settleEnemies(_rt: MatchRuntime): void {
     });
     const alive = damaged.filter((tower) => tower.health > 0);
     if (alive.length < damaged.length) {
-      const deadIds = new Set(damaged.filter((tower) => tower.health <= 0).map((tower) => tower.id));
       const selectedId = after.selectedTower ? after.selectedTower.id : null;
       const nextSelected = selectedId ? alive.find((tower) => tower.id === selectedId) ?? null : null;
       useGameStore.setState({

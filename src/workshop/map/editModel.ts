@@ -469,39 +469,6 @@ export function validateDraft(draft: MapDraft): MapIssue[] {
   return issues;
 }
 
-// ===== 與真實遊戲 grid 互轉 =====
-
-/**
- * 產出真正的 Tile[][]，直接餵給遊戲本體的 PathRenderer.drawGrid。
- * 這是「用真實渲染」的接縫：工坊不需要自己畫一套格子。
- */
-export function toTileGrid(draft: MapDraft): Tile[][] {
-  const pathKeys = pathCellKeys(draft);
-  const first = draft.waypoints[0];
-  const last = draft.waypoints[draft.waypoints.length - 1];
-  const blockedKeys = new Set(draft.blocked.map(key));
-
-  const grid: Tile[][] = [];
-  for (let row = 0; row < draft.rows; row++) {
-    const rowTiles: Tile[] = [];
-    for (let col = 0; col < draft.cols; col++) {
-      const k = col + ',' + row;
-      let type: TileType = 'empty';
-      if (pathKeys.has(k)) {
-        if (first && first.col === col && first.row === row) type = 'start';
-        else if (last && last.col === col && last.row === row) type = 'end';
-        else type = 'path';
-      } else if (blockedKeys.has(k)) {
-        type = 'blocked';
-      }
-      const tower = draft.towers.find((t) => t.col === col && t.row === row);
-      rowTiles.push({ type, row, col, towerId: tower ? tower.id : null });
-    }
-    grid.push(rowTiles);
-  }
-  return grid;
-}
-
 // ===== 序列化 / 從專案容錯讀取 =====
 
 /** 專案層要寫回的欄位（實際形狀由 foundation 線決定；此處只保證 payload 純淨） */

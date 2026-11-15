@@ -14,8 +14,6 @@ import { DEFAULT_PATH, DIFFICULTY_MODIFIERS, PATHS } from '@/data/gameData';
 import {
   DEFAULT_TOWER_RADIUS,
   circlesOverlap,
-  pathClearance,
-  pathWidthOf,
   sampleBuildablePoints,
 } from '@/data/mapGeometry';
 import { findTowerOverlaps } from '@/test/contracts/gridTowerMismatches';
@@ -49,14 +47,14 @@ beforeEach(() => {
 
 describe('自由放置', () => {
   it('塔的位置就是點擊的位置（不吸附整數格）', () => {
-    const spot = { x: 3.37, y: 4.62 };
-    // 先確認這個點合法，否則測的是「被拒絕」而不是「位置保真」
-    expect(pathClearance(MAP, spot)).toBeGreaterThan(pathWidthOf(MAP) / 2 + DEFAULT_TOWER_RADIUS);
+    const [spot] = buildable(1);
+    // 取樣點本身帶 .5 偏移：若實作把座標 floor 回整數，這條就會紅
+    expect(spot.x % 1).not.toBe(0);
 
     expect(useGameStore.getState().placeTower(spot)).toBe(true);
     const tower = useGameStore.getState().towers[0];
-    expect(tower.pos.x).toBeCloseTo(spot.x, 6);
-    expect(tower.pos.y).toBeCloseTo(spot.y, 6);
+    expect(tower.pos.x).toBe(spot.x);
+    expect(tower.pos.y).toBe(spot.y);
     expect(tower.radius).toBe(DEFAULT_TOWER_RADIUS);
   });
 

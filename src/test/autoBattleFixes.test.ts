@@ -19,7 +19,7 @@ import {
   getTowerUpgradeCost,
 } from '@/data/towerUpgradeCost';
 import { getTowerBuildCost } from '@/data/towerCost';
-import type { MapPoint } from '@/types/game';
+import type { MapPoint, Tower } from '@/types/game';
 import { makeTower } from './fixtures';
 
 /** 找第一個可建造點（自由制：用共用的取樣器，不再掃格子） */
@@ -110,7 +110,7 @@ describe('B1：自動戰鬥的升級判定', () => {
   });
 
   it('實際跑一輪決策就會升級（不只是謂詞正確）', () => {
-    const grid = resetMatch();
+    resetMatch();
     // 12 座高績效 Lv1 塔：valueScore = 2(擊殺) + 2(傷害) + 2(剩餘等級) = 6 > 3 → 必定觸發升級
     const towers: Tower[] = Array.from({ length: 12 }, (_, i) =>
       makeTower({
@@ -124,7 +124,6 @@ describe('B1：自動戰鬥的升級判定', () => {
       }),
     );
     useGameStore.setState({
-      grid,
       towers,
       money: 10_000,
       isPlaying: true,
@@ -158,8 +157,7 @@ describe('B2：建塔費用倍率', () => {  it('getTowerBuildCost 套用倍率�
   });
 
   it('placeTower 的扣款與算式同源：1.3 倍圖付 1.3 倍價（AI 也吃同一個函式）', () => {
-    const grid = resetMatch(1.3);
-    const pos = firstEmpty(grid);
+    const pos = resetMatch(1.3);
     const before = useGameStore.getState().money;
 
     expect(useGameStore.getState().placeTower(pos)).toBe(true);
@@ -170,8 +168,7 @@ describe('B2：建塔費用倍率', () => {  it('getTowerBuildCost 套用倍率�
   });
 
   it('placeTower 在 0.5 倍圖付半價（AI 不會再被自己的算式掐死）', () => {
-    const grid = resetMatch(0.5);
-    const pos = firstEmpty(grid);
+    const pos = resetMatch(0.5);
     const before = useGameStore.getState().money;
 
     expect(useGameStore.getState().placeTower(pos)).toBe(true);

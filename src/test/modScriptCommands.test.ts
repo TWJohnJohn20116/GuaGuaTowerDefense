@@ -7,10 +7,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { applyModScriptCommands } from '@/mod-script/commands';
 import { useGameStore } from '@/store/gameStore';
-import { DEFAULT_PATH, DIFFICULTY_MODIFIERS, PATHS } from '@/data/gameData';
+import { DEFAULT_PATH, PATHS, DIFFICULTY_MODIFIERS, PATHS } from '@/data/gameData';
 import { makeEnemy } from '@/test/fixtures';
 import type { ModScriptCommand } from '@/types/modScript';
-import type { Tile } from '@/types/game';
+import type { MapPoint } from '@/types/game';
+import { sampleBuildablePoints } from '@/data/mapGeometry';
 
 const source = { scriptId: 'script-1', scriptName: '測試腳本' };
 
@@ -37,15 +38,11 @@ const reset = (): void => {
 
 const run = async (commands: ModScriptCommand[]) => applyModScriptCommands(commands, source);
 
-/** 找一個可以放塔的空格 */
-const findFreeTile = (): Tile => {
-  const grid = useGameStore.getState().grid;
-  for (const row of grid) {
-    for (const tile of row) {
-      if (tile.type === 'empty' && !tile.towerId) return tile;
-    }
-  }
-  throw new Error('地圖上沒有空格');
+/** 找一個可以放塔的點（自由制：用共用的取樣器） */
+const findFreePoint = (): MapPoint => {
+  const spot = sampleBuildablePoints(PATHS[DEFAULT_PATH], 1)[0];
+  if (!spot) throw new Error('地圖上沒有可建造點');
+  return spot;
 };
 
 describe('指令落地', () => {
@@ -106,33 +103,33 @@ describe('指令落地', () => {
   });
 
   it('grantTower 在空格放塔，佔用格會被跳過', async () => {
-    const tile = findFreeTile();
+    const point = findFreePoint();
     const first = await run([
-      { kind: 'grantTower', towerType: 'basic', row: tile.row, col: tile.col },
+      { kind: 'grantTower', towerType: 'basic', row: point.y, col: point.x },
     ]);
     expect(first.applied).toBe(1);
     expect(useGameStore.getState().towers).toHaveLength(1);
 
     const second = await run([
-      { kind: 'grantTower', towerType: 'basic', row: tile.row, col: tile.col },
+      { kind: 'grantTower', towerType: 'basic', row: point.y, col: point.x },
     ]);
     expect(second.skipped).toBe(1);
     expect(useGameStore.getState().towers).toHaveLength(1);
   });
 
   it('upgradeTowerAt 與 sellTowerAt 對座標作用', async () => {
-    const tile = findFreeTile();
-    await run([{ kind: 'grantTower', towerType: 'basic', row: tile.row, col: tile.col }]);
+    const point = findFreePoint();
+    await run([{ kind: 'grantTower', towerType: 'basic', row: point.y, col: point.x }]);
     const placed = useGameStore.getState().towers[0];
     expect(placed).toBeDefined();
 
     const upgraded = await run([
-      { kind: 'upgradeTowerAt', row: tile.row, col: tile.col },
+      { kind: 'upgradeTowerAt', row: point.y, col: point.x },
     ]);
     expect(upgraded.applied).toBe(1);
     expect(useGameStore.getState().towers[0].level).toBeGreaterThan(1);
 
-    await run([{ kind: 'sellTowerAt', row: tile.row, col: tile.col }]);
+    await run([{ kind: 'sellTowerAt', row: point.y, col: point.x }]);
     expect(useGameStore.getState().towers).toHaveLength(0);
   });
 });

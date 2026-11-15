@@ -10,7 +10,6 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import {
   buildStressEnemies,
   buildStressTowers,
-  pickStressTowerPositions,
   resolvePathChain,
   STRESS_DEFAULT_ENEMIES,
   STRESS_DEFAULT_TOWERS,
@@ -45,7 +44,6 @@ const setupMatch = () => {
     placementStats: { totalPlaced: 0, totalSold: 0, totalSpent: 0 },
     protocolNextTowerDiscount: 0,
   });
-  return grid;
 };
 
 describe('壓測資料建構器', () => {
@@ -157,10 +155,9 @@ describe('壓測灌進 store', () => {
   });
 
   it('countStressEntities 只算壓測實體', () => {
-    const grid = useGameStore.getState().grid;
-    const emptyTile = grid.flat().find((t) => t.type === 'empty')!;
+    const spot = sampleBuildablePoints(PATHS[DEFAULT_PATH], 1)[0];
     useGameStore.setState({ selectedTowerType: 'basic' });
-    useGameStore.getState().placeTower({ col: emptyTile.col, row: emptyTile.row });
+    useGameStore.getState().placeTower(spot);
 
     useGameStore.getState().spawnStressEntities(500, 10);
 
