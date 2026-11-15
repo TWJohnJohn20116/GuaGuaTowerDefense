@@ -1907,9 +1907,11 @@
       <tbody>
         <tr>
           <td><span class="tid">TD-07</span><span class="sev p1">◐ 部分償還 · P1</span><b>B1 六個「上帝檔案」</b></td>
-          <td><code>gameStoreAutoBattle.ts</code> 1,016；<code>achievementStore.ts</code> 981；
-            <code>LivePreview.tsx</code> 969；<code>GameScene3D.tsx</code> 850；<code>ModIconEditor.tsx</code> 849；<code>enemyRenderer.ts</code> 828。
-            第七個 <code>Icons.tsx</code>（2,426 行）已於 TD-20 拆成 8 個模組，最大 563 行</td>
+          <td>2026-11-15 實測仍超標的 6 檔：<code>workshop/graph/nodeLibrary.ts</code> 1,217；
+            <code>gameStoreAutoBattle.ts</code> 1,074；<code>achievementStore.ts</code> 1,026；
+            <code>GameScene3D.tsx</code> 1,009；<code>workshop/graph/GraphCanvas.tsx</code> 939；
+            <code>workshop/map/MapOverlayCanvas.tsx</code> 908。
+            （原清單的 <code>LivePreview</code>／<code>ModIconEditor</code>／<code>enemyRenderer</code> 已降到 888 以下或刪除；<code>Icons.tsx</code> 2,426 行已於 TD-20 拆成 8 個模組）</td>
           <td>單檔改動風險高；review 看不到全貌；合併衝突永遠在同一檔。</td>
           <td>AI 拆「策略評估／執行／日誌」；3D 拆「場景建構／狀態同步／互動」</td>
         </tr>
@@ -2028,11 +2030,11 @@
           <td>剩「按需 chunk」：成就 icon 仍由 <code>data/achievements/*</code> 在模組層 <code>React.createElement</code> 靜態帶進主 chunk。拆檔本身只省 11,750 bytes（1,165,958 → 1,154,208），真正的體積要等 icon 改字串 key + 延遲註冊</td>
         </tr>
         <tr>
-          <td><span class="tid">TD-21</span><span class="sev p1">P1</span><b>D4 地圖編輯器雙實作</b></td>
-          <td><code>mod-editor/MapEditorCanvas.tsx</code>(160 行) vs <code>scenes/map-editor/MapEditorCanvas.tsx</code>(146 行)：
-            27% 的行完全相同；<code>MapEditorPanel.tsx</code> 兩版重疊 17%</td>
-          <td>兩套行為會分叉：同一 bug 要修兩次，或只修一邊（常見）。</td>
-          <td>先統一狀態層（只有 scenes 版有 <code>useMapEditorState</code>），mod-editor 版改成 wrapper</td>
+          <td><span class="tid">TD-21</span><span class="sev p3">✅ 已還（2026-11）</span><b>D4 地圖編輯器雙實作</b></td>
+          <td>兩份 <code>MapEditorCanvas.tsx</code>（mod-editor 160 行／scenes/map-editor 146 行）已隨創作工坊重做<b>整批刪除</b>，
+            現在只剩 <code>components/workshop/map/</code> 一份（<code>MapOverlayCanvas</code> 908 行＋<code>editModel.ts</code>）</td>
+          <td>—（兩套行為分叉的風險消失）</td>
+          <td>已由「刪掉舊實作」解決，不需要 wrapper</td>
         </tr>
         <tr>
           <td><span class="tid">TD-22</span><span class="sev p2">P2</span><b>D5 結算頁重複</b></td>
@@ -2042,10 +2044,11 @@
           <td>抽 <code>GameEndLayout</code>（<code>GameEndStatGrid</code> 已經存在，往上推一層）</td>
         </tr>
         <tr>
-          <td><span class="tid">TD-23</span><span class="sev p3">P3</span><b>D6 <code>WaveEditor</code> 是 <code>FullscreenWaveEditor</code> 的子集</b></td>
-          <td><code>mod-editor/WaveEditor.tsx</code> vs <code>FullscreenWaveEditor.tsx</code>（761 行）</td>
-          <td>同一功能兩份 UI，改一處忘一處。</td>
-          <td>對照 UI 後合併（需截圖驗收）</td>
+          <td><span class="tid">TD-23</span><span class="sev p3">✅ 已還（2026-11）</span><b>D6 <code>WaveEditor</code> 是 <code>FullscreenWaveEditor</code> 的子集</b></td>
+          <td><code>mod-editor/WaveEditor.tsx</code> 與 <code>FullscreenWaveEditor.tsx</code>（761 行）都已刪除；
+            波次編輯改成工坊的單軌序列工作台（<code>components/workshop/content/</code>）</td>
+          <td>—（不再有兩份 UI）</td>
+          <td>已由「重做取代合併」解決</td>
         </tr>
       </tbody>
     </table>
