@@ -50,7 +50,8 @@ type MatchOwnedKey =
   | 'autoBattleLogs'
   | 'scriptTowerMods'
   | 'matchKills'
-  | 'matchLeaks';
+  | 'matchLeaks'
+  | 'scriptWaveDelayMs';
 
 export const createEmptyMatchState = (): Pick<GameStore, MatchOwnedKey> => ({
   previewMap: null,
@@ -60,6 +61,7 @@ export const createEmptyMatchState = (): Pick<GameStore, MatchOwnedKey> => ({
   matchKills: 0,
   matchLeaks: 0,
   scriptTowerMods: {},
+  scriptWaveDelayMs: 0,
 
   currentWave: 0,
   waveActive: false,

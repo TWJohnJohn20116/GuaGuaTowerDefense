@@ -90,6 +90,8 @@ export interface GameStore {
   matchLeaks: number;
   /** 腳本對塔的增益／減益（action.modifyTower）；空物件＝沒有增益 */
   scriptTowerMods: import('@/data/scriptTowerMods').ScriptTowerModMap;
+  /** 腳本設定的下一波延遲（毫秒；0＝立即） */
+  scriptWaveDelayMs: number;
   
   // 波次
   currentWave: number;

@@ -39,6 +39,7 @@ export type ModScriptPermission =
   | 'enemy.spawn'
   | 'enemy.modify'
   | 'tower.modify'
+  | 'match.modify'
   | 'log'
   | 'storage';
 
@@ -88,6 +89,11 @@ export type ModScriptCommand =
       /** 倍率（夾在 0.1~5） */
       multiplier: number;
     }
+  | { kind: 'setDifficulty'; healthMult?: number; speedMult?: number; rewardMult?: number }
+  | { kind: 'grantTower'; towerType: string; row: number; col: number }
+  | { kind: 'teleportEnemy'; enemyType: string; row: number; col: number }
+  | { kind: 'setWaveDelay'; delayMs: number }
+  | { kind: 'playEffect'; row: number; col: number; color?: string }
   | { kind: 'upgradeTowerAt'; row: number; col: number }
   | { kind: 'sellTowerAt'; row: number; col: number }
   | {

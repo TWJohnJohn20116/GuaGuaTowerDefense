@@ -4,7 +4,7 @@
  * 所有數值都已由沙箱夾限；這裡再檢查一次「敵人類型存在」，避免腳本亂丟未知 id。
  */
 import type { ModScriptCommand } from '@/types/modScript';
-import type { StatusEffect, Tower } from '@/types/game';
+import type { StatusEffect, Tower, TowerType } from '@/types/game';
 import { applyScriptTowerMod } from '@/data/scriptTowerMods';
 import { PROTOCOL_HEALTH_CAP_BONUS } from '@/data/tacticalProtocolData';
 import { useModScriptStore } from '@/store/modScriptStore';
@@ -127,6 +127,55 @@ export async function applyModScriptCommands(
           break;
         }
         useGameStore.getState().sellTower(target);
+        applied += 1;
+        break;
+      }
+      case 'setDifficulty': {
+        useGameStore.setState((state) => ({
+          difficultyModifiers: {
+            ...state.difficultyModifiers,
+            enemyHealthMult: state.difficultyModifiers.enemyHealthMult * (command.healthMult ?? 1),
+            enemySpeedMult: state.difficultyModifiers.enemySpeedMult * (command.speedMult ?? 1),
+            enemyRewardMult: state.difficultyModifiers.enemyRewardMult * (command.rewardMult ?? 1),
+          },
+        }));
+        applied += 1;
+        break;
+      }
+      case 'grantTower': {
+        const state = useGameStore.getState();
+        const tile = state.grid[command.row]?.[command.col];
+        if (!tile || tile.type !== 'empty' || tile.towerId) {
+          log('warn', `座標 (${command.col}, ${command.row}) 不能放塔，送塔指令已忽略`);
+          skipped += 1;
+          break;
+        }
+        const previousType = state.selectedTowerType;
+        useGameStore.setState({ selectedTowerType: command.towerType as TowerType });
+        const placed = useGameStore.getState().placeTower({ row: command.row, col: command.col });
+        useGameStore.setState({ selectedTowerType: previousType });
+        if (placed) applied += 1;
+        else skipped += 1;
+        break;
+      }
+      case 'teleportEnemy': {
+        useGameStore.setState((state) => ({
+          enemies: state.enemies.map((enemy) =>
+            enemy.type === command.enemyType || (enemy as { originType?: string }).originType === command.enemyType
+              ? { ...enemy, x: command.col, y: command.row }
+              : enemy,
+          ),
+        }));
+        applied += 1;
+        break;
+      }
+      case 'setWaveDelay': {
+        useGameStore.setState({ scriptWaveDelayMs: command.delayMs });
+        applied += 1;
+        break;
+      }
+      case 'playEffect': {
+        useGameStore.getState().addImpactParticles(command.col, command.row, command.color ?? '#ffd166', 8);
         applied += 1;
         break;
       }

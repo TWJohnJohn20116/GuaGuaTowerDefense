@@ -491,6 +491,39 @@ function emitChain(ctx: EmitContext, nodeId: string, visited: Set<string>): void
       pushLine(ctx, 'api.status.apply(' + jsString(effect) + ', ' + duration + ', ' + value + ');');
       break;
     }
+    case 'action.setDifficulty': {
+      const health = num(node.params.healthMult, 1);
+      const speed = num(node.params.speedMult, 1);
+      const reward = num(node.params.rewardMult, 1);
+      pushLine(ctx, 'api.difficulty.set({ healthMult: ' + health + ', speedMult: ' + speed + ', rewardMult: ' + reward + ' });');
+      break;
+    }
+    case 'action.grantTower': {
+      const towerType = str(node.params.towerType, 'basic').trim() || 'basic';
+      const row = Math.round(num(node.params.row, 0));
+      const col = Math.round(num(node.params.col, 0));
+      pushLine(ctx, 'api.tower.grant(' + jsString(towerType) + ', ' + row + ', ' + col + ');');
+      break;
+    }
+    case 'action.teleportEnemy': {
+      const enemyType = str(node.params.enemyType, 'grunt').trim() || 'grunt';
+      const row = Math.round(num(node.params.row, 0));
+      const col = Math.round(num(node.params.col, 0));
+      pushLine(ctx, 'api.enemy.teleport(' + jsString(enemyType) + ', ' + row + ', ' + col + ');');
+      break;
+    }
+    case 'action.setWaveDelay': {
+      const delayMs = Math.round(num(node.params.delayMs, 0));
+      pushLine(ctx, 'api.wave.setDelay(' + delayMs + ');');
+      break;
+    }
+    case 'action.playEffect': {
+      const row = Math.round(num(node.params.row, 0));
+      const col = Math.round(num(node.params.col, 0));
+      const color = str(node.params.color, '#ffd166');
+      pushLine(ctx, 'api.fx.burst(' + row + ', ' + col + ', ' + jsString(color) + ');');
+      break;
+    }
     case 'action.addScore':
       pushLine(ctx, 'api.score.add(' + amountExpression(ctx, node, 'amount', 10) + ');');
       break;

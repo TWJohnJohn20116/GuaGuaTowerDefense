@@ -34,6 +34,7 @@ export const MOD_SCRIPT_PERMISSIONS: ModScriptPermission[] = [
   'enemy.spawn',
   'enemy.modify',
   'tower.modify',
+  'match.modify',
   'log',
   'storage',
 ];

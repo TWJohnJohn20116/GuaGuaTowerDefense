@@ -17,6 +17,11 @@ const COMMAND_PERMISSION: Record<ModScriptCommand['kind'], ModScriptPermission> 
   modifyTower: 'tower.modify',
   upgradeTowerAt: 'tower.modify',
   sellTowerAt: 'tower.modify',
+  grantTower: 'tower.modify',
+  teleportEnemy: 'enemy.modify',
+  setDifficulty: 'match.modify',
+  setWaveDelay: 'match.modify',
+  playEffect: 'match.modify',
 };
 
 export function requiredPermission(kind: ModScriptCommand['kind']): ModScriptPermission {
@@ -49,6 +54,9 @@ const API_USAGE_RULES: ApiUsageRule[] = [
   { pattern: /api\s*\.\s*spawn\s*\./, permission: 'enemy.spawn' },
   { pattern: /api\s*\.\s*score\s*\./, permission: 'economy' },
   { pattern: /api\s*\.\s*tower\s*\./, permission: 'tower.modify' },
+  { pattern: /api\s*\.\s*difficulty\s*\./, permission: 'match.modify' },
+  { pattern: /api\s*\.\s*wave\s*\./, permission: 'match.modify' },
+  { pattern: /api\s*\.\s*fx\s*\./, permission: 'match.modify' },
   { pattern: /api\s*\.\s*status\s*\./, permission: 'enemy.modify' },
   { pattern: /api\s*\.\s*log\s*\(/, permission: 'log' },
   { pattern: /api\s*\.\s*store\s*\./, permission: 'storage' },

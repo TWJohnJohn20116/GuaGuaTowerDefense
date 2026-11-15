@@ -77,6 +77,7 @@ export const useGameStore = create<GameStore>()(
   matchKills: 0,
   matchLeaks: 0,
   scriptTowerMods: {},
+  scriptWaveDelayMs: 0,
 
   currentWave: 0,
   waveActive: false,

@@ -310,7 +310,8 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
             clearInterval(countdownRef.current);
             countdownRef.current = null;
           }
-          setTimeout(() => startWave(), 0);
+          // 腳本可以調整下一波延遲（action.setWaveDelay）；預設 0＝立即
+        setTimeout(() => startWave(), useGameStore.getState().scriptWaveDelayMs || 0);
           return 3;
         }
         return prev - 1;

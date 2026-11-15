@@ -39,7 +39,12 @@ interface SandboxApi {
     modify: (scope: string, stat: 'damage' | 'range' | 'fireRate', multiplier: number) => void;
     upgrade: (row: number, col: number) => void;
     sell: (row: number, col: number) => void;
+    grant: (towerType: string, row: number, col: number) => void;
   };
+  enemy: { teleport: (enemyType: string, row: number, col: number) => void };
+  difficulty: { set: (mods: { healthMult?: number; speedMult?: number; rewardMult?: number }) => void };
+  wave: { setDelay: (delayMs: number) => void };
+  fx: { burst: (row: number, col: number, color?: string) => void };
   status: {
     apply: (
       effect: ModScriptStatusEffect,
@@ -171,6 +176,55 @@ export function createSandboxApi(host: SandboxHost): SandboxApi {
       },
       sell: (row, col) => {
         push({ kind: 'sellTowerAt', row: Math.round(finite(row, 0)), col: Math.round(finite(col, 0)) });
+      },
+      grant: (towerType, row, col) => {
+        const type = String(towerType || '').trim();
+        if (!type) {
+          host.warn('送塔需要指定塔種');
+          return;
+        }
+        push({
+          kind: 'grantTower',
+          towerType: type.slice(0, 32),
+          row: Math.round(finite(row, 0)),
+          col: Math.round(finite(col, 0)),
+        });
+      },
+    },
+    enemy: {
+      teleport: (enemyType, row, col) => {
+        push({
+          kind: 'teleportEnemy',
+          enemyType: String(enemyType || '').slice(0, 32),
+          row: Math.round(finite(row, 0)),
+          col: Math.round(finite(col, 0)),
+        });
+      },
+    },
+    difficulty: {
+      set: (mods) => {
+        const clampMult = (value: number): number => clamp(finite(value, 1), 0.1, 10);
+        push({
+          kind: 'setDifficulty',
+          healthMult: clampMult(mods.healthMult ?? 1),
+          speedMult: clampMult(mods.speedMult ?? 1),
+          rewardMult: clampMult(mods.rewardMult ?? 1),
+        });
+      },
+    },
+    wave: {
+      setDelay: (delayMs) => {
+        push({ kind: 'setWaveDelay', delayMs: Math.round(clamp(finite(delayMs, 0), 0, 60000)) });
+      },
+    },
+    fx: {
+      burst: (row, col, color = '#ffd166') => {
+        push({
+          kind: 'playEffect',
+          row: Math.round(finite(row, 0)),
+          col: Math.round(finite(col, 0)),
+          color: String(color).slice(0, 24),
+        });
       },
     },
     status: {
