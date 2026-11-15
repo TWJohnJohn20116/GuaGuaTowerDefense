@@ -426,6 +426,7 @@ const TEXT_B = port('b', 'string', 'studio.graph.port.b');
 
 const BOOL_A = port('a', 'boolean', 'studio.graph.port.a');
 const BOOL_B = port('b', 'boolean', 'studio.graph.port.b');
+const BOOL_C = port('c', 'boolean', 'studio.graph.port.c');
 const NUM_A = port('a', 'number', 'studio.graph.port.a');
 const NUM_B = port('b', 'number', 'studio.graph.port.b');
 
@@ -461,6 +462,73 @@ const NOT_SPEC: GraphNodeSpec = {
   outputs: [BOOL_VALUE],
   params: [],
 };
+
+/** 邏輯完備：xor／nand／nor 與三元組合 */
+const LOGIC_EXTRA_SPECS: readonly GraphNodeSpec[] = [
+  {
+    type: 'cond.xor',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condXor',
+    descriptionKey: 'studio.graph.node.condXor.desc',
+    glyph: '^',
+    inputs: [BOOL_A, BOOL_B],
+    outputs: [BOOL_VALUE],
+    params: [],
+  },
+  {
+    type: 'cond.nand',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condNand',
+    descriptionKey: 'studio.graph.node.condNand.desc',
+    glyph: 'ND',
+    inputs: [BOOL_A, BOOL_B],
+    outputs: [BOOL_VALUE],
+    params: [],
+  },
+  {
+    type: 'cond.nor',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condNor',
+    descriptionKey: 'studio.graph.node.condNor.desc',
+    glyph: 'NR',
+    inputs: [BOOL_A, BOOL_B],
+    outputs: [BOOL_VALUE],
+    params: [],
+  },
+  {
+    type: 'cond.anyOf',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condAnyOf',
+    descriptionKey: 'studio.graph.node.condAnyOf.desc',
+    glyph: 'ANY',
+    inputs: [BOOL_A, BOOL_B, BOOL_C],
+    outputs: [BOOL_VALUE],
+    params: [],
+  },
+  {
+    type: 'cond.allOf',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condAllOf',
+    descriptionKey: 'studio.graph.node.condAllOf.desc',
+    glyph: 'ALL',
+    inputs: [BOOL_A, BOOL_B, BOOL_C],
+    outputs: [BOOL_VALUE],
+    params: [],
+  },
+  {
+    type: 'cond.between',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condBetween',
+    descriptionKey: 'studio.graph.node.condBetween.desc',
+    glyph: 'BT',
+    inputs: [NUM_VALUE],
+    outputs: [BOOL_VALUE],
+    params: [
+      numberParam('min', 'studio.graph.param.min', 0, -99999, 99999),
+      numberParam('max', 'studio.graph.param.max', 10, -99999, 99999),
+    ],
+  },
+];
 
 /** 讀快照的條件：門檻比對一律「運算子 + 數值」兩個參數 */
 function thresholdParams(valueKey: string, labelKey: string, value: number, min: number, max: number): GraphParamSpec[] {
@@ -797,6 +865,7 @@ const NODE_LIBRARY: readonly GraphNodeSpec[] = [
   AND_SPEC,
   OR_SPEC,
   NOT_SPEC,
+  ...LOGIC_EXTRA_SPECS,
   ...STATE_COND_SPECS,
   ...ACTION_SPECS,
   ...TOWER_ACTION_SPECS,

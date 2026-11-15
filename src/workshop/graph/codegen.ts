@@ -139,6 +139,32 @@ function valueExpression(ctx: EmitContext, node: GraphNode, stack: readonly stri
       const [a] = operands(['a'], [1]);
       return '(!' + a + ')';
     }
+    case 'cond.xor': {
+      const [a, b] = operands(['a', 'b'], [0, 0]);
+      return '((' + a + ' ? 1 : 0) !== (' + b + ' ? 1 : 0))';
+    }
+    case 'cond.nand': {
+      const [a, b] = operands(['a', 'b'], [1, 1]);
+      return '(!(' + a + ' && ' + b + '))';
+    }
+    case 'cond.nor': {
+      const [a, b] = operands(['a', 'b'], [0, 0]);
+      return '(!(' + a + ' || ' + b + '))';
+    }
+    case 'cond.anyOf': {
+      const [a, b, c] = operands(['a', 'b', 'c'], [0, 0, 0]);
+      return '(' + a + ' || ' + b + ' || ' + c + ')';
+    }
+    case 'cond.allOf': {
+      const [a, b, c] = operands(['a', 'b', 'c'], [1, 1, 1]);
+      return '(' + a + ' && ' + b + ' && ' + c + ')';
+    }
+    case 'cond.between': {
+      const [value] = operands(['value'], [0]);
+      const low = Math.round(num(node.params.min, 0));
+      const high = Math.round(num(node.params.max, 10));
+      return '(' + value + ' >= ' + Math.min(low, high) + ' && ' + value + ' <= ' + Math.max(low, high) + ')';
+    }
     case 'cond.wave':
       return '(api.state.wave ' + compareOp(node.params.op) + ' ' + Math.round(num(node.params.value, 1)) + ')';
     case 'cond.health':
