@@ -14,7 +14,8 @@ import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { Btn, Chip, Deck, Empty, IconBtn, Input, Num, SegHead } from '@/components/hl';
-import { DownloadIcon, RedoIcon, UndoIcon, WarningIcon } from '@/components/ui/Icons';
+import { DownloadIcon, MagicIcon, RedoIcon, UndoIcon, WarningIcon } from '@/components/ui/Icons';
+import { SceneModal, SceneModalHeader } from '@/components/ui/SceneModal';
 import { ENEMY_DATA } from '@/data/gameData';
 import { RosterPanel, type RosterAsset } from '@/components/workshop/content/RosterPanel';
 import { WaveAnalysisPanel } from '@/components/workshop/content/WaveAnalysisPanel';
@@ -97,6 +98,8 @@ export function ContentPage({ projectId }: ContentPageProps) {
   const [curve, setCurve] = useState<CurveFormula>(DEFAULT_CURVE_FORMULA);
   const [jsonText, setJsonText] = useState('');
   const [jsonNote, setJsonNote] = useState('');
+  // 公式只在使用時才需要：改成彈窗，平常完全不佔版面高度
+  const [formulaOpen, setFormulaOpen] = useState(false);
 
   const waves = useMemo(() => configsToTimelineWaves(level?.waves ?? []), [level?.waves]);
 
@@ -298,14 +301,29 @@ export function ContentPage({ projectId }: ContentPageProps) {
         label={c.title}
         right={
           <div className="flex shrink-0 items-center gap-1">
+            <Btn
+              size="sm"
+              variant="line"
+              icon={<MagicIcon className="h-3.5 w-3.5" />}
+              onClick={() => setFormulaOpen(true)}
+            >
+              {c.formula.title}
+            </Btn>
             <IconBtn label={w.undo} className="h-7 w-7" onClick={history.undo} disabled={!history.canUndo}>
               <UndoIcon className="h-4 w-4" />
             </IconBtn>
             <IconBtn label={w.redo} className="h-7 w-7" onClick={history.redo} disabled={!history.canRedo}>
               <RedoIcon className="h-4 w-4" />
             </IconBtn>
-            <Btn size="sm" variant="line" icon={<DownloadIcon className="h-3.5 w-3.5" />} onClick={exportJson}>
-              {w.jsonExport}
+            <Btn
+              size="sm"
+              variant="line"
+              icon={<DownloadIcon className="h-3.5 w-3.5" />}
+              onClick={exportJson}
+              aria-label={w.jsonExport}
+            >
+              {/* 窄版只留圖示：390px 下「匯出 JSON」會把整排擠出視口 */}
+              <span className="hidden sm:inline">{w.jsonExport}</span>
             </Btn>
           </div>
         }
@@ -331,20 +349,6 @@ export function ContentPage({ projectId }: ContentPageProps) {
         ))}
         <Num value={fillTemplate(c.waveCount, { count: String(waves.length) })} size="sm" tone="muted" />
       </div>
-
-      <WaveFormulaPanel
-        formula={formula}
-        curve={curve}
-        enemyOptions={enemyOptions}
-        onFormula={(patch) => setFormula((prev) => ({ ...prev, ...patch }))}
-        onCurve={(patch) => setCurve((prev) => ({ ...prev, ...patch }))}
-        onGenerate={(configs, mode) => {
-          const next = configsToTimelineWaves(configs);
-          commitWaves(mode === 'append' ? [...waves, ...next] : next);
-          setSelectedWaves([]);
-          setSelectedSegments([]);
-        }}
-      />
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 xl:grid-cols-[290px_minmax(0,1fr)_380px]">
         <WaveListPanel
@@ -546,6 +550,32 @@ export function ContentPage({ projectId }: ContentPageProps) {
           )}
         </div>
       </div>
+
+      {formulaOpen && (
+        <SceneModal onClose={() => setFormulaOpen(false)} maxWidth="max-w-2xl" maxHeight="max-h-[85vh]">
+          <SceneModalHeader
+            title={c.formula.title}
+            icon={<MagicIcon className="h-4 w-4" />}
+            onClose={() => setFormulaOpen(false)}
+          />
+          <div className="mt-3">
+            <WaveFormulaPanel
+              formula={formula}
+              curve={curve}
+              enemyOptions={enemyOptions}
+              onFormula={(patch) => setFormula((prev) => ({ ...prev, ...patch }))}
+              onCurve={(patch) => setCurve((prev) => ({ ...prev, ...patch }))}
+              onGenerate={(configs, mode) => {
+                const next = configsToTimelineWaves(configs);
+                commitWaves(mode === 'append' ? [...waves, ...next] : next);
+                setSelectedWaves([]);
+                setSelectedSegments([]);
+                setFormulaOpen(false);
+              }}
+            />
+          </div>
+        </SceneModal>
+      )}
     </div>
   );
 }

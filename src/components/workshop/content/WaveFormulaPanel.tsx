@@ -11,7 +11,7 @@
 import { useState } from 'react';
 import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
-import { Btn, Chip, Deck, Input, SegHead } from '@/components/hl';
+import { Btn, Chip, Input } from '@/components/hl';
 import type { WaveConfig } from '@/types/game';
 import {
   describeCurve,
@@ -53,6 +53,10 @@ export function WaveFormulaPanel({
 
   const [mode, setMode] = useState<'basic' | 'curve'>('basic');
   const fitted = describeCurve(curve);
+  const summary =
+    mode === 'basic'
+      ? describeFormula(formula)
+      : fillTemplate(c.fitResult, { n: String(fitted.waves), hp: String(fitted.totalHp) });
 
   const shapes: { id: CurveShape; label: string }[] = [
     { id: 'linear', label: c.curveShapeLinear },
@@ -61,20 +65,16 @@ export function WaveFormulaPanel({
   ];
 
   return (
-    <Deck className={`flex flex-col gap-1.5 p-2.5 ${className}`}>
-      <SegHead
-        label={c.title}
-        right={
-          <div className="flex items-center gap-1">
-            <Chip active={mode === 'basic'} onClick={() => setMode('basic')} className="px-1.5 py-0.5 text-[9px]">
-              {c.modeBasic}
-            </Chip>
-            <Chip active={mode === 'curve'} onClick={() => setMode('curve')} className="px-1.5 py-0.5 text-[9px]">
-              {c.modeCurve}
-            </Chip>
-          </div>
-        }
-      />
+    <div className={`flex flex-col gap-1.5 ${className}`}>
+      <div className="flex items-center gap-1">
+        <Chip active={mode === 'basic'} onClick={() => setMode('basic')} className="shrink-0 whitespace-nowrap px-1.5 py-0.5 text-[9px]">
+          {c.modeBasic}
+        </Chip>
+        <Chip active={mode === 'curve'} onClick={() => setMode('curve')} className="shrink-0 whitespace-nowrap px-1.5 py-0.5 text-[9px]">
+          {c.modeCurve}
+        </Chip>
+        <span className="ml-auto min-w-0 truncate font-mono text-[10px] text-[var(--cn-ink-3)]">{summary}</span>
+      </div>
 
       {mode === 'basic' ? (
         <>
@@ -217,6 +217,6 @@ export function WaveFormulaPanel({
           </div>
         </>
       )}
-    </Deck>
+    </div>
   );
 }
