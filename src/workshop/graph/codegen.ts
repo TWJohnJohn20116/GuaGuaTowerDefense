@@ -491,6 +491,63 @@ function emitChain(ctx: EmitContext, nodeId: string, visited: Set<string>): void
       pushLine(ctx, 'api.store.set(' + key + ', null);');
       break;
     }
+    case 'flow.switch': {
+      const index = nextCounter(ctx);
+      const subject = operandExpression(ctx, node.id, 'value', 0, [node.id]);
+      pushLine(ctx, 'const __sw' + index + ' = ' + subject + ';');
+      const branches: { port: string; value: number }[] = [
+        { port: 'case1', value: Math.round(num(node.params.v1, 1)) },
+        { port: 'case2', value: Math.round(num(node.params.v2, 2)) },
+        { port: 'case3', value: Math.round(num(node.params.v3, 3)) },
+      ];
+      let first = true;
+      for (const branch of branches) {
+        const edges = flowEdges(ctx.graph, node.id, branch.port);
+        if (edges.length === 0) continue;
+        pushLine(ctx, (first ? 'if' : '} else if') + ' (__sw' + index + ' === ' + branch.value + ') {');
+        ctx.depth += 1;
+        for (const edge of edges) emitChain(ctx, edge.to, visited);
+        ctx.depth -= 1;
+        first = false;
+      }
+      const fallback = flowEdges(ctx.graph, node.id, 'default');
+      if (first) {
+        // 沒有任何分支接線：整段略過，避免產生空的 if
+        pushLine(ctx, '/* switch: no branch connected */');
+        return;
+      }
+      if (fallback.length > 0) {
+        pushLine(ctx, '} else {');
+        ctx.depth += 1;
+        for (const edge of fallback) emitChain(ctx, edge.to, visited);
+        ctx.depth -= 1;
+      }
+      pushLine(ctx, '}');
+      return;
+    }
+    case 'flow.gate': {
+      const index = nextCounter(ctx);
+      const key = jsString('__graphGate' + index);
+      const every = Math.max(2, Math.round(num(node.params.every, 3)));
+      pushLine(ctx, 'const __g' + index + ' = Number(api.store.get(' + key + ') ?? 0) + 1;');
+      pushLine(ctx, 'api.store.set(' + key + ', __g' + index + ');');
+      pushLine(ctx, 'if (__g' + index + ' % ' + every + ' === 0) {');
+      ctx.depth += 1;
+      const gateEdges = flowEdges(ctx.graph, node.id, 'out');
+      if (gateEdges.length === 0) pushLine(ctx, '/* empty */');
+      for (const edge of gateEdges) emitChain(ctx, edge.to, visited);
+      ctx.depth -= 1;
+      pushLine(ctx, '}');
+      return;
+    }
+    case 'flow.sequenceN': {
+      for (const portId of ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']) {
+        for (const edge of flowEdges(ctx.graph, node.id, portId)) {
+          emitChain(ctx, edge.to, visited);
+        }
+      }
+      return;
+    }
     case 'flow.once': {
       const index = nextCounter(ctx);
       const key = jsString('__graphOnce' + index);

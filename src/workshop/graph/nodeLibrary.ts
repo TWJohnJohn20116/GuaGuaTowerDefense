@@ -734,6 +734,56 @@ const STATE_COND_SPECS: readonly GraphNodeSpec[] = [
   },
 ];
 
+const FLOW_EXTRA_SPECS: readonly GraphNodeSpec[] = [
+  {
+    type: 'flow.switch',
+    category: 'flow',
+    labelKey: 'studio.graph.node.switch',
+    descriptionKey: 'studio.graph.node.switch.desc',
+    glyph: 'SW',
+    inputs: [FLOW_IN, NUM_VALUE],
+    outputs: [
+      port('case1', 'flow', 'studio.graph.port.case1'),
+      port('case2', 'flow', 'studio.graph.port.case2'),
+      port('case3', 'flow', 'studio.graph.port.case3'),
+      port('default', 'flow', 'studio.graph.port.default'),
+    ],
+    params: [
+      numberParam('v1', 'studio.graph.param.case1', 1, -99999, 99999),
+      numberParam('v2', 'studio.graph.param.case2', 2, -99999, 99999),
+      numberParam('v3', 'studio.graph.param.case3', 3, -99999, 99999),
+    ],
+  },
+  {
+    type: 'flow.gate',
+    category: 'flow',
+    labelKey: 'studio.graph.node.gate',
+    descriptionKey: 'studio.graph.node.gate.desc',
+    glyph: 'GT',
+    inputs: [FLOW_IN],
+    outputs: [FLOW_OUT],
+    params: [numberParam('every', 'studio.graph.param.every', 3, 2, 999)],
+    permissions: ['storage'],
+  },
+  {
+    type: 'flow.sequenceN',
+    category: 'flow',
+    labelKey: 'studio.graph.node.sequenceN',
+    descriptionKey: 'studio.graph.node.sequenceN.desc',
+    glyph: 'SQ6',
+    inputs: [FLOW_IN],
+    outputs: [
+      port('first', 'flow', 'studio.graph.port.first'),
+      port('second', 'flow', 'studio.graph.port.second'),
+      port('third', 'flow', 'studio.graph.port.third'),
+      port('fourth', 'flow', 'studio.graph.port.fourth'),
+      port('fifth', 'flow', 'studio.graph.port.fifth'),
+      port('sixth', 'flow', 'studio.graph.port.sixth'),
+    ],
+    params: [],
+  },
+];
+
 const ONCE_SPEC: GraphNodeSpec = {
   type: 'flow.once',
   category: 'flow',
@@ -994,6 +1044,7 @@ const NODE_LIBRARY: readonly GraphNodeSpec[] = [
   ...TOWER_ACTION_SPECS,
   CLEAR_VAR_SPEC,
   ...FLOW_SPECS,
+  ...FLOW_EXTRA_SPECS,
   ONCE_SPEC,
   ...VALUE_SPECS,
   ...STATE_VALUE_SPECS,

@@ -148,7 +148,12 @@ function walkRows(
     });
     if (spec.category === 'event') continue;
     for (const childPort of childPorts(node)) {
-      const nested = spec.type === 'flow.if' || spec.type === 'flow.sequence' || spec.type === 'flow.loop';
+      const nested =
+    spec.type === 'flow.if' ||
+    spec.type === 'flow.sequence' ||
+    spec.type === 'flow.sequenceN' ||
+    spec.type === 'flow.switch' ||
+    spec.type === 'flow.loop';
       walkRows(graph, node.id, childPort, eventNodeId, nested ? depth + 1 : depth, visited, rows);
     }
   }
