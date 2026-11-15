@@ -98,7 +98,7 @@ const EFFECT_SHORT_KEY: Record<TowerEffectId, TowerEffectShortKey> = {
 };
 export function getTowerEffectShortLabel(
   id: TowerEffectId,
-  m: Record<string, string>,
+  m: Record<string, unknown>,
 ): string {
   const key = EFFECT_SHORT_KEY[id];
   const raw = m[key];

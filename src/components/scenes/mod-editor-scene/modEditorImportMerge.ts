@@ -1,7 +1,8 @@
 /**
  * Mod 匯入內容合併工具
  */
-import type { Mod, CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData, CustomScriptData } from '@/types/game';
+import type { Mod, CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData } from '@/types/game';
+import type { CustomScriptData } from '@/types/modScript';
 
 export type ImportMergeMode = 'replace' | 'merge';
 

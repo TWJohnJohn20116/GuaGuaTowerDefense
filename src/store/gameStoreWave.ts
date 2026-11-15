@@ -54,7 +54,7 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
       set({ waveActive: true, currentWave: newWave, allEnemiesSpawned: false });
     }
     // Mod 腳本：開波事件
-    notifyModScripts('waveStart', { wave: newWave });
+    notifyModScripts('onWaveStart', { wave: newWave });
     playWaveStart(); // 開波音
   },
   
@@ -118,7 +118,7 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
     if (newHealth <= 0) {
       // 切換到獨立的「遊戲結束」介面場景（非彈窗）
       set({ health: 0, isGameOver: true, isPlaying: false, isPaused: false, scene: 'gameOver' });
-      notifyModScripts('gameOver');
+      notifyModScripts('onGameOver');
       playGameOver(); // 失敗音
     } else {
       set({ health: newHealth });

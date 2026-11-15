@@ -39,7 +39,7 @@ describe('mod script validation', () => {
   it('合法腳本可以通過', () => {
     const result = validateModContent(makeMod([makeScript()]));
     expect(result.valid).toBe(true);
-    expect(result.flags.some((flag) => flag.tab === 'scripts')).toBe(false);
+    expect((result.flags ?? []).some((flag) => flag.tab === 'scripts')).toBe(false);
   });
 
   it('沒有程式碼是錯誤', () => {
@@ -51,7 +51,7 @@ describe('mod script validation', () => {
   it('語法錯誤是錯誤並標記到腳本分頁', () => {
     const result = validateModContent(makeMod([makeScript({ code: 'function onWaveStart( {' })]));
     expect(result.valid).toBe(false);
-    expect(result.flags.some((flag) => flag.tab === 'scripts' && flag.level === 'error')).toBe(true);
+    expect((result.flags ?? []).some((flag) => flag.tab === 'scripts' && flag.level === 'error')).toBe(true);
   });
 
   it('沒有掛 hook 是警告', () => {

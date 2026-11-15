@@ -4,7 +4,8 @@
  * 帶狀標題（h-11）＋密集清單：每個項目是一段 1px 分隔的區塊，不做卡片堆疊。
  */
 import { motion, AnimatePresence } from 'framer-motion';
-import type { CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData, CustomScriptData, ModItem, ModType } from '@/types/game';
+import type { CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData, ModItem, ModType } from '@/types/game';
+import type { CustomScriptData } from '@/types/modScript';
 import { useTranslation } from '@/i18n';
 import {
   TowerEditor, EnemyEditor, MapEditorPanel,

@@ -22,7 +22,7 @@ interface TowerEffectBadgeProps {
 export function TowerEffectBadge({ effectId, size = 'sm', className = '' }: TowerEffectBadgeProps) {
   const { t } = useTranslation();
   const m = t.modEditorExt;
-  const label = getTowerEffectShortLabel(effectId, m as Record<string, string>);
+  const label = getTowerEffectShortLabel(effectId, m);
   const style = getTowerEffectStyle(effectId);
   const box = size === 'sm' ? 'gap-1 px-1.5 py-[2px] text-[9.5px]' : 'gap-1.5 px-2 py-1 text-[10.5px]';
   const iconSize = size === 'sm' ? 'h-3 w-3' : 'h-3.5 w-3.5';

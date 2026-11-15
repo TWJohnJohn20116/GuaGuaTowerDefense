@@ -100,7 +100,7 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     });
 
     // Mod 腳本：建塔事件
-    notifyModScripts('towerPlaced', { towerType: selectedTowerType, row: pos.row, col: pos.col });
+    notifyModScripts('onTowerPlaced', { towerType: selectedTowerType, row: pos.row, col: pos.col });
 
     // 追蹤成就
     getAchievementStore().then(store => {

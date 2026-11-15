@@ -298,7 +298,7 @@ export const useGameStore = create<GameStore>()(
     });
 
     // Mod 腳本：開局事件（非阻塞；腳本再慢也不影響開局）
-    notifyModScripts('gameStart');
+    notifyModScripts('onGameStart');
     
     // 如果是教學模式，重置為 1 倍速
     try {
@@ -333,7 +333,7 @@ export const useGameStore = create<GameStore>()(
   setVictory: () => {
     set({ isVictory: true, isPlaying: false });
     playVictory();
-    notifyModScripts('victory');
+    notifyModScripts('onVictory');
   },
   setGameSpeed: (speed) => {
     saveGameSpeed(speed);

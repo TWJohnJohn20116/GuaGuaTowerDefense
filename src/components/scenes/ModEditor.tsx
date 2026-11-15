@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useModStore } from '@/store/modStore';
 import { useTranslation } from '@/i18n';
-import type { Mod, ModType, ModItem, CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData, CustomScriptData } from '@/types/game';
+import type { Mod, ModType, ModItem, CustomTowerData, CustomEnemyData, CustomMapData, CustomWaveData } from '@/types/game';
+import type { CustomScriptData } from '@/types/modScript';
 import { SceneShell } from '@/components/ui/SceneShell';
 import { 
   defaultColors, 

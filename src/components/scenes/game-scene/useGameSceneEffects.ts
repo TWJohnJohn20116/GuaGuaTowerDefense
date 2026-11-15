@@ -584,7 +584,7 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
             }
             useAchievementStore.getState().batchOnEnemyKilled(kills, rewardTotal);
             useStatsStore.getState().trackEnemyKilledBatch(killedTypes, rewardTotal);
-            notifyModScripts('enemyKilled', {
+            notifyModScripts('onEnemyKilled', {
               killCount: killedEnemies.length,
               enemyTypes: killedTypes,
             });
@@ -593,7 +593,7 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
 
         const latestEnemies = useGameStore.getState().enemies;
         if (waveActive && spawnQueueRef.current.length === 0 && latestEnemies.length === 0) {
-          notifyModScripts('waveClear', { wave: currentWave });
+          notifyModScripts('onWaveClear', { wave: currentWave });
           const ending = useGameStore.getState();
           const clearBonus = getProtocolWaveMods(ending.activeProtocol).waveClearBonus;
           useGameStore.setState({ waveActive: false, activeProtocol: null });
