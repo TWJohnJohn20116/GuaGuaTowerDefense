@@ -25,19 +25,38 @@ export interface PreviewTower {
 }
 
 /** 地圖草稿：工坊裡可編輯、可序列化、可還原的最小單位 */
+/** 叉路地圖的一段：自己的路徑點 + 下一段（多個＝分岔） */
+export interface MapSegmentDraft {
+  id: string;
+  /** 下一段的路段 id；空陣列＝這一段是終點 */
+  next: string[];
+  waypoints: GridPoint[];
+}
+
 export interface MapDraft {
   cols: number;
   rows: number;
-  /** 有序路徑點，第 0 個是起點、最後一個是終點 */
+  /**
+   * 有序路徑點，第 0 個是起點、最後一個是終點。
+   * 叉路地圖時，這裡永遠是「目前編輯中的那一段」（與 activeSegmentId 對應）。
+   */
   waypoints: GridPoint[];
   /** 障礙格（不可建造）；允許與路徑重疊，但會被 validateDraft 標成衝突 */
   blocked: GridPoint[];
   /** 預覽塔（擺塔預覽，不扣錢、不開局） */
   towers: PreviewTower[];
+  /** 叉路地圖的路段；空／undefined＝單一路徑（普通地圖） */
+  segments?: MapSegmentDraft[];
+  /** 目前編輯中的路段 id */
+  activeSegmentId?: string | null;
+  /** 起始路段 id（叉路地圖必填） */
+  startSegmentId?: string | null;
 }
 
 export type MapIssueCode =
   | 'tooFewWaypoints'
+  | 'segmentStartMissing'
+  | 'segmentNextMissing'
   | 'outOfBounds'
   | 'duplicateWaypoint'
   | 'pathBroken'
@@ -197,8 +216,124 @@ export function findPathBreaks(cells: GridPoint[]): number[] {
 }
 
 /** 路徑格集合（用於障礙/塔衝突判定） */
+/* ------------------------------------------------- 叉路地圖（路段） */
+
+/** 把目前編輯中的路徑點寫回它所屬的路段（其他操作都先呼叫這支，避免兩份真相） */
+function commitActiveSegment(draft: MapDraft): MapDraft {
+  const segments = draft.segments;
+  if (!segments || segments.length === 0) return draft;
+  const activeId = draft.activeSegmentId ?? segments[0].id;
+  return {
+    ...draft,
+    segments: segments.map((segment) =>
+      segment.id === activeId ? { ...segment, waypoints: draft.waypoints } : segment,
+    ),
+  };
+}
+
+/** 目前的路段清單（已同步編輯中的那一段；普通地圖回空陣列） */
+export function segmentList(draft: MapDraft): MapSegmentDraft[] {
+  return commitActiveSegment(draft).segments ?? [];
+}
+
+function nextSegmentId(draft: MapDraft): string {
+  let max = 0;
+  for (const segment of draft.segments ?? []) {
+    const hit = /^seg_(\d+)$/.exec(segment.id);
+    if (hit) max = Math.max(max, Number(hit[1]));
+  }
+  return 'seg_' + (max + 1);
+}
+
+/** 把單一路徑升級成叉路地圖（第一段就是目前的路徑） */
+export function enableSegments(draft: MapDraft): DraftOpResult {
+  if ((draft.segments ?? []).length > 0) return { draft, changed: false };
+  const first: MapSegmentDraft = { id: 'seg_1', next: [], waypoints: draft.waypoints };
+  return {
+    draft: { ...draft, segments: [first], activeSegmentId: first.id, startSegmentId: first.id },
+    changed: true,
+  };
+}
+
+/** 新增一段並切換過去（新段是空的） */
+export function addSegment(draft: MapDraft): DraftOpResult {
+  const base = commitActiveSegment(draft);
+  const id = nextSegmentId(base);
+  const segments = [...(base.segments ?? []), { id, next: [], waypoints: [] }];
+  return {
+    draft: {
+      ...base,
+      segments,
+      activeSegmentId: id,
+      waypoints: [],
+      startSegmentId: base.startSegmentId ?? id,
+    },
+    changed: true,
+  };
+}
+
+/** 切換編輯中的路段（先把目前這段存回去） */
+export function selectSegment(draft: MapDraft, id: string): DraftOpResult {
+  const base = commitActiveSegment(draft);
+  const target = (base.segments ?? []).find((segment) => segment.id === id);
+  if (!target) return { draft, changed: false };
+  return { draft: { ...base, activeSegmentId: id, waypoints: target.waypoints }, changed: true };
+}
+
+/** 刪除一段：清掉其他段對它的引用，並在必要時換掉起點與編輯中路段 */
+export function removeSegment(draft: MapDraft, id: string): DraftOpResult {
+  const base = commitActiveSegment(draft);
+  const remaining = (base.segments ?? []).filter((segment) => segment.id !== id);
+  if (remaining.length === (base.segments ?? []).length) return { draft, changed: false };
+  const cleaned = remaining.map((segment) => ({
+    ...segment,
+    next: segment.next.filter((nextId) => nextId !== id),
+  }));
+  const activeId =
+    base.activeSegmentId === id ? cleaned[0]?.id ?? null : base.activeSegmentId ?? null;
+  const active = cleaned.find((segment) => segment.id === activeId);
+  return {
+    draft: {
+      ...base,
+      segments: cleaned,
+      activeSegmentId: activeId,
+      waypoints: active ? active.waypoints : base.waypoints,
+      startSegmentId: base.startSegmentId === id ? cleaned[0]?.id ?? null : base.startSegmentId ?? null,
+    },
+    changed: true,
+  };
+}
+
+/** 指定起始路段 */
+export function setStartSegment(draft: MapDraft, id: string): DraftOpResult {
+  const base = commitActiveSegment(draft);
+  if (!(base.segments ?? []).some((segment) => segment.id === id)) return { draft, changed: false };
+  return { draft: { ...base, startSegmentId: id }, changed: true };
+}
+
+/** 設定某一段的下一段（自動濾掉不存在與自己） */
+export function setSegmentNext(draft: MapDraft, id: string, next: string[]): DraftOpResult {
+  const base = commitActiveSegment(draft);
+  const ids = new Set((base.segments ?? []).map((segment) => segment.id));
+  const cleaned = next.filter((nextId) => nextId !== id && ids.has(nextId));
+  return {
+    draft: {
+      ...base,
+      segments: (base.segments ?? []).map((segment) =>
+        segment.id === id ? { ...segment, next: cleaned } : segment,
+      ),
+    },
+    changed: true,
+  };
+}
+
 export function pathCellKeys(draft: MapDraft): Set<string> {
-  return new Set(expandPathCells(draft.waypoints).map(key));
+  const keys = new Set(expandPathCells(draft.waypoints).map(key));
+  // 叉路地圖：其他路段走過的格子也算路徑（畫格子與障礙衝突判定都要看全部）
+  for (const segment of draft.segments ?? []) {
+    for (const p of expandPathCells(segment.waypoints)) keys.add(key(p));
+  }
+  return keys;
 }
 
 // ===== 障礙格 =====
@@ -313,6 +448,24 @@ export function validateDraft(draft: MapDraft): MapIssue[] {
 
   for (const p of blockedPathConflicts(draft)) issues.push({ code: 'blockedOnPath', at: p });
 
+  // 叉路地圖：每一段都要能走，起點與下一段引用都要存在
+  const segments = draft.segments ?? [];
+  if (segments.length > 0) {
+    const ids = new Set(segments.map((segment) => segment.id));
+    for (const segment of segments) {
+      if (segment.waypoints.length < 2) issues.push({ code: 'tooFewWaypoints' });
+      for (const p of segment.waypoints) {
+        if (!isInside(p, draft.cols, draft.rows)) issues.push({ code: 'outOfBounds', at: p });
+      }
+      for (const nextId of segment.next) {
+        if (!ids.has(nextId)) issues.push({ code: 'segmentNextMissing' });
+      }
+    }
+    if (!draft.startSegmentId || !ids.has(draft.startSegmentId)) {
+      issues.push({ code: 'segmentStartMissing' });
+    }
+  }
+
   return issues;
 }
 
@@ -358,15 +511,29 @@ export interface SerializedMapDraft {
   waypoints: GridPosition[];
   blockedCells: GridPosition[];
   towers: { id: string; type: string; col: number; row: number }[];
+  /** 叉路地圖的路段（普通地圖不寫這個欄位） */
+  segments?: { id: string; next: string[]; waypoints: GridPosition[] }[];
+  startSegmentId?: string;
 }
 
 export function serializeDraft(draft: MapDraft): SerializedMapDraft {
+  const segments = commitActiveSegment(draft).segments ?? [];
   return {
     cols: draft.cols,
     rows: draft.rows,
     waypoints: draft.waypoints.map((p) => ({ col: p.col, row: p.row })),
     blockedCells: draft.blocked.map((p) => ({ col: p.col, row: p.row })),
     towers: draft.towers.map((t) => ({ id: t.id, type: t.type, col: t.col, row: t.row })),
+    ...(segments.length > 0
+      ? {
+          segments: segments.map((segment) => ({
+            id: segment.id,
+            next: [...segment.next],
+            waypoints: segment.waypoints.map((p) => ({ col: p.col, row: p.row })),
+          })),
+        }
+      : {}),
+    ...(draft.startSegmentId ? { startSegmentId: draft.startSegmentId } : {}),
   };
 }
 
@@ -431,14 +598,46 @@ export function readMapDraft(source: unknown): MapDraft {
     }
   }
 
-  if (waypoints.length === 0) {
+  // 叉路地圖：路段優先，編輯中的那一段就是 waypoints 的來源
+  const segments: MapSegmentDraft[] = [];
+  const rawSegments = mapSource.segments;
+  if (Array.isArray(rawSegments)) {
+    for (const item of rawSegments) {
+      if (!item || typeof item !== 'object') continue;
+      const seg = item as Record<string, unknown>;
+      const id = typeof seg.id === 'string' && seg.id.length > 0 ? seg.id : 'seg_' + (segments.length + 1);
+      const next = Array.isArray(seg.next)
+        ? seg.next.filter((value): value is string => typeof value === 'string')
+        : [];
+      segments.push({ id, next, waypoints: readPoints(seg.waypoints) });
+    }
+  }
+  const startSegmentId =
+    typeof mapSource.startSegmentId === 'string' && mapSource.startSegmentId.length > 0
+      ? mapSource.startSegmentId
+      : segments[0]?.id ?? null;
+  const active = segments.find((segment) => segment.id === startSegmentId) ?? segments[0];
+
+  if (segments.length === 0 && waypoints.length === 0) {
     return { cols, rows, waypoints: createStarterDraft().waypoints, blocked, towers };
   }
-  return { cols, rows, waypoints, blocked, towers };
+  return {
+    cols,
+    rows,
+    waypoints: active ? active.waypoints : waypoints,
+    blocked,
+    towers,
+    ...(segments.length > 0
+      ? { segments, activeSegmentId: active?.id ?? null, startSegmentId }
+      : {}),
+  };
 }
 
 /** 草稿的內容簽章：用來當 useMemo / 播放重算的依賴 */
 export function draftSignature(draft: MapDraft): string {
+  const seg = (draft.segments ?? [])
+    .map((segment) => segment.id + '>' + segment.next.join('|') + ':' + segment.waypoints.map((p) => p.col + '.' + p.row).join('-'))
+    .join(';');
   const wp = draft.waypoints.map((p) => p.col + '.' + p.row).join('-');
   const bl = draft.blocked
     .map(key)
