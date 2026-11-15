@@ -36,7 +36,7 @@ const ALL_BASE_TOWER_TYPES: TowerType[] = [
 
 /** 工具列圖示鍵：棋盤格，選中＝路徑導引色 */
 const TOOL_BTN =
-  'flex h-8 w-full items-center justify-center rounded-[10px] border-[2px] border-[var(--cn-line)] bg-[var(--cn-card)] text-[var(--cn-ink-3)] transition-[background-color,color,transform] duration-100 hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)] active:translate-y-px disabled:cursor-not-allowed disabled:border-transparent disabled:bg-transparent disabled:text-[var(--cn-ink-4)] disabled:opacity-50';
+  'flex h-8 w-full items-center justify-center rounded-[10px] border-[2px] border-[var(--cn-line)] bg-[var(--cn-card)] text-[var(--cn-ink-3)] shadow-[0_3px_0_var(--cn-line)] transition-[background-color,color,transform,box-shadow] duration-100 hover:-translate-y-0.5 hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)] hover:shadow-[0_5px_0_var(--cn-line)] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:border-transparent disabled:bg-transparent disabled:text-[var(--cn-ink-4)] disabled:opacity-50 disabled:shadow-none';
 const TOOL_BTN_ON =
   'border-[var(--cn-line)] bg-[var(--cn-sun-soft)] text-[var(--cn-ink)]';
 

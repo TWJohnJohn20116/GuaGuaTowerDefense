@@ -141,8 +141,8 @@ export function IconBtn({
       {...rest}
       className={[
         'inline-flex items-center justify-center rounded-[12px] text-[var(--cn-ink-2)]',
-        'transition-colors duration-[160ms] hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)]',
-        'disabled:pointer-events-none disabled:opacity-40',
+        'transition-[background-color,color,transform] duration-100 hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)]',
+        'active:translate-y-px disabled:pointer-events-none disabled:opacity-40',
         className,
       ]
         .filter(Boolean)
