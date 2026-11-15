@@ -77,13 +77,20 @@ export function createSandboxApi(host: SandboxHost): SandboxApi {
   const state = host.snapshot;
   const rng = createScriptRng(host.seed);
   let exhausted = false;
+  let emitted = 0;
 
   const push = (command: ModScriptCommand): void => {
     if (exhausted) return;
+    // 上限在沙箱內就先擋：Worker 端與測試端都不必再各自重複計算
+    if (emitted >= MOD_SCRIPT_LIMITS.maxCommandsPerEvent) {
+      exhausted = true;
+      return;
+    }
     if (!canRunCommand(host.permissions, command)) {
       host.warn(`權限不足：${command.kind} 需要「${requiredPermission(command.kind)}」`);
       return;
     }
+    emitted += 1;
     if (!host.emit(command)) exhausted = true;
   };
 
