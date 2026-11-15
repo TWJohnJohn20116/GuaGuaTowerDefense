@@ -8,6 +8,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from '@/i18n';
 import type { Custom3DPart } from '@/types/game';
 import { Btn, Input, SegHead, Toggle } from '@/components/hl';
+import { ColorPicker } from '@/components/ui/ColorPicker';
 
 const MATERIALS: Custom3DPart['material'][] = ['metal', 'trim', 'accent', 'glow', 'gold'];
 const DEG = 180 / Math.PI;
@@ -154,11 +155,9 @@ export function ModelInspector({ part, hasParts, shapes, parentName, onPatch, on
 
       <span className="arc-label">{s.color}</span>
       <div className="flex items-center gap-1">
-        <input
-          type="color"
-          value={part.color ?? '#8aa0c0'}
-          onChange={(event) => onPatch({ color: event.target.value })}
-          className="h-6 w-8 shrink-0 border border-[var(--cn-line)] bg-transparent"
+        <ColorPicker
+          color={part.color ?? '#8aa0c0'}
+          onChange={(value) => onPatch({ color: value })}
         />
         <Input
           value={part.color ?? ''}

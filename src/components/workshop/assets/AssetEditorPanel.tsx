@@ -19,6 +19,7 @@ import { TOWER_DATA } from '@/data/gameData';
 import { MOD_SCRIPT_HOOKS, MOD_SCRIPT_PERMISSIONS } from '@/mod-script/limits';
 import { Btn, Deck, Empty, Input, SegHead, Toggle } from '@/components/hl';
 import { ScriptCodeEditor } from '@/components/mod-editor/ScriptCodeEditor';
+import { ColorPicker } from '@/components/ui/ColorPicker';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 
 const ABILITIES = ['none', 'flying', 'healing', 'spawning', 'shield', 'stealth', 'berserk', 'armored', 'teleport', 'miniboss', 'swarm', 'phase', 'explode', 'jam', 'escort'] as const;
@@ -54,6 +55,23 @@ function TextField({ label, value, onChange }: { label: string; value: string; o
       <span className="arc-label">{label}</span>
       <Input value={value} onChange={(event) => onChange(event.target.value)} className="h-7 w-full px-1.5 text-[11.5px]" />
     </label>
+  );
+}
+
+/** 顏色欄：色票彈窗（共用 ColorPicker）＋可直接貼上的 hex 輸入 */
+function ColorRow({ label, color, onChange }: { label: string; color: string; onChange: (next: string) => void }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="arc-label">{label}</span>
+      <div className="flex items-center gap-1">
+        <ColorPicker color={color} onChange={onChange} />
+        <Input
+          value={color}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-7 min-w-0 flex-1 px-1.5 font-mono text-[11.5px]"
+        />
+      </div>
+    </div>
   );
 }
 
@@ -146,7 +164,7 @@ export function AssetEditorPanel({ assetId, onNavigate }: AssetEditorPanelProps)
             <NumField label={s.range} value={towerData.range} onChange={(range) => patchData({ range })} />
             <NumField label={s.fireRate} value={towerData.fireRate ?? 1} step={0.1} onChange={(fireRate) => patchData({ fireRate })} />
             <NumField label={s.cost} value={towerData.cost} onChange={(cost) => patchData({ cost })} />
-            <TextField label={s.color} value={towerData.color} onChange={(color) => patchData({ color })} />
+            <ColorRow label={s.color} color={towerData.color} onChange={(color) => patchData({ color })} />
           </div>
           <SegHead label={s.effects} />
           <div className="flex flex-col gap-1.5">
@@ -200,7 +218,7 @@ export function AssetEditorPanel({ assetId, onNavigate }: AssetEditorPanelProps)
             <NumField label={s.speed} value={enemyData.speed} step={0.1} onChange={(speed) => patchData({ speed })} />
             <NumField label={s.reward} value={enemyData.reward} onChange={(reward) => patchData({ reward })} />
             <NumField label={s.size} value={enemyData.size} onChange={(size) => patchData({ size })} />
-            <TextField label={s.color} value={enemyData.color} onChange={(color) => patchData({ color })} />
+            <ColorRow label={s.color} color={enemyData.color} onChange={(color) => patchData({ color })} />
             <SelectField label={s.ability} value={enemyData.ability ?? 'none'} options={ABILITIES} onChange={(ability) => patchData({ ability })} />
             <NumField label={s.armor} value={enemyData.armorValue ?? 0} onChange={(armorValue) => patchData({ armorValue })} />
             <NumField label={s.shield} value={enemyData.shieldAmount ?? 0} onChange={(shieldAmount) => patchData({ shieldAmount })} />

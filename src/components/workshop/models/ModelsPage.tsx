@@ -14,6 +14,7 @@ import { useWorkshopStore } from '@/store/workshopStore';
 import type { WorkshopTowerAsset } from '@/types/workshop';
 import type { Custom3DModel, Custom3DPart } from '@/types/game';
 import { Btn, Empty, SegHead } from '@/components/hl';
+import { ColorPicker } from '@/components/ui/ColorPicker';
 import {
   addPart,
   createModelHistory,
@@ -399,12 +400,7 @@ export function ModelsPage() {
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1">
                   <span className="arc-label w-12 shrink-0">{s.background}</span>
-                  <input
-                    type="color"
-                    value={background}
-                    onChange={(event) => setBackground(event.target.value)}
-                    className="h-5 w-8 border border-[var(--cn-line)] bg-transparent"
-                  />
+                  <ColorPicker color={background} onChange={setBackground} />
                   <span className="arc-label ml-2 shrink-0">{s.ambient}</span>
                   <input
                     type="range"
