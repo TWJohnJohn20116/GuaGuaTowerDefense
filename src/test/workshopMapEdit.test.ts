@@ -11,7 +11,6 @@ import {
   addPreviewTower,
   addWaypoint,
   blockedPathConflicts,
-  addWaypoint,
   canPlacePreviewTower,
   createEmptyDraft,
   createStarterDraft,
