@@ -75,14 +75,15 @@ describe('reorderSegments', () => {
 });
 
 describe('shiftSegment', () => {
-  it('往後平移時，同一波後面的組等量後移且空隙不變', () => {
+  it('往後平移時，同一波後面的組等量後移，被帶著走的組之間空隙不變', () => {
     const waves = [wave(threeGroups())];
     const next = shiftSegment(waves, 0, 'fast#0', 400);
     const flat = flattenWave(next[0]);
     expect(flat[1].startMs).toBe(2800 + 400);
     expect(flat[2].startMs).toBe(4600 + 400);
-    // 空隙仍是 400 與 200
-    expect(flat[1].startMs - (flat[0].startMs + flat[0].count * SPAWN)).toBe(400);
+    // 平移那一組自己與前一組的空隙變大——這就是「改 delay」
+    expect(flat[1].startMs - (flat[0].startMs + flat[0].count * SPAWN)).toBe(400 + 400);
+    // 被帶著走的 elite 相對 fast 的空隙不變
     expect(flat[2].startMs - (flat[1].startMs + flat[1].count * SPAWN)).toBe(200);
     expect(next[0].durationMs).toBe(5400 + 400);
   });
