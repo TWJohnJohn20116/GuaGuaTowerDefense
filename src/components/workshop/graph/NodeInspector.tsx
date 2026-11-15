@@ -14,6 +14,7 @@ import type { GraphIssue } from '@/workshop/graph/validate';
 import type { GraphNode, GraphParamSpec, GraphParamValue, RuleGraph } from '@/workshop/graph/model';
 import { findNode, studioText } from '@/workshop/graph/model';
 import { nodeSpec } from '@/workshop/graph/nodeLibrary';
+import { ScriptCodeEditor } from '@/components/mod-editor/ScriptCodeEditor';
 import { ScriptFullEditor } from './ScriptFullEditor';
 
 export interface NodeInspectorProps {
@@ -190,12 +191,11 @@ function JsEditor({ node, onChange }: { node: GraphNode; onChange: (js: string) 
       <div className="rounded-[10px] border-2 border-[var(--cn-caution)] bg-[var(--cn-caution-soft)] px-2.5 py-1.5 text-[11.5px] font-bold text-[var(--cn-caution-text)]">
         {studioText(t, 'studio.graph.inspector.jsHint')}
       </div>
-      <textarea
-        className="arc-field min-h-[180px] w-full resize-y font-mono text-[12px] leading-[1.55]"
-        spellCheck={false}
+      <ScriptCodeEditor
         value={node.js ?? ''}
+        onChange={onChange}
         placeholder={studioText(t, 'studio.graph.inspector.jsPlaceholder')}
-        onChange={(event) => onChange(event.target.value)}
+        heightClass="h-[180px]"
       />
       {full && (
         <ScriptFullEditor
