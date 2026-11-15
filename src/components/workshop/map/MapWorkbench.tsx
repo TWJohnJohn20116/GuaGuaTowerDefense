@@ -209,7 +209,7 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
           const moved = movePreviewTower(current, selectedTowerId, point);
           if (moved.changed) return moved;
           if (moved.issue) setNotice(moved.issue.code);
-          return current;
+          return { ...moved, draft: current };
         }
         return addPreviewTower(
           current,

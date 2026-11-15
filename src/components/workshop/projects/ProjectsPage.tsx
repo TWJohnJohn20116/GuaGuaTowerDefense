@@ -74,7 +74,7 @@ export function ProjectsPage({ onNavigate, onCreateTemplate }: ProjectsPageProps
           {sorted.map((project) => {
             const active = project.id === activeProjectId;
             return (
-              <Deck key={project.id} tone={active ? 'plain' : 'sunken'} className="flex flex-col gap-2 p-2.5">
+              <Deck key={project.id} tone={active ? 'raised' : 'sunken'} className="flex flex-col gap-2 p-2.5">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="truncate text-[13px] font-semibold text-[var(--cn-ink)]">{project.name}</div>
@@ -92,7 +92,7 @@ export function ProjectsPage({ onNavigate, onCreateTemplate }: ProjectsPageProps
                 <div className="flex items-center gap-2 font-mono text-[10px] text-[var(--cn-ink-3)]">
                   <span>{fillTemplate(s.dashboard.levelsCount, { count: String(project.levels?.length ?? 0) })}</span>
                   <span>·</span>
-                  <span>{fillTemplate(s.dashboard.assetsCount, { count: String(project.assets?.length ?? 0) })}</span>
+                  <span>{fillTemplate(s.dashboard.assetsCount, { count: String(project.assetRefs?.length ?? 0) })}</span>
                 </div>
 
                 <div className="mt-auto flex flex-wrap items-center gap-1.5">

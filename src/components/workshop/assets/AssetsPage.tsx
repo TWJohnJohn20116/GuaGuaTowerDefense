@@ -28,7 +28,7 @@ export function AssetsPage() {
   const usage = useMemo(() => {
     const map = new Map<string, number>();
     for (const project of projects) {
-      for (const ref of project.assets ?? []) {
+      for (const ref of project.assetRefs ?? []) {
         map.set(ref.assetId, (map.get(ref.assetId) ?? 0) + 1);
       }
     }

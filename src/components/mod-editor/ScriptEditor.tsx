@@ -274,7 +274,7 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
         </Btn>
         <span
           className={`ml-auto font-mono text-[10.5px] ${
-            syntaxError ? 'text-[var(--cn-alert-text)]' : 'text-[var(--cn-vital-text)]'
+            syntaxError ? 'text-[var(--cn-alert-deep)]' : 'text-[var(--cn-vital-text)]'
           }`}
         >
           {syntaxError ? fillTemplate(m.scriptSyntaxError, { message: syntaxError }) : m.scriptSyntaxOk}
@@ -300,7 +300,7 @@ export function ScriptEditor({ script, onChange, onDelete, onDuplicate }: Script
               </span>
               <span
                 className={`shrink-0 font-mono text-[9px] uppercase ${
-                  entry.level === 'error' ? 'text-[var(--cn-alert-text)]'
+                  entry.level === 'error' ? 'text-[var(--cn-alert-deep)]'
                     : entry.level === 'warn' ? 'text-[var(--cn-caution-text)]'
                       : 'text-[var(--cn-ink-3)]'
                 }`}

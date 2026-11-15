@@ -15,8 +15,8 @@ import { AssetsPage } from '@/components/workshop/assets/AssetsPage';
 import { LevelsPage } from '@/components/workshop/levels/LevelsPage';
 import { ContentPage } from '@/components/workshop/content/ContentPage';
 import { GraphPage } from '@/components/workshop/graph/GraphPage';
-import { PlaytestStage } from '@/components/workshop/playtest/PlaytestStage';
-import { BalancePanel } from '@/components/workshop/playtest/BalancePanel';
+import PlaytestStage from '@/components/workshop/playtest/PlaytestStage';
+import BalancePanel from '@/components/workshop/playtest/BalancePanel';
 import { PublishPanel } from '@/components/workshop/publish/PublishPanel';
 
 export default function Workshop() {

@@ -211,7 +211,7 @@ export function WaveTimeline({
                 {enemyLabel(row.type, enemyNames)}
               </span>
               <div className="relative h-9 flex-1 overflow-hidden rounded-[8px] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)]">
-                {waves.map((wave, index) => (
+                {waves.map((_wave, index) => (
                   <span
                     key={index}
                     aria-hidden="true"

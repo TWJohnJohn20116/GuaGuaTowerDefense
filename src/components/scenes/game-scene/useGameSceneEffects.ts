@@ -617,9 +617,9 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
             }
           }
 
-          if (!useGameStore.getState().isPlaytest) {
+          const latest = useGameStore.getState();
+          if (!latest.isPlaytest) {
             const statsStore = useStatsStore.getState();
-            const latest = useGameStore.getState();
             statsStore.onWaveComplete(currentWave);
             statsStore.recordWaveSnapshot(
               currentWave,

@@ -86,6 +86,23 @@ export const zhTW = {
       playtest: '試玩',
       publish: '發佈',
     },
+    asset: {
+      notFound: '找不到這個資產',
+      inUse: '這個資產正被專案引用，請先解除引用再刪除',
+      dependedOn: '其他資產依賴這個資產，無法刪除',
+    },
+    compile: {
+      missingAsset: '找不到引用的資產，已跳過該項',
+      missingMap: '這一關的地圖不存在，已跳過地圖',
+      assetVersionMismatch: '引用的版本與資產目前版本不同，已用最新版編譯',
+      assetKindMismatch: '引用的資產類型不符，已跳過',
+      duplicateRuntimeId: '兩個資產的執行期 ID 相同，只保留第一個',
+      duplicateRuleId: '有重複的規則 ID，只保留第一條',
+      invalidWaveGroup: '這一波沒有任何可用敵人，已保留空波',
+      emptyWaves: '這一關還沒有排任何波次',
+      unsupportedRuleAction: '這個規則動作目前無法編譯，已跳過',
+      inlineJsNotAnalyzable: '含內嵌 JS，無法靜態分析',
+    },
     common: {
       create: '新增',
       duplicate: '複製',

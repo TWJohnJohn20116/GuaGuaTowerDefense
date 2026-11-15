@@ -5,7 +5,6 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from '@/i18n';
-import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { createDefaultLevel } from '@/workshop/levels/defaults';
 import { MapWorkbench } from '@/components/workshop/map/MapWorkbench';

@@ -596,6 +596,7 @@ export function GraphCanvas({
       return;
     }
 
+    if (drag.mode !== 'connect') return;
     const target = drag.target;
     setLink(null);
     if (target === null) return;
