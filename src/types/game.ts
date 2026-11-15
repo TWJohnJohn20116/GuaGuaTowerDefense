@@ -52,6 +52,8 @@ export interface EnemyData {
   color: string;
   description: string;
   ability?: string;
+  /** 多重能力（與 ability 並存；有值時引擎判定一律走 hasEnemyAbility） */
+  abilities?: string[];
   healRadius?: number;
   healAmount?: number;
   spawnOnDeath?: { type: EnemyType; count: number };
@@ -484,6 +486,8 @@ export interface PathConfig {
   startSegmentId?: string;             // 進階地圖起始路段 ID
   /** Mod 地圖障礙格子（不可建造） */
   blockedCells?: GridPosition[];
+  /** 地圖主題 id（影響場地配色；缺省＝跟隨全域主題） */
+  theme?: string;
 }
 
 // 波次配置
@@ -595,6 +599,12 @@ export interface CustomTowerData extends TowerData {
   barrelLength?: number;      // 砲管長度倍率（0.5~2.0，預設 1）
   /** 自訂 3D 模型（存在時優先於 modelType，由 3D 模型編輯器產生） */
   custom3d?: Custom3DModel;
+  /** 自訂升級分支（覆寫引擎預設）：每級倍率 + A/B 兩條路線的額外加成 */
+  upgradeBranches?: {
+    levels: { damage: number; range: number; fireRate: number }[];
+    branchA: { damage: number; range: number; fireRate: number };
+    branchB: { damage: number; range: number; fireRate: number };
+  };
   // 進階設定
   damageMultiplier?: number;  // 每級傷害增加百分比
   rangeMultiplier?: number;   // 每級射程增加百分比
