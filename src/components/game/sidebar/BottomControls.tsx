@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/Icons';
 import { NextWavePreview } from '@/components/game/NextWavePreview';
 import { GAME_SPEED_PRESETS } from '@/data/gameSpeedPresets';
+import { GAME_SPEED_BAR_CLASS } from './hudStyle';
 import { canSkipWave, skipWaveTitleKey } from '@/data/skipWaveHud';
 import { resolveLeaveMatchFromHud } from '@/data/leaveMatch';
 
@@ -129,17 +130,12 @@ export const BottomControls = () => {
       </button>
 
       {/* 速度：分段膠囊 */}
-      <div
-        id="tutorial-target-game-speed"
-        className="flex items-center gap-0.5 rounded-full border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] p-0.5 shadow-[0_4px_0_var(--cn-line)]"
-      >
+      <div id="tutorial-target-game-speed" className={GAME_SPEED_BAR_CLASS}>
         {GAME_SPEED_PRESETS.map((speed) => (
           <button
             key={speed}
             type="button"
-            className={`h-8 min-w-8 rounded-full px-1 font-mono text-[11px] tabular-nums transition-colors duration-75 ${
-              speed === 0.5 || speed === 5 ? 'hidden sm:block' : ''
-            } ${
+            className={`h-8 min-w-7 shrink-0 rounded-full px-1 font-mono text-[11px] tabular-nums transition-colors duration-75 ${
               gameSpeed === speed
                 ? 'bg-[var(--cn-sun-soft)] font-extrabold text-[var(--cn-ink)]'
                 : speedTutorialLocked
