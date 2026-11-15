@@ -101,6 +101,112 @@ export function generateWaves(input: Partial<WaveFormula>): WaveConfig[] {
   return waves;
 }
 
+/* ---------------------------------------------------------------- 曲線擬合 */
+
+/**
+ * 曲線擬合：作者給「總 HP」與「形狀」，系統反推每波數量與血量倍率。
+ *
+ * 為什麼要反推而不是直接給曲線：`WaveConfig` 沒有全域 HP 欄位，血量只能靠
+ * `hpScale`（乘在敵人基礎血量上）與數量逼近。所以擬合結果一定是「數量 × 倍率」
+ * 兩根旋鈕一起去貼目標曲線，貼不到的地方由倍率吸收。
+ */
+export type CurveShape = 'linear' | 'ease' | 'spike';
+
+export interface CurveFormula {
+  /** 總波數（1–200） */
+  waves: number;
+  /** 這一輪只用一種敵人型別，數值由 baseHealth 決定 */
+  type: string;
+  /** 敵人基礎血量（由 UI 從 ENEMY_DATA 或專案資產帶進來） */
+  baseHealth: number;
+  /** 全場目標總 HP */
+  targetHp: number;
+  shape: CurveShape;
+  /** spike 形狀：每幾波一個尖峰 */
+  spikeEvery: number;
+  /** 尖峰倍率 */
+  spikeScale: number;
+  intervalMs: number;
+  rewardBase: number;
+  rewardGrowth: number;
+}
+
+export const DEFAULT_CURVE_FORMULA: CurveFormula = {
+  waves: 15,
+  type: 'grunt',
+  baseHealth: 100,
+  targetHp: 20000,
+  shape: 'ease',
+  spikeEvery: 5,
+  spikeScale: 2.2,
+  intervalMs: 600,
+  rewardBase: 20,
+  rewardGrowth: 5,
+};
+
+function normalizeCurveFormula(input: Partial<CurveFormula>): CurveFormula {
+  const waves = clampInt(input.waves, 1, 200, DEFAULT_CURVE_FORMULA.waves);
+  const shape: CurveShape =
+    input.shape === 'linear' || input.shape === 'ease' || input.shape === 'spike'
+      ? input.shape
+      : DEFAULT_CURVE_FORMULA.shape;
+  return {
+    waves,
+    type:
+      typeof input.type === 'string' && input.type.trim().length > 0
+        ? input.type.trim()
+        : DEFAULT_CURVE_FORMULA.type,
+    baseHealth: clampInt(input.baseHealth, 1, 1000000, DEFAULT_CURVE_FORMULA.baseHealth),
+    targetHp: clampInt(input.targetHp, 100, 100000000, DEFAULT_CURVE_FORMULA.targetHp),
+    shape,
+    spikeEvery: clampInt(input.spikeEvery, 0, 50, DEFAULT_CURVE_FORMULA.spikeEvery),
+    spikeScale: clampInt(input.spikeScale, 1, 10, DEFAULT_CURVE_FORMULA.spikeScale),
+    intervalMs: clampInt(input.intervalMs, 50, 5000, DEFAULT_CURVE_FORMULA.intervalMs),
+    rewardBase: clampInt(input.rewardBase, 0, 9999, DEFAULT_CURVE_FORMULA.rewardBase),
+    rewardGrowth: clampInt(input.rewardGrowth, 0, 999, DEFAULT_CURVE_FORMULA.rewardGrowth),
+  };
+}
+
+/** 第 index 波（0 起算）的形狀權重 */
+function curveWeight(index: number, formula: CurveFormula): number {
+  const ratio = formula.waves <= 1 ? 1 : index / (formula.waves - 1);
+  const base = formula.shape === 'linear' ? 0.4 + ratio : formula.shape === 'ease' ? 0.2 + ratio * ratio * 1.8 : 1;
+  const isSpike = formula.spikeEvery > 0 && (index + 1) % formula.spikeEvery === 0;
+  return isSpike ? base * formula.spikeScale : base;
+}
+
+export function fitCurveWaves(input: Partial<CurveFormula>): WaveConfig[] {
+  const formula = normalizeCurveFormula(input);
+  const weights: number[] = [];
+  for (let index = 0; index < formula.waves; index += 1) weights.push(curveWeight(index, formula));
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0) || 1;
+
+  const waves: WaveConfig[] = [];
+  for (let index = 0; index < formula.waves; index += 1) {
+    const target = (formula.targetHp * weights[index]) / totalWeight;
+    const count = Math.max(1, Math.round(target / formula.baseHealth));
+    const hpScale = Math.min(20, Math.max(0.05, Math.round((target / (count * formula.baseHealth)) * 100) / 100));
+    waves.push({
+      enemies: [{ type: formula.type, count, delay: formula.intervalMs }],
+      reward: Math.max(0, formula.rewardBase + formula.rewardGrowth * index),
+      hpScale,
+      intervalMs: formula.intervalMs,
+    });
+  }
+  return waves;
+}
+
+/** 曲線擬合摘要（顯示「共 N 波、總 HP 約 X」） */
+export function describeCurve(input: Partial<CurveFormula>): { waves: number; totalHp: number } {
+  const formula = normalizeCurveFormula(input);
+  const waves = fitCurveWaves(formula);
+  const totalHp = waves.reduce((sum, wave) => {
+    const groups = wave.enemies.reduce((inner, group) => inner + group.count, 0);
+    return sum + groups * formula.baseHealth * (wave.hpScale ?? 1);
+  }, 0);
+  return { waves: formula.waves, totalHp: Math.round(totalHp) };
+}
+
 /** 公式摘要（給 UI 顯示「共 N 波、每波 +X、每 Y 波出王」） */
 export function describeFormula(input: Partial<WaveFormula>): string {
   const formula = normalizeFormula(input);
