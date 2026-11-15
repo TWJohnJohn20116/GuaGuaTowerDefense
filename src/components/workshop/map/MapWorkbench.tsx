@@ -16,6 +16,7 @@ import { useTranslation } from '@/i18n';
 import { PATHS } from '@/data/gameData';
 import { useGameStore } from '@/store/gameStore';
 import { useWorkshopStore } from '@/store/workshopStore';
+import type { WorkshopAsset } from '@/types/workshop';
 import {
   addPreviewTower,
   addWaypoint,
@@ -279,11 +280,15 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
   const upsertMapAsset = useCallback(
     (payload: Record<string, unknown>): AssetWriteResult => {
       const store = useWorkshopStore.getState();
-      // foundation 線的 WorkshopAsset 型別尚未落地；這裡只保留一個結構邊界，
-      // 好讓工作台不會因為別人改欄位名就整頁編不過（不是 any，也不是放寬型別）。
-      const write = store.upsertAsset as unknown as (asset: Record<string, unknown>) => AssetWriteResult;
       try {
-        return write(payload);
+        // store.upsertAsset 回傳 void（不是結果物件）；補上資產必填欄位後寫入
+        const existing = store.getAsset(String(payload.id));
+        store.upsertAsset({
+          version: existing?.version ?? '1.0.0',
+          updatedAt: Date.now(),
+          ...payload,
+        } as unknown as WorkshopAsset);
+        return { ok: true };
       } catch (error) {
         console.error('[workshop-map] upsertAsset 失敗', error);
         return { ok: false, reason: 'exception' };
