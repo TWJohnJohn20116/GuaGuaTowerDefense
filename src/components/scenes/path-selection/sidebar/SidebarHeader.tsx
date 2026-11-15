@@ -7,7 +7,7 @@
 import { SegHead } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 
-export type MapCategory = 'advanced' | 'mod';
+export type MapCategory = 'advanced' | 'mod' | 'workshop';
 
 interface SidebarHeaderProps {
   activeCategory: MapCategory;

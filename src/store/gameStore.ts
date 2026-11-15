@@ -352,6 +352,12 @@ export const useGameStore = create<GameStore>()(
     set({ isVictory: true, isPlaying: false });
     playVictory();
     notifyModScripts('onVictory');
+    // 若這一局是從選圖進入的工坊關卡，通關要寫回工坊戰役進度（動態載入避免循環依賴）
+    void import('@/workshop/campaign')
+      .then(({ markCampaignVictoryIfAny }) => markCampaignVictoryIfAny())
+      .catch((error: unknown) => {
+        console.error('[workshop] 無法寫回戰役進度', error);
+      });
   },
   setGameSpeed: (speed) => {
     saveGameSpeed(speed);

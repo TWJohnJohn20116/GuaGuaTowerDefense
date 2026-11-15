@@ -22,7 +22,7 @@ export interface MapItemData {
   name: string;
   difficulty: string;
   description?: string;
-  type: 'advanced' | 'mod';
+  type: 'advanced' | 'mod' | 'workshop';
   modName?: string;
   isLocked?: boolean;
 }

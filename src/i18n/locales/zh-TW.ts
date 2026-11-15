@@ -979,6 +979,7 @@ export const zhTW = {
         levelLocked: "此關卡未解鎖",
         sidebarAdvanced: "進階地圖",
         sidebarMod: "Mod 地圖",
+        sidebarWorkshop: "工坊關卡",
         searchMapsPlaceholder: "搜尋地圖名稱...",
         noMapsFound: "找不到符合的地圖",
         noMapsFoundHint: "試試調整搜尋字詞或重置難度篩選",

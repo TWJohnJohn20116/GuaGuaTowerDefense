@@ -10,6 +10,9 @@
 import { useGameStore } from '@/store/gameStore';
 import { useModStore } from '@/store/modStore';
 import { PATHS, DIFFICULTY_MODIFIERS } from '@/data/gameData';
+import { listCampaignLevels, startCampaignLevel } from '@/workshop/campaign';
+import { useWorkshopStore } from '@/store/workshopStore';
+import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { GameDifficulty, DifficultyModifiers } from '@/types/game';
 import { SceneShell } from '@/components/ui/SceneShell';
@@ -89,6 +92,26 @@ export default function PathSelection() {
     return items;
   }, [mods]);
 
+  const workshopProjects = useWorkshopStore((state) => state.projects);
+  const workshopAssets = useWorkshopStore((state) => state.assets);
+  const completedByProject = useWorkshopProgressStore((state) => state.completed);
+
+  const campaignItems = useMemo<MapItemData[]>(
+    () =>
+      listCampaignLevels().map((level) => ({
+        key: level.key,
+        path: level.path,
+        name: level.levelName,
+        difficulty: level.path.difficulty,
+        description: level.projectName,
+        type: 'workshop' as const,
+        modName: level.projectName,
+        isLocked: level.locked,
+      })),
+    // listCampaignLevels 直接讀 store；這三個依賴只是「資料變了就重算」
+    [workshopProjects, workshopAssets, completedByProject],
+  );
+
   const categoryChips = useMemo(
     () => [
       {
@@ -101,19 +124,29 @@ export default function PathSelection() {
         label: t.pathSelection.campaign.sidebarMod,
         count: modMapItems.length,
       },
+      {
+        id: 'workshop' as MapCategory,
+        label: t.pathSelection.campaign.sidebarWorkshop,
+        count: campaignItems.length,
+      },
     ],
-    [t, advancedMapItems.length, modMapItems.length],
+    [t, advancedMapItems.length, modMapItems.length, campaignItems.length],
   );
 
   useEffect(() => {
-    const list = activeCategory === 'advanced' ? advancedMapItems : modMapItems;
+    const list =
+      activeCategory === 'advanced'
+        ? advancedMapItems
+        : activeCategory === 'mod'
+          ? modMapItems
+          : campaignItems;
     if (list.length > 0) {
       const firstAvailable = list.find((m) => !m.isLocked);
       setSelectedPath(firstAvailable ? firstAvailable.key : list[0].key);
     } else {
       setSelectedPath(null);
     }
-  }, [activeCategory, advancedMapItems, modMapItems]);
+  }, [activeCategory, advancedMapItems, modMapItems, campaignItems]);
 
   const leavePathSelection = useCallback(() => {
     goBackScene();
@@ -136,6 +169,11 @@ export default function PathSelection() {
   const handleStartGame = (overrideId?: string) => {
     const targetId = overrideId || selectedPath;
     if (!targetId) return;
+    // 工坊關卡：走正式局（不隔離統計與成就），地圖與波次由 campaign 模組註冊
+    if (targetId.startsWith('ws:')) {
+      void startCampaignLevel(targetId);
+      return;
+    }
     let effectiveMaxWaves = endlessMode ? 0 : selectedWaves;
     if (!endlessMode && customWaveSetId) {
       const ws = findPlayableWaveSet(customWaveSetId);
@@ -159,6 +197,7 @@ export default function PathSelection() {
   const currentSelectedMapData = useMemo(() => {
     if (activeCategory === 'advanced') return advancedMapItems.find((m) => m.key === selectedPath);
     if (activeCategory === 'mod') return modMapItems.find((m) => m.key === selectedPath);
+    if (activeCategory === 'workshop') return campaignItems.find((m) => m.key === selectedPath);
     return undefined;
   }, [activeCategory, advancedMapItems, modMapItems, selectedPath]);
 
