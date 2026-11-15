@@ -26,6 +26,27 @@ import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
 const ABILITIES = ['none', 'flying', 'healing', 'spawning', 'shield', 'stealth', 'berserk', 'armored', 'teleport', 'miniboss', 'swarm', 'phase', 'explode', 'jam', 'escort'] as const;
 const TOWER_BASE_TYPES = Object.keys(TOWER_DATA);
 
+/** 升級分支的單列倍率（相對於該級基礎，1 = 不變） */
+type UpgradeBranchRow = { damage: number; range: number; fireRate: number };
+type UpgradeBranchKey = keyof UpgradeBranchRow;
+const BRANCH_KEYS: readonly UpgradeBranchKey[] = ['damage', 'range', 'fireRate'];
+const BRANCH_LEVELS = [1, 2, 3, 4, 5] as const;
+const IDENTITY_BRANCH: UpgradeBranchRow = { damage: 1, range: 1, fireRate: 1 };
+
+const withMultiplier = (row: UpgradeBranchRow, key: UpgradeBranchKey, value: number): UpgradeBranchRow => {
+  const next: UpgradeBranchRow = { damage: row.damage, range: row.range, fireRate: row.fireRate };
+  next[key] = value;
+  return next;
+};
+
+/** 空白／非數字一律視為 1（= 不變），避免輸入過程把倍率打成 0 讓塔歸零 */
+const parseMultiplier = (raw: string): number => {
+  const trimmed = raw.trim();
+  if (trimmed === '') return 1;
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : 1;
+};
+
 interface AssetEditorPanelProps {
   assetId: string;
   /** 地圖／規則集／3D 模型要回各自的頁面編輯 */
@@ -143,6 +164,32 @@ export function AssetEditorPanel({ assetId, onNavigate }: AssetEditorPanelProps)
   const scriptData = asset.kind === 'script' ? (asset.data as WorkshopScriptData) : null;
   const artData = asset.kind === 'art' ? (asset.data as WorkshopArtData) : null;
 
+  const branchLevelRow = (level: number): UpgradeBranchRow =>
+    towerData?.upgradeBranches?.levels[level - 1] ?? IDENTITY_BRANCH;
+  const branchRoute = (path: 'A' | 'B'): UpgradeBranchRow => {
+    const custom = towerData?.upgradeBranches;
+    if (!custom) return IDENTITY_BRANCH;
+    return path === 'A' ? custom.branchA : custom.branchB;
+  };
+  const writeBranchLevel = (level: number, key: UpgradeBranchKey, value: number): void => {
+    patchData({
+      upgradeBranches: {
+        levels: BRANCH_LEVELS.map((lv) => (lv === level ? withMultiplier(branchLevelRow(lv), key, value) : branchLevelRow(lv))),
+        branchA: branchRoute('A'),
+        branchB: branchRoute('B'),
+      },
+    });
+  };
+  const writeBranchRoute = (path: 'A' | 'B', key: UpgradeBranchKey, value: number): void => {
+    patchData({
+      upgradeBranches: {
+        levels: BRANCH_LEVELS.map((lv) => branchLevelRow(lv)),
+        branchA: path === 'A' ? withMultiplier(branchRoute('A'), key, value) : branchRoute('A'),
+        branchB: path === 'B' ? withMultiplier(branchRoute('B'), key, value) : branchRoute('B'),
+      },
+    });
+  };
+
   return (
     <div className="flex h-full min-h-0 flex-col gap-2 overflow-y-auto p-2.5">
       <SegHead
@@ -197,6 +244,57 @@ export function AssetEditorPanel({ assetId, onNavigate }: AssetEditorPanelProps)
             )}
           </div>
 
+          <SegHead label={s.upgradeBranches} />
+          <div className="flex flex-col gap-1">
+            <span className="text-[10.5px] leading-relaxed text-[var(--cn-ink-3)]">{s.upgradeBranchesHint}</span>
+            <div className="grid grid-cols-[1.6rem_1fr_1fr_1fr] items-end gap-1">
+              <span />
+              {BRANCH_KEYS.map((key) => (
+                <span key={key} className="arc-label">{s[key]}</span>
+              ))}
+            </div>
+            {BRANCH_LEVELS.map((level) => (
+              <div key={level} className="grid grid-cols-[1.6rem_1fr_1fr_1fr] items-center gap-1">
+                <span className="font-mono text-[10.5px] text-[var(--cn-ink-3)]">{`L${level}`}</span>
+                {BRANCH_KEYS.map((key) => (
+                  <Input
+                    key={key}
+                    type="number"
+                    step={0.05}
+                    value={branchLevelRow(level)[key]}
+                    onChange={(event) => writeBranchLevel(level, key, parseMultiplier(event.target.value))}
+                    className="h-7 w-full px-1.5 font-mono text-[11.5px]"
+                  />
+                ))}
+              </div>
+            ))}
+            {([['A', s.branchRouteA], ['B', s.branchRouteB]] as const).map(([path, label]) => (
+              <div key={path} className="mt-1 flex flex-col gap-1">
+                <span className="arc-label">{label}</span>
+                <div className="grid grid-cols-3 gap-1">
+                  {BRANCH_KEYS.map((key) => (
+                    <span key={key} className="font-mono text-[10px] text-[var(--cn-ink-3)]">{s[key]}</span>
+                  ))}
+                </div>
+                <div className="grid grid-cols-3 gap-1">
+                  {BRANCH_KEYS.map((key) => (
+                    <Input
+                      key={key}
+                      type="number"
+                      step={0.05}
+                      value={branchRoute(path)[key]}
+                      onChange={(event) => writeBranchRoute(path, key, parseMultiplier(event.target.value))}
+                      className="h-7 w-full px-1.5 font-mono text-[11.5px]"
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+            <div className="mt-1 flex justify-end">
+              <Btn size="sm" variant="line" onClick={() => patchData({ upgradeBranches: undefined })}>{s.upgradeBranchReset}</Btn>
+            </div>
+          </div>
+
           <SegHead label={s.model3d} />
           <div className="flex items-center justify-between gap-2">
             <span className="min-w-0 flex-1 font-mono text-[10.5px] leading-relaxed text-[var(--cn-ink-3)]">
@@ -224,6 +322,25 @@ export function AssetEditorPanel({ assetId, onNavigate }: AssetEditorPanelProps)
             <NumField label={s.shield} value={enemyData.shieldAmount ?? 0} onChange={(shieldAmount) => patchData({ shieldAmount })} />
             <NumField label={s.slowResist} value={enemyData.slowResistance ?? 0} onChange={(slowResistance) => patchData({ slowResistance })} />
             <NumField label={s.poisonResist} value={enemyData.poisonResistance ?? 0} onChange={(poisonResistance) => patchData({ poisonResistance })} />
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="arc-label">{s.abilitiesMulti}</span>
+            <div className="grid grid-cols-3 gap-1">
+              {ABILITIES.filter((ability) => ability !== 'none').map((ability) => {
+                const current = enemyData.abilities ?? [];
+                const active = current.includes(ability);
+                return (
+                  <Chip
+                    key={ability}
+                    active={active}
+                    onClick={() => patchData({ abilities: active ? current.filter((item) => item !== ability) : [...current, ability] })}
+                    className="justify-start font-mono text-[10px]"
+                  >
+                    {ability}
+                  </Chip>
+                );
+              })}
+            </div>
           </div>
         </>
       )}

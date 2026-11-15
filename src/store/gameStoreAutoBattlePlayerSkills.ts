@@ -6,6 +6,7 @@ import { GAME_CONSTANTS, ENEMY_DATA } from '@/data/gameData';
 import { PLAYER_SKILLS, PLAYER_SKILL_BY_ID } from '@/data/playerSkillData';
 import type { PlayerSkillId, PlayerSkill } from '@/data/playerSkillData';
 import { isEnemyPhased } from './gameStoreUtils';
+import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { useShopStore } from './shopStore';
 
 type GetState = () => GameStore;
@@ -384,7 +385,7 @@ function scoreWarpTrap(c: ScoringContext): SkillScoreResult | null {
   const now = Date.now();
   for (const e of c.state.enemies) {
     if (e.health <= 0 || e.isDisplaced || e.progress <= 0.6) continue;
-    if (ENEMY_DATA[e.type]?.ability === 'flying') continue;
+    if (hasEnemyAbility(ENEMY_DATA[e.type], 'flying')) continue;
     if (isEnemyPhased(e, now)) continue;
     nearEnd++;
   }

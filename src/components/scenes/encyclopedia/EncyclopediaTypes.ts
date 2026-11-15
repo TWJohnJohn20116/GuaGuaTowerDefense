@@ -1,5 +1,6 @@
 import type { EnemyType, TowerType, GameDifficulty, PathSegment } from '@/types/game';
 import { getTowerCombatIdentityPills, type CombatIdentityPill } from '@/data/towerCombatIdentity';
+import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 
 // 頁面標籤類型
 export type TabType = 'enemies' | 'towers' | 'maps' | 'difficulty' | 'effects' | 'skills' | 'stats' | 'icons' | 'files';
@@ -234,7 +235,7 @@ export const getEnemyCounterTowers = (enemy: UnifiedEnemy): { towerKey: CounterT
     counters.push({ towerKey: 'flame', reasonKey: 'cr_escort_flame' });
     counters.push({ towerKey: 'machine', reasonKey: 'cr_escort_machine' });
   }
-  if (enemy.id === 'armored' || enemy.ability === 'armored' || enemy.ability?.includes('裝甲')) {
+  if (enemy.id === 'armored' || hasEnemyAbility(enemy, 'armored') || enemy.ability?.includes('裝甲')) {
     counters.push({ towerKey: 'poison', reasonKey: 'cr_armor_poison' });
     counters.push({ towerKey: 'flame', reasonKey: 'cr_armor_flame' });
   }

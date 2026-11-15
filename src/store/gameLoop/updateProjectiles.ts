@@ -10,6 +10,7 @@ import type { SpatialHash } from '@/utils/spatialHash';
 import type { GetState, SetState } from './shared';
 import { loopFlags } from './shared';
 import { applyFrostSilenceToJammer } from '@/data/jammerAura';
+import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { applyBallistaRoot, applyCannonStun, applyFrostbite, applyLaserExposed, applyLightningWeakness, applyMachineSilence, applyShotgunBleed, applySniperMark, applyWindFear, getAntiAirMult, getBleedHuntMult, getExecuteMult, getFearHuntMult, getFocusFireMult, getFreezeHuntMult, getLaserHuntMult, getPinnedMult, getSilenceHuntMult, getStunCrushMult, getToxinHuntMult, getTowerHitDamageOpts, getWeaknessHuntMult } from '@/data/combatStatus';
 
 // 單顆投射物在本幀更新時的共享上下文（每幀建立一次，傳給各處理函式）
@@ -365,7 +366,7 @@ function handleDirectHit(proj: Projectile, target: Enemy, ctx: ProjStepCtx): voi
 
   // 風塔擊退效果：將敵人吹離路徑（飛行敵人不受擊退——其直線飛行不依賴路徑）
   let windDisplacedData: ReturnType<typeof computeWindKnockback> | null = null;
-  const targetFlying = getEnemyData(target.originType ?? target.type).ability === 'flying';
+  const targetFlying = hasEnemyAbility(getEnemyData(target.originType ?? target.type), 'flying');
   if (proj.effects?.wind && !target.isDisplaced && !targetFlying) {
     const knockDist = proj.effects.wind.knockbackDistance;
     const windPath = PATHS[get().selectedPath];

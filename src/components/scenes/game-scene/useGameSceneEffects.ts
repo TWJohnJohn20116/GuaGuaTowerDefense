@@ -5,6 +5,7 @@ import { useStatsStore } from '@/store/statsStore';
 import { useAchievementStore } from '@/store/achievementStore';
 import { PATHS, WAVE_CONFIGS, GAME_CONSTANTS, ENEMY_DATA, generateEndlessWaveConfig } from '@/data/gameData';
 import { getSegmentMap } from '@/store/gameLoop/pathHelpers';
+import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { generateId, getEnemyData, getTowerData } from '@/store/gameStoreUtils';
 import { clearTowerIds } from '@/store/gridTower';
 import { createFrameLoopGuard } from '@/utils/frameLoopGuard';
@@ -518,7 +519,7 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
             }
 
             // 爆破敵人：死亡時爆炸，對範圍內的塔造成傷害（explosionRadius 單位 px，50px = 1 格）
-            if (deadData?.ability === 'explode' && deadData.explosionRadius && deadData.explosionDamage) {
+            if (hasEnemyAbility(deadData, 'explode') && deadData.explosionRadius && deadData.explosionDamage) {
               const radiusTiles = deadData.explosionRadius / 50;
               const rSq = radiusTiles * radiusTiles;
               let hitAnyTower = false;

@@ -4,6 +4,7 @@
  */
 
 import { isAbilitySuppressed } from '@/data/jammerAura';
+import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 
 const ESCORT_CELL_PX = 50;
 
@@ -24,6 +25,7 @@ interface EscortSource {
 
 interface EscortDataLike {
   ability?: string;
+  abilities?: string[];
   escortRadius?: number;
   escortArmor?: number;
 }
@@ -38,7 +40,7 @@ export function collectEscortAuras(
     if (enemy.health <= 0) continue;
     if (now !== undefined && isAbilitySuppressed(enemy, now)) continue;
     const data = dataLookup[enemy.type];
-    if (data?.ability !== 'escort') continue;
+    if (!data || !hasEnemyAbility(data, 'escort')) continue;
     const radiusPx = data.escortRadius;
     const armor = data.escortArmor;
     if (!radiusPx || radiusPx <= 0 || !armor || armor <= 0) continue;

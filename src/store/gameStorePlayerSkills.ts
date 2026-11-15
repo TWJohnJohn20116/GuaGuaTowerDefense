@@ -26,6 +26,7 @@ import {
 } from '@/data/playerSkillData';
 import { GAME_CONSTANTS, PATHS } from '@/data/gameData';
 import { getEnemyData, isEnemyPhased } from './gameStoreUtils';
+import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { useShopStore } from './shopStore';
 import { playSkill } from '@/services/audioService';
 import { applyEmpPulse } from '@/utils/empPulse';
@@ -348,7 +349,7 @@ export const createPlayerSkillActions = (get: GetState, set: SetState) => ({
           e.health > 0 &&
           !e.isDisplaced &&
           !isEnemyPhased(e, now) &&
-          getEnemyData(e.originType ?? e.type).ability !== 'flying',
+          !hasEnemyAbility(getEnemyData(e.originType ?? e.type), 'flying'),
       );
       if (candidates.length === 0 || !path) {
         set({

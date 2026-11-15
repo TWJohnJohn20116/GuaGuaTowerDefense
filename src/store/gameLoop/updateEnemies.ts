@@ -8,6 +8,7 @@ import { loopFlags } from './shared';
 import { getSegmentMap, getWaypointSegLengths } from './pathHelpers';
 import { collectEscortAuras, getEscortArmorAdd } from '@/data/escortAura';
 import { isAbilitySuppressed } from '@/data/jammerAura';
+import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { getIncomingHealMult, getShieldRegenMult, getFreezeShatterDamage } from '@/data/combatStatus';
 
 const BASE_SPEED_MULTIPLIER = 0.0006;
@@ -175,7 +176,7 @@ export const createUpdateEnemies =
     for (const e of enemies) {
       if (e.health <= 0) continue;
       const d = getEnemyData(e.originType ?? e.type);
-      if (d?.ability === 'healing' && d.healAmount && d.healRadius && !isAbilitySuppressed(e, now)) {
+      if (hasEnemyAbility(d, 'healing') && d.healAmount && d.healRadius && !isAbilitySuppressed(e, now)) {
         const r = d.healRadius / 50;
         healerAuras.push({ id: e.id, x: e.x, y: e.y, radiusSq: r * r, amount: d.healAmount });
       }
@@ -277,7 +278,7 @@ export const createUpdateEnemies =
 
       // ===== 法師傳送：每隔 teleportCooldown 沿路徑向前跳 teleportDistance 格 =====
       if (
-        data?.ability === 'teleport' && !enemy.isDisplaced && !fx.isStopped && enemy.health > 0
+        hasEnemyAbility(data, 'teleport') && !enemy.isDisplaced && !fx.isStopped && enemy.health > 0
       ) {
         const tpCd = data.teleportCooldown ?? 8000;
         const lastTp = enemy.lastTeleportTime ?? enemy.spawnTime ?? now;
@@ -323,7 +324,7 @@ export const createUpdateEnemies =
       }
 
       // ===== 飛行敵人：無視路徑直線飛向終點 =====
-      if (data?.ability === 'flying') {
+      if (hasEnemyAbility(data, 'flying')) {
         let endCol = enemy.x;
         let endRow = enemy.y;
         let leakPatch: Partial<Enemy> = {};

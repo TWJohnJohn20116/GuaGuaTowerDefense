@@ -20,6 +20,7 @@ import {
   generateEndlessWaveConfig,
 } from '@/data/gameData';
 import { getProtocolWaveMods } from '@/data/tacticalProtocolData';
+import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { findPlayableWaveSet } from '@/utils/waveSets';
 import { clearTowerIds } from '@/store/gridTower';
 import { getSegmentMap } from '@/store/gameLoop/pathHelpers';
@@ -144,7 +145,7 @@ function resolveDeathAbilities(killed: Enemy[]): {
       }
     }
 
-    if (data?.ability === 'explode' && data.explosionRadius && data.explosionDamage) {
+    if (hasEnemyAbility(data, 'explode') && data.explosionRadius && data.explosionDamage) {
       const radiusTiles = data.explosionRadius / 50;
       const rSq = radiusTiles * radiusTiles;
       for (const tower of state.towers) {

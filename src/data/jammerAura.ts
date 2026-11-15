@@ -3,6 +3,8 @@
  * jamRadius 單位為 px，50px = 1 格，與治療光環相同。
  */
 
+import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
+
 const JAMMER_CELL_PX = 50;
 
 export interface JammerAura {
@@ -32,6 +34,7 @@ interface JammerSource {
 
 interface JammerDataLike {
   ability?: string;
+  abilities?: string[];
   jamRadius?: number;
   jamFireRateMult?: number;
 }
@@ -75,7 +78,7 @@ export function collectJammerAuras(
     if (enemy.health <= 0) continue;
     if (now !== undefined && isJammerSuppressed(enemy, now)) continue;
     const data = dataLookup[enemy.type];
-    if (data?.ability !== 'jam') continue;
+    if (!data || !hasEnemyAbility(data, 'jam')) continue;
     const radiusPx = data.jamRadius;
     const fireRateMult = data.jamFireRateMult;
     if (!radiusPx || radiusPx <= 0 || !fireRateMult || fireRateMult >= 1) continue;

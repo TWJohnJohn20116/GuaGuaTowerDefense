@@ -9,6 +9,7 @@ import { drawEnemyModel } from '@/utils/enemyRenderer';
 import { getEnemySprite } from '@/utils/enemySpriteCache';
 import { getEnemyData, getEnemyVisuals, getTowerVisuals, getTowerData } from '@/store/gameStoreUtils';
 import { ENEMY_DATA } from '@/data/gameData';
+import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import type { RenderSnapshot } from '@/data/renderSnapshot';
 import { drawTowerModel } from '@/components/game/TowerModels';
 import type { TowerType, Tower, Enemy, Projectile, GridPosition, DamageText, ImpactParticle, DeathAnimation } from '@/types/game';
@@ -632,7 +633,7 @@ function drawEnemies(
     }
 
     // 治療敵人：脈動治療光環（繪於模型底下，半徑 = healRadius；50px = 1 格）
-    if (enemyData?.ability === 'healing' && enemyData.healRadius && !enemy.abilitySuppressed) {
+    if (hasEnemyAbility(enemyData, 'healing') && enemyData.healRadius && !enemy.abilitySuppressed) {
       const auraRadius = (enemyData.healRadius / 50) * tileSize;
       const pulse = 0.5 + 0.5 * Math.sin(now * 0.004);
       ctx.save();
@@ -649,7 +650,7 @@ function drawEnemies(
     }
 
     // 干擾敵人：紫色干擾光環（半徑 = jamRadius；50px = 1 格；被控場時關閉）
-    if (enemyData?.ability === 'jam' && enemyData.jamRadius && !enemy.abilitySuppressed) {
+    if (hasEnemyAbility(enemyData, 'jam') && enemyData.jamRadius && !enemy.abilitySuppressed) {
       const auraRadius = (enemyData.jamRadius / 50) * tileSize;
       const pulse = 0.5 + 0.5 * Math.sin(now * 0.005 + x);
       ctx.save();
@@ -670,7 +671,7 @@ function drawEnemies(
     }
 
     // 護航敵人：鋼青裝甲光環（半徑 = escortRadius；50px = 1 格；被控場時關閉）
-    if (enemyData?.ability === 'escort' && enemyData.escortRadius && !enemy.abilitySuppressed) {
+    if (hasEnemyAbility(enemyData, 'escort') && enemyData.escortRadius && !enemy.abilitySuppressed) {
       const auraRadius = (enemyData.escortRadius / 50) * tileSize;
       const pulse = 0.5 + 0.5 * Math.sin(now * 0.004 + y);
       ctx.save();

@@ -1,4 +1,5 @@
 import { resolveEnemyData } from '@/data/enemyDataProvider';
+import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 
 /**
  * 敵人隱身 / 相位週期判定（純函式）
@@ -19,7 +20,7 @@ export const isEnemyStealthed = (
 ): boolean => {
   if (enemy.health <= 0) return false;
   const data = resolveEnemyData(enemy.originType ?? enemy.type);
-  if (data?.ability !== 'stealth') return false;
+  if (!hasEnemyAbility(data, 'stealth')) return false;
   const dur = data.stealthDuration ?? 3000;
   const cd = data.stealthCooldown ?? 5000;
   const t = (now - (enemy.spawnTime ?? now)) % (dur + cd);
@@ -36,7 +37,7 @@ export const getEnemyStealthFade = (
 ): number => {
   if (enemy.health <= 0) return 0;
   const data = resolveEnemyData(enemy.originType ?? enemy.type);
-  if (data?.ability !== 'stealth') return 0;
+  if (!hasEnemyAbility(data, 'stealth')) return 0;
   const dur = data.stealthDuration ?? 3000;
   const cd = data.stealthCooldown ?? 5000;
   const cycle = dur + cd;
@@ -62,7 +63,7 @@ export const isEnemyPhased = (
 ): boolean => {
   if (enemy.health <= 0) return false;
   const data = resolveEnemyData(enemy.originType ?? enemy.type);
-  if (data?.ability !== 'phase') return false;
+  if (!hasEnemyAbility(data, 'phase')) return false;
   const dur = data.phaseDuration ?? 2000;
   const cd = data.phaseCooldown ?? 4000;
   const t = (now - (enemy.spawnTime ?? now)) % (dur + cd);
@@ -76,7 +77,7 @@ export const getEnemyPhaseFade = (
 ): number => {
   if (enemy.health <= 0) return 0;
   const data = resolveEnemyData(enemy.originType ?? enemy.type);
-  if (data?.ability !== 'phase') return 0;
+  if (!hasEnemyAbility(data, 'phase')) return 0;
   const dur = data.phaseDuration ?? 2000;
   const cd = data.phaseCooldown ?? 4000;
   const cycle = dur + cd;
