@@ -86,7 +86,6 @@ export const TowerButton = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
 
-  const money = useGameStore((s) => s.money);
   const selectedTowerType = useGameStore((s) => s.selectedTowerType);
   const selectTowerType = useGameStore((s) => s.selectTowerType);
   const towerCostMult = useGameStore((s) => s.difficultyModifiers.towerCostMult);
@@ -106,7 +105,9 @@ export const TowerButton = ({
 
   const isTemporarilyUnlocked = isActive && (towerId === 'sniper' || towerId === 'frost');
   const isLocked = !isModContent && !unlockedTowers.includes(towerId as TowerType) && !isTemporarilyUnlocked;
-  const cannotAfford = !isLocked && money < displayCost;
+  // 金幣每幀都變；只訂閱「買不買得起」的布林，跨門檻才重渲染（14 個塔格 × 60fps → 幾乎 0）
+  const affordable = useGameStore((s) => s.money >= displayCost);
+  const cannotAfford = !isLocked && !affordable;
 
   const selected = selectedTowerType === towerId;
   const disabled = isLocked || cannotAfford;

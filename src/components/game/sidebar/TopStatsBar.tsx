@@ -6,6 +6,7 @@ import { useTutorialStore } from '@/store/tutorialStore';
 import { useTranslation } from '@/i18n';
 import { SearchIcon, CrossIcon } from '@/components/ui/Icons';
 import { BD_LABEL, BD_NUM, BD_SHEET } from '../hudBoard';
+import { FADE_FAST, SPRING_SOFT } from '@/utils/motionTokens';
 
 /**
  * 戰況簇（無卡片）
@@ -31,18 +32,31 @@ function Stat({
   tone = 'ink',
   hint,
   title,
+  animate = false,
 }: {
   label: string;
   value: string | number;
   tone?: Tone;
   hint?: string;
   title?: string;
+  /** 值變化時做一次上浮淡入（金幣每幀都變，不要開） */
+  animate?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-1" title={title}>
       <span className={`${BD_LABEL} whitespace-nowrap`}>{label}</span>
       <span className={`hud-ink flex items-baseline gap-0.5 font-mono text-[22px] font-black leading-none tabular-nums ${TONE_CLASS[tone]}`}>
-        {value}
+        {animate ? (
+          <motion.span
+            key={String(value)}
+            initial={{ y: 6, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={FADE_FAST}
+            className="inline-block"
+          >
+            {value}
+          </motion.span>
+        ) : value}
         {hint && <span className="text-[11px] font-bold text-[var(--cn-ink-3)]">{hint}</span>}
       </span>
     </div>
@@ -51,7 +65,8 @@ function Stat({
 
 export const TopStatsBar = () => {
   const { t } = useTranslation();
-  const money = useGameStore((s) => s.money);
+  // 金幣每幀都可能變；取整後才訂閱，避免整個戰況簇每幀重渲染
+  const money = useGameStore((s) => Math.floor(s.money));
   const health = useGameStore((s) => s.health);
   const score = useGameStore((s) => s.score);
   const currentWave = useGameStore((s) => s.currentWave);
@@ -72,10 +87,10 @@ export const TopStatsBar = () => {
   return (
     <>
       <div id="tutorial-target-top-stats" className="flex items-end gap-5">
-        <Stat label={t.game.health} value={health} tone={health <= 3 ? 'alarm' : 'ink'} title={t.game.health} />
-        <Stat label={t.game.money} value={Math.floor(money)} tone="signal" hint="$" title={t.game.money} />
-        <Stat label={t.game.wave} value={waveValue} tone={endlessMode ? 'caution' : 'ink'} title={t.game.wave} />
-        <Stat label={t.game.score} value={score} tone="muted" title={t.game.score} />
+        <Stat label={t.game.health} value={health} tone={health <= 3 ? 'alarm' : 'ink'} title={t.game.health} animate />
+        <Stat label={t.game.money} value={money} tone="signal" hint="$" title={t.game.money} />
+        <Stat label={t.game.wave} value={waveValue} tone={endlessMode ? 'caution' : 'ink'} title={t.game.wave} animate />
+        <Stat label={t.game.score} value={score} tone="muted" title={t.game.score} animate />
         <button
           type="button"
           aria-label={t.game.zoomDetailInfo}
@@ -94,9 +109,9 @@ export const TopStatsBar = () => {
         >
           <motion.div
             className="w-full max-w-[460px]"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.16 }}
+            initial={{ opacity: 0, y: 14, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={SPRING_SOFT}
             onClick={(e) => e.stopPropagation()}
           >
             <div className={`${BD_SHEET} flex max-h-[86vh] flex-col overflow-hidden`}>

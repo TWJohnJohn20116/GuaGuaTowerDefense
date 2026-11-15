@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import { motion } from 'framer-motion';
+import { SPRING_SOFT, STAGGER_STEP } from '@/utils/motionTokens';
 import { useGameStore } from '@/store/gameStore';
 import { useTutorialStore, INTERACTIVE_TUTORIAL_STEPS } from '@/store/tutorialStore';
 import { useModStore } from '@/store/modStore';
@@ -34,7 +36,7 @@ const ALL_BASE_TOWER_TYPES: TowerType[] = [
 
 /** 工具列圖示鍵：棋盤格，選中＝路徑導引色 */
 const TOOL_BTN =
-  'flex h-8 w-full items-center justify-center rounded-[10px] border-[2px] border-[var(--cn-line)] bg-[var(--cn-card)] text-[var(--cn-ink-3)] transition-colors duration-100 hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)] disabled:cursor-not-allowed disabled:border-transparent disabled:bg-transparent disabled:text-[var(--cn-ink-4)] disabled:opacity-50';
+  'flex h-8 w-full items-center justify-center rounded-[10px] border-[2px] border-[var(--cn-line)] bg-[var(--cn-card)] text-[var(--cn-ink-3)] transition-[background-color,color,transform] duration-100 hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)] active:translate-y-px disabled:cursor-not-allowed disabled:border-transparent disabled:bg-transparent disabled:text-[var(--cn-ink-4)] disabled:opacity-50';
 const TOOL_BTN_ON =
   'border-[var(--cn-line)] bg-[var(--cn-sun-soft)] text-[var(--cn-ink)]';
 
@@ -173,14 +175,20 @@ export const TowerPanel = () => {
       )}
 
       <div className={`grid min-h-0 flex-1 auto-rows-min content-start overflow-y-auto p-1.5 ${gridColsClass} ${gridGapClass}`}>
-        {filteredTowers.map((tower) => (
-          <div key={tower.id} className="relative h-full">
+        {filteredTowers.map((tower, i) => (
+          <motion.div
+            key={tower.id}
+            initial={{ opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ ...SPRING_SOFT, delay: Math.min(i, 10) * STAGGER_STEP }}
+            className="relative h-full"
+          >
             <TowerButton
               towerId={tower.id}
               towerData={tower}
               isModContent={tower.isModContent}
             />
-          </div>
+          </motion.div>
         ))}
         {filteredTowers.length === 0 && (
           <div
@@ -280,7 +288,10 @@ export const TowerPanel = () => {
             className="fixed inset-0 z-[9998] flex items-center justify-center bg-[rgba(46,36,64,0.45)] p-4"
             onClick={() => setShowAdvanced(false)}
           >
-            <div
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={SPRING_SOFT}
               className={`${BD_SHEET} flex max-h-[80vh] w-full max-w-[360px] flex-col overflow-hidden`}
               onClick={(e) => e.stopPropagation()}
             >
@@ -298,7 +309,7 @@ export const TowerPanel = () => {
               <div className="min-h-0 flex-1 overflow-y-auto">
                 <AdvancedOptionsPanel show />
               </div>
-            </div>
+            </motion.div>
           </div>
         ) : null,
         document.body,

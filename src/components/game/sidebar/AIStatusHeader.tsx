@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/Icons';
 import { Dot } from '@/components/hl';
 import { BD_LABEL, BD_SHEET } from '../hudBoard';
+import { SPRING_SNAPPY } from '@/utils/motionTokens';
 
 /**
  * AI 自動戰鬥狀態（豎排標籤）
@@ -44,7 +45,13 @@ export const AIStatusHeader = () => {
   }
 
   return (
-    <div className={`${BD_SHEET} pointer-events-auto w-full overflow-hidden`}>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95, y: -8 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={SPRING_SNAPPY}
+      style={{ transformOrigin: 'top right' }}
+      className={`${BD_SHEET} pointer-events-auto w-full overflow-hidden`}
+    >
       <header className="flex items-center gap-2 border-b-[3px] border-[var(--cn-line-soft)] px-2.5 py-1.5">
         <Dot tone="signal" pulse />
         <span className={`${BD_LABEL} text-[var(--cn-accent-text)]`}>{t.game.aiActive}</span>
@@ -104,6 +111,6 @@ export const AIStatusHeader = () => {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
 };

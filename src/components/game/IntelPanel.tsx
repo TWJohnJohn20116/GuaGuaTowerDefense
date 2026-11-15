@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { useTranslation } from '@/i18n';
 import { useGetTowerData } from './hooks';
 import { BD_LABEL, BD_NUM, BD_SHEET } from './hudBoard';
+import { SPRING_SNAPPY } from '@/utils/motionTokens';
 
 /**
  * 戰場情報（預設收起）
@@ -52,7 +54,13 @@ export function IntelPanel() {
   }
 
   return (
-    <div className={`${BD_SHEET} flex max-h-[70vh] w-[236px] flex-col overflow-hidden`}>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95, y: -8 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={SPRING_SNAPPY}
+      style={{ transformOrigin: 'top right' }}
+      className={`${BD_SHEET} flex max-h-[70vh] w-[236px] flex-col overflow-hidden`}
+    >
       <header className="flex items-center justify-between gap-2 border-b-[3px] border-[var(--cn-line-soft)] px-3 py-2">
         <span className={BD_LABEL}>{t.game.fieldIntel}</span>
         <button
@@ -130,6 +138,6 @@ export function IntelPanel() {
           <div className={`mt-1 ${BD_NUM} text-[18px]`}>{score}</div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
