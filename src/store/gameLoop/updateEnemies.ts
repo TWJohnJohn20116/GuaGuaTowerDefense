@@ -2,7 +2,6 @@
 import { PATHS, ENEMY_DATA } from '@/data/gameData';
 import type { StatusEffect, Enemy, GridPosition } from '@/types/game';
 import { getEnemyData, isEnemyPhased } from '../gameStoreUtils';
-import { clearTowerIds } from '@/store/gridTower';
 import type { GetState, SetState } from './shared';
 import { loopFlags } from './shared';
 import { getSegmentMap, getWaypointSegLengths } from './pathHelpers';
@@ -156,7 +155,7 @@ export const createUpdateEnemies =
     loopFlags.hasNewProjectilesThisFrame = false;
     loopFlags.enemyInRange = false;
 
-    const { enemies, selectedPath, towers, grid } = get();
+    const { enemies, selectedPath, towers } = get();
     const path = PATHS[selectedPath];
     const isAdvanced = path.category === 'advanced' && path.segments && path.segments.length > 0;
     const segmentMap = isAdvanced ? getSegmentMap(path) : null;
@@ -363,8 +362,8 @@ export const createUpdateEnemies =
         let nearestTower = null;
         let minDistSq = Infinity;
         for (const t of towers) {
-          const dx = t.gridPos.col - enemy.x;
-          const dy = t.gridPos.row - enemy.y;
+          const dx = t.pos.x - enemy.x;
+          const dy = t.pos.y - enemy.y;
           const distSq = dx * dx + dy * dy;
           if (distSq < minDistSq) {
             minDistSq = distSq;
@@ -377,8 +376,8 @@ export const createUpdateEnemies =
           if (minDist > 0.8) {
             const moveSpeed = effectSpeed * deltaTime * 0.0006 * 2;
             const step = Math.min(moveSpeed, minDist - 0.8);
-            const dx = nearestTower.gridPos.col - enemy.x;
-            const dy = nearestTower.gridPos.row - enemy.y;
+            const dx = nearestTower.pos.x - enemy.x;
+            const dy = nearestTower.pos.y - enemy.y;
             const moveX = (dx / minDist) * step;
             const moveY = (dy / minDist) * step;
             return {
@@ -595,7 +594,6 @@ export const createUpdateEnemies =
     }
 
     let finalTowers = towers;
-    let finalGrid = grid;
 
     if (Object.keys(towerDamageFromEnemies).length > 0) {
       finalTowers = towers.map(t => {
@@ -611,13 +609,10 @@ export const createUpdateEnemies =
 
       if (finalTowers.length < towers.length) {
         get().addShake(2.5); // 塔被破壞時震動
-        const deadIds = new Set(
-          towers.filter(t => !finalTowers.some(ft => ft.id === t.id)).map(t => t.id),
-        );
-        finalGrid = clearTowerIds(grid, deadIds);
-        set({ enemies: updatedEnemies, towers: finalTowers, grid: finalGrid, selectedTower: finalSelected });
+        // 自由制：塔的資料只有 towers 一份，filter 掉即消失，沒有格子要清
+        set({ enemies: updatedEnemies, towers: finalTowers, selectedTower: finalSelected });
       } else {
-        // 沒有塔被摧毀，僅更新塔和選擇狀態，避免重新渲染 grid
+        // 沒有塔被摧毀，僅更新塔和選擇狀態
         if (finalSelected) {
           finalSelected = finalTowers.find(t => t.id === finalSelected!.id) || null;
         }

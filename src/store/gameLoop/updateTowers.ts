@@ -21,8 +21,8 @@ import { getTowerUpgradeCost } from '@/data/towerUpgradeCost';
 /** 平滑轉向：把塔的 rotation 朝目標推近（無目標則維持原值） */
 const aimRotation = (tower: Tower, target: Enemy | null, deltaTime: number): number => {
   if (!target) return tower.rotation;
-  const dx = target.x - tower.gridPos.col;
-  const dy = target.y - tower.gridPos.row;
+  const dx = target.x - tower.pos.x;
+  const dy = target.y - tower.pos.y;
   const targetRotation = Math.atan2(dy, dx);
 
   let rotationDiff = targetRotation - tower.rotation;
@@ -170,8 +170,8 @@ export const createUpdateTowers =
         const scriptMod = resolveScriptTowerMod(scriptTowerMods, tower.type);
         const range = towerData.range * getTowerStatBonusFor(tower).rangeMultiplier * talentRangeMult * protocolMods.rangeMult * synergyMods.rangeMult * scriptMod.range;
         const rangeSq = range * range;
-        const tcol = tower.gridPos.col;
-        const trow = tower.gridPos.row;
+        const tcol = tower.pos.x;
+        const trow = tower.pos.y;
 
         const found = anyInHashRadius(enemyHash, tcol, trow, range, (ei) => {
           const enemy = updatedEnemies[ei];
@@ -194,7 +194,7 @@ export const createUpdateTowers =
       const statBonus = getTowerStatBonusFor(tower);
       const scriptMod = resolveScriptTowerMod(scriptTowerMods, tower.type);
       let fireRate = (towerData.fireRate || 1) * statBonus.fireRateMultiplier * talentAttackSpeedMult * inspireSpeedMult * protocolMods.fireRateMult * synergyMods.fireRateMult * scriptMod.fireRate;
-      fireRate *= getTowerJamFireRateMult(tower.gridPos.col, tower.gridPos.row, jammerAuras);
+      fireRate *= getTowerJamFireRateMult(tower.pos.x, tower.pos.y, jammerAuras);
       let skillDamageMultiplier = 1;
       let skillChainMultiplier = 1;
 
@@ -215,8 +215,8 @@ export const createUpdateTowers =
 
       const range = towerData.range * statBonus.rangeMultiplier * talentRangeMult * protocolMods.rangeMult * synergyMods.rangeMult * scriptMod.range;
       const rangeSq = range * range;
-      const tcol = tower.gridPos.col;
-      const trow = tower.gridPos.row;
+      const tcol = tower.pos.x;
+      const trow = tower.pos.y;
 
       // 火焰塔是「每幀持續輸出」，不受 cooldown 限制，必須走完整流程（見下方 flameEffect 分支）
       const isContinuousBeam = Boolean(towerData.flameEffect && towerData.damagePerSecond);
@@ -293,8 +293,8 @@ export const createUpdateTowers =
         let totalPulseDamage = 0;
         let killsInThisPulse = 0;
         const rangeSqPulse = range * range;
-        const pcol = tower.gridPos.col;
-        const prow = tower.gridPos.row;
+        const pcol = tower.pos.x;
+        const prow = tower.pos.y;
 
         const { addDamageText, addImpactParticles } = get();
         forEachInHashRadius(enemyHash, pcol, prow, range, (i) => {
@@ -486,9 +486,9 @@ export const createUpdateTowers =
         if (tower.type === 'machine') bulletDamage = finalDamage / 2;
         else if (tower.type === 'shotgun') bulletDamage = finalDamage / 3;
 
-        const aimRotation = Math.atan2(fireTarget.y - tower.gridPos.row, fireTarget.x - tower.gridPos.col);
-        const muzzleX = tower.gridPos.col + Math.cos(aimRotation) * muzzleOffset;
-        const muzzleY = tower.gridPos.row + Math.sin(aimRotation) * muzzleOffset;
+        const aimRotation = Math.atan2(fireTarget.y - tower.pos.y, fireTarget.x - tower.pos.x);
+        const muzzleX = tower.pos.x + Math.cos(aimRotation) * muzzleOffset;
+        const muzzleY = tower.pos.y + Math.sin(aimRotation) * muzzleOffset;
 
         for (let bi = 0; bi < bulletCount; bi++) {
           let bx = muzzleX;

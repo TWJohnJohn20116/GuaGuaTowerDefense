@@ -2,7 +2,14 @@ import type { Tower, TowerType, UpgradePath } from '@/types/game';
 import { PATHS, TOWER_DATA, ENEMY_DATA, GAME_CONSTANTS } from '@/data/gameData';
 import { TOWER_SKILLS, SKILL_DATA, isSkillReady } from '@/data/skillData';
 import { getTowerData, generateId } from './gameStoreUtils';
-import { setTileTowerId } from './gridTower';
+import {
+  DEFAULT_TOWER_RADIUS,
+  boundsOf,
+  circlesOverlap,
+  isBlockedAt,
+  pathClearance,
+  pathWidthOf,
+} from '@/data/mapGeometry';
 import type { GameStore } from './gameStoreTypes';
 import { useShopStore } from './shopStore';
 import { tryActivatePlayerSkill } from './gameStoreAutoBattlePlayerSkills';
@@ -158,8 +165,8 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         let hasHighHP = false;
         
         for (const enemy of enemies) {
-          const dx = enemy.x - tower.gridPos.col;
-          const dy = enemy.y - tower.gridPos.row;
+          const dx = enemy.x - tower.pos.x;
+          const dy = enemy.y - tower.pos.y;
           if (Math.sqrt(dx * dx + dy * dy) <= range + 1) {
             nearbyCount++;
             if (enemy.type === 'boss' || enemy.type === 'miniboss') hasBoss = true;
@@ -191,7 +198,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         
         const threshold = 3 * skillThreshMult;
         if (priority >= threshold) {
-          skillCandidates.push({ towerId: tower.id, priority, nearbyCount, hasBoss, skillId: tower.skill.skillId, towerType: tower.type, col: tower.gridPos.col, row: tower.gridPos.row });
+          skillCandidates.push({ towerId: tower.id, priority, nearbyCount, hasBoss, skillId: tower.skill.skillId, towerType: tower.type, col: tower.pos.x, row: tower.pos.y });
         }
       }
       
@@ -482,7 +489,6 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
     // ===== 可變狀態（迴圈內會更新）=====
     let curMoney = money;
     let curTowers = [...towers];
-    let curGrid = grid.map(row => row.map(tile => ({ ...tile })));
     let actionsExecuted = 0;
     let totalMoneySpent = 0;
     let towersPlacedCount = 0;
@@ -492,7 +498,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
     let towersSoldCount = 0;
     let fusionCount = 0;
     let moneyRefunded = 0;
-    const sellAnimationsAdded: { id: string; gridPos: { col: number; row: number }; towerColor: string; startTime: number; refundAmount?: number }[] = [];
+    const sellAnimationsAdded: { id: string; pos: { x: number; y: number }; towerColor: string; startTime: number; refundAmount?: number }[] = [];
     // 自動戰鬥的升級動畫緩衝（金光環 / 等級數字飄字），稍後一次合併到 store
     const upgradeAnimationsAdded: GameStore['upgradeAnimations'] = [];
     const fusionAnimationsAdded: GameStore['fusionAnimations'] = [];
@@ -521,7 +527,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         let coveredSegs = 0;
         let totalSegPeers = 0;
         for (const seg of pathSegments) {
-          const dist = Math.sqrt((t.gridPos.col - seg.midCol) ** 2 + (t.gridPos.row - seg.midRow) ** 2);
+          const dist = Math.sqrt((t.pos.x - seg.midCol) ** 2 + (t.pos.y - seg.midRow) ** 2);
           if (dist <= tdata.range) {
             coveredSegs++;
             let segPeers = 0;
@@ -529,7 +535,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
               if (peer.id === t.id) continue;
               const pdata = getTowerData(peer.type);
               if (!pdata) continue;
-              const pd = Math.sqrt((peer.gridPos.col - seg.midCol) ** 2 + (peer.gridPos.row - seg.midRow) ** 2);
+              const pd = Math.sqrt((peer.pos.x - seg.midCol) ** 2 + (peer.pos.y - seg.midRow) ** 2);
               if (pd <= pdata.range) segPeers++;
             }
             totalSegPeers += segPeers;
@@ -540,7 +546,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         // 戰略點接近度（要地塔保護）
         let strategicValue = 0;
         for (const pt of strategicPoints) {
-          const d = Math.sqrt((t.gridPos.col - pt.col) ** 2 + (t.gridPos.row - pt.row) ** 2);
+          const d = Math.sqrt((t.pos.x - pt.col) ** 2 + (t.pos.y - pt.row) ** 2);
           if (d <= 2) strategicValue += pt.value * (2 - d) / 2;
         }
 
@@ -568,28 +574,27 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         const t = bestSell.tower;
         const tdata = getTowerData(t.type)!;
         curTowers = curTowers.filter(x => x.id !== t.id);
-        curGrid = setTileTowerId(curGrid, t.gridPos, null);
         curMoney += bestSell.sellPrice;
         towersSoldCount++;
         moneyRefunded += bestSell.sellPrice;
         actionsExecuted++;
         sellAnimationsAdded.push({
           id: t.id,
-          gridPos: t.gridPos,
+          pos: t.pos,
           towerColor: tdata.color,
           startTime: now,
           refundAmount: bestSell.sellPrice,
         });
-        moneyTextsToAdd.push({ col: t.gridPos.col, row: t.gridPos.row, amount: bestSell.sellPrice, isGain: true });
+        moneyTextsToAdd.push({ col: t.pos.x, row: t.pos.y, amount: bestSell.sellPrice, isGain: true });
         achievementQueue.push({ type: 'sell', towerType: t.type, cost: bestSell.sellPrice, wave: currentWave });
 
         const sName = strategy === 'balanced' ? '平衡' : strategy === 'economy' ? '經濟' : strategy === 'aggressive' ? '積極' : '防守';
         get().addAutoBattleLog('sell', `拆除 ${tdata.name}`,
-          `回收 $${bestSell.sellPrice} | 位置 (${t.gridPos.col}, ${t.gridPos.row}) | ${bestSell.reasons.join(', ')}`,
+          `回收 $${bestSell.sellPrice} | 位置 (${t.pos.x}, ${t.pos.y}) | ${bestSell.reasons.join(', ')}`,
           [
             `[ 策略 ] ${sName} - 拆塔評估`,
             `[ 局勢 ] 威脅 ${(threatLevel * 100).toFixed(0)}% | 波次 ${currentWave} | 塔數 ${towers.length}`,
-            `[ 候選 ] ${tdata.name} @ (${t.gridPos.col}, ${t.gridPos.row}) | Lv.${t.level}`,
+            `[ 候選 ] ${tdata.name} @ (${t.pos.x}, ${t.pos.y}) | Lv.${t.level}`,
             `[ 分析 ] 覆蓋 ${bestSell.coveredSegs} 段 | 冗餘 ${bestSell.peerCoverage.toFixed(1)} | 要地 ${bestSell.strategicValue.toFixed(1)}`,
             `[ 績效 ] 擊殺 ${t.kills} | 傷害 ${Math.floor(t.totalDamage)}`,
             `[ 評分 ] ${bestSell.score.toFixed(1)} (閾值 4.0) | 因素: ${bestSell.reasons.join(', ')}`,
@@ -631,7 +636,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
       if (fusionCandidates.length > 0) {
         fusionCandidates.sort((x, y) => y.score - x.score);
         const best = fusionCandidates[0];
-        const srcGridPos = best.source.gridPos;
+        const srcPos = best.source.pos;
         const aData = getTowerData(best.source.type)!;
         const bData = getTowerData(best.target.type)!;
         const resData = getTowerData(best.resultType)!;
@@ -640,8 +645,9 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         const fusedTower: Tower = {
           id: generateId(),
           type: best.resultType,
-          gridPos: srcGridPos,
-          x: 0, y: 0, level: 1, upgradePath: null, rotation: 0, target: null,
+          pos: srcPos,
+          radius: best.source.radius,
+          level: 1, upgradePath: null, rotation: 0, target: null,
           lastFireTime: 0, kills: 0, totalDamage: 0, targetPriority: defaultTargetPriority(best.resultType),
           placedAt: now,
           health: 100, maxHealth: 100,
@@ -652,12 +658,6 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         curTowers = curTowers
           .filter(t => t.id !== best.source.id && t.id !== best.target.id)
           .concat(fusedTower);
-        const cleared = setTileTowerId(
-          setTileTowerId(curGrid, best.source.gridPos, null),
-          best.target.gridPos,
-          null,
-        );
-        curGrid = setTileTowerId(cleared, srcGridPos, fusedTower.id);
         curMoney -= best.cost;
         totalMoneySpent += best.cost;
         actionsExecuted++;
@@ -665,7 +665,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
 
         fusionAnimationsAdded.push({
           id: generateId(),
-          gridPos: srcGridPos,
+          pos: srcPos,
           resultType: best.resultType,
           startTime: now,
           colorA: aData.color || '#888',
@@ -699,7 +699,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         for (const seg of pathSegments) {
           let towerCount = 0;
           for (const tower of curTowers) {
-            const dist = Math.sqrt(Math.pow(tower.gridPos.col - seg.midCol, 2) + Math.pow(tower.gridPos.row - seg.midRow, 2));
+            const dist = Math.sqrt(Math.pow(tower.pos.x - seg.midCol, 2) + Math.pow(tower.pos.y - seg.midRow, 2));
             const data = getTowerData(tower.type);
             const range = data ? data.range : 3;
             if (dist <= range) towerCount++;
@@ -744,7 +744,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
           if (strategy === 'aggressive' && (t.type === 'sniper' || t.type === 'cannon' || t.type === 'laser')) valueScore += 1;
           if (strategy === 'defensive' && (t.type === 'frost' || t.type === 'poison')) valueScore += 1;
           for (const weak of weakSegments) {
-            const dist = Math.sqrt(Math.pow(t.gridPos.col - weak.midCol, 2) + Math.pow(t.gridPos.row - weak.midRow, 2));
+            const dist = Math.sqrt(Math.pow(t.pos.x - weak.midCol, 2) + Math.pow(t.pos.y - weak.midRow, 2));
             if (dist < 4) valueScore += 0.5;
           }
           return { tower: t, cost, data, valueScore };
@@ -794,7 +794,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         upgradeAnimationsAdded.push({
           id: generateId(),
           towerId: tower.id,
-          gridPos: tower.gridPos,
+          pos: tower.pos,
           newLevel,
           towerColor: upgradeTowerData?.color || '#ffffff',
           startTime: now,
@@ -816,7 +816,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
           `         └─ 控制: ${curComp.slow} | 經濟: ${curComp.money}`,
           `[ 分析 ] 弱點數 ${weakSegments.length}/${pathCoverage.length} ${hasWeakSpots ? '(!)' : '(✓)'}`,
           `[ 權衡 ] 升級優先 (最高評分 ${upgradableTowers[0].valueScore.toFixed(1)})`,
-          `[ 目標 ] ${towerName} @ (${tower.gridPos.col}, ${tower.gridPos.row}) | 總傷 ${Math.floor(tower.totalDamage)}`,
+          `[ 目標 ] ${towerName} @ (${tower.pos.x}, ${tower.pos.y}) | 總傷 ${Math.floor(tower.totalDamage)}`,
         ];
         if (tower.level === 1) {
           thinkingSteps.push(`[ 路線 ] 選擇 ${pathName}`);
@@ -824,7 +824,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         thinkingSteps.push(`[ 執行 ] ✓ 升級至 Lv.${newLevel} | 花費 $${cost}`);
         
         get().addAutoBattleLog('upgrade', `升級 ${towerName} 至 Lv.${newLevel}`,
-          `花費 $${cost}${pathName ? ` | ${pathName}` : ''} | 位置 (${tower.gridPos.col}, ${tower.gridPos.row})`, thinkingSteps);
+          `花費 $${cost}${pathName ? ` | ${pathName}` : ''} | 位置 (${tower.pos.x}, ${tower.pos.y})`, thinkingSteps);
         
         achievementQueue.push({ type: 'upgrade', towerType: tower.type as TowerType, cost, isMaxLevel: newLevel >= maxLevel, wave: currentWave });
         continue;
@@ -833,14 +833,31 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
       if (!state.autoBattleConfig.autoPlace) break;
       
       // --- 放置新塔 ---
-      const scores: { col: number; row: number; score: number; bestTowerType: TowerType }[] = [];
-      
-      curGrid.forEach((row, rowIndex) => {
-        row.forEach((tile, colIndex) => {
-          if (tile.type !== 'empty' || tile.towerId) return;
-          
-          const centerX = colIndex * tileSize + tileSize / 2;
-          const centerY = rowIndex * tileSize + tileSize / 2;
+      const scores: { x: number; y: number; score: number; bestTowerType: TowerType }[] = [];
+      // 自由制：沒有格子可枚舉，改用半格步長取樣；先做圓形淨空過濾，再打分
+      const mapBounds = boundsOf(state.activeMap);
+      const placeRadius = DEFAULT_TOWER_RADIUS;
+      const pathHalfWidth = pathWidthOf(state.activeMap) / 2;
+      const SAMPLE_STEP = 0.5;
+
+      for (let sampleY = placeRadius; sampleY <= mapBounds.height - placeRadius; sampleY += SAMPLE_STEP) {
+        for (let sampleX = placeRadius; sampleX <= mapBounds.width - placeRadius; sampleX += SAMPLE_STEP) {
+          const colIndex = sampleX;
+          const rowIndex = sampleY;
+          const cand = { x: sampleX, y: sampleY };
+          if (pathClearance(state.activeMap, cand) < pathHalfWidth + placeRadius) continue;
+          if (isBlockedAt(state.activeMap, cand, placeRadius)) continue;
+          let blockedByTower = false;
+          for (const existing of curTowers) {
+            if (circlesOverlap(cand, placeRadius, existing.pos, existing.radius)) {
+              blockedByTower = true;
+              break;
+            }
+          }
+          if (blockedByTower) continue;
+
+          const centerX = sampleX * tileSize;
+          const centerY = sampleY * tileSize;
           const baseRange = 150;
           
           let pathCoverageScore = 0;
@@ -856,7 +873,7 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
             }
           }
           
-          if (minDistToPath > baseRange * 1.3) return;
+          if (minDistToPath > baseRange * 1.3) continue;
           
           const multiCoverageBonus = coveredSegments.length > 1 ? coveredSegments.length * 0.5 : 0;
           
@@ -875,8 +892,8 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
           let hasFrostNearby = false;
           let synergyBonus = 0;
           for (const tower of curTowers) {
-            const dist = Math.sqrt((colIndex - tower.gridPos.col) ** 2 + (rowIndex - tower.gridPos.row) ** 2);
-            const manhattan = Math.abs(colIndex - tower.gridPos.col) + Math.abs(rowIndex - tower.gridPos.row);
+            const dist = Math.sqrt((colIndex - tower.pos.x) ** 2 + (rowIndex - tower.pos.y) ** 2);
+            const manhattan = Math.abs(colIndex - tower.pos.x) + Math.abs(rowIndex - tower.pos.y);
             if (dist < 1.5) spacingScore -= manhattan === 1 ? 0.8 : 3;
             else if (dist >= 2 && dist <= 3) {
               spacingScore += 0.5;
@@ -899,14 +916,14 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
           
           const moneyTowerBonus = bestTowerType === 'money' ? 3 : 0;
           for (const tower of curTowers) {
-            const manhattan = Math.abs(colIndex - tower.gridPos.col) + Math.abs(rowIndex - tower.gridPos.row);
+            const manhattan = Math.abs(colIndex - tower.pos.x) + Math.abs(rowIndex - tower.pos.y);
             if (manhattan === 1 && findSynergyRecipe(bestTowerType, tower.type)) synergyBonus += 2.4;
           }
           const totalScore = pathCoverageScore * 1.5 + multiCoverageBonus + weakSpotBonus + strategicBonus + spacingScore + moneyTowerBonus + synergyBonus;
-          
-          if (totalScore > 1) scores.push({ col: colIndex, row: rowIndex, score: totalScore, bestTowerType });
-        });
-      });
+
+          if (totalScore > 1) scores.push({ x: colIndex, y: rowIndex, score: totalScore, bestTowerType });
+        }
+      }
       
       scores.sort((a, b) => b.score - a.score);
       if (scores.length === 0) break;
@@ -938,15 +955,13 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
         : Number.POSITIVE_INFINITY;
       if (!placeTowerData || curMoney < placeCost) break;
       
-      const targetTile = curGrid[bestPos.row]?.[bestPos.col];
-      if (!targetTile || targetTile.type !== 'empty' || targetTile.towerId) break;
-      
       const skillType = TOWER_SKILLS[selectedType];
       const newTower: Tower = {
         id: generateId(),
         type: selectedType,
-        gridPos: { col: bestPos.col, row: bestPos.row },
-        x: 0, y: 0, level: 1, upgradePath: null, rotation: 0, target: null,
+        pos: { x: bestPos.x, y: bestPos.y },
+        radius: DEFAULT_TOWER_RADIUS,
+        level: 1, upgradePath: null, rotation: 0, target: null,
         lastFireTime: 0, kills: 0, totalDamage: 0, targetPriority: defaultTargetPriority(selectedType),
         // 觸發放置動畫（粒子噴射 / 建造光環 / -$cost 飄字 / 塔縮放進場）
         placedAt: now,
@@ -956,7 +971,6 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
       
       // 更新本地狀態
       curTowers = [...curTowers, newTower];
-      curGrid = setTileTowerId(curGrid, bestPos, newTower.id);
       curMoney -= placeCost;
       totalMoneySpent += placeCost;
       towersPlacedCount++;
@@ -1018,7 +1032,6 @@ export const createAutoBattleActions = (get: GetState, set: SetState) => ({
     set({
       money: curMoney,
       towers: curTowers,
-      grid: curGrid,
       autoBattleLastDecision: now + adjustedInterval - decisionInterval,
       sellAnimations: sellAnimationsAdded.length > 0
         ? [...state.sellAnimations, ...sellAnimationsAdded]

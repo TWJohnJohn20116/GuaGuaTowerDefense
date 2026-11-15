@@ -3,7 +3,14 @@ import type {
   Tower, GridPosition, TowerData, UpgradePath, TargetPriority 
 } from '@/types/game';
 import { GAME_CONSTANTS } from '@/data/gameData';
-import { setTileTowerId } from './gridTower';
+import {
+  DEFAULT_TOWER_RADIUS,
+  circlesOverlap,
+  isBlockedAt,
+  isInsideBounds,
+  pathClearance,
+  pathWidthOf,
+} from '@/data/mapGeometry';
 import { canBatchUpgradeTower, getTowerUpgradeCost } from '@/data/towerUpgradeCost';
 import { getTowerBuildCost } from '@/data/towerCost';
 import { getTowerSellRefund } from '@/store/sellConfirm';
@@ -29,12 +36,18 @@ type GetState = () => GameStore;
 type SetState = (partial: Partial<GameStore> | ((state: GameStore) => Partial<GameStore>)) => void;
 
 export const createTowerActions = (get: GetState, set: SetState) => ({
-  placeTower: (pos: GridPosition) => {
-    const { grid, money, selectedTowerType, towers, placementHistory, placementHistoryIndex, quickPlaceMode, placementStats, difficultyModifiers, currentWave, protocolNextTowerDiscount } = get();
+  placeTower: (pos: MapPoint) => {
+    const { activeMap, money, selectedTowerType, towers, placementHistory, placementHistoryIndex, quickPlaceMode, placementStats, difficultyModifiers, currentWave, protocolNextTowerDiscount } = get();
     if (!selectedTowerType) return false;
 
-    const tile = grid[pos.row]?.[pos.col];
-    if (!tile || tile.type !== 'empty' || tile.towerId) return false;
+    // 自由放置判定（沒有格子）：邊界 → 禁建區 → 路徑淨空 → 其他塔的圓形佔位
+    const radius = DEFAULT_TOWER_RADIUS;
+    if (!isInsideBounds(activeMap, pos, radius)) return false;
+    if (isBlockedAt(activeMap, pos, radius)) return false;
+    if (pathClearance(activeMap, pos) < pathWidthOf(activeMap) / 2 + radius) return false;
+    for (const other of towers) {
+      if (circlesOverlap(pos, radius, other.pos, other.radius)) return false;
+    }
     
     const towerData = getTowerData(selectedTowerType);
     if (!towerData) return false;
@@ -53,9 +66,8 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     const newTower: Tower = {
       id: generateId(),
       type: selectedTowerType,
-      gridPos: pos,
-      x: 0,
-      y: 0,
+      pos,
+      radius,
       // 開啟「滿級塔」devToggle 時，新塔直接放置為最高等級
       level: dev.maxTowerLevel ? GAME_CONSTANTS.MAX_TOWER_LEVEL : 1,
       upgradePath: null,
@@ -76,14 +88,11 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
       } : undefined,
     };
 
-    const newGrid = setTileTowerId(grid, pos, newTower.id);
-
     // 更新放置歷史（刪除當前索引之後的歷史）
     const newHistory = placementHistory.slice(0, placementHistoryIndex + 1);
     newHistory.push({ tower: newTower, cost: actualCost });
 
     set({
-      grid: newGrid,
       towers: [...towers, newTower],
       money: dev.infiniteMoney ? money : money - actualCost,
       placementHistory: newHistory,
@@ -99,7 +108,7 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     });
 
     // Mod 腳本：建塔事件
-    notifyModScripts('onTowerPlaced', { towerType: selectedTowerType, row: pos.row, col: pos.col });
+    notifyModScripts('onTowerPlaced', { towerType: selectedTowerType, row: pos.y, col: pos.x });
 
     // 追蹤成就
     getAchievementStore().then(store => {
@@ -165,7 +174,7 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     const newUpgradeAnimations = [...get().upgradeAnimations, {
       id: generateId(),
       towerId: tower.id,
-      gridPos: tower.gridPos,
+      pos: tower.pos,
       newLevel,
       towerColor: towerData.color,
       startTime: upgradeTime,
@@ -199,8 +208,8 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     playUpgrade(); // 升級音
     notifyModScripts('onTowerUpgraded', {
       towerType: tower.type,
-      row: tower.gridPos.row,
-      col: tower.gridPos.col,
+      row: tower.pos.y,
+      col: tower.pos.x,
     });
     return true;
   },
@@ -208,17 +217,16 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
   sellTower: (tower: Tower) => {
     // 鎖定保護:鎖定的塔無法被出售
     if (tower.locked) return;
-    const { towers, grid, money, placementStats, sellAnimations } = get();
+    const { towers, money, placementStats, sellAnimations } = get();
     const towerData = getTowerData(tower.type);
     if (!towerData) return;
     const sellPrice = getTowerSellRefund(towerData.cost);
 
+    // 自由制沒有格子要清：塔的資料只有 towers 一份，移除即消失
     const newTowers = towers.filter(t => t.id !== tower.id);
-    const newGrid = setTileTowerId(grid, tower.gridPos, null);
 
     set({
       towers: newTowers,
-      grid: newGrid,
       money: money + sellPrice,
       selectedTower: null,
       placementStats: {
@@ -227,7 +235,7 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
       },
       sellAnimations: [...sellAnimations, {
         id: tower.id,
-        gridPos: tower.gridPos,
+        pos: tower.pos,
         towerColor: towerData.color,
         startTime: Date.now(),
         refundAmount: sellPrice,
@@ -235,14 +243,14 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     });
 
     // 浮動金錢文字（出售退款）
-    get().addMoneyText(tower.gridPos.col, tower.gridPos.row, sellPrice, true);
+    get().addMoneyText(tower.pos.x, tower.pos.y, sellPrice, true);
 
     // Mod 腳本：賣塔事件
     notifyModScripts('onTowerSold', {
       towerType: tower.type,
       amount: sellPrice,
-      row: tower.gridPos.row,
-      col: tower.gridPos.col,
+      row: tower.pos.y,
+      col: tower.pos.x,
     });
 
     // 追蹤成就
@@ -288,7 +296,7 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     });
 
     // 浮動金錢文字（撤銷升級退款）
-    get().addMoneyText(tower.gridPos.col, tower.gridPos.row, lastUpgrade.cost, true);
+    get().addMoneyText(tower.pos.x, tower.pos.y, lastUpgrade.cost, true);
 
     return true;
   },
@@ -364,7 +372,7 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
 
   // 放置撤銷
   undoPlacement: () => {
-    const { placementHistory, placementHistoryIndex, towers, grid, money } = get();
+    const { placementHistory, placementHistoryIndex, towers, money } = get();
     if (placementHistoryIndex < 0) return false;
     
     const lastPlacement = placementHistory[placementHistoryIndex];
@@ -378,24 +386,22 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     }
     
     const newTowers = towers.filter(t => t.id !== lastPlacement.tower.id);
-    const newGrid = setTileTowerId(grid, towerToRemove.gridPos, null);
-    
+
     set({
       towers: newTowers,
-      grid: newGrid,
       money: money + lastPlacement.cost,
       placementHistoryIndex: placementHistoryIndex - 1,
     });
 
     // 浮動金錢文字（撤銷放置退款）
-    get().addMoneyText(lastPlacement.tower.gridPos.col, lastPlacement.tower.gridPos.row, lastPlacement.cost, true);
+    get().addMoneyText(lastPlacement.tower.pos.x, lastPlacement.tower.pos.y, lastPlacement.cost, true);
 
     return true;
   },
 
   // 放置重做
   redoPlacement: () => {
-    const { placementHistory, placementHistoryIndex, towers, grid, money } = get();
+    const { placementHistory, placementHistoryIndex, towers, money } = get();
     if (placementHistoryIndex >= placementHistory.length - 1) return false;
     
     const nextPlacement = placementHistory[placementHistoryIndex + 1];
@@ -405,15 +411,14 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     const dev = useDevStore.getState();
     if (!towerData || (!dev.infiniteMoney && money < nextPlacement.cost)) return false;
     
-    const pos = nextPlacement.tower.gridPos;
-    const tile = grid[pos.row]?.[pos.col];
-    if (!tile || tile.type !== 'empty' || tile.towerId) return false;
-    
-    const newGrid = setTileTowerId(grid, pos, nextPlacement.tower.id);
-    
+    const pos = nextPlacement.tower.pos;
+    // 自由制：重做時重新驗一次圓形佔位，避免與後來放的塔重疊
+    for (const other of towers) {
+      if (circlesOverlap(pos, nextPlacement.tower.radius, other.pos, other.radius)) return false;
+    }
+
     set({
       towers: [...towers, nextPlacement.tower],
-      grid: newGrid,
       money: dev.infiniteMoney ? money : money - nextPlacement.cost,
       placementHistoryIndex: placementHistoryIndex + 1,
     });
@@ -496,8 +501,8 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
           // 凍結範圍內所有敵人 (範圍 4 格)
           const freezeRange = getSkillRangeCells(skillData, 4);
           const updatedEnemies = enemies.map(enemy => {
-            const dx = enemy.x - tower.gridPos.col;
-            const dy = enemy.y - tower.gridPos.row;
+            const dx = enemy.x - tower.pos.x;
+            const dy = enemy.y - tower.pos.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist <= freezeRange) {
               const nextEffects = [...enemy.effects];
@@ -514,8 +519,8 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
           set({ towers: updatedTowers, enemies: updatedEnemies, selectedTower: updatedSelectedTower });
           notifyModScripts('onSkillUsed', {
             towerType: tower.type,
-            row: tower.gridPos.row,
-            col: tower.gridPos.col,
+            row: tower.pos.y,
+            col: tower.pos.x,
           });
           return true;
         }
@@ -525,8 +530,8 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
           const repairRange = getSkillRangeCells(skillData, 5);
           const repairedTowers = updatedTowers.map(t => {
             if (t.id === towerId || !t.skill) return t;
-            const dx = t.gridPos.col - tower.gridPos.col;
-            const dy = t.gridPos.row - tower.gridPos.row;
+            const dx = t.pos.x - tower.pos.x;
+            const dy = t.pos.y - tower.pos.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist <= repairRange) {
               const targetSkill = SKILL_DATA[t.skill.skillId];
@@ -560,8 +565,8 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
         const forEachEnemyInRange = (range: number, fn: (e: typeof enemies[number], idx: number) => void) => {
           updatedEnemies.forEach((e, idx) => {
             if (e.health <= 0) return;
-            const dx = e.x - tw.gridPos.col;
-            const dy = e.y - tw.gridPos.row;
+            const dx = e.x - tw.pos.x;
+            const dy = e.y - tw.pos.y;
             if (dx * dx + dy * dy <= range * range) fn(e, idx);
           });
         };
@@ -570,8 +575,8 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
           let kills = 0;
           updatedEnemies.forEach((e) => {
             if (e.health <= 0) return;
-            const dx = e.x - tw.gridPos.col;
-            const dy = e.y - tw.gridPos.row;
+            const dx = e.x - tw.pos.x;
+            const dy = e.y - tw.pos.y;
             if (dx * dx + dy * dy > range * range) return;
             const out = applyDamageToEnemy(e, dmg, now);
             total += out.dealt;
@@ -775,7 +780,7 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
   },
 
   fuseTowers: (sourceId: string, targetId: string) => {
-    const { towers, grid, money, fusionAnimations, difficultyModifiers } = get();
+    const { towers, money, fusionAnimations, difficultyModifiers } = get();
     if (sourceId === targetId) return false;
 
     const source = towers.find(t => t.id === sourceId);
@@ -807,13 +812,12 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     const skillType = TOWER_SKILLS[recipe.result];
 
     // 合體產物放置在 source 的格位，target 的格位清空
-    const pos = source.gridPos;
+    const pos = source.pos;
     const newTower: Tower = {
       id: generateId(),
       type: recipe.result,
-      gridPos: pos,
-      x: 0,
-      y: 0,
+      pos,
+      radius: source.radius,
       level: 1,
       upgradePath: null,
       rotation: 0,
@@ -838,17 +842,10 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
       .filter(t => t.id !== sourceId && t.id !== targetId)
       .concat(newTower);
 
-    // 合體產物放在 source 格位、target 格位清空
-    const clearedGrid = setTileTowerId(
-      setTileTowerId(grid, source.gridPos, null),
-      target.gridPos,
-      null,
-    );
-    const newGrid = setTileTowerId(clearedGrid, pos, newTower.id);
-
+    // 合體產物站在 source 的位置；target 直接從 towers 移除，沒有格子要清
     const newAnimations = [...fusionAnimations, {
       id: generateId(),
-      gridPos: pos,
+      pos,
       resultType: recipe.result,
       startTime: Date.now(),
       colorA: sourceData?.color || '#888',
@@ -857,7 +854,6 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
 
     set({
       towers: newTowers,
-      grid: newGrid,
       money: dev.infiniteMoney ? money : money - fusionCost,
       selectedTower: newTower,
       fusionMode: false,
@@ -867,7 +863,7 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     });
 
     // 浮動金錢文字（融合費用）
-    get().addMoneyText(pos.col, pos.row, fusionCost, false);
+    get().addMoneyText(pos.x, pos.y, fusionCost, false);
     playBuild();
 
     // 追蹤統計與成就

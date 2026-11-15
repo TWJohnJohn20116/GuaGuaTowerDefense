@@ -1,8 +1,8 @@
 import type { 
   GameScene, Enemy, Tower, Projectile, 
-  GridPosition, TowerType, Tile, TargetPriority, KeyAction, KeyBindings,
+  GridPosition, MapPoint, TowerType, TargetPriority, KeyAction, KeyBindings,
   TowerData, UpgradePath, GameDifficulty, DifficultyModifiers,
-  DamageText, ImpactParticle, DeathAnimation
+  DamageText, ImpactParticle, DeathAnimation, PathConfig
 } from '@/types/game';
 import type { PlayerSkillId } from '@/data/playerSkillData';
 import type { TacticalProtocol } from '@/data/tacticalProtocolData';
@@ -107,11 +107,15 @@ export interface GameStore {
   lastStartArgs: LastStartArgs | null;
   // 突變挑戰：本局生效的規則與挑戰 id（非突變局為 null）
   
-  // 地图
+  // 地圖
   selectedPath: string;
-  grid: Tile[][];
-  /** 工坊 3D 預覽：暫時覆寫路徑（不動 grid 的世界狀態，離開即清空） */
-  previewMap: { waypoints: GridPosition[]; blockedCells: GridPosition[] } | null;
+  /**
+   * 本局地圖的完整定義（含寬度、邊界、禁建區）。
+   * 自由制沒有 grid 陣列，所有「這裡能不能放塔」的判定都從這份資料算出來。
+   */
+  activeMap: PathConfig | null;
+  /** 工坊 3D 預覽：暫時覆寫路徑（不動世界狀態，離開即清空） */
+  previewMap: PathConfig | null;
   
   // 实体
   enemies: Enemy[];
@@ -121,7 +125,7 @@ export interface GameStore {
   // 选择状态
   selectedTowerType: TowerType | null;
   selectedTower: Tower | null;
-  hoveredTile: GridPosition | null;
+  hoverPoint: MapPoint | null;
   // 多選 (群選)
   multiSelectedTowerIds: string[];
   
@@ -139,9 +143,9 @@ export interface GameStore {
   autoUpgradePriority: 'damage' | 'range' | 'cost';
   
   // 升級動畫
-  upgradeAnimations: { id: string; towerId: string; gridPos: GridPosition; newLevel: number; towerColor: string; startTime: number; isMaxLevel?: boolean }[];
+  upgradeAnimations: { id: string; towerId: string; pos: MapPoint; newLevel: number; towerColor: string; startTime: number; isMaxLevel?: boolean }[];
   // 出售動畫
-  sellAnimations: { id: string; gridPos: GridPosition; towerColor: string; startTime: number; refundAmount?: number }[];
+  sellAnimations: { id: string; pos: MapPoint; towerColor: string; startTime: number; refundAmount?: number }[];
 
   // 玩家主動技能系統
   playerSkillStates: Record<PlayerSkillId, PlayerSkillState>;
@@ -193,7 +197,7 @@ export interface GameStore {
   
   selectTowerType: (type: TowerType | null) => void;
   selectTower: (tower: Tower | null) => void;
-  setHoveredTile: (pos: GridPosition | null) => void;
+  setHoverPoint: (pos: MapPoint | null) => void;
   // 多選操作
   toggleTowerInMultiSelect: (towerId: string) => void;
   clearMultiSelect: () => void;
@@ -204,7 +208,7 @@ export interface GameStore {
   // 鎖定保護
   toggleTowerLock: (towerId: string) => void;
   
-  placeTower: (pos: GridPosition) => boolean;
+  placeTower: (pos: MapPoint) => boolean;
   upgradeTower: (tower: Tower, path?: UpgradePath) => boolean;
   sellTower: (tower: Tower) => void;
   // 融合系統：雙塔合體
@@ -212,7 +216,7 @@ export interface GameStore {
   fusionSourceId: string | null;
   /** 合體錢不夠時記下費用，提示條改顯示需要資金 */
   fusionFundsShort: number | null;
-  fusionAnimations: Array<{ id: string; gridPos: GridPosition; resultType: TowerType; startTime: number; colorA: string; colorB: string }>;
+  fusionAnimations: Array<{ id: string; pos: MapPoint; resultType: TowerType; startTime: number; colorA: string; colorB: string }>;
   enterFusionMode: (towerId: string) => void;
   cancelFusion: () => void;
   fuseTowers: (sourceId: string, targetId: string) => boolean;

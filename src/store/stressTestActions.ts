@@ -8,13 +8,12 @@ import { PATHS } from '@/data/gameData';
 import {
   buildStressEnemies,
   buildStressTowers,
-  pickStressTowerPositions,
   STRESS_DEFAULT_ENEMIES,
   STRESS_DEFAULT_TOWERS,
   STRESS_ENEMY_ID_PREFIX,
   STRESS_TOWER_ID_PREFIX,
 } from '@/data/stressTest';
-import { clearTowerIds, setTileTowerId } from './gridTower';
+import { sampleBuildablePoints } from '@/data/mapGeometry';
 import type { GameStore } from './gameStoreTypes';
 
 type GetState = () => GameStore;
@@ -46,20 +45,14 @@ export const createStressTestActions = (get: GetState, set: SetState) => ({
     const enemies = buildStressEnemies({ count: enemyCount, path });
     if (enemies.length === 0) return { enemies: 0, towers: 0, reason: 'no-path' };
 
-    const positions = pickStressTowerPositions(state.grid, towerCount);
+    const positions = sampleBuildablePoints(state.activeMap, towerCount);
     const newTowers = buildStressTowers(positions);
 
     const towers = [...state.towers, ...newTowers];
-    // 以 towers 為權威重建格子登記（壓測塔可能很多，逐格寫容易漏）
-    const grid = newTowers.reduce(
-      (acc, tower) => setTileTowerId(acc, tower.gridPos, tower.id),
-      state.grid,
-    );
 
     set({
       enemies,
       towers,
-      grid,
       // 壓測期間不要有波次生成干擾，也不要因為場上 0 敵人被判定「本波清空」
       waveActive: false,
       allEnemiesSpawned: true,
@@ -80,12 +73,10 @@ export const createStressTestActions = (get: GetState, set: SetState) => ({
     const towers = state.towers.filter((t) => !t.id.startsWith(STRESS_TOWER_ID_PREFIX));
 
     const deadIds = new Set(stressTowers.map((t) => t.id));
-    const grid = clearTowerIds(state.grid, deadIds);
 
     set({
       enemies,
       towers,
-      grid,
       selectedTower:
         state.selectedTower && deadIds.has(state.selectedTower.id) ? null : state.selectedTower,
       multiSelectedTowerIds: state.multiSelectedTowerIds.filter((id) => !deadIds.has(id)),

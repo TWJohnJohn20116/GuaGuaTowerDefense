@@ -10,7 +10,6 @@ import {
   PATHS, DEFAULT_PATH, DIFFICULTY_MODIFIERS
 } from '@/data/gameData';
 import { 
-  initializeGrid, 
   DEFAULT_KEY_BINDINGS,
   getSavedGameSpeed,
   saveGameSpeed 
@@ -94,7 +93,7 @@ export const useGameStore = create<GameStore>()(
   protocolNextTowerDiscount: 0,
 
   selectedPath: DEFAULT_PATH,
-  grid: [],
+  activeMap: PATHS[DEFAULT_PATH] ?? null,
   previewMap: null,
   
   enemies: [],
@@ -104,7 +103,7 @@ export const useGameStore = create<GameStore>()(
   selectedTowerType: null,
   selectedTower: null,
   multiSelectedTowerIds: [],
-  hoveredTile: null,
+  hoverPoint: null,
 
   // 融合系統
   fusionMode: false,
@@ -260,7 +259,8 @@ export const useGameStore = create<GameStore>()(
               waypoints: modMap.waypoints,
               segments: modMap.segments,
               startSegmentId: modMap.startSegmentId,
-              blockedCells: modMap.blockedCells,
+              // 舊 mod 地圖仍用格子清單；載入時轉成圓形禁建區（圓心取格中心）
+              blockedAreas: (modMap.blockedCells ?? []).map((c) => ({ x: c.col + 0.5, y: c.row + 0.5 })),
             };
             break;
           }
@@ -277,7 +277,8 @@ export const useGameStore = create<GameStore>()(
 
     const modifiers = applyTalentToDifficultyModifiers(baseModifiers);
     
-    const grid = initializeGrid(actualPathName);
+    // 自由地圖：不再膨脹成格子陣列，直接把本局地圖定義掛上
+    const activeMap = PATHS[actualPathName] ?? null;
 
     const statsGameMode = resolveStatsGameMode({
       endless,
@@ -300,7 +301,7 @@ export const useGameStore = create<GameStore>()(
       isPlaying: true,
       isPaused: false,
       selectedPath: actualPathName,
-      grid,
+      activeMap,
       gameDifficulty: difficulty,
       difficultyModifiers: modifiers,
       money: modifiers.startingMoney ?? GAME_CONSTANTS.INITIAL_MONEY,
@@ -370,7 +371,7 @@ export const useGameStore = create<GameStore>()(
 
   selectTowerType: (type) => set({ selectedTowerType: type, selectedTower: null, multiSelectedTowerIds: [] }),
   selectTower: (tower) => set({ selectedTower: tower, selectedTowerType: null, multiSelectedTowerIds: [] }),
-  setHoveredTile: (pos) => set({ hoveredTile: pos }),
+  setHoverPoint: (pos) => set({ hoverPoint: pos }),
 
   toggleTowerInMultiSelect: (towerId) => {
     const { multiSelectedTowerIds } = get();
