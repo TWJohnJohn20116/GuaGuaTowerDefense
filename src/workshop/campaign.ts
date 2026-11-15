@@ -76,9 +76,9 @@ export function listCampaignLevels(): CampaignLevel[] {
     const completedIds = completedByProject[project.id] ?? [];
     const locks = resolveLevelLocks(project, completedIds);
     for (const level of project.levels) {
-      if (!level.mapRef) continue;
+      if (!level.mapAssetId) continue;
       const mapAsset = assets.find(
-        (asset): asset is WorkshopMapAsset => asset.kind === 'map' && asset.id === level.mapRef?.assetId,
+        (asset): asset is WorkshopMapAsset => asset.kind === 'map' && asset.id === level.mapAssetId,
       );
       if (!mapAsset) continue;
       const path = toPathConfig(mapAsset, level);

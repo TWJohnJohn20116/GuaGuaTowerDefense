@@ -22,9 +22,7 @@ function seedProjectWithMap(): { projectId: string; levelId: string } {
   const project = useWorkshopStore.getState().projects.find((item) => item.id === projectId);
   const levelId = project?.levels[0]?.id;
   if (!levelId) throw new Error('專案沒有種子關卡');
-  useWorkshopStore.getState().updateLevel(projectId, levelId, {
-    mapRef: { assetId: mapId, version: mapAsset.version },
-  });
+  useWorkshopStore.getState().updateLevel(projectId, levelId, { mapAssetId: mapId });
   return { projectId, levelId };
 }
 
@@ -50,8 +48,8 @@ describe('listCampaignLevels', () => {
   it('地圖路徑點不足的關卡不會出現', () => {
     const { projectId, levelId } = seedProjectWithMap();
     const project = useWorkshopStore.getState().projects.find((item) => item.id === projectId);
-    const mapRef = project?.levels.find((level) => level.id === levelId)?.mapRef;
-    const mapAsset = useWorkshopStore.getState().assets.find((asset) => asset.id === mapRef?.assetId);
+    const mapAssetId = project?.levels.find((level) => level.id === levelId)?.mapAssetId;
+    const mapAsset = useWorkshopStore.getState().assets.find((asset) => asset.id === mapAssetId);
     if (!mapAsset || mapAsset.kind !== 'map') throw new Error('找不到地圖');
     useWorkshopStore.getState().upsertAsset({
       ...mapAsset,
