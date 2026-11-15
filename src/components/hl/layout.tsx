@@ -180,6 +180,7 @@ export function Rail({
 
 export function RailItem({
   index,
+  icon,
   label,
   active = false,
   onClick,
@@ -187,6 +188,8 @@ export function RailItem({
   compact = false,
 }: {
   index?: string | number;
+  /** 收合時圓圈改顯示圖示：只留序號沒人猜得出是哪一頁 */
+  icon?: React.ReactNode;
   label: React.ReactNode;
   active?: boolean;
   onClick?: () => void;
@@ -220,7 +223,7 @@ export function RailItem({
               : 'border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] text-[var(--cn-ink-3)]',
           ].join(' ')}
         >
-          {index}
+          {compact && icon ? icon : index}
         </span>
       )}
       {!compact && (

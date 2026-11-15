@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { SceneShell } from '@/components/ui/SceneShell';
 import { Num, Rail, RailItem, TopBar, Btn, Deck } from '@/components/hl';
 import { CustomSelect } from '@/components/ui/CustomSelect';
-import { WrenchIcon } from '@/components/ui/Icons';
+import { WrenchIcon, FolderIcon, MapIcon, NotepadIcon, PuzzleIcon, PackageIcon, BoxIcon, PlayIcon, UploadIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { writeBackup } from '@/workshop/backup';
@@ -81,15 +81,15 @@ export default function Workshop() {
     [projects, activeProjectId],
   );
 
-  const pages: { id: StudioPage; label: string }[] = [
-    { id: 'projects', label: s.nav.projects },
-    { id: 'levels', label: s.nav.levels },
-    { id: 'content', label: s.nav.content },
-    { id: 'rules', label: s.nav.rules },
-    { id: 'assets', label: s.nav.assets },
-    { id: 'models', label: s.nav.models },
-    { id: 'playtest', label: s.nav.playtest },
-    { id: 'publish', label: s.nav.publish },
+  const pages: { id: StudioPage; label: string; icon: React.ReactNode }[] = [
+    { id: 'projects', label: s.nav.projects, icon: <FolderIcon className="h-4 w-4" /> },
+    { id: 'levels', label: s.nav.levels, icon: <MapIcon className="h-4 w-4" /> },
+    { id: 'content', label: s.nav.content, icon: <NotepadIcon className="h-4 w-4" /> },
+    { id: 'rules', label: s.nav.rules, icon: <PuzzleIcon className="h-4 w-4" /> },
+    { id: 'assets', label: s.nav.assets, icon: <PackageIcon className="h-4 w-4" /> },
+    { id: 'models', label: s.nav.models, icon: <BoxIcon className="h-4 w-4" /> },
+    { id: 'playtest', label: s.nav.playtest, icon: <PlayIcon className="h-4 w-4" /> },
+    { id: 'publish', label: s.nav.publish, icon: <UploadIcon className="h-4 w-4" /> },
   ];
 
   const needsProject = page !== 'projects' && page !== 'assets' && page !== 'models';
@@ -163,6 +163,7 @@ export default function Workshop() {
               <RailItem
                 key={item.id}
                 index={index + 1}
+                icon={item.icon}
                 label={item.label}
                 compact={railCollapsed}
                 active={page === item.id}
