@@ -528,7 +528,7 @@
       <div class="card">
         <div class="ct">📚 資料與程式分離</div>
         <div class="cd">塔／敵人／地圖／波次／成就／皮膚都是純資料檔，改數值不用碰邏輯。</div>
-        <span class="key">src/data/** 214 檔 / 27,569 行</span>
+        <span class="key">src/data/** 108 檔 / 17,109 行</span>
       </div>
     </div>
 
@@ -643,16 +643,19 @@
     <table>
       <thead><tr><th>目錄</th><th class="num">檔案</th><th class="num">行數</th><th>內容</th></tr></thead>
       <tbody>
-        <tr><td><code>components/</code></td><td class="num">464</td><td class="num">72,266</td><td>全部 UI 與場景（含 2D／3D 渲染器）</td></tr>
-        <tr><td><code>data/</code></td><td class="num">214</td><td class="num">27,569</td><td>塔／敵人／地圖／波次／戰役／成就／皮膚等純資料</td></tr>
-        <tr><td><code>i18n/</code></td><td class="num">19</td><td class="num">36,518</td><td>10 種語言 + 標籤映射工具</td></tr>
-        <tr><td><code>store/</code></td><td class="num">47</td><td class="num">11,854</td><td>Zustand 狀態與遊戲迴圈</td></tr>
-        <tr><td><code>test/</code></td><td class="num">160</td><td class="num">10,496</td><td>Vitest 行為測試（jsdom）</td></tr>
-        <tr><td><code>services/</code></td><td class="num">22</td><td class="num">2,860</td><td>音效／音樂／更新／設定檔案</td></tr>
-        <tr><td><code>utils/</code></td><td class="num">12</td><td class="num">1,671</td><td>空間哈希、精靈快取、幀護欄、效能監控</td></tr>
-        <tr><td><code>types/</code></td><td class="num">9</td><td class="num">1,265</td><td>全域型別定義</td></tr>
-        <tr><td><code>hooks/</code></td><td class="num">2</td><td class="num">275</td><td>成就追蹤、回放錄製</td></tr>
-        <tr><td><b>合計</b></td><td class="num"><b>952</b></td><td class="num"><b>164,918</b></td><td>—</td></tr>
+        <tr><td><code>components/</code></td><td class="num">392</td><td class="num">72,727</td><td>全部 UI 與場景（含 2D／3D 渲染器、創作工坊 8 頁）</td></tr>
+        <tr><td><code>i18n/</code></td><td class="num">18</td><td class="num">42,012</td><td>10 種語言 + 標籤映射工具（zh-TW 4,968 鍵為基準）</td></tr>
+        <tr><td><code>data/</code></td><td class="num">108</td><td class="num">17,109</td><td>塔／敵人／地圖／波次／戰役／成就／皮膚等純資料</td></tr>
+        <tr><td><code>test/</code></td><td class="num">170</td><td class="num">14,927</td><td>Vitest 行為測試（jsdom）＋ fixtures</td></tr>
+        <tr><td><code>store/</code></td><td class="num">46</td><td class="num">13,079</td><td>Zustand 狀態與遊戲迴圈</td></tr>
+        <tr><td><code>workshop/</code></td><td class="num">44</td><td class="num">11,130</td><td>創作工坊核心：文件模型、編譯管線、規則節點圖、封裝與簽章</td></tr>
+        <tr><td><code>services/</code></td><td class="num">23</td><td class="num">3,299</td><td>音效／音樂／更新／設定檔案</td></tr>
+        <tr><td><code>types/</code></td><td class="num">8</td><td class="num">1,835</td><td>全域型別定義</td></tr>
+        <tr><td><code>utils/</code></td><td class="num">12</td><td class="num">1,594</td><td>空間哈希、精靈快取、幀護欄、效能監控</td></tr>
+        <tr><td><code>mod-script/</code></td><td class="num">10</td><td class="num">1,451</td><td>Mod 腳本沙箱：hook、command、權限、限額</td></tr>
+        <tr><td><code>hooks/</code></td><td class="num">2</td><td class="num">247</td><td>成就追蹤、回放錄製</td></tr>
+        <tr><td><code>src/*.tsx</code></td><td class="num">3</td><td class="num">211</td><td>App／main 等入口檔</td></tr>
+        <tr><td><b>合計</b></td><td class="num"><b>836</b></td><td class="num"><b>179,621</b></td><td>只算 <code>.ts</code>／<code>.tsx</code>（2026-11-15 實測）</td></tr>
       </tbody>
     </table>
 
@@ -672,7 +675,8 @@
       <div class="k"><b>成就</b><span>607</span></div>
       <div class="k"><b>塔皮膚</b><span>144</span></div>
       <div class="k"><b>天賦節點</b><span>23</span></div>
-      <div class="k"><b>語言</b><span>10<em>zh-TW 4,610 行為基準</em></span></div>
+      <div class="k"><b>語言</b><span>10<em>zh-TW 4,968 鍵為基準</em></span></div>
+      <div class="k"><b>規則節點</b><span>93<em>＋狀態欄位動態生成</em></span></div>
     </div>
   </section>
 
