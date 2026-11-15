@@ -11,7 +11,7 @@ import { collectJammerAurasCached, listJammedTowerIds } from '@/data/jammerAura'
 import { ENEMY_DATA } from '@/data/gameData';
 
 const CHIP =
-  'inline-flex items-center gap-1.5 border-[3px] border-[var(--cn-line-soft)] border-l-2 bg-[var(--arc-deck)] px-2 py-1 font-mono text-[9.5px] uppercase tracking-[0.06em]';
+  'inline-flex items-center gap-1.5 rounded-[2px] border border-[var(--bd-line)] border-l-2 bg-[var(--bd-tile)] px-2 py-1 font-mono text-[9.5px] uppercase tracking-[0.06em] shadow-[0_2px_0_var(--bd-edge)]';
 
 export function ProtocolHud() {
   const { t } = useTranslation();
@@ -38,7 +38,7 @@ export function ProtocolHud() {
   if (!active && discount <= 0 && synergyKinds <= 0 && placementPreview.length === 0 && jammedCount <= 0) return null;
 
   return (
-    <div className="pointer-events-none absolute left-1/2 top-12 z-20 flex max-w-[min(92vw,720px)] -translate-x-1/2 flex-wrap justify-center gap-1">
+    <div className="pointer-events-none absolute left-1/2 top-[104px] z-20 flex max-w-[min(92vw,720px)] -translate-x-1/2 flex-wrap justify-center gap-1">
       {active && (
         <span className={`${CHIP} border-l-[var(--arc-gold)] text-[var(--arc-gold)]`}>
           <SparklesIcon className="h-3 w-3" />

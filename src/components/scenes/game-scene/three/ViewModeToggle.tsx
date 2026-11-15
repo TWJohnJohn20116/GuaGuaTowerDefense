@@ -1,9 +1,12 @@
 /**
- * 2D / 3D 視圖切換按鈕（遊戲場景左上角浮動）
- * HARDLINE：方角、1px 線、mono 標籤；3D 態只用訊號邊 + 訊號膜。
+ * 2D / 3D 視圖切換（棋盤語彙）
+ *
+ * 位置由 Sidebar 決定（狀態帶左端第一格），不再浮在戰場左上角。
+ * 3D 態只用 accent 邊框與 accent 膜，不發光。
  */
 
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/i18n';
 
 // 立方體圖標（3D 視圖）
 const CubeIcon = ({ className = '' }: { className?: string }) => (
@@ -31,17 +34,18 @@ interface ViewModeToggleProps {
 }
 
 export function ViewModeToggle({ mode, onToggle }: ViewModeToggleProps) {
+  const { t } = useTranslation();
   const is3d = mode === '3d';
   return (
     <button
       type="button"
       onClick={onToggle}
-      className={`pointer-events-auto inline-flex h-8 items-center gap-1.5 border px-2.5 transition-colors duration-[110ms] ${
+      className={`pointer-events-auto inline-flex h-8 items-center gap-1.5 rounded-[2px] border px-2 transition-colors duration-100 ${
         is3d
-          ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
-          : 'border-[var(--cn-line-soft)] bg-[var(--arc-deck)] text-[var(--arc-ink-2)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
+          ? 'border-[var(--bd-accent)] bg-[color-mix(in_oklab,var(--bd-accent)_18%,var(--bd-tile))] text-[var(--bd-ink)]'
+          : 'border-[var(--bd-line)] bg-[var(--bd-tile)] text-[var(--bd-ink-2)] hover:border-[var(--bd-line-strong)] hover:text-[var(--bd-ink)]'
       }`}
-      title={is3d ? '切換回 2D 視圖' : '切換到 3D 視圖'}
+      title={t.game.toggleViewHint}
     >
       <motion.span
         key={mode}
@@ -52,8 +56,8 @@ export function ViewModeToggle({ mode, onToggle }: ViewModeToggleProps) {
       >
         {is3d ? <GridFlatIcon className="h-3.5 w-3.5" /> : <CubeIcon className="h-3.5 w-3.5" />}
       </motion.span>
-      <span className="font-mono text-[10px] uppercase tracking-[0.08em]">
-        {is3d ? '2D 視圖' : '3D 視圖'}
+      <span className="font-mono text-[9.5px] uppercase tracking-[0.08em]">
+        {is3d ? t.game.view2dLabel : t.game.view3dLabel}
       </span>
     </button>
   );

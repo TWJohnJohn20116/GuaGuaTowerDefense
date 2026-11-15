@@ -22,7 +22,7 @@ import { useGameSceneEffects } from './game-scene/useGameSceneEffects';
 import { useReplayRecorder } from '@/hooks/useReplayRecorder';
 import { INTERACTIVE_TUTORIAL_STEPS } from '@/store/tutorialStore';
 import { useEffect, useState, lazy, Suspense } from 'react';
-import { ViewModeToggle } from './game-scene/three/ViewModeToggle';
+
 import { shouldShowFullPauseOverlay, shouldShowPauseBuildHud } from '@/store/pauseBuildMode';
 
 // 3D 渲染器延遲載入（three.js 較大，只在切換 3D 時載入）
@@ -172,22 +172,19 @@ export default function GameScene() {
         </AnimatePresence>
       </div>
 
-      {/* 2D / 3D 視圖切換（教學模式中隱藏） */}
-      {!tutorialActive && (
-        <div className="pointer-events-none absolute left-3 top-[52px] z-30">
-          <ViewModeToggle mode={effectiveViewMode} onToggle={toggleViewMode} />
-        </div>
-      )}
-
       <div className="absolute inset-0 z-10 pointer-events-none">
-        <Sidebar />
+        {/* 2D / 3D 切換收進狀態帶左端；教學模式不顯示 */}
+        <Sidebar
+          viewMode={tutorialActive ? undefined : effectiveViewMode}
+          onToggleView={toggleViewMode}
+        />
       </div>
 
       {/* 倒數顯示 */}
       <AnimatePresence>
         {showCountdown && (
           <motion.div
-            className="absolute left-1/2 top-[52px] z-30 -translate-x-1/2"
+            className="absolute left-1/2 top-[60px] z-30 -translate-x-1/2"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}

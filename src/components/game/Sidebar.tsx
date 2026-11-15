@@ -9,6 +9,7 @@ import { TowerPanel } from './sidebar/TowerPanel';
 import { IntelPanel } from './IntelPanel';
 import { BD_LABEL, BD_PANEL } from './hudBoard';
 import { ChevronUpIcon } from '@/components/ui/Icons';
+import { ViewModeToggle } from '@/components/scenes/game-scene/three/ViewModeToggle';
 import { HUD_BAND_HEIGHT } from './sidebar/hudStyle';
 
 /**
@@ -40,7 +41,13 @@ const INTEL_WIDTH = 264;
 /** 折疊後的豎條寬度 */
 const COLLAPSED_WIDTH = 30;
 
-const SidebarImpl = () => {
+interface SidebarProps {
+  /** 2D / 3D 視圖模式；不傳＝不顯示切換鍵（教學模式） */
+  viewMode?: '2d' | '3d';
+  onToggleView?: () => void;
+}
+
+const SidebarImpl = ({ viewMode, onToggleView }: SidebarProps) => {
   const { t } = useTranslation();
   const [statsCollapsed, setStatsCollapsed] = useState(false);
   const [towersCollapsed, setTowersCollapsed] = useState(false);
@@ -60,6 +67,11 @@ const SidebarImpl = () => {
           className={`pointer-events-auto absolute left-3 right-3 flex items-stretch overflow-hidden ${BD_PANEL}`}
           style={{ top: EDGE, height: HUD_BAND_HEIGHT }}
         >
+          {viewMode && onToggleView && (
+            <div className="flex items-center border-r border-[var(--bd-line)] px-1">
+              <ViewModeToggle mode={viewMode} onToggle={onToggleView} />
+            </div>
+          )}
           <div className="flex min-w-0 flex-1 items-stretch">
             <AnimatePresence initial={false}>
               {!statsCollapsed && (
