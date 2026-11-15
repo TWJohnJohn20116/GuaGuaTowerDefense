@@ -647,5 +647,6 @@ export function draftSignature(draft: MapDraft): string {
     .map((t) => t.id + ':' + t.type + '@' + t.col + '.' + t.row)
     .sort()
     .join('-');
-  return draft.cols + 'x' + draft.rows + '|' + wp + '|' + bl + '|' + tw;
+  const start = draft.startSegmentId ?? '';
+  return draft.cols + 'x' + draft.rows + '|' + wp + '|' + bl + '|' + tw + '|' + seg + '|' + start;
 }
