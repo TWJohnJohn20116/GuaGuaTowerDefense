@@ -64,6 +64,7 @@ export const useGameStore = create<GameStore>()(
   isPaused: false,
   isGameOver: false,
   isVictory: false,
+  isPlaytest: false,
   gameSpeed: DEFAULT_GAME_PREFS.gameSpeed,
   
   // 難度
@@ -155,6 +156,8 @@ export const useGameStore = create<GameStore>()(
   setScene: (scene) => {
     const state = get();
     if (state.scene === scene) return; // 同一場景不重複入棧
+    // 臨時局：不讓內嵌試玩被勝利／結算跳轉切離工坊（不 set、不入 history）
+    if (state.isPlaytest && (scene === 'game' || scene === 'gameOver' || scene === 'victory')) return;
 
     const isResultScene = (s: GameScene) => s === 'gameOver' || s === 'victory' || s === 'game';
 
@@ -275,12 +278,20 @@ export const useGameStore = create<GameStore>()(
       endless,
       customWaveSetId,
     });
-    useStatsStore.getState().startGameTracking(statsGameMode);
+    // 臨時局（工坊內嵌試玩）：整局唯讀旗標，開局時一次取出
+    const isPlaytestStart = get().isPlaytest;
+    // 臨時局不計入生涯統計
+    if (!isPlaytestStart) {
+      useStatsStore.getState().startGameTracking(statsGameMode);
+    }
     
+    // 臨時局不切場景（留在工坊）；非臨時局照舊進 game
+    const sceneAfterStart: GameScene | undefined = isPlaytestStart ? undefined : 'game';
+
     set({
       // 局內狀態全部來自單一工廠，與 resetGame 共用
       ...createEmptyMatchState(),
-      scene: 'game',
+      ...(sceneAfterStart === undefined ? {} : { scene: sceneAfterStart }),
       isPlaying: true,
       isPaused: false,
       selectedPath: actualPathName,
@@ -313,6 +324,8 @@ export const useGameStore = create<GameStore>()(
 
   pauseGame: () => {
     set({ isPaused: true });
+    // 臨時局不觸發成就判定
+    if (get().isPlaytest) return;
     void import('./achievementStore').then((m) => {
       m.useAchievementStore.getState().onPauseUsed();
     }).catch(() => { /* 載入失敗時忽略，不影響暫停流程 */ });
@@ -457,6 +470,22 @@ export const useGameStore = create<GameStore>()(
   // 壓力測試（Dev 面板）
   ...createStressTestActions(get, set),
 
+  // 臨時局（工坊內嵌試玩）：旗標切換與丟棄本局內容
+  setPlaytestMode: (enabled) => set({ isPlaytest: enabled }),
+
+  exitPlaytest: () => set({
+    isPlaytest: false,
+    isPlaying: false,
+    // 丟棄本局時一併解掉暫停，避免退出試玩後殘留暫停旗標
+    isPaused: false,
+    // 局內狀態回到空局（金錢／波次／場上實體全部歸零）
+    ...createEmptyMatchState(),
+    // 選擇狀態同樣歸零；scene 與 sceneHistory 刻意不動
+    selectedTowerType: null,
+    selectedTower: null,
+    multiSelectedTowerIds: [],
+  }),
+
   // 重置遊戲
   resetGame: () => set({
     // 與 startGame 共用同一份局內狀態工廠，避免兩份清單各自漂移
@@ -468,6 +497,7 @@ export const useGameStore = create<GameStore>()(
     resumePauseOnGameReturn: false,
     isPlaying: false,
     isPaused: false,
+    isPlaytest: false,
     maxWaves: 15,
     quickPlaceMode: false,
     showTacticalView: false,

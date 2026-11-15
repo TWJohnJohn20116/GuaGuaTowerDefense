@@ -582,8 +582,11 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
               });
               killedTypes.push(enemy.type);
             }
-            useAchievementStore.getState().batchOnEnemyKilled(kills, rewardTotal);
-            useStatsStore.getState().trackEnemyKilledBatch(killedTypes, rewardTotal);
+            // 臨時局（工坊試玩）不寫成就與統計
+            if (!useGameStore.getState().isPlaytest) {
+              useAchievementStore.getState().batchOnEnemyKilled(kills, rewardTotal);
+              useStatsStore.getState().trackEnemyKilledBatch(killedTypes, rewardTotal);
+            }
             notifyModScripts('onEnemyKilled', {
               killCount: killedEnemies.length,
               enemyTypes: killedTypes,
@@ -614,15 +617,17 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
             }
           }
 
-          const statsStore = useStatsStore.getState();
-          const latest = useGameStore.getState();
-          statsStore.onWaveComplete(currentWave);
-          statsStore.recordWaveSnapshot(
-            currentWave,
-            latest.money,
-            latest.health,
-            latest.towers.length
-          );
+          if (!useGameStore.getState().isPlaytest) {
+            const statsStore = useStatsStore.getState();
+            const latest = useGameStore.getState();
+            statsStore.onWaveComplete(currentWave);
+            statsStore.recordWaveSnapshot(
+              currentWave,
+              latest.money,
+              latest.health,
+              latest.towers.length
+            );
+          }
 
           if (!latest.endlessMode && latest.maxWaves > 0 && currentWave >= latest.maxWaves) {
             latest.setVictory();

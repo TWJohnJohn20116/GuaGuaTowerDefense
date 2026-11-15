@@ -68,6 +68,12 @@ export interface GameStore {
   isPaused: boolean;
   isGameOver: boolean;
   isVictory: boolean;
+  // 臨時局旗標（工坊內嵌試玩）：true 時統計／成就／場景跳轉皆隔離，且不進 persist
+  isPlaytest: boolean;
+  // 標記接下來這局為臨時局；傳 false 解除旗標
+  setPlaytestMode: (enabled: boolean) => void;
+  // 丟棄本局內容退出臨時局：不動 scene 與 sceneHistory
+  exitPlaytest: () => void;
   gameSpeed: number;
   
   // 難度

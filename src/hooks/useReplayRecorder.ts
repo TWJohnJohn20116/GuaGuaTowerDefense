@@ -27,6 +27,8 @@ export function useReplayRecorder() {
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
+    // 臨時局（工坊試玩）不錄回放：整局內容在離開時丟棄
+    if (useGameStore.getState().isPlaytest) return;
     const replayStore = useReplayStore.getState();
     
     // 開始遊戲時:啟動錄製

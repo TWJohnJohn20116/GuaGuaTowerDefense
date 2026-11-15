@@ -114,21 +114,27 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
       return;
     }
     const newHealth = health - dealt;
-    
+    // 臨時局（工坊內嵌試玩）：留在工坊、不切結算場景，也不寫成就
+    const inPlaytest = get().isPlaytest;
+
     if (newHealth <= 0) {
       // 切換到獨立的「遊戲結束」介面場景（非彈窗）
-      set({ health: 0, isGameOver: true, isPlaying: false, isPaused: false, scene: 'gameOver' });
-      notifyModScripts('onGameOver');
+      set(inPlaytest
+        ? { health: 0, isGameOver: true, isPlaying: false, isPaused: false }
+        : { health: 0, isGameOver: true, isPlaying: false, isPaused: false, scene: 'gameOver' });
+      if (!inPlaytest) notifyModScripts('onGameOver');
       playGameOver(); // 失敗音
     } else {
       set({ health: newHealth });
       playLeak(); // 漏怪扣血音
     }
 
-    // 追蹤成就
-    getAchievementStore().then(store => {
-      store.getState().onDamageTaken(dealt);
-    });
+    // 追蹤成就（臨時局不寫進度）
+    if (!inPlaytest) {
+      getAchievementStore().then(store => {
+        store.getState().onDamageTaken(dealt);
+      });
+    }
   },
 
   offerProtocolIfNeeded: () => {
