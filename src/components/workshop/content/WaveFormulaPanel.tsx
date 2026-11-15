@@ -87,7 +87,7 @@ export function WaveFormulaPanel({
                 max={200}
                 value={formula.waves}
                 onChange={(event) => onFormula({ waves: Number.parseInt(event.target.value, 10) || 1 })}
-                className="h-7 w-14 px-1 text-right font-mono text-[10.5px]"
+                className="h-7 w-16 px-1 text-right font-mono text-[10.5px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </label>
             <label className="flex flex-col gap-0.5">
@@ -98,7 +98,7 @@ export function WaveFormulaPanel({
                 max={50}
                 value={formula.countGrowth}
                 onChange={(event) => onFormula({ countGrowth: Number.parseInt(event.target.value, 10) || 0 })}
-                className="h-7 w-14 px-1 text-right font-mono text-[10.5px]"
+                className="h-7 w-16 px-1 text-right font-mono text-[10.5px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </label>
             <label className="flex flex-col gap-0.5">
@@ -109,7 +109,7 @@ export function WaveFormulaPanel({
                 max={50}
                 value={formula.bossEvery}
                 onChange={(event) => onFormula({ bossEvery: Number.parseInt(event.target.value, 10) || 0 })}
-                className="h-7 w-14 px-1 text-right font-mono text-[10.5px]"
+                className="h-7 w-16 px-1 text-right font-mono text-[10.5px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </label>
             <label className="flex flex-col gap-0.5">
@@ -120,7 +120,7 @@ export function WaveFormulaPanel({
                 max={20}
                 value={formula.bossCount}
                 onChange={(event) => onFormula({ bossCount: Number.parseInt(event.target.value, 10) || 1 })}
-                className="h-7 w-14 px-1 text-right font-mono text-[10.5px]"
+                className="h-7 w-16 px-1 text-right font-mono text-[10.5px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </label>
             <Btn size="sm" variant="signal" onClick={() => onGenerate(generateWaves(formula), 'replace')}>
@@ -154,7 +154,7 @@ export function WaveFormulaPanel({
                 step={500}
                 value={curve.targetHp}
                 onChange={(event) => onCurve({ targetHp: Number.parseInt(event.target.value, 10) || 100 })}
-                className="h-7 w-20 px-1 text-right font-mono text-[10.5px]"
+                className="h-7 w-24 px-1 text-right font-mono text-[10.5px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </label>
             <label className="flex flex-col gap-0.5">
@@ -165,7 +165,7 @@ export function WaveFormulaPanel({
                 max={200}
                 value={curve.waves}
                 onChange={(event) => onCurve({ waves: Number.parseInt(event.target.value, 10) || 1 })}
-                className="h-7 w-14 px-1 text-right font-mono text-[10.5px]"
+                className="h-7 w-16 px-1 text-right font-mono text-[10.5px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </label>
             <label className="flex flex-col gap-0.5">
@@ -176,7 +176,7 @@ export function WaveFormulaPanel({
                 step={50}
                 value={curve.intervalMs}
                 onChange={(event) => onCurve({ intervalMs: Number.parseInt(event.target.value, 10) || 50 })}
-                className="h-7 w-16 px-1 text-right font-mono text-[10.5px]"
+                className="h-7 w-20 px-1 text-right font-mono text-[10.5px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </label>
           </div>

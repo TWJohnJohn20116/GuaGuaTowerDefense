@@ -160,7 +160,7 @@ export function WaveAnalysisPanel({
             setStartMoney(event.target.value);
             onParams({ startMoney: Number.parseInt(event.target.value, 10) || 0 });
           }}
-          className="h-6 w-16 text-right font-mono text-[10.5px]"
+          className="h-6 w-20 text-right font-mono text-[10.5px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           aria-label={c.startMoney}
         />
       </Field>
@@ -173,7 +173,7 @@ export function WaveAnalysisPanel({
             setTowerPrice(event.target.value);
             onParams({ towerPrice: Number.parseInt(event.target.value, 10) || 1 });
           }}
-          className="h-6 w-16 text-right font-mono text-[10.5px]"
+          className="h-6 w-20 text-right font-mono text-[10.5px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           aria-label={c.towerPrice}
         />
       </Field>
@@ -188,7 +188,7 @@ export function WaveAnalysisPanel({
             setIncomeFactor(event.target.value);
             onParams({ incomeFactor: Number.parseFloat(event.target.value) || 0 });
           }}
-          className="h-6 w-16 text-right font-mono text-[10.5px]"
+          className="h-6 w-20 text-right font-mono text-[10.5px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           aria-label={c.incomeFactor}
         />
       </Field>
@@ -202,7 +202,7 @@ export function WaveAnalysisPanel({
             setSmoothWindow(event.target.value);
             onParams({ smoothWindow: Number.parseInt(event.target.value, 10) || 0 });
           }}
-          className="h-6 w-16 text-right font-mono text-[10.5px]"
+          className="h-6 w-20 text-right font-mono text-[10.5px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           aria-label={c.smoothWindow}
         />
       </Field>

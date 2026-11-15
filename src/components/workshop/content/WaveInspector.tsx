@@ -143,7 +143,7 @@ export function WaveInspector({
           step={5}
           value={wave.reward}
           onChange={(event) => onPatchWave({ reward: Math.max(0, Number.parseInt(event.target.value, 10) || 0) })}
-          className="h-7 w-20 text-right font-mono text-[11px]"
+          className="h-7 w-24 text-right font-mono text-[11px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           aria-label={c.reward}
         />
       </Field>
@@ -156,7 +156,7 @@ export function WaveInspector({
             step={0.1}
             value={hpScale}
             onChange={(event) => onPatchWave({ hpScale: Math.max(0.05, Number.parseFloat(event.target.value) || 1) })}
-            className="h-7 w-16 text-right font-mono text-[11px]"
+            className="h-7 w-20 text-right font-mono text-[11px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             aria-label={ins.hpScale}
           />
           <span className="font-mono text-[10px] text-[var(--cn-ink-3)]">×</span>
@@ -175,7 +175,7 @@ export function WaveInspector({
               const raw = event.target.value.trim();
               onPatchWave({ intervalMs: raw === '' ? undefined : Math.max(50, Number.parseInt(raw, 10) || 50) });
             }}
-            className="h-7 w-16 text-right font-mono text-[11px]"
+            className="h-7 w-20 text-right font-mono text-[11px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             aria-label={ins.interval}
           />
           {wave.intervalMs !== undefined && (
@@ -242,7 +242,7 @@ export function WaveInspector({
                           min={1}
                           value={block.count}
                           onChange={(event) => onSegmentCount(block.id, Math.max(1, Number.parseInt(event.target.value, 10) || 1))}
-                          className="h-6 w-12 px-1 text-right font-mono text-[10px]"
+                          className="h-6 w-14 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                         />
                       </label>
                       <label className="flex flex-col gap-0.5">
@@ -253,7 +253,7 @@ export function WaveInspector({
                           step={100}
                           value={gap}
                           onChange={(event) => onSegmentGap(block.id, Math.max(0, Number.parseInt(event.target.value, 10) || 0))}
-                          className="h-6 w-16 px-1 text-right font-mono text-[10px]"
+                          className="h-6 w-20 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                         />
                       </label>
                       <label className="flex flex-col gap-0.5">
@@ -264,7 +264,7 @@ export function WaveInspector({
                           step={100}
                           value={block.startMs}
                           onChange={(event) => onSegmentShift(block.id, Math.max(0, Number.parseInt(event.target.value, 10) || 0))}
-                          className="h-6 w-16 px-1 text-right font-mono text-[10px]"
+                          className="h-6 w-20 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                         />
                       </label>
                       <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">
