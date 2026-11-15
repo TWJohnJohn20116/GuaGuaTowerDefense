@@ -35,13 +35,27 @@ export function MenuHomeHero({ focused, onFocus }: { focused: boolean; onFocus: 
           </div>
 
           {/* 中：品牌（flex-1 置中，讓品牌落在舞台中央而不是貼著頂端） */}
-          <div className="flex flex-1 flex-col justify-center gap-1.5">
-            <h1 className="text-[44px] font-black leading-[0.88] tracking-[-0.05em] text-[var(--cn-ink)] lg:text-[92px]">
-              {t.mainMenu.title}
-            </h1>
-            <p className="max-w-[34ch] text-[11.5px] leading-relaxed text-[var(--cn-ink-3)]">
-              {t.mainMenu.subtitle}
-            </p>
+          <div className="flex flex-1 flex-col justify-center gap-3">
+            <div className="flex flex-col gap-1.5">
+              <h1 className="text-[44px] font-black leading-[0.88] tracking-[-0.05em] text-[var(--cn-ink)] lg:text-[92px]">
+                {t.mainMenu.title}
+              </h1>
+              <p className="max-w-[34ch] text-[11.5px] leading-relaxed text-[var(--cn-ink-3)]">
+                {t.mainMenu.subtitle}
+              </p>
+            </div>
+
+            {/* 三枚特色標籤：撐住品牌與按鈕之間那段空白 */}
+            <div className="flex flex-wrap gap-1.5">
+              {[t.mainMenu.hero.tagOffline, t.mainMenu.hero.tagLocalSave, t.mainMenu.hero.tagRender].map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border-2 border-[var(--cn-line-soft)] bg-[var(--cn-paper-2)] px-2.5 py-[3px] font-mono text-[10px] font-bold tracking-[0.04em] text-[var(--cn-ink-3)]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* 底：主行動 */}

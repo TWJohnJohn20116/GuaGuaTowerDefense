@@ -14,22 +14,34 @@ import { ShopIcon, TreeIcon, TrophyIcon, WrenchIcon } from '@/components/ui/Icon
  * 主選單 · Hero 環繞的快捷磚
  *
  * 四塊磚環著中央舞台：左欄「金幣 → 成就」、右欄「天賦 → 工坊」。
- * 高度刻意不等（flex-[1.25] / flex-[1]），左右也不對稱，
- * 這樣拼貼才不會退化成另一種等寬網格。
  *
- * 磚的高度由 Hero 撐出來（約 300–430px），所以內容必須填滿，否則就是一片色塊：
- *   標籤列（頂）→ 數字（底）→ 進度條 → 動作提示，中央再用一枚半透明大圖示撐住。
- * 圖示只做視覺量體，狀態語意一律走 tone 與徽章。
+ * 單調的來源不是「東西太少」，是「四塊長得一樣」：同一個 label 位置、同一枚灰影圖示、
+ * 同一個數字左下。所以四塊刻意錯開：
+ *   金幣  斜紋底 + 最大圖示（240）＋ 最大數字（64）
+ *   天賦  點陣底 + 中圖示（208）
+ *   成就  橫線底 + 小圖示（176）＋ 進度條帶百分比
+ *   工坊  薄荷綠底（第三個色階）+ 斜格底 + 大圖示（224）
+ * 高度也不等（flex-[1.25] / flex-[1]），左右不對稱。
  */
 
-type QuickTone = 'sun' | 'coral' | 'plain';
+type QuickTone = 'sun' | 'coral' | 'mint' | 'plain';
 
 const TONE: Record<QuickTone, string> = {
   sun: 'border-[var(--cn-line)] bg-[var(--cn-sun)] text-[var(--cn-on-sun)] shadow-[0_4px_0_var(--cn-sun-deep)]',
   coral:
     'border-[var(--cn-line)] bg-[var(--cn-coral-soft)] text-[var(--cn-signal-text)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.18)]',
+  mint:
+    'border-[var(--cn-line)] bg-[var(--cn-mint-soft)] text-[var(--cn-mint-deep)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.18)]',
   plain:
     'border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] text-[var(--cn-ink)] shadow-[0_4px_0_-2px_rgba(46,36,64,0.16)]',
+};
+
+/** 底紋：四塊各一種，讓四塊磚不是同一張紙印出來的 */
+const PATTERN: Record<QuickTone, { image: string; size: string }> = {
+  sun: { image: 'repeating-linear-gradient(135deg, rgba(46,36,64,0.06) 0 2px, transparent 2px 14px)', size: 'auto' },
+  coral: { image: 'radial-gradient(rgba(46,36,64,0.075) 1.5px, transparent 1.5px)', size: '18px 18px' },
+  mint: { image: 'repeating-linear-gradient(45deg, rgba(46,36,64,0.055) 0 1px, transparent 1px 12px)', size: 'auto' },
+  plain: { image: 'repeating-linear-gradient(0deg, rgba(46,36,64,0.045) 0 1px, transparent 1px 10px)', size: 'auto' },
 };
 
 interface QuickProps {
@@ -59,9 +71,10 @@ export function MenuHomeQuickLeft({ focused, onFocus }: QuickProps) {
         label={t.mainMenu.hero.quickCoins}
         value={coins.toLocaleString()}
         hint={t.mainMenu.hero.quickCoinsHint}
-        icon={<ShopIcon className="h-52 w-52" />}
+        icon={<ShopIcon className="h-60 w-60" />}
         tone="sun"
         flex="lg:flex-[1.25]"
+        valueClass="lg:text-[64px]"
         focused={focused === 'shop'}
         onFocus={() => onFocus('shop')}
         onSelect={() => setScene('shop')}
@@ -72,7 +85,7 @@ export function MenuHomeQuickLeft({ focused, onFocus }: QuickProps) {
         value={unlocked + '/' + catalog.length}
         tag={claimable > 0 ? String(claimable) : undefined}
         hint={t.mainMenu.hero.quickAchievementsHint}
-        icon={<TrophyIcon className="h-52 w-52" />}
+        icon={<TrophyIcon className="h-44 w-44" />}
         progress={catalog.length > 0 ? unlocked / catalog.length : 0}
         tone="plain"
         flex="lg:flex-[1]"
@@ -112,8 +125,8 @@ export function MenuHomeQuickRight({ focused, onFocus }: QuickProps) {
         value={projects.length}
         unit={t.mainMenu.hero.projectUnit}
         hint={t.mainMenu.hero.quickWorkshopHint}
-        icon={<WrenchIcon className="h-52 w-52" />}
-        tone="plain"
+        icon={<WrenchIcon className="h-56 w-56" />}
+        tone="mint"
         flex="lg:flex-[1]"
         focused={focused === 'workshop'}
         onFocus={() => onFocus('workshop')}
@@ -134,6 +147,7 @@ function QuickTile({
   progress,
   tone,
   flex,
+  valueClass = '',
   focused,
   onFocus,
   onSelect,
@@ -148,10 +162,13 @@ function QuickTile({
   progress?: number;
   tone: QuickTone;
   flex: string;
+  valueClass?: string;
   focused: boolean;
   onFocus: () => void;
   onSelect: () => void;
 }) {
+  const pattern = PATTERN[tone];
+
   return (
     <button
       type="button"
@@ -167,9 +184,13 @@ function QuickTile({
         focused ? '-translate-y-1' : 'hover:-translate-y-1',
       ].join(' ')}
     >
-      {/* 裝飾層：一枚半透明大圖示撐住磚的中央量體（只做視覺，狀態走 tone／徽章） */}
+      {/* 裝飾層：底紋 + 半透明大圖示。兩者都包在 overflow-hidden 裡，避免撐大 scroll 區 */}
       <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <span className="absolute inset-0 flex items-center justify-center opacity-[0.09]">{icon}</span>
+        <span
+          className="absolute inset-0"
+          style={{ backgroundImage: pattern.image, backgroundSize: pattern.size }}
+        />
+        <span className="absolute inset-0 flex items-center justify-center opacity-[0.11]">{icon}</span>
       </span>
 
       <span className="relative flex items-center gap-2">
@@ -183,7 +204,7 @@ function QuickTile({
 
       <span className="relative flex flex-col gap-2">
         <span className="flex items-end justify-between gap-2">
-          <span className="arc-num truncate text-[38px] leading-none lg:text-[56px]">{value}</span>
+          <span className={['arc-num truncate text-[38px] leading-none', valueClass].join(' ')}>{value}</span>
           <span className="ml-auto flex items-end gap-2">
             {unit && <span className="pb-1 font-mono text-[10px] opacity-70">{unit}</span>}
             <span
@@ -196,11 +217,16 @@ function QuickTile({
         </span>
 
         {progress !== undefined && (
-          <span className="block h-2 w-full overflow-hidden rounded-full bg-[var(--cn-ink)]/10">
-            <span
-              className="block h-full rounded-full bg-[var(--cn-ink)]/45"
-              style={{ width: Math.round(Math.min(1, Math.max(0, progress)) * 100) + '%' }}
-            />
+          <span className="flex items-center gap-2">
+            <span className="block h-2 flex-1 overflow-hidden rounded-full bg-[var(--cn-ink)]/10">
+              <span
+                className="block h-full rounded-full bg-[var(--cn-ink)]/45"
+                style={{ width: Math.round(Math.min(1, Math.max(0, progress)) * 100) + '%' }}
+              />
+            </span>
+            <span className="shrink-0 font-mono text-[10px] font-extrabold opacity-65">
+              {Math.round(progress * 100) + '%'}
+            </span>
           </span>
         )}
 
