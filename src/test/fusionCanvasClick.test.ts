@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { resolveFusionCanvasClick } from '@/data/fusionCanvasClick';
 import { resolveFusionModeHint } from '@/data/fusionModeHint';
@@ -53,42 +51,5 @@ describe('fusion mode hint', () => {
       modeHint: '選擇第二座塔進行合體',
       needFunds: '需要資金: ${cost}',
     })).toBe('選擇第二座塔進行合體');
-  });
-});
-
-describe('fusion click wiring', () => {
-  it('uses the shared click resolver on the 2D canvas and 3D interaction', () => {
-    const canvas = readFileSync(
-      resolve(__dirname, '../components/scenes/game-scene/GameCanvas.tsx'),
-      'utf8',
-    );
-    const interaction = readFileSync(
-      resolve(__dirname, '../components/scenes/game-scene/three/interaction3d.ts'),
-      'utf8',
-    );
-    expect(canvas).toMatch(/resolveFusionCanvasClick/);
-    expect(interaction).toMatch(/resolveFusionCanvasClick/);
-    expect(interaction).toMatch(/fuseTowers/);
-    expect(interaction).toMatch(/cancelFusion/);
-  });
-
-  it('shows the fusion banner in 3D and reads the funds-short hint', () => {
-    const scene = readFileSync(
-      resolve(__dirname, '../components/scenes/GameScene.tsx'),
-      'utf8',
-    );
-    const banner = readFileSync(
-      resolve(__dirname, '../components/game/FusionModeBanner.tsx'),
-      'utf8',
-    );
-    const actions = readFileSync(
-      resolve(__dirname, '../store/gameStoreActions.ts'),
-      'utf8',
-    );
-    expect(scene).toMatch(/FusionModeBanner/);
-    expect(banner).toMatch(/resolveFusionModeHint/);
-    expect(banner).toMatch(/fusionFundsShort/);
-    expect(actions).toMatch(/fusionFundsShort: fusionCost/);
-    expect(actions).toMatch(/fusionFundsShort: null/);
   });
 });

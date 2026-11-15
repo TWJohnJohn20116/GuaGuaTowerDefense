@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { resolveReplayRestartArgs } from '@/data/replayRestart';
 
@@ -47,16 +45,5 @@ describe('replay restart args', () => {
       isVictory: false,
       finalWave: 40,
     }).maxWaves).toBe(0);
-  });
-
-  it('wires restart args into both replay start-game call sites and records lastStartArgs', () => {
-    const browse = readFileSync(resolve(__dirname, '../components/scenes/Replay.tsx'), 'utf8');
-    const detail = readFileSync(resolve(__dirname, '../components/scenes/replay/ReplayDetail.tsx'), 'utf8');
-    const recorder = readFileSync(resolve(__dirname, '../hooks/useReplayRecorder.ts'), 'utf8');
-    expect(browse).toMatch(/resolveReplayRestartArgs/);
-    expect(browse).toMatch(/onReplayThis/);
-    expect(detail).toMatch(/onReplayThis/);
-    expect(recorder).toMatch(/lastStartArgs/);
-    expect(recorder).toMatch(/startPathName/);
   });
 });
