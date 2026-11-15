@@ -4,13 +4,12 @@ import type {
 } from '@/types/game';
 import { GAME_CONSTANTS } from '@/data/gameData';
 import { setTileTowerId } from './gridTower';
-import { getTowerStatBonus } from '@/data/towerCombatStats';
 import { canBatchUpgradeTower, getTowerUpgradeCost } from '@/data/towerUpgradeCost';
 import { getTowerBuildCost } from '@/data/towerCost';
 import { getTowerSellRefund } from '@/store/sellConfirm';
 import { TOWER_SKILLS, SKILL_DATA, getSkillRangeCells, applySkillCooldownReduction } from '@/data/skillData';
 import { tickTowerSkills } from '@/data/skillAura';
-import { getTowerData, generateId, applyDamageToEnemy } from './gameStoreUtils';
+import { getTowerData, generateId, applyDamageToEnemy, getTowerStatBonusFor } from './gameStoreUtils';
 import type { GameStore } from './gameStoreTypes';
 import { useTutorialStore, INTERACTIVE_TUTORIAL_STEPS } from './tutorialStore';
 import { notifyModScripts } from '@/mod-script/dispatch';
@@ -348,7 +347,7 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     
     const cost = getTowerUpgradeCost(towerData.cost, tower.level);
     const nextLevel = tower.level + 1;
-    const bonus = getTowerStatBonus({
+    const bonus = getTowerStatBonusFor({
       type: tower.type,
       level: nextLevel,
       upgradePath: tower.upgradePath,
@@ -668,7 +667,7 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     const baseTowerData = getTowerData(tower.type);
     if (!baseTowerData) return null;
 
-    const bonus = getTowerStatBonus(tower);
+    const bonus = getTowerStatBonusFor(tower);
     let stats: TowerData = {
       ...baseTowerData,
       damage: Math.floor(baseTowerData.damage * bonus.damageMultiplier),

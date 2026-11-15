@@ -17,9 +17,9 @@ import { getProtocolWaveMods } from '@/data/tacticalProtocolData';
 import { collectJammerAurasCached, getTowerJamFireRateMult } from '@/data/jammerAura';
 import { getMoneyAuraRange, MONEY_KILL_BONUS_MULT } from '@/data/moneyAura';
 import { getTowerCombatIdentityPills } from '@/data/towerCombatIdentity';
-import { getTowerStatBonus } from '@/data/towerCombatStats';
 import { getTowerUpgradeCost } from '@/data/towerUpgradeCost';
 import { getTowerSellRefund, requestSellTower } from '@/store/sellConfirm';
+import { getTowerStatBonusFor } from '@/store/gameStoreUtils';
 import { getTowerLockTitle } from '@/data/towerLockTitle';
 import { formatCurrentPathCaption, formatUpgradePathTag } from '@/data/upgradePathLabel';
 import { formatTowerLevelBadge } from '@/data/towerLevelLabel';
@@ -174,8 +174,8 @@ export const FloatingTowerPanel = ({
   const baseDmg = data.damage || data.damagePerSecond || 0;
   const isFlame = !!data.flameEffect;
 
-  const statBonus = getTowerStatBonus(selectedTower);
-  const nextBonus = getTowerStatBonus({
+  const statBonus = getTowerStatBonusFor(selectedTower);
+  const nextBonus = getTowerStatBonusFor({
     type: selectedTower.type,
     level: nextLevel,
     upgradePath: selectedTower.upgradePath,

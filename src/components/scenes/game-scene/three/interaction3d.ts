@@ -14,9 +14,8 @@ import * as THREE from 'three';
 import { useGameStore } from '@/store/gameStore';
 import { useTalentStore } from '@/store/talentStore';
 import { GAME_CONSTANTS } from '@/data/gameData';
-import { getTowerData } from '@/store/gameStoreUtils';
-import { getTowerStatBonus } from '@/data/towerCombatStats';
-import type { TowerType, UpgradePath } from '@/types/game';
+import { getTowerData, getTowerStatBonusFor } from '@/store/gameStoreUtils';
+import type { UpgradePath } from '@/types/game';
 import { previewPlacementSynergies, toTowerRef } from '@/data/towerSynergyData';
 import { resolveFusionCanvasClick } from '@/data/fusionCanvasClick';
 import { resolveGridTowerClick, resolveMarqueeAsClick } from '@/data/gridTowerClick';
@@ -301,8 +300,8 @@ export function createInteraction3D(
     const data = getTowerData(type as never);
     if (!data) return 0;
     const talentRangeMult = useTalentStore.getState().getModifiers().towerRangeMult;
-    return data.range * getTowerStatBonus({
-      type: type as TowerType,
+    return data.range * getTowerStatBonusFor({
+      type,
       level,
       upgradePath,
     }).rangeMultiplier * talentRangeMult;

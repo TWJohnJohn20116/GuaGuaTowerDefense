@@ -1,6 +1,6 @@
 import type { 
   PathConfig, TowerType, TowerData, Tile, TileType, KeyBindings, GridPosition, Mod, Custom3DModel,
-  EnemyData, EnemyType
+  EnemyData, EnemyType, CustomTowerData, UpgradePath
 } from '@/types/game';
 import { GAME_CONSTANTS, PATHS, TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
 import { useModStore } from './modStore';
@@ -12,6 +12,7 @@ import {
   isEnemyPhased,
   isEnemyStealthed,
 } from '@/data/enemyVisibility';
+import { getTowerStatBonus } from '@/data/towerCombatStats';
 
 // 性能優化：getTowerData 結果快取
 // - 基礎塔（TOWER_DATA）為穩定常數，直接命中 O(1) hash 查找
@@ -70,6 +71,47 @@ export const getTowerData = (towerType: string): TowerData | null => {
   modTowerDataCache.set(towerType, result);
   return result;
 };
+
+// 性能優化：自訂塔升級分支快取（失效條件與 getTowerData 相同：mod 陣列引用變更）
+let cachedBranchModsRef: Mod[] | null = null;
+const modTowerBranchCache = new Map<string, CustomTowerData['upgradeBranches'] | undefined>();
+
+/**
+ * 自訂塔的升級分支（工坊寫進 CustomTowerData.upgradeBranches）。
+ * 官方塔或未設定時回 undefined，呼叫端就會走原本的官方分支表。
+ */
+const getTowerUpgradeBranches = (towerType: string): CustomTowerData['upgradeBranches'] => {
+  if (TOWER_DATA[towerType as TowerType]) return undefined;
+  const mods = useModStore.getState().mods;
+  if (mods !== cachedBranchModsRef) {
+    cachedBranchModsRef = mods;
+    modTowerBranchCache.clear();
+  }
+  if (modTowerBranchCache.has(towerType)) return modTowerBranchCache.get(towerType);
+
+  let branches: CustomTowerData['upgradeBranches'];
+  for (const mod of mods) {
+    if (!mod.enabled) continue;
+    const modTower = mod.content.towers?.find(t => t.id === towerType);
+    if (!modTower) continue;
+    branches = modTower.upgradeBranches;
+    break;
+  }
+  modTowerBranchCache.set(towerType, branches);
+  return branches;
+};
+
+/**
+ * 對局與面板共用的屬性加成：自訂塔帶入工坊的升級分支，官方塔行為與舊版完全相同。
+ * 之所以放在 store 層，是因為分支要從 modStore 解析；data 層維持純函式。
+ */
+export const getTowerStatBonusFor = (tower: { type: string; level: number; upgradePath: UpgradePath }) =>
+  getTowerStatBonus({
+    type: tower.type as TowerType,
+    level: tower.level,
+    upgradePath: tower.upgradePath,
+    customBranches: getTowerUpgradeBranches(tower.type),
+  });
 
 // 性能優化：遞增式投射物 ID 取代 Math.random().toString(36)
 // 用 32 位無號數環繞，避免長期遊戲 ID 過長

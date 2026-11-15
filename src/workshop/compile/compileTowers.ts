@@ -23,6 +23,8 @@ export function compileTower(projectId: string, asset: WorkshopTowerAsset): Comp
     ...rest,
     // 沒指定模型時沿用基底塔型，3D／2D 外觀才不會開天窗
     modelType: rest.modelType ?? baseType,
+    // 自訂升級分支原樣透傳（未設定時維持 undefined，引擎回退官方分支表）
+    upgradeBranches: rest.upgradeBranches,
   };
   return {
     tower,

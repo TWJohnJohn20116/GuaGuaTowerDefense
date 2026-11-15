@@ -562,6 +562,18 @@ export const getUpgradeBonus = (
   chainCountBonus: number;
 } => {
   const branches = TOWER_UPGRADE_BRANCHES[towerType];
+  // 自訂塔沒有官方分支表：回退成「無加成」，否則讀 undefined.pathA 會整幀拋錯
+  if (!branches) {
+    return {
+      damageMultiplier: 1,
+      rangeMultiplier: 1,
+      fireRateMultiplier: 1,
+      splashRadiusMultiplier: 1,
+      slowAmountMultiplier: 1,
+      poisonDamageMultiplier: 1,
+      chainCountBonus: 0,
+    };
+  }
   const selectedPath = path === 'A' ? branches.pathA : branches.pathB;
   
   let result = {

@@ -2,7 +2,7 @@
 import type { Enemy, Projectile, Tower, TowerType } from '@/types/game';
 import { GAME_CONSTANTS, ENEMY_DATA } from '@/data/gameData';
 import { SKILL_DATA, getSkillFireTargets } from '@/data/skillData';
-import { getTowerData, generateProjectileId, isEnemyStealthed, isEnemyPhased, applyDamageToEnemy } from '../gameStoreUtils';
+import { getTowerData, generateProjectileId, isEnemyStealthed, isEnemyPhased, applyDamageToEnemy, getTowerStatBonusFor } from '../gameStoreUtils';
 import { getProtocolWaveMods } from '@/data/tacticalProtocolData';
 import { getSynergyModsForTower, toTowerRef } from '@/data/towerSynergyData';
 import { useTalentStore } from '../talentStore';
@@ -15,7 +15,6 @@ import { playTowerFire } from '@/services/audioService';
 import { applyPulseExposed, applyWindFear, getAntiAirMult, getBurnHuntMult, getExecuteMult, getExposedHuntMult, getFearHuntMult, getToxinHuntMult } from '@/data/combatStatus';
 import { collectJammerAurasCached, getTowerJamFireRateMult } from '@/data/jammerAura';
 import { pickTowerTarget } from '@/data/towerTargeting';
-import { getTowerStatBonus } from '@/data/towerCombatStats';
 import { resolveScriptTowerMod } from '@/data/scriptTowerMods';
 import { getTowerUpgradeCost } from '@/data/towerUpgradeCost';
 
@@ -169,7 +168,7 @@ export const createUpdateTowers =
         if (!towerData) continue;
         const synergyMods = getSynergyModsForTower(toTowerRef(tower), synergyRefs);
         const scriptMod = resolveScriptTowerMod(scriptTowerMods, tower.type);
-        const range = towerData.range * getTowerStatBonus(tower).rangeMultiplier * talentRangeMult * protocolMods.rangeMult * synergyMods.rangeMult * scriptMod.range;
+        const range = towerData.range * getTowerStatBonusFor(tower).rangeMultiplier * talentRangeMult * protocolMods.rangeMult * synergyMods.rangeMult * scriptMod.range;
         const rangeSq = range * range;
         const tcol = tower.gridPos.col;
         const trow = tower.gridPos.row;
@@ -192,7 +191,7 @@ export const createUpdateTowers =
       if (!towerData) return tower;
 
       const synergyMods = getSynergyModsForTower(toTowerRef(tower), synergyRefs);
-      const statBonus = getTowerStatBonus(tower);
+      const statBonus = getTowerStatBonusFor(tower);
       const scriptMod = resolveScriptTowerMod(scriptTowerMods, tower.type);
       let fireRate = (towerData.fireRate || 1) * statBonus.fireRateMultiplier * talentAttackSpeedMult * inspireSpeedMult * protocolMods.fireRateMult * synergyMods.fireRateMult * scriptMod.fireRate;
       fireRate *= getTowerJamFireRateMult(tower.gridPos.col, tower.gridPos.row, jammerAuras);

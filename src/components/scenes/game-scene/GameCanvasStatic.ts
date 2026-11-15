@@ -8,7 +8,7 @@
 import { drawGrid, drawTileHover } from '@/components/game/PathRenderer';
 import type { TowerType, Tower, Tile } from '@/types/game';
 import { previewPlacementSynergies, toTowerRef } from '@/data/towerSynergyData';
-import { getTowerStatBonus } from '@/data/towerCombatStats';
+import { getTowerStatBonusFor } from '@/store/gameStoreUtils';
 import { getBoardColors } from '@/utils/themeBoard';
 
 // ===== 調適調試繪圖 =====
@@ -295,7 +295,7 @@ function drawRangeIndicators(
         const towerData = getTowerData(tower.type);
         if (!towerData) continue;
         // range 是格子單位，乘以 tileSize 轉換為像素
-        const rangeInPixels = towerData.range * getTowerStatBonus(tower).rangeMultiplier * tileSize;
+        const rangeInPixels = towerData.range * getTowerStatBonusFor(tower).rangeMultiplier * tileSize;
 
         // 獲取皮膚顏色用於範圍指示器
         const rangeSkinVisuals = getSkinVisuals(tower.type as TowerType);
