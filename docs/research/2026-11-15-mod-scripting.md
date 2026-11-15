@@ -46,7 +46,11 @@ function onWaveStart(ctx, api) {
 | `onWaveStart` | `startWave()` 開波 | `wave` |
 | `onWaveClear` | 本波生成完且場上清空 | `wave` |
 | `onEnemyKilled` | 擊殺批次（與成就／統計同一個批次點） | `killCount`, `enemyTypes` |
+| `onEnemyLeaked` | 敵人抵達基地（漏怪，緊接 `takeDamage` 之後） | `enemyTypes`, `amount`, `wave` |
 | `onTowerPlaced` | `placeTower()` 成功 | `towerType`, `row`, `col` |
+| `onTowerSold` | `sellTower()` 成功 | `towerType`, `row`, `col` |
+| `onBossSpawn` | Boss／精英生成 | `enemyType`, `wave` |
+| `onMoneyChanged` | store 的 `money` 變動（節流 250ms） | `amount` |
 | `onTick` | 主迴圈節流 500ms（遊戲時間） | 無 |
 | `onGameOver` | 基地血量歸零 | 無 |
 | `onVictory` | `setVictory()` | 無 |

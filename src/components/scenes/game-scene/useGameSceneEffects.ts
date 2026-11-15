@@ -433,6 +433,8 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
 
         const currentEnemies = useGameStore.getState().enemies;
         const enemiesToRemove: string[] = [];
+        /** 漏怪的敵人型別（給 onEnemyLeaked 事件用） */
+        const leakedTypes: string[] = [];
         let damageCount = 0;
 
         for (const enemy of currentEnemies) {
@@ -442,16 +444,24 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
             const seg = segMap!.get(enemy.currentSegmentId);
             if (seg && seg.next.length === 0 && (enemy.segmentWaypointIndex ?? 0) >= seg.waypoints.length - 1) {
               damageCount++;
+              leakedTypes.push(enemy.type);
               enemiesToRemove.push(enemy.id);
             }
           } else if (!isAdvancedMap && enemy.pathIndex >= path.waypoints.length - 1) {
             damageCount++;
+            leakedTypes.push(enemy.type);
             enemiesToRemove.push(enemy.id);
           }
         }
 
         if (damageCount > 0) {
           takeDamage(damageCount);
+          // 漏怪事件：腳本最常用它做「漏一隻就補償／懲罰」這類規則
+          notifyModScripts('onEnemyLeaked', {
+            enemyTypes: leakedTypes,
+            amount: damageCount,
+            wave: currentWave,
+          });
           useGameStore.getState().addShake(4);
           useStatsStore.getState().trackDamageTaken(damageCount);
         }

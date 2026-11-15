@@ -17,7 +17,9 @@ export type ModScriptHook =
   | 'onVictory'
   | 'onTowerSold'
   | 'onBossSpawn'
-  | 'onMoneyChanged';
+  | 'onMoneyChanged'
+  /** 敵人抵達基地（漏怪）；detail 帶 enemyTypes 與 amount */
+  | 'onEnemyLeaked';
 
 /** 腳本能力（最小權限原則：沒勾就不能做） */
 export type ModScriptPermission =

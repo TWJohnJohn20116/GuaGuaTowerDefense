@@ -102,7 +102,7 @@ export const zhTW = {
       event: {
         gameStart: '遊戲開始', waveStart: '波次開始', waveClear: '波次結束', enemyKilled: '敵人死亡',
         towerPlaced: '塔放置', tick: '每幀', gameOver: '遊戲失敗', victory: '勝利',
-        towerSold: '塔出售', bossSpawn: 'Boss 出現', moneyChanged: '金錢變動',
+        towerSold: '塔出售', bossSpawn: 'Boss 出現', moneyChanged: '金錢變動', enemyLeaked: '漏怪',
         'gameStart.desc': '每一局開始時執行一次',
         'waveStart.desc': '每一波開始時執行一次',
         'waveClear.desc': '一波清空時執行',
@@ -114,6 +114,7 @@ export const zhTW = {
         'towerSold.desc': '賣塔後執行',
         'bossSpawn.desc': 'Boss／精英生成時執行',
         'moneyChanged.desc': '金錢變動時執行（已節流 250ms）',
+        'enemyLeaked.desc': '有敵人抵達基地時執行（漏怪）；detail 帶漏掉的敵人型別與數量',
       },
       node: {
         condChance: '隨機機率', condCompare: '數值比較', condEnemyCount: '場上敵人數', condMoney: '金錢比較',
@@ -4322,6 +4323,7 @@ export const zhTW = {
       onTowerSold: '賣塔',
       onBossSpawn: 'Boss 生成',
       onMoneyChanged: '金錢變動',
+      onEnemyLeaked: '漏怪',
     },
     scriptPerms: {
       'state.read': '讀取局內狀態',

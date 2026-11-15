@@ -45,7 +45,8 @@ const HOOK_BY_TRIGGER = new Map<WorkshopRuleTrigger, ModScriptHook>([
   ['bossKilled', 'onEnemyKilled'],
   ['killCount', 'onEnemyKilled'],
   ['moneyChanged', 'onMoneyChanged'],
-  ['baseDamaged', 'onTick'],
+  // 以前沒有漏怪事件，只能靠 onTick 輪詢血量；現在直接掛 onEnemyLeaked
+  ['baseDamaged', 'onEnemyLeaked'],
 ]);
 
 function createIssue(

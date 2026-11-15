@@ -80,7 +80,7 @@ interface EventDefinition {
   hook: ModScriptHook;
 }
 
-/** 11 個 hook 一個都不能少（與 MOD_SCRIPT_HOOKS 對齊） */
+/** 12 個 hook 一個都不能少（與 MOD_SCRIPT_HOOKS 對齊） */
 const EVENT_NODE_TYPES: readonly EventDefinition[] = [
   { type: 'event.gameStart', hook: 'onGameStart' },
   { type: 'event.waveStart', hook: 'onWaveStart' },
@@ -93,6 +93,7 @@ const EVENT_NODE_TYPES: readonly EventDefinition[] = [
   { type: 'event.towerSold', hook: 'onTowerSold' },
   { type: 'event.bossSpawn', hook: 'onBossSpawn' },
   { type: 'event.moneyChanged', hook: 'onMoneyChanged' },
+  { type: 'event.enemyLeaked', hook: 'onEnemyLeaked' },
 ];
 
 function eventSpec(definition: EventDefinition): GraphNodeSpec {

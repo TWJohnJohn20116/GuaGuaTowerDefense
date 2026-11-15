@@ -11,6 +11,7 @@ export const MOD_SCRIPT_HOOKS: ModScriptHook[] = [
   'onWaveStart',
   'onWaveClear',
   'onEnemyKilled',
+  'onEnemyLeaked',
   'onTowerPlaced',
   'onTick',
   'onGameOver',

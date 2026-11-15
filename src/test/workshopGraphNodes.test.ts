@@ -210,6 +210,25 @@ describe('數值來源與運算', () => {
   });
 });
 
+describe('漏怪事件節點', () => {
+  it('節點庫有 event.enemyLeaked 且指向 onEnemyLeaked', () => {
+    const spec = nodeSpec('event.enemyLeaked');
+    expect(spec).not.toBeNull();
+    expect(spec?.hook).toBe('onEnemyLeaked');
+    expect(spec?.category).toBe('event');
+  });
+
+  it('編譯後產生 onEnemyLeaked 處理函式', () => {
+    const graph = makeGraph(
+      [makeNode('ev', 'event.enemyLeaked'), makeNode('log', 'action.log', { message: 'leak' })],
+      [makeEdge('e1', 'ev', 'out', 'log', 'in')],
+    );
+    const code = compileGraphCode(graph);
+    expect(code).toContain('function onEnemyLeaked(ctx, api)');
+    expect(() => new Function(code)).not.toThrow();
+  });
+});
+
 describe('只執行一次與清除變數', () => {
   it('once 產生持久旗標的守衛', () => {
     const graph = makeGraph(
