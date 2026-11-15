@@ -68,7 +68,7 @@ export const BottomControls = () => {
       ? 'text-[var(--bd-caution)]'
       : !endlessMode && maxWaves > 0 && currentWave >= maxWaves
         ? 'text-[var(--bd-vital)]'
-        : 'text-[#140f18]';
+        : 'text-[var(--cn-on-cta)]';
 
   return (
     <div className="flex h-full min-w-0 items-stretch">
@@ -86,7 +86,7 @@ export const BottomControls = () => {
             'flex h-full items-center justify-center gap-2 px-4 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] transition-[filter,background-color] duration-100',
             waveActive || pendingProtocol || (!endlessMode && maxWaves > 0 && currentWave >= maxWaves) || tutorialActive
               ? `cursor-not-allowed bg-transparent ${startTone}`
-              : 'bg-[var(--bd-accent)] text-[#140f18] shadow-[inset_0_-2px_0_var(--bd-edge)] hover:brightness-110',
+              : 'bg-[var(--cn-cta)] text-[var(--cn-on-cta)] hover:brightness-110',
             !waveActive && !pendingProtocol && tutorialActive && tutorialStep?.action !== 'start_wave'
               ? 'opacity-40'
               : '',

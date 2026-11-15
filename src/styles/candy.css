@@ -76,16 +76,15 @@
   --cn-mono: 'JetBrains Mono', 'Cascadia Mono', 'Consolas', ui-monospace, monospace;
 
   /* --------------------------------------------------------------------------
-     棋盤 HUD 色票（--bd-*）
-     戰鬥畫面的面板吃「戰場格子」的顏色，不是吃紙卡白。
-     下面這組只是首屏兜底（＝coral 主題的 board 值）；
-     真正切主題時由 themeCssVars() 把 12 套主題的 board 寫進 :root。
+     戰鬥 HUD 色票（--bd-*）
+     戰鬥畫面的面板與大廳同一套 CANDY 語彙：白卡、奶油凹槽、粗墨線、貼紙硬投影。
+     這組只是別名，全部指回 --cn-*，所以 12 套主題切換時 HUD 跟著換，不用改元件。
      -------------------------------------------------------------------------- */
-  --bd-floor: #241b28;
-  --bd-tile: #2c2231;
-  --bd-tile-2: #3a3040;
-  --bd-edge: #1a1218;
-  --bd-accent: var(--cn-coral);
+  --bd-floor: var(--cn-paper-2);
+  --bd-tile: var(--cn-card);
+  --bd-tile-2: var(--cn-card-2);
+  --bd-edge: var(--cn-line);
+  --bd-accent: var(--cn-accent-text);
 }
 
 /* --------------------------------------------------------------------------

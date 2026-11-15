@@ -292,26 +292,6 @@ const COLOR_VAR: Record<keyof ThemeColors, string> = {
   onCta: '--cn-on-cta',
 };
 
-/**
- * 棋盤 → CSS 變數。
- *
- * 戰鬥 HUD 不吃紙卡白，吃的是「戰場格子」的顏色：面板底＝空地格、次級面＝道路、
- * 線＝道路接縫、強調＝路徑導引線（也就是主題 primary）。
- * 這樣切換 12 套主題時，HUD 與棋盤一起變色，不會出現「格子換了、面板還是白的」。
- *
- * 線與字階不放在這裡：它們由 themes.css 用 color-mix 從 --bd-edge 派生，
- * 12 套主題共用同一組規則。
- */
-const BOARD_VAR: Record<keyof ThemeBoard | 'accent', string> = {
-  floor: '--bd-floor',
-  tile: '--bd-tile',
-  path: '--bd-tile-2',
-  start: '--bd-start',
-  end: '--bd-end',
-  edge: '--bd-edge',
-  accent: '--bd-accent',
-};
-
 /** 把一套主題攤平成可直接 setProperty 的 CSS 變數表 */
 export function themeCssVars(theme: ThemeDefinition): Record<string, string> {
   const vars: Record<string, string> = {};
@@ -322,10 +302,5 @@ export function themeCssVars(theme: ThemeDefinition): Record<string, string> {
   vars['--cn-glow-2'] = theme.glow[1];
   vars['--cn-glow-3'] = theme.glow[2];
   vars['--cn-dot'] = theme.dot;
-
-  for (const boardKey of Object.keys(BOARD_VAR) as (keyof typeof BOARD_VAR)[]) {
-    vars[BOARD_VAR[boardKey]] =
-      boardKey === 'accent' ? theme.colors.primary : theme.board[boardKey];
-  }
   return vars;
 }

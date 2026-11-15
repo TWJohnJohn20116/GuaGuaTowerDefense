@@ -39,28 +39,26 @@
 }
 
 /* --------------------------------------------------------------------------
-   棋盤 HUD（--bd-*）
+   戰鬥 HUD（--bd-*）＝大廳 CANDY 語彙的別名
    --------------------------------------------------------------------------
-   底色（--bd-floor / --bd-tile / --bd-tile-2 / --bd-edge / --bd-accent）
-   由 themeCssVars() 依主題寫入；這裡只補兩件 12 套主題共用的事：
-     1. 線：從 --bd-edge 往白混，深底上才看得見格線。
-     2. 字階：board 全系列都是深底，所以字一律取亮階（與 --cn-ink 無關）。
-   對比（WCAG AA，量在 #2c2231 上）：ink 12.9 / ink-2 8.2 / ink-3 5.6 / ink-4 4.8。
+   HUD 現在與主選單／選圖／設定頁吃同一組顏色角色，所以切主題時整支程式一起換：
+     面＝白卡／奶油凹槽、線＝墨線／淺墨線、字＝五階墨、強調＝accentText。
+   對比不再由這裡保證，而是沿用 themeContrast 已驗過的 --cn-*-text 系列。
    -------------------------------------------------------------------------- */
 :root {
-  --bd-line: color-mix(in oklab, var(--bd-edge) 55%, #ffffff 45%);
-  --bd-line-soft: color-mix(in oklab, var(--bd-edge) 78%, #ffffff 22%);
-  --bd-line-strong: color-mix(in oklab, var(--bd-edge) 32%, #ffffff 68%);
+  --bd-line: var(--cn-line-soft);
+  --bd-line-soft: var(--cn-line-soft);
+  --bd-line-strong: var(--cn-line);
 
-  --bd-ink: #f8f5ff;
-  --bd-ink-2: #d6cfe4;
-  --bd-ink-3: #b3abc4;
-  --bd-ink-4: #9a92ab;
+  --bd-ink: var(--cn-ink);
+  --bd-ink-2: var(--cn-ink-2);
+  --bd-ink-3: var(--cn-ink-3);
+  --bd-ink-4: var(--cn-ink-4);
 
-  --bd-vital: #6ee7a8;
-  --bd-caution: #ffd75e;
-  --bd-alarm: #ff8fa3;
-  --bd-info: #7cc6ff;
+  --bd-vital: var(--cn-vital-text);
+  --bd-caution: var(--cn-caution-text);
+  --bd-alarm: var(--cn-alarm-text);
+  --bd-info: var(--cn-reach-text);
 }
 
 /* --------------------------------------------------------------------------

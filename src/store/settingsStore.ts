@@ -93,7 +93,7 @@ export const DEFAULT_HUD_LAYOUT: HudLayoutState = {
   cornerStyle: 'pill',
   blurIntensity: 'heavy',
   accentColor: 'default',
-  towerListColumns: 2,
+  towerListColumns: 1,
   towerButtonSize: 'medium',
   towerDisplayMode: 'normal',
   towerListSpacing: 'normal',

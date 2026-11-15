@@ -129,7 +129,7 @@ export const TopStatsBar = () => {
                 <button
                   type="button"
                   aria-label={t.common.close}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[2px] border border-[var(--bd-line)] text-[var(--bd-ink-3)] transition-colors hover:border-[var(--bd-line-strong)] hover:text-[var(--bd-ink)]"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-[3px] border-[var(--cn-line)] text-[var(--cn-ink-3)] transition-colors hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)]"
                   onClick={() => setShowStatsDialog(false)}
                 >
                   <CrossIcon className="h-3.5 w-3.5" />
@@ -210,7 +210,7 @@ export const TopStatsBar = () => {
               <footer className="border-t border-[var(--bd-line)] p-3">
                 <button
                   type="button"
-                  className="w-full rounded-[3px] border border-[var(--bd-line-strong)] bg-[var(--bd-accent)] px-3 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[#140f18] shadow-[0_2px_0_var(--bd-edge)] transition-colors hover:brightness-110"
+                  className="w-full rounded-[var(--cn-r-sm)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-cta)] px-3 py-2 font-mono text-[11px] font-extrabold uppercase tracking-[0.08em] text-[var(--cn-on-cta)] shadow-[0_4px_0_var(--cn-line)] transition-[transform,box-shadow] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
                   onClick={() => setShowStatsDialog(false)}
                 >
                   {t.common.close}

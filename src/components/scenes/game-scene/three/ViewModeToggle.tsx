@@ -40,10 +40,10 @@ export function ViewModeToggle({ mode, onToggle }: ViewModeToggleProps) {
     <button
       type="button"
       onClick={onToggle}
-      className={`pointer-events-auto inline-flex h-8 items-center gap-1.5 rounded-[2px] border px-2 transition-colors duration-100 ${
+      className={`pointer-events-auto inline-flex h-8 items-center gap-1.5 rounded-[10px] border-[2px] px-2.5 transition-colors duration-100 ${
         is3d
-          ? 'border-[var(--bd-accent)] bg-[color-mix(in_oklab,var(--bd-accent)_18%,var(--bd-tile))] text-[var(--bd-ink)]'
-          : 'border-[var(--bd-line)] bg-[var(--bd-tile)] text-[var(--bd-ink-2)] hover:border-[var(--bd-line-strong)] hover:text-[var(--bd-ink)]'
+          ? 'border-[var(--cn-line)] bg-[var(--cn-sun-soft)] text-[var(--cn-ink)]'
+          : 'border-[var(--cn-line-soft)] bg-[var(--cn-card)] text-[var(--cn-ink-2)] hover:border-[var(--cn-line)] hover:text-[var(--cn-ink)]'
       }`}
       title={t.game.toggleViewHint}
     >

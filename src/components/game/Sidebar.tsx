@@ -137,8 +137,8 @@ const SidebarImpl = ({ viewMode, onToggleView }: SidebarProps) => {
             aria-label={towersCollapsed ? t.game.expandTowerPanel : t.game.collapseTowerPanel}
             aria-expanded={!towersCollapsed}
             onClick={() => setTowersCollapsed((v) => !v)}
-            className={`flex shrink-0 items-center justify-center border border-[var(--bd-line)] bg-[var(--bd-tile)] text-[11px] text-[var(--bd-ink-3)] transition-colors duration-100 hover:border-[var(--bd-line-strong)] hover:bg-[var(--bd-tile-2)] hover:text-[var(--bd-ink)] ${
-              towersCollapsed ? 'h-full rounded-[3px]' : 'mt-1 h-7 rounded-[3px]'
+            className={`flex shrink-0 items-center justify-center border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] text-[11px] font-extrabold text-[var(--cn-ink-3)] shadow-[0_4px_0_var(--cn-line)] transition-colors duration-100 hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)] ${
+              towersCollapsed ? 'h-full rounded-[var(--cn-r-sm)]' : 'mt-1.5 h-7 rounded-[var(--cn-r-sm)]'
             }`}
           >
             <span className={`transition-transform duration-200 ${towersCollapsed ? '-rotate-90' : 'rotate-90'}`}>▶</span>

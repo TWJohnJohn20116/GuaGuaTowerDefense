@@ -110,10 +110,10 @@ function SkillButton({ skill }: SkillButtonProps) {
         onMouseLeave={() => setHovered(false)}
         disabled={!ready}
         className={[
-          'relative flex h-9 w-9 flex-col items-center justify-center gap-0.5 rounded-[3px] border transition-colors duration-100',
+          'relative flex h-9 w-9 flex-col items-center justify-center gap-0.5 rounded-[10px] border-[2px] transition-colors duration-100',
           ready
-            ? 'border-[var(--bd-line-strong)] bg-[var(--bd-tile)] text-[var(--bd-ink)] hover:border-[var(--bd-accent)] hover:bg-[var(--bd-tile-2)]'
-            : 'cursor-not-allowed border-[var(--bd-line-soft)] bg-[var(--bd-floor)] text-[var(--bd-ink-4)]',
+            ? 'border-[var(--cn-line)] bg-[var(--cn-card)] text-[var(--cn-ink)] shadow-[0_3px_0_var(--cn-line)] hover:bg-[var(--cn-card-2)]'
+            : 'cursor-not-allowed border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] text-[var(--cn-ink-4)]',
         ].join(' ')}
       >
         <IconComp className={`h-4 w-4 ${ready ? 'text-[var(--bd-ink)]' : 'text-[var(--bd-ink-4)]'}`} />
@@ -136,7 +136,7 @@ function SkillButton({ skill }: SkillButtonProps) {
       </button>
 
       {/* 鍵位 */}
-      <span className="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-[2px] border border-[var(--bd-line)] bg-[var(--bd-floor)] px-1 font-mono text-[8px] leading-[12px] text-[var(--bd-ink-3)]">
+      <span className="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-[6px] border-[2px] border-[var(--cn-line)] bg-[var(--cn-card)] px-1 font-mono text-[8px] font-extrabold leading-[12px] text-[var(--cn-ink-3)]">
         ⇧{skill.hotkey}
       </span>
 

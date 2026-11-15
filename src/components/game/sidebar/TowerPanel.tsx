@@ -34,9 +34,9 @@ const ALL_BASE_TOWER_TYPES: TowerType[] = [
 
 /** 工具列圖示鍵：棋盤格，選中＝路徑導引色 */
 const TOOL_BTN =
-  'flex h-8 w-full items-center justify-center rounded-[2px] border border-[var(--bd-line)] bg-[var(--bd-tile)] text-[var(--bd-ink-3)] transition-colors duration-100 hover:border-[var(--bd-line-strong)] hover:bg-[var(--bd-tile-2)] hover:text-[var(--bd-ink)] disabled:cursor-not-allowed disabled:border-transparent disabled:bg-transparent disabled:text-[var(--bd-ink-4)] disabled:opacity-50';
+  'flex h-8 w-full items-center justify-center rounded-[10px] border-[2px] border-[var(--cn-line)] bg-[var(--cn-card)] text-[var(--cn-ink-3)] transition-colors duration-100 hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)] disabled:cursor-not-allowed disabled:border-transparent disabled:bg-transparent disabled:text-[var(--cn-ink-4)] disabled:opacity-50';
 const TOOL_BTN_ON =
-  'border-[var(--bd-accent)] bg-[color-mix(in_oklab,var(--bd-accent)_18%,var(--bd-tile))] text-[var(--bd-ink)]';
+  'border-[var(--cn-line)] bg-[var(--cn-sun-soft)] text-[var(--cn-ink)]';
 
 export const TowerPanel = () => {
   const { t } = useTranslation();

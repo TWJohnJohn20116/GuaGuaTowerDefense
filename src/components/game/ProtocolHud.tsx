@@ -11,7 +11,7 @@ import { collectJammerAurasCached, listJammedTowerIds } from '@/data/jammerAura'
 import { ENEMY_DATA } from '@/data/gameData';
 
 const CHIP =
-  'inline-flex items-center gap-1.5 rounded-[2px] border border-[var(--bd-line)] border-l-2 bg-[var(--bd-tile)] px-2 py-1 font-mono text-[9.5px] uppercase tracking-[0.06em] shadow-[0_2px_0_var(--bd-edge)]';
+  'inline-flex items-center gap-1.5 rounded-[10px] border-[2px] border-[var(--cn-line)] border-l-[6px] bg-[var(--cn-card)] px-2.5 py-1 font-mono text-[9.5px] font-extrabold uppercase tracking-[0.06em] shadow-[0_3px_0_var(--cn-line)]';
 
 export function ProtocolHud() {
   const { t } = useTranslation();
