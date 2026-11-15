@@ -86,6 +86,8 @@ export const zhTW = {
       models: '模型',
       playtest: '試玩',
       publish: '發佈',
+      collapse: '收合側邊欄',
+      expand: '展開側邊欄',
     },
     editor: {
       save: '儲存',
