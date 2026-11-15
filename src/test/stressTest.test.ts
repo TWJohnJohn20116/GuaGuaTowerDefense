@@ -107,7 +107,9 @@ describe('壓測灌進 store', () => {
     setupMatch();
   });
 
-  it('一鍵灌入 10,000 敵人 + 100 塔，grid 與 towers 仍然一致', () => {
+  it('一鍵灌入 10,000 敵人 + 盡量多的塔，佔位仍然一致', () => {
+    // 自由制：可建造點受路徑淨空限制，實際數量可能少於要求的 100（要求是上限）
+    const expectedTowers = sampleBuildablePoints(PATHS[DEFAULT_PATH], STRESS_DEFAULT_TOWERS).length;
     const result = useGameStore.getState().spawnStressEntities(
       STRESS_DEFAULT_ENEMIES,
       STRESS_DEFAULT_TOWERS,
@@ -115,11 +117,11 @@ describe('壓測灌進 store', () => {
 
     expect(result.reason).toBeUndefined();
     expect(result.enemies).toBe(STRESS_DEFAULT_ENEMIES);
-    expect(result.towers).toBe(STRESS_DEFAULT_TOWERS);
+    expect(result.towers).toBe(expectedTowers);
 
     const state = useGameStore.getState();
     expect(state.enemies).toHaveLength(STRESS_DEFAULT_ENEMIES);
-    expect(state.towers).toHaveLength(STRESS_DEFAULT_TOWERS);
+    expect(state.towers).toHaveLength(expectedTowers);
     expect(state.waveActive).toBe(false);
     expect(findTowerOverlaps(state.towers)).toEqual([]);
   });

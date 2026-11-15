@@ -79,7 +79,8 @@ describe('3D 場景接線', () => {
   it('敵人路徑顯示走共用判定，環境層用 flow 開關', () => {
     const scene3d = source('../components/scenes/game-scene/three/GameScene3D.tsx');
     expect(scene3d).toMatch(/showEnemyPath/);
-    expect(scene3d).toMatch(/resolveDisplayedTileType/);
+    // 自由制後不再有「逐格切換貼圖」，改驗環境層的 flow 開關與共用判定
+    expect(scene3d).toMatch(/setPathFlowVisible/);
     expect(scene3d).toMatch(/shouldShowEnemyPathFx/);
     expect(source('../components/scenes/game-scene/three/environment3d.ts')).toMatch(/setPathFlowVisible/);
   });
