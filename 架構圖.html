@@ -1185,27 +1185,92 @@
 
   <!-- ==================== 13 創作 ==================== -->
   <section id="mod">
-    <h2><span class="idx">13</span>創作工具</h2>
+    <h2><span class="idx">13</span>創作工坊（Workshop）</h2>
 
+    <p class="lead">玩家自己造塔／敵人／地圖／波次／規則的地方。它是專案裡第二大的子系統
+      （<code>src/workshop/**</code> 44 檔 11,130 行＋<code>src/components/workshop/**</code>），
+      而且<b>完全不碰引擎</b>：所有東西先編譯成「Mod 形狀」，再由既有注入點餵給遊戲。</p>
+
+    <h3>8 頁工作台</h3>
+    <table>
+      <thead><tr><th>頁</th><th>檔案</th><th>做什麼</th></tr></thead>
+      <tbody>
+        <tr><td>1 專案</td><td><code>projects/ProjectsPage.tsx</code></td><td>建立／複製／刪除專案，三種範本（基礎／Boss／壓力測試）</td></tr>
+        <tr><td>2 關卡</td><td><code>levels/LevelsPage.tsx</code></td><td>關卡清單、地圖綁定、勝利條件、塔白名單</td></tr>
+        <tr><td>3 內容</td><td><code>content/ContentPage.tsx</code></td><td>波次工作台：清單／單軌時間軸／檢視器·分析·陣容（見下）</td></tr>
+        <tr><td>4 規則</td><td><code>graph/GraphPage.tsx</code></td><td>節點圖＋規則表＋產生的程式碼</td></tr>
+        <tr><td>5 資產</td><td><code>assets/AssetsPage.tsx</code></td><td>六種資產（塔／敵人／地圖／波次組／規則集／腳本）＋美術</td></tr>
+        <tr><td>6 模型</td><td><code>models/ModelsPage.tsx</code></td><td>3D 模型編輯器（gizmo／階層／模板）</td></tr>
+        <tr><td>7 試玩</td><td><code>playtest/PlaytestStage.tsx</code></td><td>臨時局試玩＋無畫面平衡模擬</td></tr>
+        <tr><td>8 發佈</td><td><code>publish/PublishPanel.tsx</code></td><td>.ggmod 封裝、簽章、信任金鑰、匯入</td></tr>
+      </tbody>
+    </table>
+    <p class="small">側欄可收合（<code>Rail</code> 的 <code>collapsed</code>）：收合狀態存 localStorage，
+      沒有存過偏好時以 <code>matchMedia('(max-width: 1023px)')</code> 決定，窄版預設收合。</p>
+
+    <h3>從專案到可玩：資料流</h3>
     <div class="chain">
-      <div class="node" style="--c:var(--l5)"><b>編輯</b><span>塔／敵人／地圖／波次／3D 模型</span></div>
+      <div class="node" style="--c:var(--l5)"><b>Project</b><span>關卡 + 6 種資產</span></div>
       <div class="ar">→</div>
-      <div class="node" style="--c:var(--l5)"><b>驗證 + 平衡分析</b><span>modValidation · modBalanceAnalysis</span></div>
+      <div class="node" style="--c:var(--l5)"><b>compileProject()</b><span>compileTowers／Enemies／Maps／Waves／Rules／Scripts</span></div>
       <div class="ar">→</div>
-      <div class="node" style="--c:var(--l5)"><b>即時預覽</b><span>livePreview*（戰鬥／路徑／生成）</span></div>
+      <div class="node" style="--c:var(--l4)"><b>Mod 形狀</b><span>CustomTowerData／CustomWaveData／…</span></div>
       <div class="ar">→</div>
-      <div class="node" style="--c:var(--l4)"><b>modStore</b><span>guagua-mods（persist）</span></div>
-      <div class="ar">→</div>
-      <div class="node" style="--c:var(--l2)"><b>執行時注入</b><span>getTowerData／PATHS／波次組</span></div>
+      <div class="node" style="--c:var(--l2)"><b>執行期注入</b><span>getTowerData／PATHS／findPlayableWaveSet</span></div>
     </div>
 
     <div class="grid g3">
+      <div class="card"><div class="ct">編譯期就要決定的事</div><div class="cd">停用波次 → 空波 + 0 獎勵（波數保留）；缺資產 → 回報 issue 並丟掉那一組，<b>不讓整關編譯失敗</b>。</div></div>
+      <div class="card"><div class="ct">只帶有值的欄位</div><div class="cd">新欄位（<code>hpScale</code>／<code>intervalMs</code>／<code>chapter</code>…）只在有值時寫進封裝，避免 <code>undefined</code> 進存檔。</div></div>
       <div class="card"><div class="ct">單一取值入口</div><div class="cd"><code>gameStoreUtils.getTowerData()</code> 是「基礎塔 + Mod 塔」唯一實作（含快取）。曾有 3 份實作，導致 Mod 塔效果欄位在面板消失。</div></div>
       <div class="card"><div class="ct">地圖注入</div><div class="cd"><code>startGame()</code> 發現 <code>PATHS[mapId]</code> 不存在 → 掃 <code>modStore.mods</code> 的 <code>content.maps</code> 補進去。</div></div>
-      <div class="card"><div class="ct">波次組</div><div class="cd">以 <code>customWaveSetId</code> 傳入，由 <code>utils/waveSets.findPlayableWaveSet</code> 解析。</div></div>
-      <div class="card"><div class="ct">範例與模板</div><div class="cd"><code>data/sampleMods.ts</code>、<code>mod-editor/templates.ts</code>。</div></div>
-      <div class="card"><div class="ct">匯入合併</div><div class="cd"><code>modEditorImportMerge.ts</code> 處理 ID 衝突。</div></div>
-      <div class="card"><div class="ct">3D 模型編輯器</div><div class="cd"><code>Model3DEditor.tsx</code> + <code>shapeLibrary.ts</code> 以基本形狀組模型。</div></div>
+      <div class="card"><div class="ct">波次組</div><div class="cd">以 <code>customWaveSetId</code> 傳入，由 <code>utils/waveSets.findPlayableWaveSet</code> 解析；試玩時改走 <code>playtest/waveRegistry</code> 的臨時註冊表。</div></div>
+      <div class="card"><div class="ct">匯入合併</div><div class="cd"><code>modEditorImportMerge.ts</code> 處理 ID 衝突；封裝還原走 <code>package/restore.ts</code>。</div></div>
+    </div>
+
+    <h3>波次編輯器<span class="tag">2026-11 重做 · 單軌序列</span></h3>
+    <p class="small">舊版是「每種敵人一列」的假多軌。但引擎的生成佇列是<b>嚴格序列</b>（每組 delay 從前一組最後一隻之後才算），
+      多軌會讓「拖一格把後面全部推遲」看起來像 bug。新版改成誠實的單軌：片段依序排開、<b>片段之間的空隙就是 delay</b>。</p>
+    <div class="grid g3">
+      <div class="card"><div class="ct">三種拖曳語意</div><div class="cd">拖身體＝改時間（同波後面的組一起後移）／拖過鄰居中線＝換順序（不產生空隙）／拖右緣＝改數量。</div></div>
+      <div class="card"><div class="ct">波次層新欄位</div><div class="cd"><code>hpScale</code>（乘在敵人基礎血量）、<code>intervalMs</code>（覆寫 800ms 組內間隔）、<code>enabled</code>、<code>chapter</code>、<code>name</code>。前兩者引擎真的會讀。</div></div>
+      <div class="card"><div class="ct">難度是相對值</div><div class="cd">該波總 HP ÷ 該波開始前可用金幣，對全場峰值正規化 0–100；起始金幣／塔價／收入折扣都可調，所以分數會跟著變。</div></div>
+      <div class="card"><div class="ct">曲線擬合</div><div class="cd">給「目標總 HP ＋形狀（線性／前緩後急／尖峰）」，反推每波數量 × <code>hpScale</code>。因為存檔沒有全域 HP 欄位。</div></div>
+      <div class="card"><div class="ct">撤銷只記波次層</div><div class="cd"><code>useWaveHistory</code>：50 步、<code>Ctrl+Z</code>／<code>Ctrl+Shift+Z</code>，換關卡自動清空；不進 store 契約。</div></div>
+      <div class="card"><div class="ct">播放頭是估算</div><div class="cd"><code>snapshotAt()</code> 純函式算「此刻場上敵人／累積 HP／累積金幣」；場上敵人用「生成後 20 秒」估，不是真模擬。</div></div>
+    </div>
+
+    <h3>3D 模型編輯器</h3>
+    <div class="grid g3">
+      <div class="card"><div class="ct">四種 gizmo</div><div class="cd">移動／旋轉／縮放／球面（<code>workshop/model/gizmo.ts</code> 純數學，可測）。</div></div>
+      <div class="card"><div class="ct">階層與模板</div><div class="cd">拖曳改父、隱藏／鎖定、4 種模板（basic／sniper／cannon／crystal）；<code>doc.ts</code> 是文件操作唯一實作（含歷史）。</div></div>
+      <div class="card"><div class="ct">跟戰鬥共用同一個 builder</div><div class="cd"><code>towerModels3d.buildCustomTowerModel()</code>：編輯器與戰鬥看到的是同一份模型，不會「編輯器好看、進場變形」。</div></div>
+    </div>
+
+    <h3>規則節點圖 → Mod 腳本</h3>
+    <div class="kv">
+      <div class="k"><b>節點</b><span>93<em>事件 17 · 條件 31 · 動作 20 · 流程 8 · 數值 10 · 文字 6 · JS 1</em></span></div>
+      <div class="k"><b>Hook</b><span>17</span></div>
+      <div class="k"><b>Command</b><span>16</span></div>
+      <div class="k"><b>權限</b><span>9</span></div>
+    </div>
+    <div class="grid g3">
+      <div class="card"><div class="ct">nodeLibrary 是唯一真相</div><div class="cd">畫布、檢視器、驗證器、codegen 都從 <code>nodeLibrary.ts</code> 讀埠與參數規格，不在各自檔案另列一份。節點 type 一旦發布不可改名（存檔與 .ggmod 都靠它）。</div></div>
+      <div class="card"><div class="ct">兩種編輯面</div><div class="cd">節點圖（自由接線）＋規則表（<code>ruleTable.ts</code> 的巢狀清單，if／sequence／switch／loop 展開成列）。兩者共用同一份 graph。</div></div>
+      <div class="card"><div class="ct">沙箱</div><div class="cd">腳本跑在獨立 Worker：主執行緒只收「指令」再落地，腳本本體碰不到 store。權限沒勾就不能做（最小權限原則）。</div></div>
+      <div class="card"><div class="ct">驗證</div><div class="cd"><code>validate.ts</code> 泛型處理所有節點，只有 <code>action.log</code>／<code>flow.if</code> 有特例；權限清單直接 import <code>MOD_SCRIPT_PERMISSIONS</code>，不手抄。</div></div>
+      <div class="card"><div class="ct">產生程式碼</div><div class="cd"><code>codegen.ts</code> 把圖轉成 JS 字串，含字串運算（<code>operandText</code>）與 <code>text.template</code> 的 <code>{n}</code> 插值。</div></div>
+      <div class="card"><div class="ct">腳本能改什麼</div><div class="cd">塔（傷害／射程／冷卻／升級／賣出／發放）、敵人（生成／傳送／狀態）、比賽（分數／難度／波次延遲／特效），全部走 16 個 command。</div></div>
+    </div>
+
+    <h3>封裝與試玩</h3>
+    <div class="grid g3">
+      <div class="card"><div class="ct">.ggmod</div><div class="cd">容器＋<code>data</code> JSON blob（保留規則圖結構）＋ECDSA P-256 簽章；信任金鑰制，未簽章會標示。</div></div>
+      <div class="card"><div class="ct">.ggproject</div><div class="cd">可再編輯的專案檔，另存 <code>completedLevels</code> 進度。</div></div>
+      <div class="card"><div class="ct">臨時局</div><div class="cd">試玩<b>不計成就、不寫統計、不寫存檔</b>；勝利時才回頭標記關卡完成（戰役解鎖靠這份清單）。</div></div>
+      <div class="card"><div class="ct">平衡模擬</div><div class="cd"><code>playtest/simulator.ts</code>：不渲染、用 <code>setTimeout(0)</code> 分片、接管虛擬時鐘（否則「3 秒減速」會變永久減速）。</div></div>
+      <div class="card"><div class="ct">戰役入口</div><div class="cd"><code>workshop/campaign.ts</code>：把專案關卡當真比賽開起來（<code>ws:</code> 前綴），並套用地圖主題。</div></div>
+      <div class="card"><div class="ct">備份</div><div class="cd">store 每次變動都試寫備份（內部節流 20 秒、只留 3 份）。</div></div>
     </div>
   </section>
 
