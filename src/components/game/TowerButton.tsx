@@ -234,10 +234,10 @@ export const TowerButton = ({
         )}
 
         {isLocked && (
-          <span className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 bg-[rgba(6,10,20,0.78)]">
-            <LockIcon className="h-4 w-4 text-white/85" />
-            {/* 遮罩是深色 78%，文字必須用亮色；沿用 arc-label 的灰會變 1.6:1 */}
-            <span className="arc-label text-white">{t.game.towerTooltipLocked}</span>
+          <span className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 bg-[color-mix(in_oklab,var(--cn-card)_92%,transparent)]">
+            <LockIcon className="h-4 w-4 text-[var(--cn-ink-3)]" />
+            {/* 半透明深遮罩會被對比稽核誤判成「白字白底」；改成不透明主題底＋ink-3 深字，視覺與量測都過 */}
+            <span className="arc-label text-[var(--cn-ink-2)]">{t.game.towerTooltipLocked}</span>
           </span>
         )}
 
