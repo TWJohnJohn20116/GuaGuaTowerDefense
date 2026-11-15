@@ -11,7 +11,7 @@
 import { useState } from 'react';
 import { useTranslation } from '@/i18n';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
-import { Btn, Chip, Deck, Empty, IconBtn, Input, Num, SegHead, Toggle } from '@/components/hl';
+import { Btn, Deck, Empty, IconBtn, Input, Num, SegHead, Toggle } from '@/components/hl';
 import {
   ChevronDownIcon,
   ChevronRightIcon,
