@@ -43,6 +43,38 @@ export interface TimelineWave {
   reward: number;
   rows: TimelineRow[];
   durationMs: number;
+  /** 血量倍率（絕對值）；缺省＝1。與 WaveConfig.hpScale 對應 */
+  hpScale?: number;
+  /** 組內生成間隔（毫秒）；缺省＝全域常數。與 WaveConfig.intervalMs 對應 */
+  intervalMs?: number;
+  /** false＝停用；缺省＝啟用 */
+  enabled?: boolean;
+  /** 章節標籤；缺省＝未分組 */
+  chapter?: string;
+  /** 自訂波次名稱；缺省＝「第 N 波」 */
+  name?: string;
+}
+
+/** 波次血量倍率（絕對值），非法值一律視為 1 */
+export function waveHpScale(wave: TimelineWave): number {
+  const value = wave.hpScale;
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 1;
+}
+
+/** 波次組內生成間隔（毫秒），非法值一律退回全域常數 */
+export function waveIntervalMs(wave: TimelineWave): number {
+  const value = wave.intervalMs;
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : SPAWN_INTERVAL_MS;
+}
+
+/** 波次是否啟用（缺省啟用） */
+export function isWaveEnabled(wave: TimelineWave): boolean {
+  return wave.enabled !== false;
+}
+
+/** 章節標籤（缺省空字串＝未分組） */
+export function waveChapter(wave: TimelineWave): string {
+  return wave.chapter ?? '';
 }
 
 export interface TimelineCurvePoint {
@@ -86,8 +118,8 @@ export interface TimelineIssue {
 
 /* ------------------------------------------------------------------ 基礎 */
 
-export function blockEndMs(block: TimelineBlock): number {
-  return block.startMs + Math.max(0, block.count) * SPAWN_INTERVAL_MS;
+export function blockEndMs(block: TimelineBlock, intervalMs = SPAWN_INTERVAL_MS): number {
+  return block.startMs + Math.max(0, block.count) * intervalMs;
 }
 
 /** 攤平成一維並依時間排序（同時間時保持列順序，排序穩定） */
@@ -120,7 +152,8 @@ function groupBlocks(blocks: readonly TimelineBlock[]): TimelineRow[] {
 /** 依目前方塊重算波次長度（最後一格結束的時刻） */
 export function recomputeDuration(wave: TimelineWave): TimelineWave {
   const flat = flattenBlocks(wave.rows);
-  const durationMs = flat.reduce((max, block) => Math.max(max, blockEndMs(block)), 0);
+  const interval = waveIntervalMs(wave);
+  const durationMs = flat.reduce((max, block) => Math.max(max, blockEndMs(block, interval)), 0);
   return { ...wave, durationMs };
 }
 
@@ -130,6 +163,8 @@ export function recomputeDuration(wave: TimelineWave): TimelineWave {
 export function waveConfigToTimeline(config: WaveConfig, index = 0): TimelineWave {
   const counters = new Map<string, number>();
   const blocks: TimelineBlock[] = [];
+  const interval =
+    typeof config.intervalMs === 'number' && config.intervalMs > 0 ? config.intervalMs : SPAWN_INTERVAL_MS;
   let cursor = 0;
 
   for (const group of config.enemies) {
@@ -139,31 +174,45 @@ export function waveConfigToTimeline(config: WaveConfig, index = 0): TimelineWav
     const ordinal = counters.get(group.type) ?? 0;
     counters.set(group.type, ordinal + 1);
     blocks.push({ id: `${group.type}#${ordinal}`, type: group.type, count, startMs });
-    cursor = startMs + count * SPAWN_INTERVAL_MS;
+    cursor = startMs + count * interval;
   }
 
-  return {
+  const wave: TimelineWave = {
     index,
     reward: config.reward,
     rows: groupBlocks(blocks),
     durationMs: cursor,
   };
+  // 只把「與預設不同」的欄位帶進模型，讓預設波次維持乾淨的形狀
+  if (typeof config.hpScale === 'number' && config.hpScale > 0) wave.hpScale = config.hpScale;
+  if (typeof config.intervalMs === 'number' && config.intervalMs > 0) wave.intervalMs = config.intervalMs;
+  if (config.enabled === false) wave.enabled = false;
+  if (config.chapter) wave.chapter = config.chapter;
+  if (config.name) wave.name = config.name;
+  return wave;
 }
 
 /** 時間軸 → `WaveConfig`。delay 一律取「距前一組結束的正差」，負值歸零。 */
 export function timelineToWaveConfig(wave: TimelineWave): WaveConfig {
   const flat = flattenBlocks(wave.rows);
   const enemies: WaveConfig['enemies'] = [];
+  const interval = waveIntervalMs(wave);
   let cursor = 0;
 
   for (const block of flat) {
     const startMs = Math.max(0, block.startMs);
     const count = Math.max(0, Math.round(block.count));
     enemies.push({ type: block.type, count, delay: Math.max(0, startMs - cursor) });
-    cursor = startMs + count * SPAWN_INTERVAL_MS;
+    cursor = startMs + count * interval;
   }
 
-  return { enemies, reward: wave.reward };
+  const config: WaveConfig = { enemies, reward: wave.reward };
+  if (wave.hpScale !== undefined && waveHpScale(wave) !== 1) config.hpScale = waveHpScale(wave);
+  if (wave.intervalMs !== undefined && interval !== SPAWN_INTERVAL_MS) config.intervalMs = interval;
+  if (wave.enabled === false) config.enabled = false;
+  if (wave.chapter) config.chapter = wave.chapter;
+  if (wave.name) config.name = wave.name;
+  return config;
 }
 
 export function configsToTimelineWaves(configs: readonly WaveConfig[]): TimelineWave[] {
@@ -225,7 +274,7 @@ export function delayOf(wave: TimelineWave, blockId: string): number {
     const first = flat[0];
     return first && first.id === blockId ? Math.max(0, first.startMs) : 0;
   }
-  const previousEnd = blockEndMs(flat[index - 1]);
+  const previousEnd = blockEndMs(flat[index - 1], waveIntervalMs(wave));
   return Math.max(0, flat[index].startMs - previousEnd);
 }
 
@@ -234,7 +283,7 @@ export function setDelay(wave: TimelineWave, blockId: string, delay: number): Ti
   const flat = flattenBlocks(wave.rows);
   const index = flat.findIndex((block) => block.id === blockId);
   if (index < 0) return wave;
-  const previousEnd = index === 0 ? 0 : blockEndMs(flat[index - 1]);
+  const previousEnd = index === 0 ? 0 : blockEndMs(flat[index - 1], waveIntervalMs(wave));
   const startMs = previousEnd + Math.max(0, Math.round(delay));
   return moveBlock(wave, blockId, startMs);
 }
@@ -293,12 +342,14 @@ export function buildCurve(waves: readonly TimelineWave[], lookup: EnemyLookup):
 
   let offset = 0;
   for (const wave of waves) {
+    const interval = waveIntervalMs(wave);
+    const scale = waveHpScale(wave);
     for (const block of flattenBlocks(wave.rows)) {
       const stats = lookup(block.type);
-      const health = stats?.health ?? 0;
+      const health = (stats?.health ?? 0) * scale;
       const unitReward = stats?.reward ?? 0;
       for (let i = 0; i < block.count; i++) {
-        add(offset + block.startMs + i * SPAWN_INTERVAL_MS, health, unitReward);
+        add(offset + block.startMs + i * interval, health, unitReward);
       }
     }
     const waveEnd = offset + wave.durationMs;
@@ -348,8 +399,10 @@ export function validateTimeline(
 
   waves.forEach((wave, waveIndex) => {
     const flat = flattenBlocks(wave.rows);
+    const interval = waveIntervalMs(wave);
 
-    if (flat.length === 0) {
+    // 停用的波次本來就沒有敵人，不該被判成空波
+    if (flat.length === 0 && isWaveEnabled(wave)) {
       issues.push({ code: 'emptyWave', waveIndex, blockId: null, type: null });
     }
 
@@ -371,7 +424,7 @@ export function validateTimeline(
       if (lookup && !lookup(block.type)) {
         issues.push({ code: 'unknownEnemy', waveIndex, blockId: block.id, type: block.type });
       }
-      previousEnd = Math.max(previousEnd, blockEndMs(block));
+      previousEnd = Math.max(previousEnd, blockEndMs(block, interval));
     }
   });
 
@@ -412,10 +465,11 @@ export function summarizeWave(wave: TimelineWave, lookup: EnemyLookup): WaveSumm
   let enemyCount = 0;
   let totalHp = 0;
   let totalReward = 0;
+  const scale = waveHpScale(wave);
   for (const block of flattenBlocks(wave.rows)) {
     enemyCount += block.count;
     const stats = lookup(block.type);
-    totalHp += (stats?.health ?? 0) * block.count;
+    totalHp += (stats?.health ?? 0) * scale * block.count;
     totalReward += (stats?.reward ?? 0) * block.count;
   }
   return { enemyCount, totalHp, totalReward, durationMs: wave.durationMs };
