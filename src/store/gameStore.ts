@@ -91,6 +91,7 @@ export const useGameStore = create<GameStore>()(
 
   selectedPath: DEFAULT_PATH,
   grid: [],
+  previewMap: null,
   
   enemies: [],
   towers: [],
