@@ -109,7 +109,7 @@
   }
 
   /* ---------------- 塔塢按鈕（糖果立體鍵） ---------------- */
-  /* 塔格：預設只是「戰場上的一個圖示」，hover／選中才浮出白卡 */
+  /* 塔格：托盤裡的淺卡片（有輪廓、不搶眼），hover／選中才亮起來 */
   .tower-btn {
     position: relative;
     display: flex;
@@ -120,9 +120,9 @@
     width: 100%;
     height: auto;
     cursor: pointer;
-    background: transparent;
-    border: var(--cn-bw-strong) solid transparent;
-    border-radius: var(--cn-r-md);
+    background: var(--cn-card);
+    border: 2px solid var(--cn-line-soft);
+    border-radius: var(--cn-r-sm);
     box-shadow: none;
     transition:
       transform var(--cn-t-fast) var(--cn-ease-out),
@@ -154,10 +154,13 @@
     box-shadow: 0 0 0 var(--cn-sun-deep);
   }
 
+  /* 鎖定：保留塔圖與造價（要看得出是什麼、多少錢），只降彩度與對比 */
   .tower-btn.disabled {
-    opacity: 0.45;
+    opacity: 0.82;
     cursor: not-allowed;
-    filter: grayscale(0.6);
+    filter: grayscale(0.85);
+    background: var(--cn-paper-2);
+    border-color: var(--cn-line-soft);
     box-shadow: none;
   }
 

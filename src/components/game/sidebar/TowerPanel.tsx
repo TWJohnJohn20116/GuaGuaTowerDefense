@@ -140,7 +140,7 @@ export const TowerPanel = () => {
   return (
     <>
       {showCategories && (
-        <div className="flex flex-col border-b border-[var(--bd-line)]">
+        <div className="mb-1 grid grid-rows-3 gap-px rounded-[var(--cn-r-sm)] bg-[var(--cn-line-soft)] p-px">
           {([
             { id: 'basic' as const, label: t.game.basicTowers },
             { id: 'special' as const, label: t.game.specialTowers },
@@ -158,10 +158,10 @@ export const TowerPanel = () => {
                   setTowerCategory(tab.id);
                 }}
                 className={[
-                  'flex h-7 items-center justify-center border-b border-[var(--bd-line)] px-1 font-mono text-[9px] uppercase tracking-[0.1em] transition-colors duration-100 last:border-b-0',
+                  'flex h-[22px] items-center justify-center rounded-[5px] px-0.5 font-mono text-[8.5px] font-extrabold uppercase tracking-[0.02em] transition-colors duration-100',
                   active
-                    ? 'bg-[var(--bd-tile-2)] text-[var(--bd-ink)]'
-                    : 'bg-[var(--bd-floor)] text-[var(--bd-ink-3)] hover:text-[var(--bd-ink-2)]',
+                    ? 'bg-[var(--cn-sun-soft)] text-[var(--cn-ink)]'
+                    : 'bg-[var(--cn-card)] text-[var(--cn-ink-3)] hover:text-[var(--cn-ink)]',
                   locked ? 'pointer-events-none opacity-40' : '',
                 ].join(' ')}
               >

@@ -25,11 +25,11 @@ const SIZE_TO_BUTTON: Record<TowerButtonSize, {
   compactCost: string;
 }> = {
   small: {
-    container: 'min-h-[68px] p-1.5',
-    preview: 26,
-    nameSize: 'text-[9px]',
-    costSize: 'text-[9px]',
-    compactCost: 'text-[9px]',
+    container: 'min-h-[80px] p-1.5',
+    preview: 30,
+    nameSize: 'text-[10px]',
+    costSize: 'text-[9.5px]',
+    compactCost: 'text-[9.5px]',
   },
   medium: {
     container: 'min-h-[96px] p-2',
@@ -182,7 +182,7 @@ export const TowerButton = ({
         <div className={`flex h-full flex-col items-center justify-between gap-1 ${displayMode === 'compact' ? 'relative' : ''}`}>
           <TowerPreview towerId={towerId} size={sizeCfg.preview} />
 
-          {!isLocked && displayMode === 'compact' && (
+          {displayMode === 'compact' && (
             <div className="absolute bottom-0 right-0">
               <CostBadge
                 cost={displayCost}
@@ -192,20 +192,20 @@ export const TowerButton = ({
             </div>
           )}
 
-          {!isLocked && displayMode !== 'compact' && (
+          {displayMode !== 'compact' && (
             <>
               <div className={`${sizeCfg.nameSize} w-full truncate text-center font-medium leading-tight text-[var(--bd-ink)]`}>
                 {towerData.name}
               </div>
               <CostBadge
                 cost={displayCost}
-                cannotAfford={cannotAfford}
+                cannotAfford={cannotAfford && !isLocked}
                 sizeClass={sizeCfg.costSize}
               />
             </>
           )}
 
-          {!isLocked && displayMode === 'detailed' && (
+          {displayMode === 'detailed' && (
             <div className="grid w-full grid-cols-3 gap-px bg-[var(--bd-line)]">
               {[
                 { label: t.game.towerTooltipDamage, value: String(towerData.damage) },
@@ -235,8 +235,8 @@ export const TowerButton = ({
         )}
 
         {isLocked && (
-          <span className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-[var(--cn-r-md)] bg-[var(--cn-paper)]">
-            <LockIcon className="h-4 w-4 text-[var(--cn-ink-3)]" />
+          <span className="pointer-events-none absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-[var(--cn-line)] bg-[var(--cn-card)]">
+            <LockIcon className="h-1.5 w-1.5 text-[var(--cn-ink-2)]" />
           </span>
         )}
 

@@ -49,7 +49,7 @@ const SidebarImpl = ({ viewMode, onToggleView }: SidebarProps) => {
 
       {/* 左側：塔輪盤（固定左） */}
       {hudLayout.showTowerPanel && (
-        <div className="pointer-events-auto absolute bottom-24 left-3 top-20 flex w-[70px] flex-col">
+        <div className="pointer-events-auto absolute bottom-24 left-3 top-20 flex w-[104px] flex-col overflow-hidden rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line)] bg-[color-mix(in_oklab,var(--cn-card)_90%,transparent)] p-1.5 shadow-[0_4px_0_var(--cn-line)]">
           <TowerPanel />
         </div>
       )}
