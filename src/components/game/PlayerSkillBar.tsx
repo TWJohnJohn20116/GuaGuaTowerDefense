@@ -1,8 +1,8 @@
 /**
- * PlayerSkillBar - 玩家主動技能 UI 按鈕條
+ * PlayerSkillBar - 玩家主動技能按鈕條
  *
- * 嵌入在 TowerPanel 內部（塔列表與 AI 控制列之間），顯示所有已解鎖的可釋放技能。
- * HARDLINE：方角方塊、1px 線、mono 冷卻數值，選中／就緒只有訊號邊，不發光。
+ * 底部指揮帶的一部分：一排 36px 棋盤格按鈕，冷卻用「剩餘秒數 + 底部進度條」表示，
+ * 就緒只有 accent 邊框，不發光。與塔格、狀態帶共用 `--bd-*` 色票。
  */
 
 import { useEffect, useState, useMemo } from 'react';
@@ -15,7 +15,7 @@ import type { PlayerSkill } from '@/data/playerSkillData';
 import { LightningIcon, SnowflakeIcon, CoinIcon, SwordsIcon, MeteorIcon, ChainLightningIcon, HealIcon, AegisIcon, WarpIcon, EmpIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
 import { getPlayerSkillName, getPlayerSkillDesc } from '@/i18n/playerSkillLabels';
-import { IconBtn, Num, SegHead } from '@/components/hl';
+import { BD_LABEL, BD_NUM, BD_PANEL } from './hudBoard';
 
 type SkillIconComp = (p: SVGProps<SVGSVGElement> & { className?: string }) => JSX.Element;
 
@@ -52,17 +52,14 @@ export function PlayerSkillBar() {
   const hotkeyHint = hotkeys.length === 1 ? `⇧ ${hotkeys[0]}` : `⇧ ${hotkeys[0]}-${hotkeys[hotkeys.length - 1]}`;
 
   return (
-    <div className="border-t border-[var(--cn-line-soft)] px-2.5 py-2">
-      <SegHead
-        label={t.game.skills}
-        right={<Num value={hotkeyHint} tone="muted" size="sm" className="font-mono tabular-nums" />}
-        className="mb-2"
-      />
-      <div className="flex flex-wrap items-stretch gap-1">
-        {visibleSkills.map((skill) => (
-          <SkillButton key={skill.id} skill={skill} />
-        ))}
-      </div>
+    <div className="flex items-center gap-1">
+      <span className={`${BD_LABEL} mr-0.5 hidden xl:inline`}>{t.game.skills}</span>
+      {visibleSkills.map((skill) => (
+        <SkillButton key={skill.id} skill={skill} />
+      ))}
+      <span className="ml-1 hidden font-mono text-[9px] tabular-nums text-[var(--bd-ink-4)] xl:inline">
+        {hotkeyHint}
+      </span>
     </div>
   );
 }
@@ -105,40 +102,41 @@ function SkillButton({ skill }: SkillButtonProps) {
 
   return (
     <div className="relative">
-      <IconBtn
-        label={`${getPlayerSkillName(skill, t)} · ${t.game.skills}`}
+      <button
+        type="button"
+        aria-label={`${getPlayerSkillName(skill, t)} · ${t.game.skills}`}
         onClick={handleClick}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         disabled={!ready}
-        className={`relative flex h-10 w-10 flex-col items-center justify-center gap-0.5 px-0 transition-colors duration-[110ms] ${
+        className={[
+          'relative flex h-9 w-9 flex-col items-center justify-center gap-0.5 rounded-[3px] border transition-colors duration-100',
           ready
-            ? 'border-[var(--arc-cyan-edge)] bg-[var(--arc-deck-2)] text-[var(--arc-ink)] hover:border-[var(--arc-gold-edge)] hover:bg-[var(--arc-gold-veil)]'
-            : 'cursor-not-allowed border-[var(--cn-line-soft)] bg-[var(--arc-void-2)] text-[var(--arc-ink-4)]'
-        }`}
+            ? 'border-[var(--bd-line-strong)] bg-[var(--bd-tile)] text-[var(--bd-ink)] hover:border-[var(--bd-accent)] hover:bg-[var(--bd-tile-2)]'
+            : 'cursor-not-allowed border-[var(--bd-line-soft)] bg-[var(--bd-floor)] text-[var(--bd-ink-4)]',
+        ].join(' ')}
       >
-        <IconComp className={`h-4 w-4 ${ready ? 'text-[var(--arc-ink)]' : 'text-[var(--arc-ink-4)]'}`} />
+        <IconComp className={`h-4 w-4 ${ready ? 'text-[var(--bd-ink)]' : 'text-[var(--bd-ink-4)]'}`} />
 
-        {/* 冷卻殘量：mono 秒數 */}
         {!ready && (
-          <Num value={Math.ceil(cooldownRemaining / 1000)} tone="ink" size="sm" className="font-mono font-semibold tabular-nums" />
+          <span className={`${BD_NUM} text-[10px]`}>{Math.ceil(cooldownRemaining / 1000)}</span>
         )}
 
-        {/* 冷卻進度：底部一條 */}
+        {/* 冷卻進度：底部一條，寬度＝已回復比例 */}
         {!ready && (
           <span
-            className="pointer-events-none absolute inset-x-0 bottom-0 bg-[var(--arc-ink-4)]"
+            className="pointer-events-none absolute inset-x-0 bottom-0 bg-[var(--bd-ink-4)]"
             style={{ height: 2, width: `${(1 - cooldownRatio) * 100}%` }}
           />
         )}
 
         {isActive && (
-          <span className="pointer-events-none absolute inset-0 border border-[var(--arc-gold)]" />
+          <span className="pointer-events-none absolute inset-0 rounded-[2px] border border-[var(--bd-accent)]" />
         )}
-      </IconBtn>
+      </button>
 
       {/* 鍵位 */}
-      <span className="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 border border-[var(--arc-line-strong)] bg-[var(--arc-void-2)] px-1 font-mono text-[8px] leading-[12px] text-[var(--arc-ink-3)]">
+      <span className="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-[2px] border border-[var(--bd-line)] bg-[var(--bd-floor)] px-1 font-mono text-[8px] leading-[12px] text-[var(--bd-ink-3)]">
         ⇧{skill.hotkey}
       </span>
 
@@ -150,15 +148,13 @@ function SkillButton({ skill }: SkillButtonProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
             transition={{ duration: 0.12 }}
-            className="arc-panel pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-52 -translate-x-1/2 p-2.5"
+            className={`${BD_PANEL} pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-52 -translate-x-1/2 p-2.5`}
           >
-            <div className="arc-title text-[12.5px] font-semibold text-[var(--arc-ink)]">
-              {getPlayerSkillName(skill, t)}
-            </div>
-            <div className="mt-1 whitespace-normal text-[10.5px] leading-snug text-[var(--arc-ink-2)]">
+            <div className={`${BD_NUM} text-[12.5px]`}>{getPlayerSkillName(skill, t)}</div>
+            <div className="mt-1 whitespace-normal text-[10.5px] leading-snug text-[var(--bd-ink-2)]">
               {getPlayerSkillDesc(skill, t)}
             </div>
-            <div className="mt-1.5 flex items-center justify-between border-t border-[var(--cn-line-soft)] pt-1.5 font-mono text-[9.5px] tabular-nums text-[var(--arc-ink-3)]">
+            <div className="mt-1.5 flex items-center justify-between border-t border-[var(--bd-line)] pt-1.5 font-mono text-[9.5px] tabular-nums text-[var(--bd-ink-3)]">
               <span>CD {skill.cooldown / 1000}s</span>
               {skill.duration ? <span>{t.game.skillActive} {skill.duration / 1000}s</span> : null}
             </div>

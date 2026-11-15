@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import { useTutorialStore, INTERACTIVE_TUTORIAL_STEPS } from '@/store/tutorialStore';
 import { useTranslation } from '@/i18n';
 import {
@@ -8,14 +9,15 @@ import {
   DoorExitIcon,
 } from '@/components/ui/Icons';
 import { NextWavePreview } from '@/components/game/NextWavePreview';
+import { PlayerSkillBar } from '@/components/game/PlayerSkillBar';
 import { GAME_SPEED_BAR_CLASS } from './hudStyle';
 import { GAME_SPEED_PRESETS } from '@/data/gameSpeedPresets';
 import { canSkipWave, skipWaveTitleKey } from '@/data/skipWaveHud';
 import { resolveLeaveMatchFromHud } from '@/data/leaveMatch';
 
-/** 儀表帶上的動作格：方角、1px 線、mono */
+/** 指揮帶上的動作格：棋盤格、1px 線、等寬 */
 const CELL =
-  'flex h-full items-center justify-center gap-1.5 border-r border-[var(--arc-line)] px-3 font-mono text-[11px] transition-colors duration-[110ms]';
+  'flex h-full items-center justify-center gap-1.5 border-r border-[var(--bd-line)] px-3 font-mono text-[11px] transition-colors duration-100';
 
 export const BottomControls = () => {
   const { t } = useTranslation();
@@ -37,6 +39,7 @@ export const BottomControls = () => {
   const tutorialActive = useTutorialStore((s) => s.isActive);
   const tutorialStep = useTutorialStore((s) => INTERACTIVE_TUTORIAL_STEPS[s.currentStepIndex]);
   const pendingProtocol = useGameStore((s) => s.pendingProtocolChoices);
+  const showSkillBar = useSettingsStore((s) => s.hudLayout.showTowerSkillBar);
   const [showNextWavePreview, setShowNextWavePreview] = useState(false);
 
   const canStartWave = !waveActive && !pendingProtocol && (endlessMode || maxWaves === 0 || currentWave < maxWaves) && !(tutorialActive && tutorialStep?.action !== 'start_wave');
@@ -60,18 +63,18 @@ export const BottomControls = () => {
     (tutorialActive && tutorialStep?.action !== 'start_wave');
 
   const startTone = waveActive
-    ? 'text-[var(--arc-ink-4)]'
+    ? 'text-[var(--bd-ink-4)]'
     : pendingProtocol
-      ? 'text-[var(--arc-caution)]'
+      ? 'text-[var(--bd-caution)]'
       : !endlessMode && maxWaves > 0 && currentWave >= maxWaves
-        ? 'text-[var(--arc-vital)]'
-        : 'text-[var(--arc-gold-ink)]';
+        ? 'text-[var(--bd-vital)]'
+        : 'text-[#140f18]';
 
   return (
     <div className="flex h-full min-w-0 items-stretch">
       {/* 開始下一波：本帶唯一實心訊號格 */}
       <div
-        className="relative flex h-full items-stretch border-r border-[var(--arc-line)]"
+        className="relative flex h-full items-stretch border-r border-[var(--bd-line)]"
         onMouseEnter={() => setShowNextWavePreview(true)}
         onMouseLeave={() => setShowNextWavePreview(false)}
       >
@@ -80,10 +83,10 @@ export const BottomControls = () => {
           id="tutorial-target-start-wave"
           type="button"
           className={[
-            'arc-btn arc-btn--gold flex h-full items-center justify-center gap-2 rounded-sm px-4 font-mono text-[11px] font-semibold uppercase tracking-[0.08em]',
+            'flex h-full items-center justify-center gap-2 px-4 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] transition-[filter,background-color] duration-100',
             waveActive || pendingProtocol || (!endlessMode && maxWaves > 0 && currentWave >= maxWaves) || tutorialActive
-              ? `cursor-not-allowed bg-transparent shadow-none ${startTone}`
-              : 'bg-[var(--cn-cta)] text-[var(--cn-on-cta)] hover:brightness-110',
+              ? `cursor-not-allowed bg-transparent ${startTone}`
+              : 'bg-[var(--bd-accent)] text-[#140f18] shadow-[inset_0_-2px_0_var(--bd-edge)] hover:brightness-110',
             !waveActive && !pendingProtocol && tutorialActive && tutorialStep?.action !== 'start_wave'
               ? 'opacity-40'
               : '',
@@ -128,8 +131,8 @@ export const BottomControls = () => {
         type="button"
         className={`${CELL} ${
           skipAllowed
-            ? 'text-[var(--arc-caution)] hover:bg-[var(--arc-deck-2)]'
-            : 'cursor-not-allowed text-[var(--arc-ink-4)]'
+            ? 'text-[var(--bd-caution)] hover:bg-[var(--bd-tile-2)]'
+            : 'cursor-not-allowed text-[var(--bd-ink-4)]'
         }`}
         onClick={skipWave}
         disabled={!skipAllowed}
@@ -146,10 +149,10 @@ export const BottomControls = () => {
             type="button"
             className={`h-full min-w-9 px-2 font-mono text-[11px] tabular-nums transition-colors duration-[110ms] ${
               gameSpeed === speed
-                ? 'border-l border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] font-semibold text-[var(--arc-gold)] first:border-l-0'
+                ? 'border-l border-[var(--bd-accent)] bg-[color-mix(in_oklab,var(--bd-accent)_18%,var(--bd-tile))] font-semibold text-[var(--bd-ink)] first:border-l-0'
                 : speedTutorialLocked
-                  ? 'cursor-not-allowed text-[var(--arc-ink-4)] opacity-40'
-                  : 'text-[var(--arc-ink-3)] hover:bg-[var(--arc-deck-2)] hover:text-[var(--arc-ink)]'
+                  ? 'cursor-not-allowed text-[var(--bd-ink-4)] opacity-40'
+                  : 'text-[var(--bd-ink-3)] hover:bg-[var(--bd-tile-2)] hover:text-[var(--bd-ink)]'
             }`}
             disabled={speedTutorialLocked}
             onClick={() => {
@@ -164,16 +167,23 @@ export const BottomControls = () => {
         ))}
       </div>
 
+      {/* 技能：集中在指揮帶，顯示與否沿用 hudLayout.showTowerSkillBar */}
+      {showSkillBar && (
+        <div className="flex items-center px-2">
+          <PlayerSkillBar />
+        </div>
+      )}
+
       {/* 暫停 */}
       <button
         id="tutorial-target-pause"
         type="button"
         className={`${CELL} ${
           pauseTutorialLocked
-            ? 'cursor-not-allowed text-[var(--arc-ink-4)] opacity-40'
+            ? 'cursor-not-allowed text-[var(--bd-ink-4)] opacity-40'
             : isPaused
-              ? 'bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
-              : 'text-[var(--arc-ink-2)] hover:bg-[var(--arc-deck-2)] hover:text-[var(--arc-ink)]'
+              ? 'bg-[color-mix(in_oklab,var(--bd-accent)_18%,var(--bd-tile))] text-[var(--bd-ink)]'
+              : 'text-[var(--bd-ink-2)] hover:bg-[var(--bd-tile-2)] hover:text-[var(--bd-ink)]'
         }`}
         onClick={() => {
           if (!tutorialActive || tutorialStep?.action === 'pause_game') {
@@ -192,8 +202,8 @@ export const BottomControls = () => {
         type="button"
         className={`${CELL} ${
           tutorialActive
-            ? 'cursor-not-allowed text-[var(--arc-ink-4)] opacity-40'
-            : 'text-[var(--arc-alert)] hover:bg-[rgba(255,61,113,0.12)] hover:brightness-110'
+            ? 'cursor-not-allowed text-[var(--bd-ink-4)] opacity-40'
+            : 'text-[var(--bd-alarm)] hover:bg-[rgba(255,143,163,0.14)] hover:brightness-110'
         }`}
         onClick={() => {
           if (resolveLeaveMatchFromHud({ tutorialActive }) !== 'reset_match') return;

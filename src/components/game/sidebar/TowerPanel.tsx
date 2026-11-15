@@ -14,9 +14,16 @@ import {
 } from '@/components/ui/Icons';
 import { AIStatusHeader } from './AIStatusHeader';
 import { AdvancedOptionsPanel } from './AdvancedOptionsPanel';
-import { PlayerSkillBar } from '../PlayerSkillBar';
 import { canRedoPlacement, canUndoPlacement } from '@/store/placementHistory';
-import { Chip, IconBtn, SegHead } from '@/components/hl';
+import { BD_LABEL } from '../hudBoard';
+
+/**
+ * 左側塔輪盤（棋盤語彙）
+ *
+ * 分類是直排三列小標籤，塔格是單欄的棋盤格（列數仍由 hudLayout.towerListColumns 決定），
+ * 底部是工具列（快速放置／戰術視圖／撤銷／重做／自動戰鬥／更多）。
+ * 技能條暫時仍掛在這裡，下一步移到下方指揮帶。
+ */
 
 const BASIC_TOWER_TYPES: TowerType[] = ['basic', 'sniper', 'cannon', 'machine', 'shotgun', 'ballista'];
 const SPECIAL_TOWER_TYPES: TowerType[] = ['frost', 'poison', 'laser', 'lightning', 'flame', 'money', 'wind', 'pulse'];
@@ -25,9 +32,11 @@ const ALL_BASE_TOWER_TYPES: TowerType[] = [
   'frost', 'poison', 'laser', 'lightning', 'flame', 'money', 'wind', 'pulse',
 ];
 
-/** 塔塢工具列按鈕：方角、1px 線 */
+/** 工具列圖示鍵：棋盤格，選中＝路徑導引色 */
 const TOOL_BTN =
-  'arc-btn flex h-8 w-8 items-center justify-center rounded-sm px-0';
+  'flex h-8 w-full items-center justify-center rounded-[2px] border border-[var(--bd-line)] bg-[var(--bd-tile)] text-[var(--bd-ink-3)] transition-colors duration-100 hover:border-[var(--bd-line-strong)] hover:bg-[var(--bd-tile-2)] hover:text-[var(--bd-ink)] disabled:cursor-not-allowed disabled:border-transparent disabled:bg-transparent disabled:text-[var(--bd-ink-4)] disabled:opacity-50';
+const TOOL_BTN_ON =
+  'border-[var(--bd-accent)] bg-[color-mix(in_oklab,var(--bd-accent)_18%,var(--bd-tile))] text-[var(--bd-ink)]';
 
 export const TowerPanel = () => {
   const { t } = useTranslation();
@@ -54,13 +63,15 @@ export const TowerPanel = () => {
   const towerListColumns = hudLayout.towerListColumns;
   const towerListSpacing = hudLayout.towerListSpacing;
   const showCategories = hudLayout.showTowerCategories;
-  const showSkillBar = hudLayout.showTowerSkillBar;
   const showToolbar = hudLayout.showTowerToolbar;
 
   const gridColsClass =
     towerListColumns === 1 ? 'grid-cols-1' : towerListColumns === 3 ? 'grid-cols-3' : 'grid-cols-2';
   const gridGapClass =
-    towerListSpacing === 'tight' ? 'gap-1' : towerListSpacing === 'wide' ? 'gap-3' : 'gap-1.5';
+    towerListSpacing === 'tight' ? 'gap-1' : towerListSpacing === 'wide' ? 'gap-2' : 'gap-1.5';
+
+  const canUndo = canUndoPlacement(placementHistoryIndex);
+  const canRedo = canRedoPlacement(placementHistoryIndex, placementHistoryLength);
 
   const allTowers = useMemo(() => {
     const towersList: GameTowerData[] = [];
@@ -131,30 +142,39 @@ export const TowerPanel = () => {
       <AIStatusHeader />
 
       {showCategories && (
-        <div className="border-b border-[var(--arc-line)] px-2.5 py-2">
-          <div className="flex items-stretch gap-1">
-            {([
-              { id: 'basic' as const, label: t.game.basicTowers },
-              { id: 'special' as const, label: t.game.specialTowers },
-              ...(hasModTowers ? [{ id: 'mod' as const, label: t.game.modTowers }] : []),
-            ]).map((tab) => (
-              <Chip
+        <div className="flex flex-col border-b border-[var(--bd-line)]">
+          {([
+            { id: 'basic' as const, label: t.game.basicTowers },
+            { id: 'special' as const, label: t.game.specialTowers },
+            ...(hasModTowers ? [{ id: 'mod' as const, label: t.game.modTowers }] : []),
+          ]).map((tab) => {
+            const active = towerCategory === tab.id;
+            const locked = categoryLocked(tab.id);
+            return (
+              <button
                 key={tab.id}
-                active={towerCategory === tab.id}
+                type="button"
+                aria-pressed={active}
                 onClick={() => {
-                  if (categoryLocked(tab.id)) return;
+                  if (locked) return;
                   setTowerCategory(tab.id);
                 }}
-                className={`flex-1 justify-center ${categoryLocked(tab.id) ? 'pointer-events-none opacity-40' : ''}`}
+                className={[
+                  'flex h-7 items-center justify-center border-b border-[var(--bd-line)] px-1 font-mono text-[9px] uppercase tracking-[0.1em] transition-colors duration-100 last:border-b-0',
+                  active
+                    ? 'bg-[var(--bd-tile-2)] text-[var(--bd-ink)]'
+                    : 'bg-[var(--bd-floor)] text-[var(--bd-ink-3)] hover:text-[var(--bd-ink-2)]',
+                  locked ? 'pointer-events-none opacity-40' : '',
+                ].join(' ')}
               >
-                {tab.label}
-              </Chip>
-            ))}
-          </div>
+                <span className="truncate">{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
       )}
 
-      <div className={`grid min-h-0 flex-1 auto-rows-min overflow-y-auto p-2.5 content-start ${gridColsClass} ${gridGapClass}`}>
+      <div className={`grid min-h-0 flex-1 auto-rows-min content-start overflow-y-auto p-1.5 ${gridColsClass} ${gridGapClass}`}>
         {filteredTowers.map((tower) => (
           <div key={tower.id} className="relative h-full">
             <TowerButton
@@ -166,136 +186,91 @@ export const TowerPanel = () => {
         ))}
         {filteredTowers.length === 0 && (
           <div
-            className="flex flex-col items-center gap-2 py-8 text-center"
+            className="flex flex-col items-center gap-2 px-1 py-6 text-center"
             style={{ gridColumn: `span ${towerListColumns}` }}
           >
-            <span className="arc-label">{t.game.noTowersInCategory}</span>
+            <span className={`${BD_LABEL} whitespace-normal`}>{t.game.noTowersInCategory}</span>
           </div>
         )}
       </div>
 
-      {showSkillBar && <PlayerSkillBar />}
-
       {showToolbar && (
-        <div className="border-t border-[var(--arc-line)] px-2.5 py-2">
-          <SegHead label={t.game.moreOptions} className="mb-2" />
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1">
-              <IconBtn
-                label={t.game.quickPlace}
-                className={`${TOOL_BTN} ${
-                  tutorialActive
-                    ? 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)] opacity-40'
-                    : quickPlaceMode
-                      ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
-                      : 'border-[var(--arc-line)] text-[var(--arc-ink-3)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
-                }`}
-                onClick={() => !tutorialActive && toggleQuickPlaceMode()}
-                disabled={tutorialActive}
-              >
-                <PinIcon className="h-3.5 w-3.5" />
-              </IconBtn>
-              <IconBtn
-                label={t.game.tacticalView}
-                className={`${TOOL_BTN} ${
-                  tutorialActive
-                    ? 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)] opacity-40'
-                    : showTacticalView
-                      ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
-                      : 'border-[var(--arc-line)] text-[var(--arc-ink-3)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
-                }`}
-                onClick={() => !tutorialActive && toggleTacticalView()}
-                disabled={tutorialActive}
-              >
-                <TargetIcon className="h-3.5 w-3.5" />
-              </IconBtn>
-
-              <span className="mx-0.5 h-6 w-px bg-[var(--arc-line)]" />
-
-              <IconBtn
-                id="tutorial-target-undo"
-                label={t.game.undoAction}
-                className={`${TOOL_BTN} ${
-                  tutorialActive && tutorialStep?.action !== 'undo_action'
-                    ? 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)] opacity-40'
-                    : canUndoPlacement(placementHistoryIndex) || (tutorialActive && tutorialStep?.action === 'undo_action')
-                      ? 'border-[var(--arc-line)] text-[var(--arc-ink-2)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
-                      : 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)]'
-                }`}
-                onClick={() => {
-                  if (!tutorialActive || tutorialStep?.action === 'undo_action') {
-                    undoPlacement();
-                    if (tutorialActive) checkAction('undo_action', 'tutorial-target-undo');
-                  }
-                }}
-                disabled={(tutorialActive && tutorialStep?.action !== 'undo_action') || (!tutorialActive && !canUndoPlacement(placementHistoryIndex))}
-              >
-                <UndoIcon className="h-3.5 w-3.5" />
-              </IconBtn>
-              <IconBtn
-                id="tutorial-target-redo"
-                label={t.game.redoAction}
-                className={`${TOOL_BTN} ${
-                  tutorialActive && tutorialStep?.action !== 'redo_action'
-                    ? 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)] opacity-40'
-                    : canRedoPlacement(placementHistoryIndex, placementHistoryLength) || (tutorialActive && tutorialStep?.action === 'redo_action')
-                      ? 'border-[var(--arc-line)] text-[var(--arc-ink-2)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
-                      : 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)]'
-                }`}
-                onClick={() => {
-                  if (!tutorialActive || tutorialStep?.action === 'redo_action') {
-                    redoPlacement();
-                    if (tutorialActive) checkAction('redo_action', 'tutorial-target-redo');
-                  }
-                }}
-                disabled={(tutorialActive && tutorialStep?.action !== 'redo_action') || (!tutorialActive && !canRedoPlacement(placementHistoryIndex, placementHistoryLength))}
-              >
-                <RedoIcon className="h-3.5 w-3.5" />
-              </IconBtn>
-            </div>
-
-            <div className="flex items-center gap-1">
-              {/* 自動戰鬥：方塊開關 */}
-              <button
-                type="button"
-                role="switch"
-                aria-checked={autoBattleEnabled}
-                className={`flex h-8 w-12 items-center rounded-sm border px-0.5 transition-colors duration-[110ms] ${
-                  tutorialActive
-                    ? 'cursor-not-allowed border-transparent opacity-40'
-                    : autoBattleEnabled
-                      ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)]'
-                      : 'border-[var(--arc-line)] hover:border-[var(--arc-line-hot)]'
-                }`}
-                onClick={() => !tutorialActive && toggleAutoBattle()}
-                disabled={tutorialActive}
-                title={t.game.aiAutoBattle}
-              >
-                <span
-                  className={`flex h-6 w-6 items-center justify-center transition-transform duration-[170ms] ${
-                    autoBattleEnabled
-                      ? 'translate-x-[22px] bg-[var(--arc-gold)] text-[var(--arc-gold-ink)]'
-                      : 'translate-x-0 bg-[var(--arc-deck-3)] text-[var(--arc-ink-3)]'
-                  }`}
-                >
-                  <RobotIcon className="h-3 w-3" />
-                </span>
-              </button>
-              <IconBtn
-                label={t.game.moreOptions}
-                className={`${TOOL_BTN} ${
-                  tutorialActive
-                    ? 'cursor-not-allowed border-transparent text-[var(--arc-ink-4)] opacity-40'
-                    : showAdvanced
-                      ? 'border-[var(--arc-gold)] bg-[var(--arc-gold-veil)] text-[var(--arc-gold)]'
-                      : 'border-[var(--arc-line)] text-[var(--arc-ink-3)] hover:border-[var(--arc-line-hot)] hover:text-[var(--arc-ink)]'
-                }`}
-                onClick={() => !tutorialActive && setShowAdvanced(!showAdvanced)}
-                disabled={tutorialActive}
-              >
-                <GearIcon className="h-3.5 w-3.5" />
-              </IconBtn>
-            </div>
+        <div className="border-t border-[var(--bd-line)] p-1">
+          <div className="grid grid-cols-2 gap-1">
+            <button
+              type="button"
+              aria-label={t.game.quickPlace}
+              title={t.game.quickPlace}
+              disabled={tutorialActive}
+              onClick={() => !tutorialActive && toggleQuickPlaceMode()}
+              className={`${TOOL_BTN} ${!tutorialActive && quickPlaceMode ? TOOL_BTN_ON : ''}`}
+            >
+              <PinIcon className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              aria-label={t.game.tacticalView}
+              title={t.game.tacticalView}
+              disabled={tutorialActive}
+              onClick={() => !tutorialActive && toggleTacticalView()}
+              className={`${TOOL_BTN} ${!tutorialActive && showTacticalView ? TOOL_BTN_ON : ''}`}
+            >
+              <TargetIcon className="h-3.5 w-3.5" />
+            </button>
+            <button
+              id="tutorial-target-undo"
+              type="button"
+              aria-label={t.game.undoAction}
+              title={t.game.undoAction}
+              disabled={(tutorialActive && tutorialStep?.action !== 'undo_action') || (!tutorialActive && !canUndo)}
+              onClick={() => {
+                if (!tutorialActive || tutorialStep?.action === 'undo_action') {
+                  undoPlacement();
+                  if (tutorialActive) checkAction('undo_action', 'tutorial-target-undo');
+                }
+              }}
+              className={`${TOOL_BTN} ${canUndo || (tutorialActive && tutorialStep?.action === 'undo_action') ? 'text-[var(--bd-ink-2)]' : ''}`}
+            >
+              <UndoIcon className="h-3.5 w-3.5" />
+            </button>
+            <button
+              id="tutorial-target-redo"
+              type="button"
+              aria-label={t.game.redoAction}
+              title={t.game.redoAction}
+              disabled={(tutorialActive && tutorialStep?.action !== 'redo_action') || (!tutorialActive && !canRedo)}
+              onClick={() => {
+                if (!tutorialActive || tutorialStep?.action === 'redo_action') {
+                  redoPlacement();
+                  if (tutorialActive) checkAction('redo_action', 'tutorial-target-redo');
+                }
+              }}
+              className={`${TOOL_BTN} ${canRedo || (tutorialActive && tutorialStep?.action === 'redo_action') ? 'text-[var(--bd-ink-2)]' : ''}`}
+            >
+              <RedoIcon className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={autoBattleEnabled}
+              aria-label={t.game.aiAutoBattle}
+              title={t.game.aiAutoBattle}
+              disabled={tutorialActive}
+              onClick={() => !tutorialActive && toggleAutoBattle()}
+              className={`${TOOL_BTN} ${!tutorialActive && autoBattleEnabled ? TOOL_BTN_ON : ''}`}
+            >
+              <RobotIcon className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              aria-label={t.game.moreOptions}
+              title={t.game.moreOptions}
+              disabled={tutorialActive}
+              onClick={() => !tutorialActive && setShowAdvanced(!showAdvanced)}
+              className={`${TOOL_BTN} ${!tutorialActive && showAdvanced ? TOOL_BTN_ON : ''}`}
+            >
+              <GearIcon className="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
       )}
