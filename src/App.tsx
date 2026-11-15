@@ -3,6 +3,7 @@ import { MotionConfig } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useDevStore } from '@/store/devStore';
+import { PATHS } from '@/data/gameData';
 import { useSkinStore } from '@/store/skinStore';
 import { useAchievementStore } from '@/store/achievementStore';
 import { ALL_SKINS } from '@/data/skinData';
@@ -105,6 +106,11 @@ function App() {
       if (!target) return;
       useGameStore.getState().setScene(target as GameScene);
       useDevStore.getState().setTestScene(null);
+      // 視覺驗證／除錯：直跳 game 時若還沒有對局，就開一局，
+      // 否則 canvas 沒有地圖，截圖只會拍到一張空紙（過去的驗證一直在驗空畫面）。
+      if (target === 'game' && useGameStore.getState().grid.length === 0) {
+        void useGameStore.getState().startGame(Object.keys(PATHS)[0], 'normal', false, 15);
+      }
     };
     apply();
     window.addEventListener('hashchange', apply);

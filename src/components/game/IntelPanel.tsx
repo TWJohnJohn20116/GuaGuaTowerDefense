@@ -58,14 +58,14 @@ export function IntelPanel() {
         </div>
 
         {/* 在場單位 */}
-        <div className="grid grid-cols-2 gap-px border-b border-[var(--bd-line)] bg-[var(--bd-line)]">
-          <div className="bg-[var(--bd-tile)] px-2.5 py-2">
+        <div className="grid grid-cols-2 gap-3 border-b border-[var(--cn-line-soft)] px-2.5 py-2">
+          <div>
             <div className={`${BD_LABEL} truncate`}>{t.game.onFieldEnemiesLabel}</div>
             <div className="mt-1 font-mono text-[16px] font-semibold tabular-nums leading-none text-[var(--bd-alarm)]">
               {enemyCount}
             </div>
           </div>
-          <div className="bg-[var(--bd-tile)] px-2.5 py-2">
+          <div>
             <div className={`${BD_LABEL} truncate`}>{t.game.onFieldTowersLabel}</div>
             <div className="mt-1 font-mono text-[16px] font-semibold tabular-nums leading-none text-[var(--bd-ink)]">
               {towerCount}

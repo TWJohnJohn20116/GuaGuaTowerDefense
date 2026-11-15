@@ -15,7 +15,7 @@ import type { TowerType } from '@/types/game';
 import { useTranslation } from '@/i18n';
 import { getDiscountedTowerCost } from '@/data/tacticalProtocolData';
 import { getTowerBuildCost } from '@/data/towerCost';
-import { BD_LABEL, BD_NUM, BD_PANEL } from './hudBoard';
+import { BD_LABEL, BD_NUM, BD_SHEET } from './hudBoard';
 
 const SIZE_TO_BUTTON: Record<TowerButtonSize, {
   container: string;
@@ -251,7 +251,7 @@ export const TowerButton = ({
           {isHovered && (
             <motion.div
               key={`tooltip-${towerId}`}
-              className={`${BD_PANEL} pointer-events-none fixed z-[9999] w-56 p-3`}
+              className={`${BD_SHEET} pointer-events-none fixed z-[9999] w-56 p-3`}
               style={{ top: tooltipPos.top, left: tooltipPos.left }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

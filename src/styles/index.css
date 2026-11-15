@@ -19,10 +19,17 @@
   .flex-shrink {
     flex-shrink: 1;
   }
-  /* 棋盤底紋：與 drawGrid 的 8px 縫距對應，只當裝飾層用 */
-  .bd-checker {
-    background-image: repeating-conic-gradient(var(--bd-line-soft) 0% 25%, transparent 0% 50%);
-    background-size: 8px 8px;
+  /*
+   * HUD 紙色描邊：無卡片 HUD 的字要壓在格子、道路、敵人上仍然讀得清。
+   * 兩層：1px 實邊（貼字緣）＋ 6px 柔邊（和背景分離），顏色都是紙底。
+   */
+  .hud-ink {
+    text-shadow:
+      0 1px 0 var(--cn-paper),
+      0 -1px 0 var(--cn-paper),
+      1px 0 0 var(--cn-paper),
+      -1px 0 0 var(--cn-paper),
+      0 0 6px var(--cn-paper);
   }
 }
 
@@ -102,7 +109,7 @@
   }
 
   /* ---------------- 塔塢按鈕（糖果立體鍵） ---------------- */
-  /* 塔格＝一張白卡：3px 墨線、16px 圓角、貼紙硬投影（與大廳按鈕同語彙） */
+  /* 塔格：預設只是「戰場上的一個圖示」，hover／選中才浮出白卡 */
   .tower-btn {
     position: relative;
     display: flex;
@@ -113,18 +120,21 @@
     width: 100%;
     height: auto;
     cursor: pointer;
-    background: var(--cn-card);
-    border: var(--cn-bw-strong) solid var(--cn-line);
+    background: transparent;
+    border: var(--cn-bw-strong) solid transparent;
     border-radius: var(--cn-r-md);
-    box-shadow: var(--cn-pop-sm);
+    box-shadow: none;
     transition:
       transform var(--cn-t-fast) var(--cn-ease-out),
       box-shadow var(--cn-t-fast) var(--cn-ease-out),
-      background-color var(--cn-t) var(--cn-ease-out);
+      background-color var(--cn-t) var(--cn-ease-out),
+      border-color var(--cn-t) var(--cn-ease-out);
   }
 
   .tower-btn:hover:not(.disabled) {
     transform: translateY(-2px);
+    background: var(--cn-card);
+    border-color: var(--cn-line);
     box-shadow: 0 6px 0 var(--cn-line);
   }
 
@@ -133,7 +143,7 @@
     box-shadow: 0 0 0 var(--cn-line);
   }
 
-  /* 選中：鵝黃貼紙（與大廳卡片的選中態一致） */
+  /* 選中：浮出白卡＋鵝黃底（與大廳卡片的選中態一致） */
   .tower-btn.selected {
     background: var(--cn-sun-soft);
     border-color: var(--cn-line);

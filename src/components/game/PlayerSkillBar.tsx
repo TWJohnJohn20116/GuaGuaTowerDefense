@@ -15,7 +15,7 @@ import type { PlayerSkill } from '@/data/playerSkillData';
 import { LightningIcon, SnowflakeIcon, CoinIcon, SwordsIcon, MeteorIcon, ChainLightningIcon, HealIcon, AegisIcon, WarpIcon, EmpIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
 import { getPlayerSkillName, getPlayerSkillDesc } from '@/i18n/playerSkillLabels';
-import { BD_LABEL, BD_NUM, BD_PANEL } from './hudBoard';
+import { BD_LABEL, BD_NUM, BD_SHEET } from './hudBoard';
 
 type SkillIconComp = (p: SVGProps<SVGSVGElement> & { className?: string }) => JSX.Element;
 
@@ -148,7 +148,7 @@ function SkillButton({ skill }: SkillButtonProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
             transition={{ duration: 0.12 }}
-            className={`${BD_PANEL} pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-52 -translate-x-1/2 p-2.5`}
+            className={`${BD_SHEET} pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-52 -translate-x-1/2 p-2.5`}
           >
             <div className={`${BD_NUM} text-[12.5px]`}>{getPlayerSkillName(skill, t)}</div>
             <div className="mt-1 whitespace-normal text-[10.5px] leading-snug text-[var(--bd-ink-2)]">

@@ -94,7 +94,7 @@ export const DEFAULT_HUD_LAYOUT: HudLayoutState = {
   blurIntensity: 'heavy',
   accentColor: 'default',
   towerListColumns: 1,
-  towerButtonSize: 'medium',
+  towerButtonSize: 'small',
   towerDisplayMode: 'normal',
   towerListSpacing: 'normal',
   showTowerCategories: true,

@@ -99,9 +99,9 @@ export const drawGrid = (
       ctx.roundRect(rx, ry, rw, rh, [tlR, trR, brR, blR]);
       ctx.fill();
       
-      // 描邊消除主體與橋樑之間的細縫
-      ctx.strokeStyle = getSurfaceColor(tile.type);
-      ctx.lineWidth = 1;
+      // 道路描邊：淺色路面在白格上要靠接縫色才看得出是「路」
+      ctx.strokeStyle = getBoardColors().edge;
+      ctx.lineWidth = 2;
       ctx.stroke();
 
       // 2. 畫連接橋樑（填補 gap），讓相鄰的道路無縫接合

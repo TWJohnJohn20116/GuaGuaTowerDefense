@@ -6,7 +6,7 @@ import { useGameStore } from '@/store/gameStore';
 import { useTutorialStore } from '@/store/tutorialStore';
 import { useTranslation } from '@/i18n';
 import { SearchIcon, CrossIcon } from '@/components/ui/Icons';
-import { BD_CELL, BD_CHECKER, BD_LABEL, BD_NUM, BD_PANEL, BD_SUNKEN } from '../hudBoard';
+import { BD_CELL, BD_CHECKER, BD_LABEL, BD_NUM, BD_SHEET, BD_SUNKEN } from '../hudBoard';
 
 /**
  * 頂部狀態帶（棋盤語彙）
@@ -34,6 +34,7 @@ function BandCell({
   hint,
   title,
   wide = false,
+  className = '',
 }: {
   label: string;
   value: ReactNode;
@@ -41,6 +42,8 @@ function BandCell({
   hint?: string;
   title?: string;
   wide?: boolean;
+  /** 窄版用：例如 'hidden sm:flex' 讓次要格在手機上退場 */
+  className?: string;
 }) {
   return (
     <div
@@ -48,6 +51,7 @@ function BandCell({
         'flex h-full flex-col justify-center gap-1 px-3',
         BD_CELL,
         wide ? 'min-w-[92px]' : 'min-w-[74px]',
+        className,
       ].join(' ')}
       title={title}
     >
@@ -89,7 +93,13 @@ export const TopStatsBar = () => {
         <BandCell label={t.game.health} value={health} tone={health <= 3 ? 'alarm' : 'ink'} title={t.game.health} />
         <BandCell label={t.game.money} value={Math.floor(money)} tone="signal" hint="$" title={t.game.money} />
         <BandCell label={t.game.wave} value={waveValue} tone={endlessMode ? 'caution' : 'ink'} title={t.game.wave} />
-        <BandCell label={t.game.score} value={score} tone="muted" title={t.game.score} />
+        <BandCell
+          label={t.game.score}
+          value={score}
+          tone="muted"
+          title={t.game.score}
+          className="hidden min-w-[74px] sm:flex"
+        />
         <button
           type="button"
           aria-label={t.game.zoomDetailInfo}
@@ -118,7 +128,7 @@ export const TopStatsBar = () => {
             transition={{ duration: 0.16 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className={`${BD_PANEL} flex max-h-[86vh] flex-col overflow-hidden`}>
+            <div className={`${BD_SHEET} flex max-h-[86vh] flex-col overflow-hidden`}>
               <header className={`flex items-start gap-3 border-b border-[var(--bd-line)] px-4 py-3 ${BD_CHECKER}`}>
                 <div className="min-w-0 flex-1">
                   <div className={BD_LABEL}>theater / stats</div>
