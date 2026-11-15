@@ -530,6 +530,99 @@ const LOGIC_EXTRA_SPECS: readonly GraphNodeSpec[] = [
   },
 ];
 
+/** 讀快照的布林／字串條件（不需要門檻參數的那一類） */
+const SNAPSHOT_COND_SPECS: readonly GraphNodeSpec[] = [
+  {
+    type: 'cond.waveModulo',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condWaveModulo',
+    descriptionKey: 'studio.graph.node.condWaveModulo.desc',
+    glyph: 'W%',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: [numberParam('every', 'studio.graph.param.every', 5, 2, 99)],
+  },
+  {
+    type: 'cond.waveParity',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condWaveParity',
+    descriptionKey: 'studio.graph.node.condWaveParity.desc',
+    glyph: 'WP',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: [
+      selectParam('parity', 'studio.graph.param.parity', 'even', [
+        { value: 'even', labelKey: 'studio.graph.opt.even' },
+        { value: 'odd', labelKey: 'studio.graph.opt.odd' },
+      ]),
+    ],
+  },
+  {
+    type: 'cond.towerType',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condTowerType',
+    descriptionKey: 'studio.graph.node.condTowerType.desc',
+    glyph: 'TT',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: [textParam('towerType', 'studio.graph.param.towerType', 'basic')],
+  },
+  {
+    type: 'cond.bossOnField',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condBossOnField',
+    descriptionKey: 'studio.graph.node.condBossOnField.desc',
+    glyph: 'BO',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: [],
+  },
+  {
+    type: 'cond.fieldEmpty',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condFieldEmpty',
+    descriptionKey: 'studio.graph.node.condFieldEmpty.desc',
+    glyph: 'FE',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: [],
+  },
+  {
+    type: 'cond.pathName',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condPathName',
+    descriptionKey: 'studio.graph.node.condPathName.desc',
+    glyph: 'PN',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: [
+      textParam('path', 'studio.graph.param.path', 'classic'),
+      selectParam('op', 'studio.graph.param.op', '===', [
+        { value: '===', labelKey: 'studio.graph.op.eq' },
+        { value: '!==', labelKey: 'studio.graph.op.ne' },
+      ]),
+    ],
+  },
+  {
+    type: 'cond.varString',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condVarString',
+    descriptionKey: 'studio.graph.node.condVarString.desc',
+    glyph: 'VS',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: [
+      textParam('key', 'studio.graph.param.storeKey', 'phase'),
+      textParam('value', 'studio.graph.param.stringValue', ''),
+      selectParam('op', 'studio.graph.param.op', '===', [
+        { value: '===', labelKey: 'studio.graph.op.eq' },
+        { value: '!==', labelKey: 'studio.graph.op.ne' },
+      ]),
+    ],
+    permissions: ['storage'],
+  },
+];
+
 /** 讀快照的條件：門檻比對一律「運算子 + 數值」兩個參數 */
 function thresholdParams(valueKey: string, labelKey: string, value: number, min: number, max: number): GraphParamSpec[] {
   return [
@@ -867,6 +960,7 @@ const NODE_LIBRARY: readonly GraphNodeSpec[] = [
   NOT_SPEC,
   ...LOGIC_EXTRA_SPECS,
   ...STATE_COND_SPECS,
+  ...SNAPSHOT_COND_SPECS,
   ...ACTION_SPECS,
   ...TOWER_ACTION_SPECS,
   CLEAR_VAR_SPEC,

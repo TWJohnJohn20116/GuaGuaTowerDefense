@@ -165,6 +165,32 @@ function valueExpression(ctx: EmitContext, node: GraphNode, stack: readonly stri
       const high = Math.round(num(node.params.max, 10));
       return '(' + value + ' >= ' + Math.min(low, high) + ' && ' + value + ' <= ' + Math.max(low, high) + ')';
     }
+    case 'cond.waveModulo': {
+      const every = Math.max(2, Math.round(num(node.params.every, 5)));
+      return '(api.state.wave > 0 && api.state.wave % ' + every + ' === 0)';
+    }
+    case 'cond.waveParity':
+      return str(node.params.parity, 'even') === 'odd'
+        ? '(api.state.wave % 2 === 1)'
+        : '(api.state.wave % 2 === 0)';
+    case 'cond.towerType': {
+      const towerType = str(node.params.towerType, 'basic').trim() || 'basic';
+      return 'api.state.towerTypes.includes(' + jsString(towerType) + ')';
+    }
+    case 'cond.bossOnField':
+      return '(((api.state.enemiesByType[' + jsString('boss') + '] ?? 0) + (api.state.enemiesByType[' + jsString('miniboss') + '] ?? 0)) > 0)';
+    case 'cond.fieldEmpty':
+      return '(api.state.enemyCount === 0)';
+    case 'cond.pathName': {
+      const path = str(node.params.path, 'classic').trim() || 'classic';
+      const op = str(node.params.op, '===') === '!==' ? '!==' : '===';
+      return '(api.state.pathName ' + op + ' ' + jsString(path) + ')';
+    }
+    case 'cond.varString': {
+      const op = str(node.params.op, '===') === '!==' ? '!==' : '===';
+      const value = str(node.params.value, '');
+      return '(String(api.store.get(' + jsString(storeKey(node)) + ') ?? ' + jsString('') + ') ' + op + ' ' + jsString(value) + ')';
+    }
     case 'cond.wave':
       return '(api.state.wave ' + compareOp(node.params.op) + ' ' + Math.round(num(node.params.value, 1)) + ')';
     case 'cond.health':
