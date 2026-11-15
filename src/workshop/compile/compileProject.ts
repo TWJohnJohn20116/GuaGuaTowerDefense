@@ -24,7 +24,6 @@ import type {
   WorkshopCompileResult,
   WorkshopCompileWarningCode,
   WorkshopCompiledLevel,
-  WorkshopLevel,
   WorkshopProject,
   WorkshopRuleSetAsset,
 } from '@/types/workshop';
