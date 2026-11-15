@@ -17,7 +17,6 @@ import type {
 } from '@/types/workshop';
 import { TOWER_DATA } from '@/data/gameData';
 import { MOD_SCRIPT_HOOKS, MOD_SCRIPT_PERMISSIONS } from '@/mod-script/limits';
-import type { ModScriptHook, ModScriptPermission } from '@/types/modScript';
 import { Btn, Deck, Empty, Input, SegHead, Toggle } from '@/components/hl';
 import { ScriptCodeEditor } from '@/components/mod-editor/ScriptCodeEditor';
 import { fillTemplate } from '@/i18n/fileMetaExtraLabels';
@@ -88,12 +87,15 @@ export function AssetEditorPanel({ assetId }: AssetEditorPanelProps) {
 
   const patchMeta = (patch: { name?: string; version?: string; description?: string }): void => {
     if (!asset) return;
-    write({ ...asset, ...patch } as WorkshopAsset);
+    write({ ...asset, ...patch } as unknown as WorkshopAsset);
   };
 
   const patchData = (patch: Record<string, unknown>): void => {
     if (!asset) return;
-    write({ ...asset, data: { ...(asset.data as Record<string, unknown>), ...patch } } as WorkshopAsset);
+    write({
+      ...asset,
+      data: { ...(asset.data as unknown as Record<string, unknown>), ...patch },
+    } as unknown as WorkshopAsset);
   };
 
   const usage = useMemo(() => {
@@ -154,7 +156,7 @@ export function AssetEditorPanel({ assetId }: AssetEditorPanelProps) {
             ] as const).map(([key, label]) => (
               <div key={key} className="flex items-center justify-between border-b border-[var(--cn-line-soft)] pb-1">
                 <span className="text-[11.5px] text-[var(--cn-ink-2)]">{label}</span>
-                <Toggle on={Boolean((towerData as Record<string, unknown>)[key])} onChange={(on) => patchData({ [key]: on })} />
+                <Toggle on={Boolean((towerData as unknown as Record<string, unknown>)[key])} onChange={(on) => patchData({ [key]: on })} />
               </div>
             ))}
             {towerData.splash && <NumField label={s.splashRadius} value={towerData.splashRadius ?? 50} onChange={(splashRadius) => patchData({ splashRadius })} />}
