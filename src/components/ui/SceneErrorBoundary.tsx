@@ -37,7 +37,7 @@ export class SceneErrorBoundary extends Component<SceneErrorBoundaryProps, Scene
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    // 錯誤路徑沿用專案的 console.error 慣例（§8：不新增 console.log）
+    // 錯誤路徑沿用專案的 console.error 慣例（§8：不新增一般 debug 輸出）
     console.error('[scene-error]', this.props.sceneKey, error, info.componentStack);
   }
 
