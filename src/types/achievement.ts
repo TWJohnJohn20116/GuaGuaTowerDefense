@@ -222,36 +222,36 @@ export const RARITY_CONFIG: Record<AchievementRarity, {
   label: string;
 }> = {
   common: {
-    color: '#9ca3af',
+    color: '#4b5563',
     bgColor: 'rgba(156, 163, 175, 0.1)',
     borderColor: 'rgba(156, 163, 175, 0.3)',
     points: 5,
     label: '普通',
   },
   uncommon: {
-    color: '#22c55e',
-    bgColor: 'rgba(34, 197, 94, 0.1)',
+    color: '#15803d',
+    bgColor: 'rgba(34, 197, 94, 0.1)'
     borderColor: 'rgba(34, 197, 94, 0.3)',
     points: 10,
     label: '稀有',
   },
   rare: {
-    color: '#3b82f6',
-    bgColor: 'rgba(59, 130, 246, 0.1)',
+    color: '#1d4ed8',
+    bgColor: 'rgba(59, 130, 246, 0.1)'
     borderColor: 'rgba(59, 130, 246, 0.3)',
     points: 25,
     label: '精良',
   },
   epic: {
-    color: '#a855f7',
-    bgColor: 'rgba(168, 85, 247, 0.1)',
+    color: '#6d28d9',
+    bgColor: 'rgba(168, 85, 247, 0.1)'
     borderColor: 'rgba(168, 85, 247, 0.3)',
     points: 50,
     label: '史詩',
   },
   legendary: {
-    color: '#f59e0b',
-    bgColor: 'rgba(245, 158, 11, 0.1)',
+    color: '#b45309',
+    bgColor: 'rgba(245, 158, 11, 0.1)'
     borderColor: 'rgba(245, 158, 11, 0.3)',
     points: 100,
     label: '傳說',

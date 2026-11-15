@@ -83,7 +83,7 @@ export const BottomControls = () => {
             'arc-btn arc-btn--gold flex h-full items-center justify-center gap-2 rounded-sm px-4 font-mono text-[11px] font-semibold uppercase tracking-[0.08em]',
             waveActive || pendingProtocol || (!endlessMode && maxWaves > 0 && currentWave >= maxWaves) || tutorialActive
               ? `cursor-not-allowed bg-transparent shadow-none ${startTone}`
-              : 'bg-[var(--arc-gold)] text-[var(--arc-gold-ink)] hover:brightness-110',
+              : 'bg-[var(--cn-cta)] text-[var(--cn-on-cta)] hover:brightness-110',
             !waveActive && !pendingProtocol && tutorialActive && tutorialStep?.action !== 'start_wave'
               ? 'opacity-40'
               : '',
