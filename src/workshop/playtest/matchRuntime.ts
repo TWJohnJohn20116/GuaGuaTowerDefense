@@ -22,7 +22,6 @@ import {
 import { getProtocolWaveMods } from '@/data/tacticalProtocolData';
 import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { findPlayableWaveSet } from '@/utils/waveSets';
-import { clearTowerIds } from '@/store/gridTower';
 import { getSegmentMap } from '@/store/gameLoop/pathHelpers';
 import { generateId, getEnemyData } from '@/store/gameStoreUtils';
 import { useGameStore } from '@/store/gameStore';
@@ -149,8 +148,8 @@ function resolveDeathAbilities(killed: Enemy[]): {
       const radiusTiles = data.explosionRadius / 50;
       const rSq = radiusTiles * radiusTiles;
       for (const tower of state.towers) {
-        const dx = tower.gridPos.col - dead.x;
-        const dy = tower.gridPos.row - dead.y;
+        const dx = tower.pos.x - dead.x;
+        const dy = tower.pos.y - dead.y;
         if (dx * dx + dy * dy <= rSq) {
           towerBombDamage[tower.id] = (towerBombDamage[tower.id] ?? 0) + data.explosionDamage;
         }
@@ -237,8 +236,7 @@ function settleEnemies(_rt: MatchRuntime): void {
       const nextSelected = selectedId ? alive.find((tower) => tower.id === selectedId) ?? null : null;
       useGameStore.setState({
         towers: alive,
-        grid: clearTowerIds(after.grid, deadIds),
-        selectedTower: nextSelected,
+          selectedTower: nextSelected,
       });
     } else {
       useGameStore.setState({ towers: alive });

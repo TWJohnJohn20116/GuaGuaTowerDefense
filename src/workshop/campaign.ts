@@ -55,7 +55,9 @@ function toPathConfig(mapAsset: WorkshopMapAsset, level: WorkshopLevel): PathCon
     waypoints,
     ...(data.segments && data.segments.length > 0 ? { segments: data.segments } : {}),
     ...(data.startSegmentId ? { startSegmentId: data.startSegmentId } : {}),
-    ...(data.blockedCells && data.blockedCells.length > 0 ? { blockedCells: data.blockedCells } : {}),
+    ...(data.blockedCells && data.blockedCells.length > 0
+      ? { blockedAreas: data.blockedCells.map((cell) => ({ x: cell.col + 0.5, y: cell.row + 0.5 })) }
+      : {}),
   };
 }
 
