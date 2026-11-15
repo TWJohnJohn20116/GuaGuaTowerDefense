@@ -463,6 +463,18 @@ function emitChain(ctx: EmitContext, nodeId: string, visited: Set<string>): void
       pushLine(ctx, '}');
       return;
     }
+    case 'action.logValue': {
+      const [value] = [operandExpression(ctx, node.id, 'value', 0, [node.id])];
+      pushLine(ctx, 'api.log(String(' + value + '));');
+      break;
+    }
+    case 'action.applyStatusAll': {
+      const effect = str(node.params.effect, 'slow');
+      const duration = Math.round(num(node.params.durationMs, 2000));
+      const value = num(node.params.value, 0.5);
+      pushLine(ctx, 'api.status.apply(' + jsString(effect) + ', ' + duration + ', ' + value + ');');
+      break;
+    }
     case 'action.addScore':
       pushLine(ctx, 'api.score.add(' + amountExpression(ctx, node, 'amount', 10) + ');');
       break;
