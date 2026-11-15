@@ -297,24 +297,7 @@ export function ContentPage({ projectId }: ContentPageProps) {
       <SegHead
         label={c.title}
         right={
-          <div className="flex flex-wrap items-center gap-1">
-            <span className="arc-label">{s.levels.title}</span>
-            {levels.map((item) => (
-              <Btn
-                key={item.id}
-                size="sm"
-                variant={item.id === pickedLevelId ? 'signal' : 'line'}
-                onClick={() => {
-                  setLevelId(item.id);
-                  setSelectedWaves([]);
-                  setSelectedSegments([]);
-                  setPlayheadMs(0);
-                }}
-              >
-                {item.name}
-              </Btn>
-            ))}
-            <Num value={fillTemplate(c.waveCount, { count: String(waves.length) })} size="sm" tone="muted" />
+          <div className="flex shrink-0 items-center gap-1">
             <IconBtn label={w.undo} className="h-7 w-7" onClick={history.undo} disabled={!history.canUndo}>
               <UndoIcon className="h-4 w-4" />
             </IconBtn>
@@ -327,6 +310,27 @@ export function ContentPage({ projectId }: ContentPageProps) {
           </div>
         }
       />
+
+      {/* 關卡切換自己一列：塞在 SegHead 右側時，窄版會換行並壓到標題列 */}
+      <div className="flex flex-wrap items-center gap-1">
+        <span className="arc-label shrink-0">{s.levels.title}</span>
+        {levels.map((item) => (
+          <Btn
+            key={item.id}
+            size="sm"
+            variant={item.id === pickedLevelId ? 'signal' : 'line'}
+            onClick={() => {
+              setLevelId(item.id);
+              setSelectedWaves([]);
+              setSelectedSegments([]);
+              setPlayheadMs(0);
+            }}
+          >
+            {item.name}
+          </Btn>
+        ))}
+        <Num value={fillTemplate(c.waveCount, { count: String(waves.length) })} size="sm" tone="muted" />
+      </div>
 
       <WaveFormulaPanel
         formula={formula}
@@ -363,7 +367,7 @@ export function ContentPage({ projectId }: ContentPageProps) {
           }
           onBatch={batch}
           onSetChapter={(indices, chapter) => commitWaves(batchPatchWaves(waves, indices, { chapter }))}
-          className="min-h-[280px] xl:min-h-0"
+          className="min-h-[420px] xl:min-h-0"
         />
 
         <Deck className="flex min-h-0 flex-col gap-1.5 overflow-hidden p-2.5">

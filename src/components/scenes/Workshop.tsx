@@ -143,6 +143,7 @@ export default function Workshop() {
         <div className="flex min-h-0 flex-1">
           <Rail
             label={s.title}
+            className="my-2"
             collapsed={railCollapsed}
             onToggleCollapsed={toggleRail}
             collapseLabel={s.nav.collapse}
@@ -166,7 +167,8 @@ export default function Workshop() {
             ))}
           </Rail>
 
-          <main className="flex min-h-0 min-w-0 flex-1 flex-col">
+          {/* 窄版（手機）時整頁比視口高：外殼不滾動，所以主區自己滾，否則下半部直接被切掉 */}
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto xl:overflow-hidden">
             {missingProject ? (
               <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
                 <p className="text-[13px] text-[var(--cn-ink-2)]">{s.playtest.noProject}</p>

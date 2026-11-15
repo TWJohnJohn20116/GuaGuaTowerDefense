@@ -201,7 +201,7 @@ export function WaveListPanel({
   const hasSelection = selected.length > 0;
 
   return (
-    <Deck className={`flex min-h-0 flex-col gap-2 overflow-hidden p-2.5 ${className}`}>
+    <Deck className={`flex min-h-0 flex-col gap-2 p-2.5 ${className}`}>
       <SegHead
         label={c.list}
         right={
@@ -238,7 +238,7 @@ export function WaveListPanel({
             )}
           </div>
 
-          <ul className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-0.5">
+          <ul className="flex min-h-[140px] flex-1 flex-col gap-1.5 overflow-y-auto pr-0.5">
             {chapters.map((chapter) => (
               <li key={`chapter-${chapter.chapter || '__none__'}`} className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-1 rounded-[var(--cn-r-sm)] bg-[var(--cn-card-2)] px-1.5 py-1">
