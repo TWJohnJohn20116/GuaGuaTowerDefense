@@ -13,7 +13,6 @@
  */
 import type { WaveConfig } from '@/types/game';
 import {
-  SPAWN_INTERVAL_MS,
   blockEndMs,
   flattenWave,
   recomputeDuration,
@@ -56,7 +55,7 @@ export interface TrackModel {
 /* -------------------------------------------------------------- 結構操作 */
 
 /** 重排 index 並重算長度（所有結構操作的收尾） */
-export function reindex(waves: readonly TimelineWave[]): TimelineWave[] {
+function reindex(waves: readonly TimelineWave[]): TimelineWave[] {
   return waves.map((wave, index) => {
     const next = recomputeDuration(wave);
     return next.index === index ? next : { ...next, index };
@@ -64,7 +63,7 @@ export function reindex(waves: readonly TimelineWave[]): TimelineWave[] {
 }
 
 /** 每一波的絕對起點（長度累加） */
-export function waveStartOffsets(waves: readonly TimelineWave[]): number[] {
+function waveStartOffsets(waves: readonly TimelineWave[]): number[] {
   const starts: number[] = [];
   let acc = 0;
   for (const wave of waves) {
@@ -420,15 +419,7 @@ export function listChapters(waves: readonly TimelineWave[]): { chapter: string;
     .sort((a, b) => (a.chapter === '' ? 1 : b.chapter === '' ? -1 : a.fromWave - b.fromWave));
 }
 
-/** 整關時長（毫秒） */
-export function totalDurationMs(waves: readonly TimelineWave[]): number {
-  return waves.reduce((sum, wave) => sum + Math.max(0, wave.durationMs), 0);
-}
-
 /** 全關的片段總數（＝組數），給狀態列用 */
 export function countSegments(waves: readonly TimelineWave[]): number {
   return waves.reduce((sum, wave) => sum + wave.rows.reduce((inner, row) => inner + row.blocks.length, 0), 0);
 }
-
-/** 預設間隔（給 UI 顯示「跟隨全域」用） */
-export const DEFAULT_SEGMENT_INTERVAL_MS = SPAWN_INTERVAL_MS;
