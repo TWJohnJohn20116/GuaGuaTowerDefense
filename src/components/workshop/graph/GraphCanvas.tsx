@@ -21,6 +21,7 @@ import type {
 } from '@/workshop/graph/model';
 import { studioText } from '@/workshop/graph/model';
 import { nodeSpec } from '@/workshop/graph/nodeLibrary';
+import { computeSnap, type SnapGuides } from '@/workshop/graph/snap';
 import { portsCompatible } from '@/workshop/graph/validate';
 
 /* ------------------------------------------------------------ 幾何常數 */
@@ -41,10 +42,6 @@ const ZOOM_FACTOR = 1.12;
 const BEZIER_MIN = 36;
 const BOX_MIN_SIZE = 2;
 
-/** 拖曳吸附門檻（圖座標單位）：對齊其他節點的邊／中心 */
-const SNAP_THRESHOLD = 6;
-/** 沒有對齊目標時的格線吸附間距 */
-const GRID_STEP = 10;
 
 /** 標題列：上緣圓角、下緣切平 */
 const HEADER_PATH =
@@ -297,7 +294,7 @@ export function GraphCanvas({
   const [spaceHeld, setSpaceHeld] = useState(false);
   /** 吸附：拖曳時對齊其他節點的邊／中心；沒有目標就吸格線 */
   const [snapEnabled, setSnapEnabled] = useState(true);
-  const [guides, setGuides] = useState<{ x: number[]; y: number[] } | null>(null);
+  const [guides, setGuides] = useState<SnapGuides | null>(null);
 
   const gridId = 'graph-grid-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
 
@@ -548,64 +545,28 @@ export function GraphCanvas({
   }
 
   /**
-   * 拖曳吸附：優先對齊其他節點的「邊／中心」（門檻 6 個圖座標單位），
-   * 沒有對齊目標時吸 10 單位格線；回傳的 guides 用來畫輔助線。
-   * 多選拖曳時只用主節點（滑鼠按下的那顆）算吸附，其餘跟著位移。
+   * 拖曳吸附：演算法在 @/workshop/graph/snap（純函式、有單元測試）。
+   * 這裡只把場景幾何轉成 SnapBox 並轉接結果。
    */
   function snapMove(
     primaryId: string,
     idSet: Set<string>,
     rawDx: number,
     rawDy: number,
-  ): { dx: number; dy: number; guides: { x: number[]; y: number[] } | null } {
-    const primary = graph.nodes.find((node) => node.id === primaryId);
-    const primaryBox = scene.boxes.find((box) => box.nodeId === primaryId);
-    if (!primary || !primaryBox) return { dx: rawDx, dy: rawDy, guides: null };
-
-    const x0 = primary.x + rawDx;
-    const y0 = primary.y + rawDy;
-    const xs = [x0, x0 + NODE_W / 2, x0 + NODE_W];
-    const ys = [y0, y0 + primaryBox.height / 2, y0 + primaryBox.height];
-
-    let bestX: { diff: number; at: number } | null = null;
-    let bestY: { diff: number; at: number } | null = null;
-
-    for (const box of scene.boxes) {
-      if (idSet.has(box.nodeId)) continue;
-      const targetsX = [box.x, box.x + NODE_W / 2, box.x + NODE_W];
-      const targetsY = [box.y, box.y + box.height / 2, box.y + box.height];
-      for (const current of xs) {
-        for (const target of targetsX) {
-          const diff = target - current;
-          if (Math.abs(diff) <= SNAP_THRESHOLD && (bestX === null || Math.abs(diff) < Math.abs(bestX.diff))) {
-            bestX = { diff, at: target };
-          }
-        }
-      }
-      for (const current of ys) {
-        for (const target of targetsY) {
-          const diff = target - current;
-          if (Math.abs(diff) <= SNAP_THRESHOLD && (bestY === null || Math.abs(diff) < Math.abs(bestY.diff))) {
-            bestY = { diff, at: target };
-          }
-        }
-      }
-    }
-
-    const dx = bestX !== null
-      ? rawDx + bestX.diff
-      : Math.round((primary.x + rawDx) / GRID_STEP) * GRID_STEP - primary.x;
-    const dy = bestY !== null
-      ? rawDy + bestY.diff
-      : Math.round((primary.y + rawDy) / GRID_STEP) * GRID_STEP - primary.y;
-
-    return {
-      dx,
-      dy,
-      guides: bestX !== null || bestY !== null
-        ? { x: bestX !== null ? [bestX.at] : [], y: bestY !== null ? [bestY.at] : [] }
-        : null,
-    };
+  ): { dx: number; dy: number; guides: SnapGuides | null } {
+    return computeSnap({
+      primaryId,
+      movingIds: idSet,
+      rawDx,
+      rawDy,
+      boxes: scene.boxes.map((box) => ({
+        nodeId: box.nodeId,
+        x: box.x,
+        y: box.y,
+        width: NODE_W,
+        height: box.height,
+      })),
+    });
   }
 
   function handlePointerMove(event: React.PointerEvent<SVGSVGElement>): void {
@@ -903,6 +864,27 @@ export function GraphCanvas({
                   stroke="var(--cn-signal-text)" strokeWidth={1}
                   strokeDasharray="6 4" vectorEffect="non-scaling-stroke"
                 />
+              ))}
+              {guides.spacing.map((spacing, index) => (
+                <g key={'spacing-' + index}>
+                  {spacing.segments.map(([from, to], segmentIndex) => (
+                    spacing.axis === 'x' ? (
+                      <line
+                        key={segmentIndex}
+                        x1={from} y1={spacing.at} x2={to} y2={spacing.at}
+                        stroke="var(--cn-grape)" strokeWidth={2}
+                        strokeDasharray="5 3" vectorEffect="non-scaling-stroke"
+                      />
+                    ) : (
+                      <line
+                        key={segmentIndex}
+                        x1={spacing.at} y1={from} x2={spacing.at} y2={to}
+                        stroke="var(--cn-grape)" strokeWidth={2}
+                        strokeDasharray="5 3" vectorEffect="non-scaling-stroke"
+                      />
+                    )
+                  ))}
+                </g>
               ))}
               {guides.y.map((y) => (
                 <line
