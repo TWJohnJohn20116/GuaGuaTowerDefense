@@ -3,7 +3,6 @@ import { useGameStore } from '@/store/gameStore';
 import { useTranslation } from '@/i18n';
 import { useGetTowerData } from './hooks';
 import { BD_LABEL, BD_NUM, BD_SHEET } from './hudBoard';
-import { AIStatusHeader } from './sidebar/AIStatusHeader';
 
 /**
  * 戰場情報（預設收起）
@@ -65,8 +64,6 @@ export function IntelPanel() {
           <span className="text-[11px] font-extrabold leading-none">×</span>
         </button>
       </header>
-
-      <AIStatusHeader />
 
       <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2.5">
         <div className="flex items-baseline justify-between gap-2">

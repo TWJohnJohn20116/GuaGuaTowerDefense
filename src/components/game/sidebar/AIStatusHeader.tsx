@@ -27,10 +27,10 @@ export const AIStatusHeader = () => {
           exit={{ height: 0, opacity: 0 }}
           className="overflow-hidden"
         >
-          <div className="border-b border-[var(--arc-line)] border-l-2 border-l-[var(--arc-cyan)] px-2.5 py-1.5">
+          <div className="border-b-[3px] border-[var(--cn-line-soft)] border-l-[6px] border-l-[var(--cn-sky)] px-2.5 py-1.5">
             <div className="flex items-center gap-2">
               <Dot tone="signal" pulse />
-              <span className="arc-label text-[var(--arc-gold)]">{t.game.aiActive}</span>
+              <span className="arc-label text-[var(--cn-accent-text)]">{t.game.aiActive}</span>
 
               {latestLog && (
                 <span className="ml-auto flex min-w-0 items-center gap-1">
@@ -62,7 +62,7 @@ export const AIStatusHeader = () => {
                   transition={{ duration: 0.12 }}
                   className="overflow-hidden"
                 >
-                  <div className="mt-1.5 max-h-32 space-y-0.5 overflow-y-auto border-l-2 border-[var(--arc-cyan)] pl-2">
+                  <div className="mt-1.5 max-h-32 space-y-0.5 overflow-y-auto border-l-2 border-[var(--cn-sky)] pl-2">
                     {latestLog.thinking.slice(0, 8).map((step, i) => (
                       <div
                         key={`${latestLog.id}-${i}`}

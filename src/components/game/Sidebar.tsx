@@ -5,6 +5,8 @@ import { TopStatsBar } from './sidebar/TopStatsBar';
 import { BottomControls } from './sidebar/BottomControls';
 import { TowerPanel } from './sidebar/TowerPanel';
 import { IntelPanel } from './IntelPanel';
+import { AIStatusHeader } from './sidebar/AIStatusHeader';
+import { BD_SHEET } from './hudBoard';
 import { ViewModeToggle } from '@/components/scenes/game-scene/three/ViewModeToggle';
 import { PlayerSkillBar } from './PlayerSkillBar';
 
@@ -56,8 +58,12 @@ const SidebarImpl = ({ viewMode, onToggleView }: SidebarProps) => {
 
       {/* 右側：情報標籤／浮層 */}
       {hudLayout.showIntelPanel && (
-        <div className="pointer-events-auto absolute right-3 top-20">
+        <div className="pointer-events-auto absolute right-3 top-20 flex w-[236px] flex-col items-end gap-2">
           <IntelPanel />
+          {/* AI 啟動中的狀態條：常駐在情報下方，自動戰鬥關閉時自己收合 */}
+          <div className={`${BD_SHEET} w-full overflow-hidden`}>
+            <AIStatusHeader />
+          </div>
         </div>
       )}
 
