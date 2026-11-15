@@ -18,6 +18,38 @@ import { DevSearchContext } from './dev-panel/common';
 import { IconBtn } from '@/components/hl';
 import { DEV_TAB_SEARCH_ENTRIES, pickDevTabForQuery, tabHasMatch } from '@/data/devSearch';
 
+/** 開發按鈕位置記憶：純 UI 偏好，不進 store（不是世界狀態） */
+const DEV_BTN_POS_KEY = 'guagua.devButtonPos';
+const DEV_BTN_W = 104;
+const DEV_BTN_H = 44;
+const GRIP_DOTS = [0, 1, 2, 3, 4, 5];
+
+function clampDevPos(x: number, y: number) {
+  return {
+    x: Math.min(Math.max(0, x), Math.max(0, window.innerWidth - DEV_BTN_W)),
+    y: Math.min(Math.max(0, y), Math.max(0, window.innerHeight - DEV_BTN_H)),
+  };
+}
+
+function readDevButtonPos(): { x: number; y: number } | null {
+  try {
+    const raw = localStorage.getItem(DEV_BTN_POS_KEY);
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      typeof parsed === 'object' &&
+      parsed !== null &&
+      typeof (parsed as { x?: unknown }).x === 'number' &&
+      typeof (parsed as { y?: unknown }).y === 'number'
+    ) {
+      return { x: (parsed as { x: number }).x, y: (parsed as { y: number }).y };
+    }
+  } catch {
+    // 壞資料就回預設位置：開發按鈕不該因為 localStorage 壞掉而整個消失
+  }
+  return null;
+}
+
 interface DevPanelProps {
   isOpen?: boolean;
 }
@@ -37,6 +69,22 @@ export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
   const [activeTab, setActiveTab] = useState<DevTabId>('state');
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const draggingRef = useRef(false);
+  const [btnPos, setBtnPos] = useState(() => {
+    const stored = readDevButtonPos();
+    // 預設落在 Hero 卡片右上角（裝飾圓那一帶）：那裡是 section 不是按鈕，
+    // 不會像左下角或天賦磚那樣壓到可點元素；使用者拖走後以記憶位置為準
+    return stored
+      ? clampDevPos(stored.x, stored.y)
+      : clampDevPos(window.innerWidth - 500, 16);
+  });
+
+  // 視窗縮小後把按鈕拉回可視範圍，否則記住的位置會讓它跑到畫面外
+  useEffect(() => {
+    const onResize = () => setBtnPos((p) => clampDevPos(p.x, p.y));
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const showDevButton = useSettingsStore((s) => s.gameplay.showDevButton);
 
@@ -102,22 +150,52 @@ export function DevPanel({ isOpen: externalOpen }: DevPanelProps) {
       {(showDevButton || isControlled) && (
         <motion.button
           type="button"
+          drag
+          dragMomentum={false}
+          dragElastic={0}
+          onDragStart={() => {
+            draggingRef.current = true;
+          }}
+          onDragEnd={(_, info) => {
+            const next = clampDevPos(info.point.x, info.point.y);
+            setBtnPos(next);
+            try {
+              localStorage.setItem(DEV_BTN_POS_KEY, JSON.stringify(next));
+            } catch {
+              // 私密模式或配額滿：記不住位置不影響功能
+            }
+            // 拖曳結束的 click 不該開啟面板，下一輪事件迴圈再放行
+            setTimeout(() => {
+              draggingRef.current = false;
+            }, 0);
+          }}
           onClick={(e) => {
+            if (draggingRef.current) return;
             e.preventDefault();
             e.stopPropagation();
             toggleOpen();
           }}
-          whileHover={{ scale: 1.06, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          className={`fixed bottom-4 left-4 z-[9999] flex items-center gap-2 px-3.5 py-2  border shadow-[0_4px_20px_rgba(0,0,0,0.4)] text-[11px] font-extrabold tracking-widest uppercase transition-colors  ${
+          animate={{ x: btnPos.x, y: btnPos.y }}
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
+          style={{ position: 'fixed', left: 0, top: 0 }}
+          className={[
+            'z-[9999] flex cursor-grab items-center gap-1.5 rounded-full border-[3px] px-3 py-1.5',
+            'font-mono text-[10.5px] font-extrabold uppercase tracking-[0.14em]',
+            'shadow-[0_3px_0_var(--cn-line)] transition-colors active:cursor-grabbing',
             isOpen
-              ? 'bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] text-[var(--arc-caution)]'
-              : 'bg-[var(--cn-card)] hover:bg-[rgba(255,182,39,0.12)] border-[rgba(255,182,39,0.38)] hover:border-[rgba(255,182,39,0.38)] text-[var(--arc-caution)]/90 hover:text-[var(--arc-caution)]'
-          }`}
-          title="開發者工具 (Ctrl+Shift+D / ESC)"
+              ? 'border-[var(--cn-line)] bg-[var(--cn-sun)] text-[var(--cn-on-sun)]'
+              : 'border-[var(--cn-line-soft)] bg-[var(--cn-card)] text-[var(--cn-ink-2)] hover:border-[var(--cn-line)] hover:text-[var(--cn-ink)]',
+          ].join(' ')}
+          title="開發者工具（可拖動；Ctrl+Shift+D / ESC）"
         >
-          <WrenchIcon className="w-4 h-4" />
+          <WrenchIcon className="h-3.5 w-3.5" />
           <span>Dev</span>
+          <span aria-hidden="true" className="ml-0.5 grid grid-cols-2 gap-[2px] opacity-45">
+            {GRIP_DOTS.map((dot) => (
+              <span key={dot} className="h-[3px] w-[3px] rounded-full bg-current" />
+            ))}
+          </span>
         </motion.button>
       )}
 
