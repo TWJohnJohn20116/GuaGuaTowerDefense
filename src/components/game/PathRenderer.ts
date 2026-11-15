@@ -43,8 +43,8 @@ export const drawGrid = (
 ) => {
   if (tileSize <= 0) return;
   
-  // 定義均勻的網格縫隙大小
-  const gap = 1.5; 
+  // 均勻的網格縫隙（縫裡露出紙底，就是格線的留白）
+  const gap = 2.5; 
   // 路徑轉角半徑
   const cornerR = Math.max(4, Math.round(tileSize * 0.25));
 
@@ -58,17 +58,15 @@ export const drawGrid = (
       
       // 所有格子預設都是空地顏色
       ctx.fillStyle = getBoardColors().tile;
-      
-      // 繪製帶有均勻縫隙的方塊
+
+      // 糖果紙格：8–10px 圓角，1px 墨線描邊，讓整片場地看得出是一格一格
+      const tileR = Math.max(4, Math.round(tileSize * 0.14));
       ctx.beginPath();
-      ctx.roundRect(
-        x + gap, 
-        y + gap, 
-        tileSize - gap * 2, 
-        tileSize - gap * 2, 
-        2 // 空地給個極小的圓角，讓它看起來不那麼死板
-      );
+      ctx.roundRect(x + gap, y + gap, tileSize - gap * 2, tileSize - gap * 2, tileR);
       ctx.fill();
+      ctx.strokeStyle = getBoardColors().edge;
+      ctx.lineWidth = 1;
+      ctx.stroke();
     });
   });
 
@@ -191,15 +189,13 @@ export const drawGrid = (
       const y = offsetY + ri * tileSize;
       
       ctx.fillStyle = getBoardColors().tile;
+      const tileR = Math.max(4, Math.round(tileSize * 0.14));
       ctx.beginPath();
-      ctx.roundRect(
-        x + gap, 
-        y + gap, 
-        tileSize - gap * 2, 
-        tileSize - gap * 2, 
-        2
-      );
+      ctx.roundRect(x + gap, y + gap, tileSize - gap * 2, tileSize - gap * 2, tileR);
       ctx.fill();
+      ctx.strokeStyle = getBoardColors().edge;
+      ctx.lineWidth = 1;
+      ctx.stroke();
     });
   });
 
@@ -208,6 +204,45 @@ export const drawGrid = (
 
   // === 第五遍：障礙格子視覺 ===
   drawBlockedTiles(ctx, grid, tileSize, offsetX, offsetY);
+
+  // === 第六遍：地形裝飾（草地細點，純視覺，不影響點擊） ===
+  drawTerrainDots(ctx, grid, tileSize, offsetX, offsetY, gap);
+};
+
+/**
+ * 地形裝飾：空地格上的細點與短草
+ *
+ * 用行列雜湊決定位置（不用 Math.random，避免每次重繪閃動），
+ * 只在空地格出現，密度約 1/6，顏色用接縫色加低透明度——遠看是紙紋，近看有細節。
+ */
+const drawTerrainDots = (
+  ctx: CanvasRenderingContext2D,
+  grid: Tile[][],
+  tileSize: number,
+  offsetX: number,
+  offsetY: number,
+  gap: number,
+) => {
+  const ink = getBoardColors().edge;
+  const radius = Math.max(1.1, tileSize * 0.035);
+  grid.forEach((row, ri) => {
+    row.forEach((tile, ci) => {
+      if (tile.type !== 'empty') return;
+      const seed = ((ri + 1) * 73856093) ^ ((ci + 1) * 19349663);
+      if ((seed & 7) !== 0) return;
+      const x = offsetX + ci * tileSize;
+      const y = offsetY + ri * tileSize;
+      const cx = x + tileSize * (0.28 + ((seed >> 3) & 3) * 0.14);
+      const cy = y + tileSize * (0.28 + ((seed >> 5) & 3) * 0.14);
+      ctx.globalAlpha = 0.16;
+      ctx.fillStyle = ink;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+  });
+  void gap;
 };
 
 const drawBlockedTiles = (
@@ -217,7 +252,8 @@ const drawBlockedTiles = (
   offsetX: number,
   offsetY: number,
 ) => {
-  const gap = 1.5;
+  const gap = 2.5;
+  const tileR = Math.max(4, Math.round(tileSize * 0.14));
   grid.forEach((row, ri) => {
     row.forEach((tile, ci) => {
       if (tile.type !== 'blocked') return;
@@ -230,7 +266,7 @@ const drawBlockedTiles = (
 
       ctx.fillStyle = getBoardColors().edge;
       ctx.beginPath();
-      ctx.roundRect(rx, ry, rw, rh, 3);
+      ctx.roundRect(rx, ry, rw, rh, tileR);
       ctx.fill();
 
       ctx.strokeStyle = 'rgba(239, 68, 68, 0.35)';

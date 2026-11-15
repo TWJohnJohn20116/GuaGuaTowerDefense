@@ -100,7 +100,7 @@ export const THEMES: readonly ThemeDefinition[] = [
     },
     glow: ['rgba(255, 107, 74, 0.13)', 'rgba(155, 107, 255, 0.12)', 'rgba(61, 165, 255, 0.12)'],
     dot: 'rgba(46, 36, 64, 0.055)',
-    board: { floor: '#241b28', tile: '#2c2231', path: '#3a3040', start: '#2f3d31', end: '#43303a', edge: '#1a1218' },
+    board: { floor: '#ffeede', tile: '#ffffff', path: '#ffe3db', start: '#d8f8ec', end: '#ffe0e7', edge: '#cdbfe0' },
   },
   {
     id: 'mint',
@@ -114,7 +114,7 @@ export const THEMES: readonly ThemeDefinition[] = [
     },
     glow: ['rgba(15, 157, 99, 0.13)', 'rgba(61, 165, 255, 0.12)', 'rgba(255, 107, 74, 0.10)'],
     dot: 'rgba(22, 48, 42, 0.055)',
-    board: { floor: '#14211b', tile: '#1b2a23', path: '#294036', start: '#1f3a2c', end: '#3a2430', edge: '#0e1512' },
+    board: { floor: '#e2f7ec', tile: '#ffffff', path: '#d4f6e7', start: '#d8f8ec', end: '#ffe0e7', edge: '#b0d8c6' },
   },
   {
     id: 'sky',
@@ -128,7 +128,7 @@ export const THEMES: readonly ThemeDefinition[] = [
     },
     glow: ['rgba(31, 127, 209, 0.14)', 'rgba(155, 107, 255, 0.10)', 'rgba(35, 201, 139, 0.10)'],
     dot: 'rgba(19, 36, 58, 0.055)',
-    board: { floor: '#131d29', tile: '#1a2735', path: '#27394c', start: '#1c3327', end: '#3a2433', edge: '#0b1219' },
+    board: { floor: '#e2f0fb', tile: '#ffffff', path: '#d6ecff', start: '#d8f8ec', end: '#ffe0e7', edge: '#b0cfe9' },
   },
   {
     id: 'sun',
@@ -142,7 +142,7 @@ export const THEMES: readonly ThemeDefinition[] = [
     },
     glow: ['rgba(181, 118, 10, 0.14)', 'rgba(255, 107, 74, 0.10)', 'rgba(35, 201, 139, 0.08)'],
     dot: 'rgba(58, 44, 16, 0.055)',
-    board: { floor: '#221d15', tile: '#2b2419', path: '#3b3222', start: '#263425', end: '#3d2a26', edge: '#14100a' },
+    board: { floor: '#fff3dc', tile: '#ffffff', path: '#fff0c2', start: '#d8f8ec', end: '#ffe0e7', edge: '#e0cda2' },
   },
   {
     id: 'grape',
@@ -156,7 +156,7 @@ export const THEMES: readonly ThemeDefinition[] = [
     },
     glow: ['rgba(111, 63, 232, 0.13)', 'rgba(255, 123, 197, 0.10)', 'rgba(61, 165, 255, 0.10)'],
     dot: 'rgba(43, 31, 69, 0.055)',
-    board: { floor: '#1a1726', tile: '#231e30', path: '#322944', start: '#20301f', end: '#3a2436', edge: '#100d18' },
+    board: { floor: '#f0e8ff', tile: '#ffffff', path: '#ebe1ff', start: '#d8f8ec', end: '#ffe0e7', edge: '#cbbcf0' },
   },
   {
     id: 'rose',
@@ -170,7 +170,7 @@ export const THEMES: readonly ThemeDefinition[] = [
     },
     glow: ['rgba(207, 61, 114, 0.13)', 'rgba(255, 107, 74, 0.10)', 'rgba(155, 107, 255, 0.10)'],
     dot: 'rgba(58, 31, 46, 0.055)',
-    board: { floor: '#231720', tile: '#2c1e28', path: '#3d2935', start: '#253329', end: '#45283a', edge: '#160e13' },
+    board: { floor: '#ffe8f1', tile: '#ffffff', path: '#ffdfea', start: '#d8f8ec', end: '#ffe0e7', edge: '#eab7cf' },
   },
   {
     id: 'forest',
@@ -184,7 +184,7 @@ export const THEMES: readonly ThemeDefinition[] = [
     },
     glow: ['rgba(36, 112, 74, 0.14)', 'rgba(201, 159, 0, 0.10)', 'rgba(61, 165, 255, 0.08)'],
     dot: 'rgba(31, 43, 28, 0.055)',
-    board: { floor: '#141d16', tile: '#1b271d', path: '#293a2b', start: '#1f3a26', end: '#3a2a22', edge: '#0d130e' },
+    board: { floor: '#e9f0dd', tile: '#ffffff', path: '#ddf0e2', start: '#d8f8ec', end: '#ffe0e7', edge: '#c1d5a9' },
   },
   {
     id: 'salt',
@@ -198,7 +198,7 @@ export const THEMES: readonly ThemeDefinition[] = [
     },
     glow: ['rgba(47, 88, 122, 0.14)', 'rgba(148, 163, 184, 0.14)', 'rgba(35, 201, 139, 0.08)'],
     dot: 'rgba(32, 42, 51, 0.055)',
-    board: { floor: '#161a1f', tile: '#1d232a', path: '#2a333c', start: '#1f3229', end: '#3a2a30', edge: '#0d1013' },
+    board: { floor: '#eaedf1', tile: '#ffffff', path: '#dbe8f2', start: '#d8f8ec', end: '#ffe0e7', edge: '#c4ced8' },
   },
   {
     id: 'caramel',
@@ -212,7 +212,7 @@ export const THEMES: readonly ThemeDefinition[] = [
     },
     glow: ['rgba(176, 106, 31, 0.14)', 'rgba(255, 107, 74, 0.10)', 'rgba(35, 201, 139, 0.08)'],
     dot: 'rgba(50, 36, 26, 0.055)',
-    board: { floor: '#211a14', tile: '#2a2219', path: '#3a2f24', start: '#263326', end: '#3f2a22', edge: '#130e0a' },
+    board: { floor: '#f9ecd8', tile: '#ffffff', path: '#ffeed6', start: '#d8f8ec', end: '#ffe0e7', edge: '#dcc6a9' },
   },
   {
     id: 'sakura',
@@ -226,7 +226,7 @@ export const THEMES: readonly ThemeDefinition[] = [
     },
     glow: ['rgba(200, 70, 112, 0.13)', 'rgba(255, 123, 197, 0.10)', 'rgba(155, 107, 255, 0.08)'],
     dot: 'rgba(58, 36, 48, 0.05)',
-    board: { floor: '#231a20', tile: '#2c2128', path: '#3d2f36', start: '#253329', end: '#44263a', edge: '#150e12' },
+    board: { floor: '#ffe9ef', tile: '#ffffff', path: '#ffe2ea', start: '#d8f8ec', end: '#ffe0e7', edge: '#ecc0cd' },
   },
   {
     id: 'midnight',
@@ -240,7 +240,7 @@ export const THEMES: readonly ThemeDefinition[] = [
     },
     glow: ['rgba(255, 143, 115, 0.16)', 'rgba(155, 107, 255, 0.14)', 'rgba(61, 165, 255, 0.12)'],
     dot: 'rgba(255, 255, 255, 0.05)',
-    board: { floor: '#0e0c15', tile: '#161320', path: '#211d2e', start: '#17261e', end: '#2a1620', edge: '#06050a' },
+    board: { floor: '#1a1725', tile: '#1f1b2b', path: '#33232c', start: '#17261e', end: '#2a1620', edge: '#463b5e' },
   },
   {
     id: 'abyss',
@@ -254,7 +254,7 @@ export const THEMES: readonly ThemeDefinition[] = [
     },
     glow: ['rgba(87, 200, 255, 0.16)', 'rgba(35, 201, 139, 0.12)', 'rgba(155, 107, 255, 0.10)'],
     dot: 'rgba(255, 255, 255, 0.05)',
-    board: { floor: '#0b1219', tile: '#101a24', path: '#1a2836', start: '#12241d', end: '#241a24', edge: '#05080c' },
+    board: { floor: '#141e2c', tile: '#18222f', path: '#152c3b', start: '#12241d', end: '#241a24', edge: '#2f4258' },
   },
 ];
 
