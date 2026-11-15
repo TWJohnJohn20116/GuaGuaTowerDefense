@@ -84,6 +84,10 @@ export interface GameStore {
   money: number;
   health: number;
   score: number;
+  /** 本局擊殺數（腳本快照用；與成就統計分開，這裡只做即時讀取） */
+  matchKills: number;
+  /** 本局漏怪數 */
+  matchLeaks: number;
   /** 腳本對塔的增益／減益（action.modifyTower）；空物件＝沒有增益 */
   scriptTowerMods: import('@/data/scriptTowerMods').ScriptTowerModMap;
   

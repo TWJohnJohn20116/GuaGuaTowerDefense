@@ -21,6 +21,11 @@ const snapshot: ModScriptStateSnapshot = {
   difficulty: 'normal',
   pathName: 'ch1_lv1',
   elapsedMs: 1000,
+  score: 0,
+  kills: 0,
+  leaks: 0,
+  towerLevelSum: 0,
+  bossHealth: 0,
   scriptState: {},
 };
 

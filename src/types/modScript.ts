@@ -113,6 +113,16 @@ export interface ModScriptStateSnapshot {
   difficulty: string;
   pathName: string;
   elapsedMs: number;
+  /** 目前分數 */
+  score: number;
+  /** 本局擊殺數 */
+  kills: number;
+  /** 本局漏怪數 */
+  leaks: number;
+  /** 場上塔的等級總和（衡量發育） */
+  towerLevelSum: number;
+  /** 場上 Boss／精英的最高血量（沒有則 0） */
+  bossHealth: number;
   /** 這支腳本自己的持久狀態（每支腳本看到的是自己那一份） */
   scriptState: ScriptStateRecord;
 }

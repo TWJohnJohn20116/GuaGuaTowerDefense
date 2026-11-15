@@ -389,6 +389,15 @@ async function buildSnapshot(): Promise<ModScriptStateSnapshot> {
     difficulty: state.lastStartArgs?.difficulty ?? 'normal',
     pathName: state.selectedPath,
     elapsedMs: Date.now(),
+    score: state.score,
+    kills: state.matchKills,
+    leaks: state.matchLeaks,
+    towerLevelSum: state.towers.reduce((sum, tower) => sum + tower.level, 0),
+    bossHealth: state.enemies.reduce(
+      (max, enemy) =>
+        enemy.type === 'boss' || enemy.type === 'miniboss' ? Math.max(max, enemy.health) : max,
+      0,
+    ),
     // 每支腳本看到的是自己那份；派發時再由 dispatchAsync 覆寫
     scriptState: {},
   };

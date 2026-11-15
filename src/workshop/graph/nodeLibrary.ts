@@ -463,6 +463,40 @@ const NOT_SPEC: GraphNodeSpec = {
   params: [],
 };
 
+/** 需要快照新欄位的條件與數值（score／kills／leaks／塔等級／Boss 血量） */
+const SCORE_COND_SPECS: readonly GraphNodeSpec[] = [
+  {
+    type: 'cond.score',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condScore',
+    descriptionKey: 'studio.graph.node.condScore.desc',
+    glyph: 'SR',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: thresholdParams('value', 'studio.graph.param.score', 100, 0, 999999),
+  },
+  {
+    type: 'cond.kills',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condKills',
+    descriptionKey: 'studio.graph.node.condKills.desc',
+    glyph: 'KL',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: thresholdParams('value', 'studio.graph.param.kills', 50, 0, 99999),
+  },
+  {
+    type: 'cond.leaks',
+    category: 'condition',
+    labelKey: 'studio.graph.node.condLeaks',
+    descriptionKey: 'studio.graph.node.condLeaks.desc',
+    glyph: 'LK',
+    inputs: [],
+    outputs: [BOOL_VALUE],
+    params: thresholdParams('value', 'studio.graph.param.leaks', 3, 0, 999),
+  },
+];
+
 /** 邏輯完備：xor／nand／nor 與三元組合 */
 const LOGIC_EXTRA_SPECS: readonly GraphNodeSpec[] = [
   {
@@ -1012,6 +1046,11 @@ const MATH_EXTRA_SPECS: readonly GraphNodeSpec[] = [
     params: [],
   },
   stateValueSpec('num.maxWaves', 'numMaxWaves', 'MW'),
+  stateValueSpec('num.score', 'numScore', 'NS2'),
+  stateValueSpec('num.kills', 'numKills', 'NK'),
+  stateValueSpec('num.leaks', 'numLeaks', 'NL'),
+  stateValueSpec('num.towerLevelSum', 'numTowerLevelSum', 'TL'),
+  stateValueSpec('num.bossHealth', 'numBossHealth', 'BH'),
   {
     type: 'num.enemiesOfType',
     category: 'value',
@@ -1066,6 +1105,7 @@ const NODE_LIBRARY: readonly GraphNodeSpec[] = [
   ...LOGIC_EXTRA_SPECS,
   ...STATE_COND_SPECS,
   ...SNAPSHOT_COND_SPECS,
+  ...SCORE_COND_SPECS,
   ...ACTION_SPECS,
   ...TOWER_ACTION_SPECS,
   CLEAR_VAR_SPEC,

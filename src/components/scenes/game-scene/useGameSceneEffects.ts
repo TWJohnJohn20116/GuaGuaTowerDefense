@@ -456,7 +456,8 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
 
         if (damageCount > 0) {
           takeDamage(damageCount);
-          // 漏怪事件：腳本最常用它做「漏一隻就補償／懲罰」這類規則
+          useGameStore.setState((s) => ({ matchLeaks: s.matchLeaks + damageCount }));
+          // 漏怪事件：腳本最常用它做「補償／懲罰」這類規則
           notifyModScripts('onEnemyLeaked', {
             enemyTypes: leakedTypes,
             amount: damageCount,
@@ -603,6 +604,7 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
               useAchievementStore.getState().batchOnEnemyKilled(kills, rewardTotal);
               useStatsStore.getState().trackEnemyKilledBatch(killedTypes, rewardTotal);
             }
+            useGameStore.setState((s) => ({ matchKills: s.matchKills + killedEnemies.length }));
             notifyModScripts('onEnemyKilled', {
               killCount: killedEnemies.length,
               enemyTypes: killedTypes,

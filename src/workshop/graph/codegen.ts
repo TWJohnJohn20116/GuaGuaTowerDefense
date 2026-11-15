@@ -165,6 +165,12 @@ function valueExpression(ctx: EmitContext, node: GraphNode, stack: readonly stri
       const high = Math.round(num(node.params.max, 10));
       return '(' + value + ' >= ' + Math.min(low, high) + ' && ' + value + ' <= ' + Math.max(low, high) + ')';
     }
+    case 'cond.score':
+      return '(api.state.score ' + compareOp(node.params.op) + ' ' + Math.round(num(node.params.value, 0)) + ')';
+    case 'cond.kills':
+      return '(api.state.kills ' + compareOp(node.params.op) + ' ' + Math.round(num(node.params.value, 0)) + ')';
+    case 'cond.leaks':
+      return '(api.state.leaks ' + compareOp(node.params.op) + ' ' + Math.round(num(node.params.value, 0)) + ')';
     case 'cond.waveModulo': {
       const every = Math.max(2, Math.round(num(node.params.every, 5)));
       return '(api.state.wave > 0 && api.state.wave % ' + every + ' === 0)';
@@ -288,6 +294,16 @@ function valueExpression(ctx: EmitContext, node: GraphNode, stack: readonly stri
       return 'api.rng()';
     case 'num.maxWaves':
       return 'api.state.maxWaves';
+    case 'num.score':
+      return 'api.state.score';
+    case 'num.kills':
+      return 'api.state.kills';
+    case 'num.leaks':
+      return 'api.state.leaks';
+    case 'num.towerLevelSum':
+      return 'api.state.towerLevelSum';
+    case 'num.bossHealth':
+      return 'api.state.bossHealth';
     case 'num.enemiesOfType': {
       const type = str(node.params.enemyType, 'grunt').trim() || 'grunt';
       return '(api.state.enemiesByType[' + jsString(type) + '] ?? 0)';
