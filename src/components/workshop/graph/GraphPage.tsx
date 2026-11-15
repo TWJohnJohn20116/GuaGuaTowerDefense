@@ -97,6 +97,12 @@ export function GraphPage({ projectId, levelId }: GraphPageProps): React.ReactEl
   const scopeAsset = scopeRefId ? assets.find((item) => item.id === scopeRefId) : undefined;
   const storedGraph = useMemo(() => readStoredGraph(scopeAsset), [scopeAsset]);
 
+  // 關卡層沒有自己的規則資產時，繼承專案層的圖（第一次編輯就自動建立關卡副本）
+  const projectScriptRefId = firstScriptRefId(project?.assetRefs, assets);
+  const projectAsset = projectScriptRefId ? assets.find((item) => item.id === projectScriptRefId) : undefined;
+  const projectGraph = useMemo(() => readStoredGraph(projectAsset), [projectAsset]);
+  const inheritsProjectGraph = scope === 'level' && scopeRefId === null && projectGraph.nodes.length > 0;
+
   const [graph, setGraph] = useState<RuleGraph>(storedGraph);
   const [boundAssetId, setBoundAssetId] = useState<string | null>(scopeRefId);
 
@@ -104,9 +110,9 @@ export function GraphPage({ projectId, levelId }: GraphPageProps): React.ReactEl
   // storedGraph 刻意不放進 deps：每次存檔都會產生新的圖物件，
   // 放進來會在每次編輯後把選取清空（參數面板跟著關掉），體感像當機。
   useEffect(() => {
-    setGraph(storedGraph);
+    setGraph(inheritsProjectGraph ? projectGraph : storedGraph);
     setBoundAssetId(scopeRefId);
-  }, [projectId, scope, resolvedLevelId, scopeRefId]);
+  }, [projectId, scope, resolvedLevelId, scopeRefId, inheritsProjectGraph, projectGraph]);
 
   useEffect(() => {
     setSelection({ nodes: [], edges: [] });
@@ -217,6 +223,11 @@ export function GraphPage({ projectId, levelId }: GraphPageProps): React.ReactEl
           <span className="text-[11px] font-bold text-[var(--cn-ink-3)]">
             {studioText(t, 'studio.graph.page.doubleClickHint')}
           </span>
+          {inheritsProjectGraph && (
+            <span className="rounded-full bg-[var(--cn-sky-soft)] px-2 py-0.5 text-[10.5px] font-extrabold text-[var(--cn-sky-deep)]">
+              {studioText(t, 'studio.graph.page.inherited')}
+            </span>
+          )}
           {scope === 'level' && !level && (
             <span className="text-[11px] font-bold text-[var(--cn-caution-text)]">
               {studioText(t, 'studio.graph.page.noLevelHint')}

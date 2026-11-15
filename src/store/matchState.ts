@@ -26,6 +26,7 @@ type MatchOwnedKey =
   | 'enemies'
   | 'towers'
   | 'projectiles'
+  | 'previewMap'
   | 'selectedTowerType'
   | 'selectedTower'
   | 'multiSelectedTowerIds'
@@ -49,6 +50,7 @@ type MatchOwnedKey =
   | 'autoBattleLogs';
 
 export const createEmptyMatchState = (): Pick<GameStore, MatchOwnedKey> => ({
+  previewMap: null,
   money: GAME_CONSTANTS.INITIAL_MONEY,
   health: GAME_CONSTANTS.INITIAL_HEALTH,
   score: 0,

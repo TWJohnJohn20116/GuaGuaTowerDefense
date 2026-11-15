@@ -13,6 +13,9 @@ import { DEFAULT_PATH, PATHS, WAVE_CONFIGS } from '@/data/gameData';
 import type { CustomMapData, PathConfig } from '@/types/game';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { compileMap } from '@/workshop/compile/compileMaps';
+import { compileProject } from '@/workshop/compile/compileProject';
+import { findPlayableWaveSet } from '@/utils/waveSets';
+import { registerPlaytestWaveSets } from './waveRegistry';
 import type { PlaytestSetup } from './types';
 
 /** 註冊進引擎用的路徑 key（同一個專案＋關卡永遠對應同一個 key，重複試玩不會長出第二份） */
@@ -87,13 +90,26 @@ export function resolvePlaytestSetup(projectId: string, levelId?: string): Playt
     mapLabel = PATHS[DEFAULT_PATH]?.name ?? DEFAULT_PATH;
   }
 
-  // 波數：關卡勝負條件的「守住 N 波」優先，其次關卡自己排的波次，最後才是官方 15 波
+  // 關卡波次 → 引擎可選波次組（註冊到 waveRegistry，findPlayableWaveSet 才找得到）
+  let customWaveSetId: string | undefined;
+  if (level) {
+    try {
+      const compiled = compileProject(project, store.assets, { enabled: true });
+      registerPlaytestWaveSets(compiled.mod.content.waves ?? []);
+      customWaveSetId = compiled.settings.levels.find((item) => item.id === level.id)?.waveSetId ?? undefined;
+    } catch {
+      customWaveSetId = undefined;
+    }
+  }
+
+  // 波數：編譯出的波次組優先，其次勝負條件的「守住 N 波」，最後才是官方波數
   const surviveWaves = level?.winConditions?.surviveWaves;
-  const levelWaves = level?.waves.length ?? 0;
-  const maxWaves = surviveWaves && surviveWaves > 0
-    ? surviveWaves
-    : levelWaves > 0
-      ? levelWaves
+  const registered = customWaveSetId ? findPlayableWaveSet(customWaveSetId) : undefined;
+  const levelWaves = registered?.waves.length ?? level?.waves.length ?? 0;
+  const maxWaves = levelWaves > 0
+    ? levelWaves
+    : surviveWaves && surviveWaves > 0
+      ? surviveWaves
       : WAVE_CONFIGS.length;
 
   return {
@@ -101,9 +117,7 @@ export function resolvePlaytestSetup(projectId: string, levelId?: string): Playt
     // 關卡目前沒有難度欄位；難度決定起始資源與敵人倍率，先用 normal（與新建關卡預設一致）
     difficulty: 'normal',
     maxWaves,
-    // 關卡自訂波次要先註冊成可選波次組（compileWaves → modStore）才吃得到；
-    // 在那之前傳 undefined，引擎會依 maxWaves 走官方 WAVE_CONFIGS
-    customWaveSetId: undefined,
+    customWaveSetId,
     mapLabel,
     levelLabel: level?.name ?? (fallback ? project.name : undefined),
     fallback,

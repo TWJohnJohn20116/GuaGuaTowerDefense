@@ -201,6 +201,8 @@ export const zhTW = {
         scopeProject: '專案層',
         noLevel: '尚無關卡',
         noLevelHint: '先建立關卡',
+        inherited: '繼承自專案層（編輯即建立關卡副本）',
+        forkHint: '第一次編輯會自動建立關卡副本',
         errors: '錯誤',
         warnings: '警告',
         hasJs: '含 JS（不可靜態分析）',

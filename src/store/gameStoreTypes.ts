@@ -102,6 +102,8 @@ export interface GameStore {
   // 地图
   selectedPath: string;
   grid: Tile[][];
+  /** 工坊 3D 預覽：暫時覆寫路徑（不動 grid 的世界狀態，離開即清空） */
+  previewMap: { waypoints: GridPosition[]; blockedCells: GridPosition[] } | null;
   
   // 实体
   enemies: Enemy[];

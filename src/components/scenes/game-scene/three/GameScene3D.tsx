@@ -535,7 +535,9 @@ export function GameScene3D() {
       if (key.every((v, i) => v === tacticalCacheKey[i])) return;
       tacticalCacheKey = key;
 
-      const wps = PATHS[s.selectedPath]?.waypoints || [];
+      // 工坊 3D 預覽：previewMap 優先（不動 grid、也不需要在退出時還原路徑）
+      const preview = useGameStore.getState().previewMap;
+      const wps = preview?.waypoints ?? PATHS[s.selectedPath]?.waypoints ?? [];
       const scores = calculateTacticalScores({
         grid: s.grid,
         waypoints: wps,

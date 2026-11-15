@@ -259,13 +259,17 @@ export function MapWorkbench({ projectId, levelId }: MapWorkbenchProps) {
       selectedPath: useGameStore.getState().selectedPath,
     };
     try {
-      useGameStore.setState({ grid: toTileGrid(draft), selectedPath: MIRROR_PATH_KEY });
+      useGameStore.setState({
+        grid: toTileGrid(draft),
+        selectedPath: MIRROR_PATH_KEY,
+        previewMap: { waypoints: draft.waypoints, blockedCells: draft.blocked },
+      });
     } catch (error) {
       console.error('[workshop-map] 3D 鏡像寫入失敗', error);
     }
     return () => {
       try {
-        useGameStore.setState({ grid: snapshot.grid, selectedPath: snapshot.selectedPath });
+        useGameStore.setState({ grid: snapshot.grid, selectedPath: snapshot.selectedPath, previewMap: null });
       } finally {
         // 還原沒有後續步驟，finally 只用來保證「即使 setState 拋錯也不會再往下做別的寫入」
       }

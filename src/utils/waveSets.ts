@@ -4,6 +4,7 @@
 
 import { OFFICIAL_WAVE_SETS, OFFICIAL_WAVE_MOD_ID } from '@/data/officialWaveSets';
 import { useModStore } from '@/store/modStore';
+import { getPlaytestWaveSets } from '@/workshop/playtest/waveRegistry';
 import type { CustomWaveData } from '@/types/game';
 
 export { OFFICIAL_WAVE_SETS, OFFICIAL_WAVE_MOD_ID };
@@ -12,7 +13,9 @@ export function getPlayableWaveSets(): CustomWaveData[] {
   const officialIds = new Set(OFFICIAL_WAVE_SETS.map((set) => set.id));
   const fromMods = useModStore.getState().getEnabledWaves()
     .filter((set) => !officialIds.has(set.id));
-  return [...OFFICIAL_WAVE_SETS, ...fromMods];
+  // 工坊試玩：編譯出的關卡波次組（每次開始試玩前註冊，結束清除）
+  const fromPlaytest = getPlaytestWaveSets().filter((set) => !officialIds.has(set.id));
+  return [...OFFICIAL_WAVE_SETS, ...fromMods, ...fromPlaytest];
 }
 
 export function findPlayableWaveSet(id: string | undefined | null): CustomWaveData | undefined {

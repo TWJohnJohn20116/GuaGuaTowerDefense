@@ -32,7 +32,7 @@ export default function AchievementNotification() {
   }, [notifications, dismissNotification]);
 
   return (
-    <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex w-[286px] flex-col gap-1.5">
+    <div className="pointer-events-none fixed bottom-4 left-1/2 z-50 flex w-[286px] -translate-x-1/2 flex-col gap-1.5">
       <AnimatePresence>
         {notifications
           .filter(n => visibleNotifications.includes(n.id) && n.type === 'unlock')
@@ -45,9 +45,9 @@ export default function AchievementNotification() {
             return (
               <motion.div
                 key={notification.id}
-                initial={{ opacity: 0, x: 16 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 16 }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 12 }}
                 transition={{ duration: 0.16 }}
                 className="pointer-events-auto cursor-pointer arc-panel--flat rounded-sm border-l-2"
                 style={{ borderLeftColor: rarityConfig.color }}

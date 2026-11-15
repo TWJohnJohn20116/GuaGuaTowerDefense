@@ -14,6 +14,7 @@
 import { useGameStore } from '@/store/gameStore';
 import { useReplayStore } from '@/store/replayStore';
 import { useStatsStore } from '@/store/statsStore';
+import { clearPlaytestWaveSets } from './waveRegistry';
 import type { PlaytestSetup } from './types';
 
 type StatsGameSnapshot = ReturnType<typeof useStatsStore.getState>['currentGame'];
@@ -96,5 +97,6 @@ export function stopPlaytestSession(): void {
     game.exitPlaytest();
   }
   useGameStore.setState({ grid: [] });
+  clearPlaytestWaveSets();
   endIsolation();
 }

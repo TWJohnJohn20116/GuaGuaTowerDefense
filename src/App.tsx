@@ -40,9 +40,7 @@ const Workshop = lazy(() => import('@/components/scenes/Workshop'));
 const Achievements = lazy(() => import('@/components/scenes/Achievements'));
 const Skins = lazy(() => import('@/components/scenes/Skins'));
 const Shop = lazy(() => import('@/components/scenes/Shop'));
-const ModEditor = lazy(() => import('@/components/scenes/ModEditor'));
-const ModManager = lazy(() => import('@/components/scenes/ModManager'));
-const MapEditor = lazy(() => import('@/components/scenes/MapEditor'));
+
 const TalentTree = lazy(() => import('@/components/scenes/TalentTree'));
 const Replay = lazy(() => import('@/components/scenes/Replay'));
 const Statistics = lazy(() => import('@/components/scenes/Statistics'));
@@ -68,9 +66,10 @@ const SCENE_COMPONENTS: Record<GameScene, ComponentType> = {
   achievements: Achievements,
   skins: Skins,
   shop: Shop,
-  modEditor: ModEditor,
-  modManager: ModManager,
-  mapEditor: MapEditor,
+  // 舊的 Mod 編輯器／管理器／地圖編輯器已由新工坊取代；保留場景 id 以免舊連結斷掉
+  modEditor: Workshop,
+  modManager: Workshop,
+  mapEditor: Workshop,
   talentTree: TalentTree,
   replay: Replay,
   statistics: Statistics,
