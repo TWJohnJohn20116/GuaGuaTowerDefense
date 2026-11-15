@@ -25,11 +25,34 @@ import PlaytestStage from '@/components/workshop/playtest/PlaytestStage';
 import BalancePanel from '@/components/workshop/playtest/BalancePanel';
 import { PublishPanel } from '@/components/workshop/publish/PublishPanel';
 
+/** localStorage 的鍵：只存「側欄是否收合」這個版面偏好 */
+const RAIL_COLLAPSED_KEY = 'guagua.workshop.railCollapsed';
+
 export default function Workshop() {
   const { t } = useTranslation();
   const s = t.studio;
   const [page, setPage] = useState<StudioPage>('projects');
   const [playtestLevelId, setPlaytestLevelId] = useState<string | null>(null);
+  // 側欄收合是「版面偏好」不是世界資料，所以放 localStorage，不進 workshopStore
+  const [railCollapsed, setRailCollapsed] = useState<boolean>(() => {
+    try {
+      return window.localStorage.getItem(RAIL_COLLAPSED_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleRail = () => {
+    setRailCollapsed((previous) => {
+      const next = !previous;
+      try {
+        window.localStorage.setItem(RAIL_COLLAPSED_KEY, next ? '1' : '0');
+      } catch {
+        // 私密模式或配額不足：收合狀態只在這次工作階段有效，不影響功能
+      }
+      return next;
+    });
+  };
   const projects = useWorkshopStore((state) => state.projects);
   const activeProjectId = useWorkshopStore((state) => state.activeProjectId);
   const setActiveProject = useWorkshopStore((state) => state.setActiveProject);
@@ -120,6 +143,10 @@ export default function Workshop() {
         <div className="flex min-h-0 flex-1">
           <Rail
             label={s.title}
+            collapsed={railCollapsed}
+            onToggleCollapsed={toggleRail}
+            collapseLabel={s.nav.collapse}
+            expandLabel={s.nav.expand}
             foot={
               <div className="flex items-center justify-between">
                 <span className="arc-label">{s.nav.projects}</span>
@@ -132,6 +159,7 @@ export default function Workshop() {
                 key={item.id}
                 index={index + 1}
                 label={item.label}
+                compact={railCollapsed}
                 active={page === item.id}
                 onClick={() => setPage(item.id)}
               />

@@ -5,6 +5,8 @@
  * 不使用掃描線、不使用發光。
  */
 import type React from 'react';
+import { IconBtn } from './controls';
+import { ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/Icons';
 import { useGameStore } from '@/store/gameStore';
 import { useTranslation } from '@/i18n';
 import { playUiHover } from '@/services/audioService';
@@ -103,33 +105,66 @@ export function TopBar({
 
 /* ------------------------------------------------------------------ Rail */
 
+/**
+ * 側欄。
+ *
+ * 收合是「可選能力」：只有傳 onToggleCollapsed 的呼叫端才會出現切換鍵，
+ * 其餘場景（成就、百科、商店…）行為完全不變。收合後寬度收到 76px，
+ * 只留序號圓點；文字改用 aria-label／title，鍵盤與螢幕閱讀器仍讀得到。
+ */
 export function Rail({
   children,
   label,
   foot,
   className = '',
+  collapsed = false,
+  onToggleCollapsed,
+  collapseLabel,
+  expandLabel,
 }: {
   children: React.ReactNode;
   label?: React.ReactNode;
   foot?: React.ReactNode;
   className?: string;
+  collapsed?: boolean;
+  /** 有傳才會出現收合鍵；不傳＝固定寬度（既有場景的行為） */
+  onToggleCollapsed?: () => void;
+  collapseLabel?: string;
+  expandLabel?: string;
 }) {
   return (
     <nav
       className={[
-        'flex w-[236px] shrink-0 flex-col gap-1 rounded-[var(--cn-r-lg)]',
+        'flex shrink-0 flex-col gap-1 rounded-[var(--cn-r-lg)]',
         'border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] p-2',
         'shadow-[0_5px_0_-1px_rgba(46,36,64,0.18)]',
+        'transition-[width] duration-200 ease-out',
+        collapsed ? 'w-[76px]' : 'w-[236px]',
         className,
       ].join(' ')}
     >
-      {label && (
-        <div className="px-2.5 pb-1 pt-1.5">
-          <span className="arc-label">{label}</span>
+      {(label || onToggleCollapsed) && (
+        <div
+          className={
+            collapsed
+              ? 'flex justify-center pb-1 pt-1.5'
+              : 'flex items-center gap-1 pb-1 pl-2.5 pr-0.5 pt-1.5'
+          }
+        >
+          {!collapsed && label && <span className="arc-label min-w-0 flex-1 truncate">{label}</span>}
+          {onToggleCollapsed && (
+            <IconBtn
+              label={collapsed ? expandLabel ?? '' : collapseLabel ?? ''}
+              className="h-6 w-6 shrink-0"
+              onClick={onToggleCollapsed}
+            >
+              {collapsed ? <ChevronRightIcon className="h-3.5 w-3.5" /> : <ChevronLeftIcon className="h-3.5 w-3.5" />}
+            </IconBtn>
+          )}
         </div>
       )}
       <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">{children}</div>
-      {foot && <div className="border-t-[3px] border-[var(--cn-line-soft)] p-2 pt-2.5">{foot}</div>}
+      {foot && !collapsed && <div className="border-t-[3px] border-[var(--cn-line-soft)] p-2 pt-2.5">{foot}</div>}
     </nav>
   );
 }
@@ -140,21 +175,28 @@ export function RailItem({
   active = false,
   onClick,
   right,
+  compact = false,
 }: {
   index?: string | number;
   label: React.ReactNode;
   active?: boolean;
   onClick?: () => void;
   right?: React.ReactNode;
+  /** 側欄收合時只留序號圓點；文字轉成 title／aria-label */
+  compact?: boolean;
 }) {
+  const text = compact && typeof label === 'string' ? label : undefined;
   return (
     <button
       type="button"
       onClick={onClick}
       onMouseEnter={() => playUiHover()}
+      aria-label={text}
+      title={text}
       className={[
-        'group relative flex items-center gap-2.5 rounded-[14px] border-[3px] px-2.5 py-2.5 text-left',
+        'group relative flex items-center gap-2.5 rounded-[14px] border-[3px] py-2.5 text-left',
         'transition-[background-color,border-color,transform] duration-[160ms]',
+        compact ? 'justify-center px-0' : 'px-2.5',
         active
           ? 'border-[var(--cn-line)] bg-[var(--cn-sun-soft)] shadow-[0_3px_0_var(--cn-sun-deep)]'
           : 'border-transparent bg-transparent hover:border-[var(--cn-line-soft)] hover:bg-[var(--cn-card-2)]',
@@ -172,15 +214,17 @@ export function RailItem({
           {index}
         </span>
       )}
-      <span
-        className={[
-          'min-w-0 flex-1 text-[13.5px] leading-snug line-clamp-2',
-          active ? 'font-extrabold text-[var(--cn-ink)]' : 'font-bold text-[var(--cn-ink-2)]',
-        ].join(' ')}
-      >
-        {label}
-      </span>
-      {right}
+      {!compact && (
+        <span
+          className={[
+            'min-w-0 flex-1 text-[13.5px] leading-snug line-clamp-2',
+            active ? 'font-extrabold text-[var(--cn-ink)]' : 'font-bold text-[var(--cn-ink-2)]',
+          ].join(' ')}
+        >
+          {label}
+        </span>
+      )}
+      {!compact && right}
     </button>
   );
 }
