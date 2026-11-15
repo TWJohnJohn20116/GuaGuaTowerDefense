@@ -1044,6 +1044,10 @@
       <li>起始金錢 500 / 生命 10（<code>GAME_CONSTANTS</code>），先乘難度修飾器，再乘<b>天賦修飾器</b>。</li>
       <li>波次：<code>WAVE_CONFIGS</code>（15 波）→ 超出時 <code>generateEndlessWaveConfig(n)</code> 動態生成；部分戰役關卡有硬編碼 Boss 波。</li>
       <li>戰術協議：每完成奇數波三選一，效果如 <code>waveClearBonus</code>、<code>towerDiscount</code>、<code>heal</code>。</li>
+      <li><b>波次層欄位</b>（2026-11 工坊新增，<code>WaveConfig</code> 全部可選、缺省＝現行行為）：
+        <code>hpScale</code> 乘在生成時的 <code>health</code>（<code>spawnEnemy(type, hpScale)</code>）、
+        <code>intervalMs</code> 覆寫組內 <code>ENEMY_SPAWN_DELAY</code>、
+        <code>enabled:false</code> 在<b>編譯期</b>轉成空波＋0 獎勵（波數保留，戰鬥迴圈不加分支）。</li>
     </ul>
   </section>
 
