@@ -37,6 +37,7 @@ import { resolveDisplayedTileType, shouldShowEnemyPathFx } from '@/data/enemyPat
 import { createRenderSnapshot, towerLevelScale, writeRenderSnapshot } from '@/data/renderSnapshot';
 import { createFrameLoopGuard } from '@/utils/frameLoopGuard';
 import { createWalkers3D, createPlayerWalker, type Walkers3D, type PlayerWalker } from './walker3d';
+import { getBoard3DColors } from '@/utils/themeBoard';
 import { buildTowerModel, disposeTowerModel } from './towerModels3d';
 import { createAttackLights3D } from './attackLights3d';
 import { createGpuParticleSystem } from './gpuParticles3d';
@@ -57,13 +58,14 @@ const toWorld = (col: number, row: number): [number, number] => [
 ];
 
 // tile 類型 → 顏色與高度
-const TILE_STYLE: Record<string, { color: number; height: number; emissive?: number }> = {
-  empty: { color: 0x171a22, height: 0.12 },
-  path: { color: 0x2c3344, height: 0.06, emissive: 0x11151f },
-  start: { color: 0x14532d, height: 0.1, emissive: 0x064e3b },
-  end: { color: 0x7f1d1d, height: 0.1, emissive: 0x450a0a },
-  blocked: { color: 0x0b0d12, height: 0.4 },
-  fork: { color: 0x3b3454, height: 0.06, emissive: 0x1e1b31 },
+// 立體地塊只留幾何與發光；底色改由主題提供（getBoard3DColors，避免第二份色票）
+const TILE_STYLE: Record<string, { height: number; emissive?: number }> = {
+  empty: { height: 0.12 },
+  path: { height: 0.06, emissive: 0x11151f },
+  start: { height: 0.1, emissive: 0x064e3b },
+  end: { height: 0.1, emissive: 0x450a0a },
+  blocked: { height: 0.4 },
+  fork: { height: 0.06, emissive: 0x1e1b31 },
 };
 
 /** 把 #rrggbb 字串轉 three 色碼，失敗回退白 */
@@ -72,6 +74,23 @@ const cssColor = (c: string | undefined): number => {
     return new THREE.Color(c || '#ffffff').getHex();
   } catch {
     return 0xffffff;
+  }
+};
+
+/** 地塊底色：type → 主題場地色（棋盤格用 emptyAlt） */
+const tileBaseColor = (type: string, checker: boolean, board: ReturnType<typeof getBoard3DColors>): number => {
+  switch (type) {
+    case 'path':
+    case 'fork':
+      return cssColor(board.path);
+    case 'start':
+      return cssColor(board.start);
+    case 'end':
+      return cssColor(board.end);
+    case 'blocked':
+      return cssColor(board.blocked);
+    default:
+      return cssColor(checker ? board.emptyAlt : board.empty);
   }
 };
 
@@ -90,6 +109,12 @@ export function GameScene3D() {
   const walkCtlRef = useRef<{ enter: () => void; exit: () => void } | null>(null);
   const [walkMode, setWalkMode] = useState(false);
   const [activePreset, setActivePreset] = useState<CameraPreset>('angle');
+  // 主題切換 → 即時更新 3D 場地材質（由主 effect 註冊，場景銷毀時清空）
+  const applyTheme3DRef = useRef<(() => void) | null>(null);
+  const themeId = useSettingsStore((s) => s.themeId);
+  useEffect(() => {
+    applyTheme3DRef.current?.();
+  }, [themeId]);
 
   // 敵人懸停提示
   const [hoveredEnemyId, setHoveredEnemyId] = useState<string | null>(null);
@@ -127,8 +152,9 @@ export function GameScene3D() {
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0c0e14);
-    scene.fog = new THREE.Fog(0x0c0e14, 28, 60);
+    const initialBoard3D = getBoard3DColors();
+    scene.background = new THREE.Color(cssColor(initialBoard3D.background));
+    scene.fog = new THREE.Fog(cssColor(initialBoard3D.background), 28, 60);
 
     const camera = new THREE.PerspectiveCamera(
       50,
@@ -188,7 +214,7 @@ export function GameScene3D() {
     scene.add(mapGroup);
 
     // 大地面（接陰影）
-    const groundMat = new THREE.MeshStandardMaterial({ color: 0x0a0c11, roughness: 1 });
+    const groundMat = new THREE.MeshStandardMaterial({ color: cssColor(getBoard3DColors().ground), roughness: 1 });
     const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), groundMat);
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = -0.05;
@@ -215,7 +241,7 @@ export function GameScene3D() {
       let mat = tileMatCache.get(matKey);
       if (!mat) {
         mat = new THREE.MeshStandardMaterial({
-          color: checker ? 0x1b1f29 : style.color,
+          color: tileBaseColor(type, checker, getBoard3DColors()),
           roughness: 0.85,
           metalness: 0.1,
           emissive: style.emissive ?? 0x000000,
@@ -225,6 +251,17 @@ export function GameScene3D() {
       }
       return mat;
     };
+    // 切換主題時只改顏色、不重建場景（重建會洗掉鏡頭、小人與懸停狀態）
+    const applyTheme3D = () => {
+      const board = getBoard3DColors();
+      scene.background = new THREE.Color(cssColor(board.background));
+      scene.fog?.color.setHex(cssColor(board.background));
+      groundMat.color.setHex(cssColor(board.ground));
+      for (const [key, mat] of tileMatCache) {
+        mat.color.setHex(tileBaseColor(key.replace('-alt', ''), key.endsWith('-alt'), board));
+      }
+    };
+    applyTheme3DRef.current = applyTheme3D;
     const applyTileDisplay = (
       mesh: THREE.Mesh,
       type: string,
@@ -801,6 +838,7 @@ export function GameScene3D() {
       cancelAnimationFrame(rafId);
       ro.disconnect();
       threeRef.current = null;
+      applyTheme3DRef.current = null;
       walkersRef.current = null;
       walkCtlRef.current = null;
       window.removeEventListener('keydown', onWalkKeyDown, true);
