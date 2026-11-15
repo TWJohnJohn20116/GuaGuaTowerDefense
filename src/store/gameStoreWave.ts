@@ -6,7 +6,7 @@ import {
 } from '@/data/gameData';
 import { generateId, getEnemyData, inferEnemyBaseType } from './gameStoreUtils';
 import type { GameStore } from './gameStoreTypes';
-import { playWaveStart, playLeak, playGameOver } from '@/services/audioService';
+import { playWaveStart, playLeak, playGameOver, stopCustomBgm } from '@/services/audioService';
 import {
   applyInstantGrant,
   getProtocolWaveMods,
@@ -128,6 +128,7 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
       // 失敗規則若在試玩時不觸發，作者永遠測不到（場景切換仍然隔離）
       notifyModScripts('onGameOver');
       playGameOver(); // 失敗音
+      stopCustomBgm();
     } else {
       set({ health: newHealth });
       playLeak(); // 漏怪扣血音

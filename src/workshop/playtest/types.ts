@@ -20,6 +20,8 @@ export interface PlaytestSetup {
   levelLabel?: string;
   /** 這個 setup 是否為「找不到地圖時的官方後備」，UI 要誠實標示 */
   fallback: boolean;
+  /** 關卡自訂 BGM（音效資產的 data URL）；沒有就播原本的音樂 */
+  bgmDataUrl?: string;
 }
 
 /** 單一局的模擬結果 */

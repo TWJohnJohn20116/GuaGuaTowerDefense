@@ -12,6 +12,7 @@
  * 錄製中途取消，replays 還原成開局前的陣列，等同沒發生過。
  */
 import { useGameStore } from '@/store/gameStore';
+import { startCustomBgm, stopCustomBgm } from '@/services/audioService';
 import { useReplayStore } from '@/store/replayStore';
 import { useStatsStore } from '@/store/statsStore';
 import { clearPlaytestWaveSets } from './waveRegistry';
@@ -79,6 +80,7 @@ export async function startPlaytestSession(setup: PlaytestSetup): Promise<void> 
     undefined,
     setup.customWaveSetId,
   );
+  if (setup.bgmDataUrl) startCustomBgm(setup.bgmDataUrl);
 }
 
 /**
@@ -98,5 +100,6 @@ export function stopPlaytestSession(): void {
   }
   useGameStore.setState({ grid: [] });
   clearPlaytestWaveSets();
+  stopCustomBgm();
   endIsolation();
 }

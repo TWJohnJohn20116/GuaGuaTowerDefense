@@ -661,6 +661,8 @@ export const zhTW = {
         health: '生命',
         waveDelayMult: '波次間隔倍率',
         ruleSetRef: '規則集',
+        bgm: '關卡 BGM',
+        bgmNone: '（沿用預設音樂）',
         none: '（無，沿用專案層）',
         towerRefs: '可用塔白名單',
         noTowerAssets: '資產庫還沒有塔',

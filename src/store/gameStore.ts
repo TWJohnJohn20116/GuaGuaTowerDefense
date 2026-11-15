@@ -28,7 +28,7 @@ import { createEmptyMatchState } from './matchState';
 import { useTalentStore } from './talentStore';
 import { useStatsStore } from './statsStore';
 import { resolveStatsGameMode } from './statsGameMode';
-import { playVictory } from '@/services/audioService';
+import { playVictory, stopCustomBgm } from '@/services/audioService';
 import { useSettingsStore } from './settingsStore';
 
 const applyTalentToDifficultyModifiers = (base: DifficultyModifiers): DifficultyModifiers => {
@@ -351,6 +351,7 @@ export const useGameStore = create<GameStore>()(
   setVictory: () => {
     set({ isVictory: true, isPlaying: false });
     playVictory();
+    stopCustomBgm();
     notifyModScripts('onVictory');
     // 若這一局是從選圖進入的工坊關卡，通關要寫回工坊戰役進度（動態載入避免循環依賴）
     void import('@/workshop/campaign')

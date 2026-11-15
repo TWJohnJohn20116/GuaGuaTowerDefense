@@ -107,6 +107,38 @@ export function setAudioPrefsProvider(provider: () => AudioPrefs): void {
  * 工坊的音效資產用這支試聽；刻意不進 playSfx 的快取池（那些是內建音效、以 id 索引
  * 且共用 AudioContext），自訂音效用獨立 Audio 元素最省事。
  */
+/** 目前播放中的自訂 BGM（模組級資源握把，與計時器同類，不是遊戲狀態） */
+let customBgm: HTMLAudioElement | null = null;
+
+/** 播放關卡 BGM（自訂音效資產，循環）；重複呼叫會先停掉上一首 */
+export function startCustomBgm(src: string): void {
+  if (typeof window === 'undefined' || !src) return;
+  stopCustomBgm();
+  const { soundEnabled, soundVolume } = readAudioPrefs();
+  if (!soundEnabled || soundVolume <= 0) return;
+  try {
+    const audio = new Audio(src);
+    audio.loop = true;
+    audio.volume = Math.max(0, Math.min(1, soundVolume));
+    customBgm = audio;
+    void audio.play().catch(() => {
+      /* 自動播放政策可能擋下；玩家點一下畫面後再播 */
+    });
+  } catch (error) {
+    console.error('[audio] 無法播放關卡 BGM', error);
+  }
+}
+
+export function stopCustomBgm(): void {
+  if (!customBgm) return;
+  try {
+    customBgm.pause();
+  } catch (error) {
+    console.error('[audio] 停止關卡 BGM 失敗', error);
+  }
+  customBgm = null;
+}
+
 export function playDataUrlSound(src: string, volumeScale = 1): void {
   if (typeof window === 'undefined' || !src) return;
   const { soundEnabled, soundVolume } = readAudioPrefs();

@@ -53,6 +53,8 @@ export function LevelSettingsPanel({ projectId, levelId }: LevelSettingsPanelPro
   const resetProject = useWorkshopProgressStore((state) => state.resetProject);
   const towerAssets = listAssets('tower');
   const ruleSetAssets = listAssets('ruleSet');
+  // 關卡 BGM 只接受「音效」類美術資產（上傳音檔時會自動標成 sound）
+  const soundAssets = listAssets('art').filter((asset) => asset.data.artKind === 'sound');
 
   if (!level) return <Empty title={s.noLevel} />;
 
@@ -163,6 +165,26 @@ export function LevelSettingsPanel({ projectId, levelId }: LevelSettingsPanelPro
         options={[
           { value: '', label: s.none },
           ...ruleSetAssets.map((asset) => ({ value: asset.id, label: asset.name })),
+        ]}
+        size="sm"
+        position="inline"
+        className="w-full"
+      />
+
+      <SegHead label={s.bgm} />
+      <CustomSelect
+        value={level.bgmArtRef?.assetId ?? ''}
+        onChange={(assetId) => {
+          if (!assetId) {
+            patch({ bgmArtRef: null });
+            return;
+          }
+          const asset = soundAssets.find((item) => item.id === assetId);
+          patch({ bgmArtRef: { assetId, version: asset?.version ?? '1.0.0' } });
+        }}
+        options={[
+          { value: '', label: s.bgmNone },
+          ...soundAssets.map((asset) => ({ value: asset.id, label: asset.name })),
         ]}
         size="sm"
         position="inline"

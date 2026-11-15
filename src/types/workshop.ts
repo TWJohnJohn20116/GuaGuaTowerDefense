@@ -284,6 +284,8 @@ export interface WorkshopLevel {
   towerRefs?: AssetRef[];
   scriptRefs?: AssetRef[];
   artRefs?: AssetRef[];
+  /** 關卡 BGM：引用音效類美術資產（artKind === 'sound'） */
+  bgmArtRef?: AssetRef | null;
   createdAt?: number;
   updatedAt?: number;
 }

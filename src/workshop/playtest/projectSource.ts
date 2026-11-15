@@ -112,6 +112,15 @@ export function resolvePlaytestSetup(projectId: string, levelId?: string): Playt
       ? surviveWaves
       : WAVE_CONFIGS.length;
 
+  // 關卡 BGM：引用音效類美術資產，解析成 data URL 交給音效服務
+  let bgmDataUrl: string | undefined;
+  if (level?.bgmArtRef) {
+    const art = store.getAsset(level.bgmArtRef.assetId);
+    if (art && art.kind === 'art' && art.data.artKind === 'sound' && art.data.payload) {
+      bgmDataUrl = art.data.payload;
+    }
+  }
+
   return {
     pathName,
     // 關卡目前沒有難度欄位；難度決定起始資源與敵人倍率，先用 normal（與新建關卡預設一致）
@@ -121,5 +130,6 @@ export function resolvePlaytestSetup(projectId: string, levelId?: string): Playt
     mapLabel,
     levelLabel: level?.name ?? (fallback ? project.name : undefined),
     fallback,
+    ...(bgmDataUrl ? { bgmDataUrl } : {}),
   };
 }

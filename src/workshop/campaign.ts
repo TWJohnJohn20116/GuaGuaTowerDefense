@@ -9,6 +9,7 @@
  * 這裡只負責「不開試玩模式」地把它跑起來。
  */
 import { useGameStore } from '@/store/gameStore';
+import { startCustomBgm, stopCustomBgm } from '@/services/audioService';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
 import { resolveLevelLocks } from '@/workshop/progress';
@@ -124,6 +125,7 @@ export async function startCampaignLevel(key: string): Promise<boolean> {
     undefined,
     setup.customWaveSetId,
   );
+  if (setup.bgmDataUrl) startCustomBgm(setup.bgmDataUrl);
   return true;
 }
 
@@ -134,6 +136,7 @@ export function markCampaignVictoryIfAny(): void {
     .getState()
     .markCompleted(activeCampaign.projectId, activeCampaign.levelId);
   activeCampaign = null;
+  stopCustomBgm();
 }
 
 /** 離開戰役關卡（回主選單等）時清掉標記，避免下一次別的地圖通關誤記 */
