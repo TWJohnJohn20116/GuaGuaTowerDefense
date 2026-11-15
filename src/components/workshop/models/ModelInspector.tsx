@@ -98,6 +98,13 @@ export function ModelInspector({ part, hasParts, shapes, parentName, onPatch, on
         <Num label="z" value={part.z} onChange={(z) => onPatch({ z })} />
       </div>
 
+      <div className="flex items-center gap-1">
+        <span className="arc-label shrink-0">{s.alignAxis}</span>
+        <Btn size="sm" variant="ghost" onClick={() => onPatch({ y: 0, z: 0 })}>X</Btn>
+        <Btn size="sm" variant="ghost" onClick={() => onPatch({ x: 0, z: 0 })}>Y</Btn>
+        <Btn size="sm" variant="ghost" onClick={() => onPatch({ x: 0, y: 0 })}>Z</Btn>
+      </div>
+
       <span className="arc-label">{s.rotation}</span>
       <div className="grid grid-cols-3 gap-1">
         <Num label="rx°" value={part.rx * DEG} step={5} onChange={(deg) => onPatch({ rx: deg / DEG })} />

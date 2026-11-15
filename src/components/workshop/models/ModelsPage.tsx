@@ -24,6 +24,7 @@ import {
   parseModel,
   removePart,
   reparent,
+  reorder,
   serializeModel,
   updatePart,
 } from '@/workshop/model/doc';
@@ -337,6 +338,7 @@ export function ModelsPage() {
               setSelectedIds((prev) => (additive ? Array.from(new Set([...prev, ...ids])) : ids));
             }}
             onReparent={reparentPart}
+            onReorder={(from, to) => apply(reorder(model, from, to))}
             onAddPart={addNewPart}
             onDuplicate={(id) => apply(duplicatePart(model, id))}
             onRemove={(id) => {

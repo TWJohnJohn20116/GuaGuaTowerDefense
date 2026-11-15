@@ -19,6 +19,8 @@ interface ModelTreeProps {
   selectedIds: string[];
   onSelect: (ids: string[], additive: boolean) => void;
   onReparent: (childId: string, parentId: string | null) => void;
+  /** 根層順序調整（拖到同層部件的上半部＝插到它前面） */
+  onReorder: (fromIndex: number, toIndex: number) => void;
   onAddPart: (parentId: string | null) => void;
   onDuplicate: (id: string) => void;
   onRemove: (id: string) => void;
@@ -39,6 +41,7 @@ export function ModelTree({
   selectedIds,
   onSelect,
   onReparent,
+  onReorder,
   onAddPart,
   onDuplicate,
   onRemove,
@@ -51,6 +54,8 @@ export function ModelTree({
   const s = t.studio.models;
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [dropTarget, setDropTarget] = useState<string | null>(null);
+  /** 拖到列的上半部＝排序，其餘＝建立父子 */
+  const [dropBefore, setDropBefore] = useState(false);
   const [menu, setMenu] = useState<MenuState | null>(null);
   const [renaming, setRenaming] = useState<{ id: string; value: string } | null>(null);
 
@@ -92,14 +97,24 @@ export function ModelTree({
             event.preventDefault();
             event.stopPropagation();
             setDropTarget(part.id);
+            const rect = event.currentTarget.getBoundingClientRect();
+            setDropBefore(event.clientY < rect.top + rect.height / 2);
           }}
           onDragLeave={() => setDropTarget((prev) => (prev === part.id ? null : prev))}
           onDrop={(event) => {
             event.preventDefault();
             event.stopPropagation();
             const dragged = event.dataTransfer.getData('text/plain');
+            const reorderMode = dropBefore;
             setDropTarget(null);
-            if (dragged && dragged !== part.id) onReparent(dragged, part.id);
+            setDropBefore(false);
+            if (!dragged || dragged === part.id) return;
+            const rootIds = roots.map((item) => item.id);
+            const from = rootIds.indexOf(dragged);
+            const to = rootIds.indexOf(part.id);
+            // 兩者都在根層且拖在上半部 → 排序；否則視為建立父子
+            if (reorderMode && from >= 0 && to >= 0) onReorder(from, to);
+            else onReparent(dragged, part.id);
           }}
           onClick={(event) => {
             if (part.locked) return;
@@ -117,6 +132,7 @@ export function ModelTree({
               ? 'border-[var(--cn-signal)] bg-[var(--cn-signal-soft)] text-[var(--cn-ink)]'
               : 'border-transparent text-[var(--cn-ink-2)] hover:border-[var(--cn-line-soft)]',
             isDrop ? 'border-dashed border-[var(--cn-signal)]' : '',
+            isDrop && dropBefore ? 'border-t-2 border-t-[var(--cn-signal)]' : '',
             part.hidden ? 'opacity-45' : '',
           ].join(' ')}
           style={{ paddingLeft: 4 + depth * 12 }}
