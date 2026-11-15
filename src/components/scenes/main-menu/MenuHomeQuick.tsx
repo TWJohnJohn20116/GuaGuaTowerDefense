@@ -8,16 +8,18 @@ import { useStatsStore } from '@/store/statsStore';
 import { useTranslation } from '@/i18n';
 import type { HomeFocusTarget } from '@/data/mainMenuHome';
 import { HOME_QUICK_LEFT_CLASS, HOME_QUICK_RIGHT_CLASS } from '@/data/mainMenuHome';
+import { ChartIcon, ShopIcon, TreeIcon, TrophyIcon } from '@/components/ui/Icons';
 
 /**
  * 主選單 · Hero 環繞的快捷磚
  *
  * 四塊磚環著中央舞台：左欄「金幣 → 成就」、右欄「天賦 → 戰績」。
- * 高度刻意不等（flex-[1.4] / flex-[1]），左右也不對稱，
+ * 高度刻意不等（flex-[1.25] / flex-[1]），左右也不對稱，
  * 這樣拼貼才不會退化成另一種等寬網格。
  *
- * 這四塊同時是入口（點下去進對應場景），但視覺語彙是「儀表」不是「卡片」：
- * 數字當圖形用，標籤縮到 9px。
+ * 磚的高度由 Hero 撐出來（約 300–430px），所以內容必須填滿，否則就是一片色塊：
+ *   標籤列（頂）→ 數字（底）→ 進度條 → 動作提示，中央再用一枚半透明大圖示撐住。
+ * 圖示只做視覺量體，狀態語意一律走 tone 與徽章。
  */
 
 type QuickTone = 'sun' | 'coral' | 'plain';
@@ -56,6 +58,8 @@ export function MenuHomeQuickLeft({ focused, onFocus }: QuickProps) {
         id="shop"
         label={t.mainMenu.hero.quickCoins}
         value={coins.toLocaleString()}
+        hint={t.mainMenu.hero.quickCoinsHint}
+        icon={<ShopIcon className="h-52 w-52" />}
         tone="sun"
         flex="lg:flex-[1.25]"
         focused={focused === 'shop'}
@@ -67,6 +71,9 @@ export function MenuHomeQuickLeft({ focused, onFocus }: QuickProps) {
         label={t.mainMenu.hero.quickAchievements}
         value={unlocked + '/' + catalog.length}
         tag={claimable > 0 ? String(claimable) : undefined}
+        hint={t.mainMenu.hero.quickAchievementsHint}
+        icon={<TrophyIcon className="h-52 w-52" />}
+        progress={catalog.length > 0 ? unlocked / catalog.length : 0}
         tone="plain"
         flex="lg:flex-[1]"
         focused={focused === 'achievements'}
@@ -92,6 +99,8 @@ export function MenuHomeQuickRight({ focused, onFocus }: QuickProps) {
         value={talentPoints}
         unit={t.mainMenu.points}
         tag={talentPoints > 0 ? t.mainMenu.hero.readyTag : undefined}
+        hint={t.mainMenu.hero.quickTalentHint}
+        icon={<TreeIcon className="h-52 w-52" />}
         tone="coral"
         flex="lg:flex-[1.25]"
         focused={focused === 'talentTree'}
@@ -101,6 +110,7 @@ export function MenuHomeQuickRight({ focused, onFocus }: QuickProps) {
       <RecordTile
         id="statistics"
         label={t.mainMenu.hero.quickRecords}
+        hint={t.mainMenu.hero.quickRecordsHint}
         rows={[
           { k: t.mainMenu.hero.quickWinRate, v: Math.round(globalStats.winRate * 100) + '%' },
           { k: t.mainMenu.hero.quickBestWave, v: String(personalBests.highestWave) },
@@ -120,6 +130,9 @@ function QuickTile({
   value,
   unit,
   tag,
+  hint,
+  icon,
+  progress,
   tone,
   flex,
   focused,
@@ -131,6 +144,9 @@ function QuickTile({
   value: string | number;
   unit?: string;
   tag?: string;
+  hint: string;
+  icon: React.ReactNode;
+  progress?: number;
   tone: QuickTone;
   flex: string;
   focused: boolean;
@@ -145,17 +161,19 @@ function QuickTile({
       onMouseEnter={onFocus}
       onFocus={onFocus}
       className={[
-        'group relative flex min-h-[92px] min-w-0 flex-col justify-between overflow-hidden rounded-[18px] border-[3px] px-4 py-3 text-left',
+        'group relative flex min-h-[92px] min-w-0 flex-col justify-between overflow-hidden rounded-[18px] border-[3px] px-4 py-3.5 text-left',
         'transition-[transform,border-color] duration-[160ms]',
         TONE[tone],
         flex,
         focused ? '-translate-y-1' : 'hover:-translate-y-1',
       ].join(' ')}
     >
+      {/* 裝飾層：一枚半透明大圖示撐住磚的中央量體（只做視覺，狀態走 tone／徽章） */}
       <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <span className="absolute -bottom-6 -right-4 h-20 w-20 rounded-full border-[6px] border-current opacity-[0.12]" />
+        <span className="absolute inset-0 flex items-center justify-center opacity-[0.09]">{icon}</span>
       </span>
-      <span className="flex items-center gap-2">
+
+      <span className="relative flex items-center gap-2">
         <span className={tone === 'sun' ? 'arc-label text-[var(--cn-on-sun)]' : 'arc-label'}>{label}</span>
         {tag && (
           <span className="rounded-full bg-[var(--cn-cta)] px-1.5 py-[1px] font-mono text-[9px] font-extrabold text-[var(--cn-on-cta)]">
@@ -163,26 +181,41 @@ function QuickTile({
           </span>
         )}
       </span>
-      <span className="flex items-end justify-between gap-2">
-        <span className="arc-num truncate text-[30px] leading-none lg:text-[42px]">{value}</span>
-        <span className="ml-auto flex items-end gap-2">
-          {unit && <span className="pb-0.5 font-mono text-[10px] opacity-70">{unit}</span>}
-          <span
-            aria-hidden="true"
-            className="font-mono text-[12px] font-black opacity-0 transition-opacity group-hover:opacity-100"
-          >
-            →
+
+      <span className="relative flex flex-col gap-2">
+        <span className="flex items-end justify-between gap-2">
+          <span className="arc-num truncate text-[38px] leading-none lg:text-[56px]">{value}</span>
+          <span className="ml-auto flex items-end gap-2">
+            {unit && <span className="pb-1 font-mono text-[10px] opacity-70">{unit}</span>}
+            <span
+              aria-hidden="true"
+              className="pb-1 font-mono text-[12px] font-black opacity-0 transition-opacity group-hover:opacity-100"
+            >
+              →
+            </span>
           </span>
         </span>
+
+        {progress !== undefined && (
+          <span className="block h-2 w-full overflow-hidden rounded-full bg-[var(--cn-ink)]/10">
+            <span
+              className="block h-full rounded-full bg-[var(--cn-ink)]/45"
+              style={{ width: Math.round(Math.min(1, Math.max(0, progress)) * 100) + '%' }}
+            />
+          </span>
+        )}
+
+        <span className="font-mono text-[10px] uppercase tracking-[0.1em] opacity-60">{hint}</span>
       </span>
     </button>
   );
 }
 
-/** 戰績磚：不放單一數字，改成三行細列（勝率／最高波／場次），資訊不減、少一層卡片 */
+/** 戰績磚：三行細列撐滿整塊高度（justify-between），不做單一數字 */
 function RecordTile({
   id,
   label,
+  hint,
   rows,
   focused,
   onFocus,
@@ -190,6 +223,7 @@ function RecordTile({
 }: {
   id: HomeFocusTarget;
   label: string;
+  hint: string;
   rows: { k: string; v: string }[];
   focused: boolean;
   onFocus: () => void;
@@ -203,22 +237,31 @@ function RecordTile({
       onMouseEnter={onFocus}
       onFocus={onFocus}
       className={[
-        'group relative flex min-h-[92px] min-w-0 flex-col justify-between gap-1.5 overflow-hidden rounded-[18px] border-[3px] px-4 py-3 text-left',
+        'group relative flex min-h-[92px] min-w-0 flex-col justify-between gap-2 overflow-hidden rounded-[18px] border-[3px] px-4 py-3.5 text-left',
         'transition-[transform,border-color] duration-[160ms]',
         TONE.plain,
         'lg:flex-[1]',
         focused ? '-translate-y-1 border-[var(--cn-line)]' : 'hover:-translate-y-1 hover:border-[var(--cn-line)]',
       ].join(' ')}
     >
-      <span className="arc-label">{label}</span>
-      <span className="flex flex-col gap-0.5">
+      <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <span className="absolute inset-0 flex items-center justify-center opacity-[0.09]">
+          <ChartIcon className="h-52 w-52" />
+        </span>
+      </span>
+
+      <span className="relative arc-label">{label}</span>
+
+      <span className="relative flex flex-1 flex-col justify-evenly gap-1">
         {rows.map((r) => (
           <span key={r.k} className="flex items-baseline justify-between gap-2">
-            <span className="truncate text-[11px] font-semibold text-[var(--cn-ink-3)]">{r.k}</span>
-            <span className="arc-num shrink-0 text-[13px] leading-none text-[var(--cn-ink)]">{r.v}</span>
+            <span className="truncate text-[11.5px] font-semibold text-[var(--cn-ink-3)]">{r.k}</span>
+            <span className="arc-num shrink-0 text-[15px] leading-none text-[var(--cn-ink)]">{r.v}</span>
           </span>
         ))}
       </span>
+
+      <span className="relative font-mono text-[10px] uppercase tracking-[0.1em] opacity-60">{hint}</span>
     </button>
   );
 }

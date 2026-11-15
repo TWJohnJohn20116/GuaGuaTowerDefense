@@ -36,7 +36,7 @@ export function MenuHomeHero({ focused, onFocus }: { focused: boolean; onFocus: 
 
           {/* 中：品牌（flex-1 置中，讓品牌落在舞台中央而不是貼著頂端） */}
           <div className="flex flex-1 flex-col justify-center gap-1.5">
-            <h1 className="text-[40px] font-black leading-[0.88] tracking-[-0.05em] text-[var(--cn-ink)] lg:text-[64px]">
+            <h1 className="text-[44px] font-black leading-[0.88] tracking-[-0.05em] text-[var(--cn-ink)] lg:text-[92px]">
               {t.mainMenu.title}
             </h1>
             <p className="max-w-[34ch] text-[11.5px] leading-relaxed text-[var(--cn-ink-3)]">

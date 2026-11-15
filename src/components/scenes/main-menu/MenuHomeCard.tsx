@@ -117,7 +117,7 @@ export function MenuHomeCard({
               // 窄螢幕統一用緊湊尺寸，避免 132px 行高被大圖示撐破
               isTile
                 ? 'h-11 w-11 rounded-[15px] lg:h-16 lg:w-16 lg:rounded-[20px]'
-                : 'h-10 w-10 rounded-[14px] lg:h-11 lg:w-11 lg:rounded-[15px]',
+                : 'h-11 w-11 rounded-[14px] lg:h-12 lg:w-12 lg:rounded-[15px]',
             ].join(' ')}
           >
             {icon}
@@ -133,7 +133,7 @@ export function MenuHomeCard({
             <span
               className={[
                 'truncate font-black leading-tight text-[var(--cn-ink)]',
-                isTile ? 'text-[16px] lg:text-[21px]' : 'text-[14px] lg:text-[15px]',
+                isTile ? 'text-[16px] lg:text-[21px]' : 'text-[15px] lg:text-[17px]',
               ].join(' ')}
             >
               {label}
@@ -154,7 +154,7 @@ export function MenuHomeCard({
           <span
             className={[
               'font-semibold leading-snug text-[var(--cn-ink-3)]',
-              isTile ? 'line-clamp-2 text-[11px] lg:text-[12px]' : 'line-clamp-2 text-[10.5px] lg:text-[11px]',
+              isTile ? 'line-clamp-2 text-[11px] lg:text-[12px]' : 'line-clamp-2 text-[11px] lg:text-[12px]',
             ].join(' ')}
           >
             {sub}
