@@ -311,7 +311,7 @@ export function WaveTrack({
     : null;
 
   return (
-    <Deck className={`flex min-h-0 flex-col gap-1.5 p-2.5 ${className}`}>
+    <Deck className={`flex min-h-0 flex-col gap-1.5 overflow-hidden p-2.5 ${className}`}>
       <SegHead
         label={c.title}
         right={
@@ -354,7 +354,7 @@ export function WaveTrack({
         </div>
       ) : (
         <div ref={scrollerRef} className="min-h-0 flex-1 overflow-x-auto overflow-y-hidden">
-          <div className="relative" style={{ width: contentWidth }}>
+          <div className="relative flex h-full flex-col" style={{ width: contentWidth }}>
             {/* 刻度尺 */}
             <div className="relative h-6 border-b-[3px] border-[var(--cn-line-soft)]">
               {ticks.map((at) => (
@@ -382,7 +382,7 @@ export function WaveTrack({
 
             {/* 主軌 */}
             <div
-              className="relative h-[68px] select-none"
+              className="relative min-h-[96px] flex-1 select-none"
               onPointerDown={beginPan}
               onPointerMove={movePan}
               onPointerUp={endPan}
@@ -393,6 +393,14 @@ export function WaveTrack({
                   key={`band-${index}`}
                   className={`absolute inset-y-0 ${index % 2 === 0 ? 'bg-[var(--cn-card-2)]' : 'bg-[var(--cn-card)]'} ${wave.enabled === false ? 'opacity-40' : ''}`}
                   style={{ left: x(track.waveStarts[index]), width: Math.max(2, x(wave.durationMs)) }}
+                  aria-hidden="true"
+                />
+              ))}
+              {ticks.map((at) => (
+                <span
+                  key={`grid-${at}`}
+                  className="absolute inset-y-0 w-px bg-[var(--cn-line-soft)] opacity-50"
+                  style={{ left: x(at) }}
                   aria-hidden="true"
                 />
               ))}

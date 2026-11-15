@@ -366,8 +366,9 @@ export function ContentPage({ projectId }: ContentPageProps) {
           className="min-h-[280px] xl:min-h-0"
         />
 
-        <Deck className="flex min-h-0 flex-col gap-1.5 p-2.5">
+        <Deck className="flex min-h-0 flex-col gap-1.5 overflow-hidden p-2.5">
           <WaveTrack
+            className="min-h-0 flex-1"
             waves={waves}
             enemyNames={enemyNames}
             selected={selectedSegments}
@@ -392,7 +393,7 @@ export function ContentPage({ projectId }: ContentPageProps) {
             onSeek={setPlayheadMs}
           />
 
-          <div className="rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] px-2 py-1">
+          <div className="shrink-0 rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] px-2 py-1">
             <div className="flex items-center gap-1.5">
               <WarningIcon className="h-3.5 w-3.5 text-[var(--cn-caution-text)]" />
               <span className="arc-label">{w.issues}</span>
@@ -419,7 +420,7 @@ export function ContentPage({ projectId }: ContentPageProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex shrink-0 items-center gap-1">
             <Input
               value={jsonText}
               placeholder={w.jsonPlaceholder}
@@ -498,7 +499,7 @@ export function ContentPage({ projectId }: ContentPageProps) {
                 commitWaves(moveSegmentToWave(waves, activeWaveIndex, activeSegment.id, toWave, Number.MAX_SAFE_INTEGER));
                 setSelectedSegments([]);
               }}
-              className="min-h-[320px]"
+              className="min-h-0 flex-1"
             />
           )}
 
@@ -508,7 +509,7 @@ export function ContentPage({ projectId }: ContentPageProps) {
               selectedWave={activeWaveIndex}
               onParams={(patch) => setAnalysisParams((prev) => ({ ...prev, ...patch }))}
               onSelectWave={(index) => selectWaves([index])}
-              className="min-h-[320px]"
+              className="min-h-0 flex-1"
             />
           )}
 

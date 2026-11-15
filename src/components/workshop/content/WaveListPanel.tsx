@@ -182,14 +182,12 @@ export function WaveListPanel({
                     </span>
                   )}
                 </span>
-                <span className="mt-0.5 flex items-center gap-1.5 font-mono text-[9.5px] text-[var(--cn-ink-3)]">
+                <span className="mt-0.5 flex items-center gap-1.5 overflow-hidden whitespace-nowrap font-mono text-[9.5px] text-[var(--cn-ink-3)]">
                   <span>{fillTemplate(c.summaryEnemies, { n: String(row.enemyCount) })}</span>
                   <span>·</span>
                   <span>{fillTemplate(c.summaryHp, { n: compact(row.totalHp) })}</span>
                   <span>·</span>
                   <span>+{row.waveReward}</span>
-                  <span>·</span>
-                  <span>{fillTemplate(c.summaryDuration, { s: (row.durationMs / 1000).toFixed(1) })}</span>
                 </span>
               </span>
             </button>
@@ -203,7 +201,7 @@ export function WaveListPanel({
   const hasSelection = selected.length > 0;
 
   return (
-    <Deck className={`flex min-h-0 flex-col gap-2 p-2.5 ${className}`}>
+    <Deck className={`flex min-h-0 flex-col gap-2 overflow-hidden p-2.5 ${className}`}>
       <SegHead
         label={c.list}
         right={
@@ -224,7 +222,7 @@ export function WaveListPanel({
         />
       ) : (
         <>
-          <div className="flex flex-wrap items-center gap-1">
+          <div className="flex shrink-0 flex-wrap items-center gap-1">
             <Btn size="sm" variant="line" onClick={() => onSelect(waves.map((_, index) => index))}>
               {c.selectAll}
             </Btn>
@@ -300,7 +298,7 @@ export function WaveListPanel({
             ))}
           </ul>
 
-          <div className="flex flex-col gap-1.5 border-t-[3px] border-[var(--cn-line-soft)] pt-1.5">
+          <div className="flex shrink-0 flex-col gap-1.5 border-t-[3px] border-[var(--cn-line-soft)] pt-1.5">
             <div className="flex flex-wrap items-center gap-1">
               <Btn size="sm" variant="line" icon={<CopyIcon className="h-3.5 w-3.5" />} onClick={() => onDuplicate(1)} disabled={!hasSelection}>
                 {c.duplicate}
@@ -335,15 +333,15 @@ export function WaveListPanel({
                 <div className="flex flex-wrap items-end gap-1">
                   <label className="flex flex-col gap-0.5">
                     <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchRewardAdd}</span>
-                    <Input value={batchReward} onChange={(event) => setBatchReward(event.target.value)} className="h-6 w-12 px-1 text-right font-mono text-[10px]" />
+                    <Input value={batchReward} onChange={(event) => setBatchReward(event.target.value)} className="h-6 w-14 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
                   </label>
                   <label className="flex flex-col gap-0.5">
                     <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchHpMul}</span>
-                    <Input value={batchHp} onChange={(event) => setBatchHp(event.target.value)} className="h-6 w-12 px-1 text-right font-mono text-[10px]" />
+                    <Input value={batchHp} onChange={(event) => setBatchHp(event.target.value)} className="h-6 w-14 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
                   </label>
                   <label className="flex flex-col gap-0.5">
                     <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchCountMul}</span>
-                    <Input value={batchCount} onChange={(event) => setBatchCount(event.target.value)} className="h-6 w-12 px-1 text-right font-mono text-[10px]" />
+                    <Input value={batchCount} onChange={(event) => setBatchCount(event.target.value)} className="h-6 w-14 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
                   </label>
                   <label className="flex flex-col gap-0.5">
                     <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.batchInterval}</span>
@@ -351,7 +349,7 @@ export function WaveListPanel({
                       value={batchInterval}
                       placeholder="—"
                       onChange={(event) => setBatchInterval(event.target.value)}
-                      className="h-6 w-14 px-1 text-right font-mono text-[10px]"
+                      className="h-6 w-16 px-1 text-right font-mono text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     />
                   </label>
                   <Btn
