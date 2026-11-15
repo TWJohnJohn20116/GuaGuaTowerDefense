@@ -5,7 +5,7 @@
  * 舊版把工具 Chip、圖層 Toggle、播放控制、2D/3D 全塞在頂部一條，
  * 畫布被壓成一個小視窗。
  */
-import { Chip, Toggle } from '@/components/hl';
+import { Toggle } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 import { PinIcon, ConstructionIcon, TowerIcon, TrashIcon } from '@/components/ui/Icons';
 
