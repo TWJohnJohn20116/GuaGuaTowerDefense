@@ -216,7 +216,7 @@ function AlertRow({
 }) {
   const color =
     tone === 'signal'
-      ? 'text-[var(--cn-coral-deep)]'
+      ? 'text-[var(--cn-signal-text)]'
       : tone === 'vital'
         ? 'text-[var(--cn-mint-deep)]'
         : 'text-[var(--cn-sun-deep)]';

@@ -50,7 +50,7 @@ export function SectionHeader({
 type BadgeTone = 'signal' | 'vital' | 'reach' | 'caution' | 'alarm' | 'muted';
 
 const BADGE_TONE: Record<BadgeTone, string> = {
-  signal: 'border-[var(--cn-coral)] text-[var(--cn-coral-deep)] bg-[var(--cn-coral-soft)]',
+  signal: 'border-[var(--cn-coral)] text-[var(--cn-signal-text)] bg-[var(--cn-coral-soft)]',
   vital: 'border-[var(--cn-mint)] text-[var(--cn-mint-deep)] bg-[var(--cn-mint-soft)]',
   reach: 'border-[var(--cn-grape)] text-[var(--cn-grape-deep)] bg-[var(--cn-grape-soft)]',
   caution: 'border-[var(--cn-sun)] text-[var(--cn-sun-deep)] bg-[var(--cn-sun-soft)]',

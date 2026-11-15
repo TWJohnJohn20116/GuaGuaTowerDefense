@@ -53,7 +53,7 @@ export function SettingsChoiceButton({
         'disabled:pointer-events-none disabled:opacity-35',
         base,
         active
-          ? 'border-[var(--cn-line)] bg-[var(--cn-coral-soft)] text-[var(--cn-coral-deep)] shadow-[0_3px_0_var(--cn-coral-deep)]'
+          ? 'border-[var(--cn-line)] bg-[var(--cn-coral-soft)] text-[var(--cn-signal-text)] shadow-[0_3px_0_var(--cn-coral-deep)]'
           : 'border-[var(--cn-line-soft)] bg-[var(--cn-card)] text-[var(--cn-ink-2)] hover:border-[var(--cn-line-mid)] hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)]',
         className,
       ]

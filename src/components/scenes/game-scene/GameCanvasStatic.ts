@@ -9,6 +9,7 @@ import { drawGrid, drawTileHover } from '@/components/game/PathRenderer';
 import type { TowerType, Tower, Tile } from '@/types/game';
 import { previewPlacementSynergies, toTowerRef } from '@/data/towerSynergyData';
 import { getTowerStatBonus } from '@/data/towerCombatStats';
+import { getBoardColors } from '@/utils/themeBoard';
 
 // ===== 調適調試繪圖 =====
 
@@ -114,7 +115,7 @@ export function renderStaticLayer(
     showGrid, showPath, showEnemyPath, showHitboxes, multiSelectedTowerIds, towers
   } = params;
 
-  ctx.fillStyle = '#1a1d24';
+  ctx.fillStyle = getBoardColors().floor;
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
   // 調適：繪製網格（如果開啟）

@@ -49,7 +49,7 @@ type ChipTone = 'ink' | 'reach' | 'signal';
 const CHIP_TONE: Record<ChipTone, string> = {
   ink: 'text-[var(--cn-ink)]',
   reach: 'text-[var(--cn-grape-deep)]',
-  signal: 'text-[var(--cn-coral-deep)]',
+  signal: 'text-[var(--cn-signal-text)]',
 };
 
 /** 出擊摘要的一格：標籤 + 等寬值。 */

@@ -93,15 +93,15 @@ export function StatCell({
 }) {
   const color =
     tone === 'signal'
-      ? 'text-[var(--cn-coral)]'
+      ? 'text-[var(--cn-signal-text)]'
       : tone === 'vital'
-        ? 'text-[var(--cn-mint-deep)]'
+        ? 'text-[var(--cn-vital-text)]'
         : tone === 'alarm'
-          ? 'text-[var(--cn-alert)]'
+          ? 'text-[var(--cn-alarm-text)]'
           : tone === 'caution'
-            ? 'text-[var(--cn-sun-deep)]'
+            ? 'text-[var(--cn-caution-text)]'
             : tone === 'reach'
-              ? 'text-[var(--cn-grape)]'
+              ? 'text-[var(--cn-reach-text)]'
               : tone === 'muted'
                 ? 'text-[var(--cn-ink-3)]'
                 : 'text-[var(--cn-ink)]';

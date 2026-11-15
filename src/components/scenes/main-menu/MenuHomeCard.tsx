@@ -16,7 +16,7 @@ import type { HomeEntrySize } from '@/data/mainMenuHome';
  */
 const TONE: Record<'signal' | 'vital' | 'caution' | 'ink', { tile: string; badge: string }> = {
   signal: {
-    tile: 'bg-[var(--cn-coral-soft)] text-[var(--cn-coral-deep)]',
+    tile: 'bg-[var(--cn-coral-soft)] text-[var(--cn-signal-text)]',
     badge: 'bg-[var(--cn-coral)] text-white',
   },
   vital: {
@@ -158,7 +158,7 @@ export function MenuHomeCard({
           {/* 進入提示：hover／焦點才亮，箭頭往右滑 */}
           <span
             aria-hidden="true"
-            className="flex items-center gap-1 font-mono text-[11px] font-black text-[var(--cn-coral-deep)] opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
+            className="flex items-center gap-1 font-mono text-[11px] font-black text-[var(--cn-signal-text)] opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
           >
             <span className="transition-transform duration-150 group-hover:translate-x-0.5">→</span>
           </span>

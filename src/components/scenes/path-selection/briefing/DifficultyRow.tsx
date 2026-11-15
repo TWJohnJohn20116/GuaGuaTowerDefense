@@ -41,7 +41,7 @@ export function DifficultyRow({ selected, onChange }: DifficultyRowProps) {
             <span
               className={[
                 'font-mono text-[9.5px] font-extrabold tabular-nums leading-none',
-                active ? 'text-[var(--cn-coral-deep)]' : 'text-[var(--cn-ink-4)]',
+                active ? 'text-[var(--cn-signal-text)]' : 'text-[var(--cn-ink-4)]',
               ].join(' ')}
             >
               {String(i + 1).padStart(2, '0')}

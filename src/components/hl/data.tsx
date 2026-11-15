@@ -103,15 +103,15 @@ export function Num({
     tone === 'muted'
       ? 'text-[var(--cn-ink-3)]'
       : tone === 'signal'
-        ? 'text-[var(--cn-coral)]'
+        ? 'text-[var(--cn-signal-text)]'
         : tone === 'vital'
-          ? 'text-[var(--cn-mint-deep)]'
+          ? 'text-[var(--cn-vital-text)]'
           : tone === 'alarm'
-            ? 'text-[var(--cn-alert)]'
+            ? 'text-[var(--cn-alarm-text)]'
             : tone === 'caution'
-              ? 'text-[var(--cn-sun-deep)]'
+              ? 'text-[var(--cn-caution-text)]'
               : tone === 'reach'
-                ? 'text-[var(--cn-grape)]'
+                ? 'text-[var(--cn-reach-text)]'
                 : 'text-[var(--cn-ink)]';
 
   const sz = size === 'lg' ? 'text-[26px]' : size === 'sm' ? 'text-[12px]' : 'text-[15px]';

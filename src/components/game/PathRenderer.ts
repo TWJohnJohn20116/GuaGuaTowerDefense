@@ -1,4 +1,5 @@
 import type { Tile } from '@/types/game';
+import { getBoardColors } from '@/utils/themeBoard';
 
 // 判斷格子是否為路徑類型
 const isPathLike = (grid: Tile[][], row: number, col: number): boolean => {
@@ -7,12 +8,14 @@ const isPathLike = (grid: Tile[][], row: number, col: number): boolean => {
 };
 
 // === 色彩配置 ===
+// 場地色跟著主題走（主題切換時由 utils/themeBoard 的快取即時反映，不需重算）
 const getSurfaceColor = (type: string): string => {
+  const board = getBoardColors();
   switch (type) {
-    case 'start': return '#3a4a40';
-    case 'end': return '#4a3a3a';
-    case 'fork': return '#383e4a'; // 移除紫色，與一般路徑顏色一致
-    default: return '#383e4a';
+    case 'start': return board.start;
+    case 'end': return board.end;
+    case 'fork': return board.path; // 移除紫色，與一般路徑顏色一致
+    default: return board.path;
   }
 };
 
@@ -54,7 +57,7 @@ export const drawGrid = (
       const y = offsetY + ri * tileSize;
       
       // 所有格子預設都是空地顏色
-      ctx.fillStyle = '#252932';
+      ctx.fillStyle = getBoardColors().tile;
       
       // 繪製帶有均勻縫隙的方塊
       ctx.beginPath();
@@ -187,7 +190,7 @@ export const drawGrid = (
       const x = offsetX + ci * tileSize;
       const y = offsetY + ri * tileSize;
       
-      ctx.fillStyle = '#252932';
+      ctx.fillStyle = getBoardColors().tile;
       ctx.beginPath();
       ctx.roundRect(
         x + gap, 
@@ -225,7 +228,7 @@ const drawBlockedTiles = (
       const rw = tileSize - gap * 2;
       const rh = tileSize - gap * 2;
 
-      ctx.fillStyle = '#1a1218';
+      ctx.fillStyle = getBoardColors().edge;
       ctx.beginPath();
       ctx.roundRect(rx, ry, rw, rh, 3);
       ctx.fill();

@@ -85,7 +85,7 @@ export function CustomSliders({ custom, setCustom }: CustomSlidersProps) {
             <div key={p.key}>
               <div className="mb-1.5 flex items-baseline justify-between gap-2">
                 <span className="arc-label">{p.label}</span>
-                <span className="font-mono text-[12px] font-extrabold tabular-nums text-[var(--cn-coral-deep)]">
+                <span className="font-mono text-[12px] font-extrabold tabular-nums text-[var(--cn-signal-text)]">
                   {p.format(value)}
                 </span>
               </div>

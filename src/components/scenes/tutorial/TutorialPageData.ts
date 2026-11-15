@@ -213,7 +213,7 @@ interface TowerGuideEntry {
 const TOWER_ROLES_VISUAL: Record<TowerRole, { icon: string; color: string }> = {
   damage: { icon: '⚔️', color: 'text-[var(--cn-alert)]' },
   control: { icon: '❄️', color: 'text-[var(--cn-sky-deep)]' },
-  aoe: { icon: '💥', color: 'text-[var(--cn-coral)]' },
+  aoe: { icon: '💥', color: 'text-[var(--cn-signal-text)]' },
   economy: { icon: '💰', color: 'text-[var(--cn-sun-deep)]' },
 };
 
