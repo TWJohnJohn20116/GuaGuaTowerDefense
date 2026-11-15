@@ -1,28 +1,29 @@
 /**
- * 關卡頁 — 關卡清單 ＋ 地圖工作台
- *
- * 地圖工作台由 map 線提供（真實渲染）；這一頁只負責選關卡與增刪。
+ * 關卡頁 — 關卡清單 ＋（地圖工作台 / 關卡設定）
  */
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from '@/i18n';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { createDefaultLevel } from '@/workshop/levels/defaults';
 import { MapWorkbench } from '@/components/workshop/map/MapWorkbench';
-import { Btn, Deck, Empty, Num, SegHead } from '@/components/hl';
-import { PlusIcon, TrashIcon, MapIcon } from '@/components/ui/Icons';
+import { LevelSettingsPanel } from './LevelSettingsPanel';
+import { Btn, Deck, Empty, Num } from '@/components/hl';
+import { PlusIcon, TrashIcon, MapIcon, SettingsIcon } from '@/components/ui/Icons';
 
 interface LevelsPageProps {
   projectId: string;
 }
+
+type LevelTab = 'map' | 'settings';
 
 export function LevelsPage({ projectId }: LevelsPageProps) {
   const { t } = useTranslation();
   const s = t.studio.levels;
   const project = useWorkshopStore((state) => state.getProject(projectId));
   const addLevel = useWorkshopStore((state) => state.addLevel);
-  const updateLevel = useWorkshopStore((state) => state.updateLevel);
   const deleteLevel = useWorkshopStore((state) => state.deleteLevel);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [tab, setTab] = useState<LevelTab>('map');
 
   const levels = useMemo(() => project?.levels ?? [], [project]);
 
@@ -47,7 +48,7 @@ export function LevelsPage({ projectId }: LevelsPageProps) {
             variant="signal"
             icon={<PlusIcon className="h-3.5 w-3.5" />}
             onClick={() => {
-              const level = createDefaultLevel(`${project.name} ${levels.length + 1}`);
+              const level = createDefaultLevel(project.name + ' ' + (levels.length + 1));
               addLevel(projectId, level);
               setSelectedId(level.id);
             }}
@@ -81,49 +82,36 @@ export function LevelsPage({ projectId }: LevelsPageProps) {
       </aside>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <div className="flex h-10 shrink-0 items-center gap-2 border-b border-[var(--cn-line-soft)] px-3">
-          <SegHead
-            label={s.map}
-            className="min-w-0 flex-1"
-            right={
-              selectedId ? (
-                <span className="font-mono text-[10px] text-[var(--cn-ink-3)]">
-                  {s.waves} {String(levels.find((level) => level.id === selectedId)?.waves.length ?? 0)}
-                </span>
-              ) : undefined
-            }
-          />
+        <div className="flex h-10 shrink-0 items-center gap-1.5 border-b border-[var(--cn-line-soft)] px-3">
+          <Btn size="sm" variant={tab === 'map' ? 'signal' : 'line'} icon={<MapIcon className="h-3.5 w-3.5" />} onClick={() => setTab('map')}>
+            {s.tabMap}
+          </Btn>
+          <Btn size="sm" variant={tab === 'settings' ? 'signal' : 'line'} icon={<SettingsIcon className="h-3.5 w-3.5" />} onClick={() => setTab('settings')}>
+            {s.tabSettings}
+          </Btn>
           {selectedId && (
-            <>
-              <Btn
-                size="sm"
-                variant="line"
-                onClick={() => {
-                  const level = levels.find((item) => item.id === selectedId);
-                  if (level) updateLevel(projectId, level.id, { name: level.name });
-                }}
-              >
-                {t.studio.common.apply}
-              </Btn>
-              <Btn
-                size="sm"
-                variant="ghost"
-                icon={<TrashIcon className="h-3.5 w-3.5" />}
-                onClick={() => {
-                  if (!selectedId) return;
-                  if (!window.confirm(t.studio.common.confirmDelete)) return;
-                  deleteLevel(projectId, selectedId);
-                }}
-              >
-                {t.studio.common.delete}
-              </Btn>
-            </>
+            <Btn
+              size="sm"
+              variant="ghost"
+              icon={<TrashIcon className="h-3.5 w-3.5" />}
+              className="ml-auto"
+              onClick={() => {
+                if (!window.confirm(t.studio.common.confirmDelete)) return;
+                deleteLevel(projectId, selectedId);
+              }}
+            >
+              {t.studio.common.delete}
+            </Btn>
           )}
         </div>
 
         <div className="min-h-0 flex-1">
           {selectedId ? (
-            <MapWorkbench projectId={projectId} levelId={selectedId} />
+            tab === 'map' ? (
+              <MapWorkbench projectId={projectId} levelId={selectedId} />
+            ) : (
+              <LevelSettingsPanel projectId={projectId} levelId={selectedId} />
+            )
           ) : (
             <Deck tone="sunken" className="m-3 p-4">
               <Empty title={s.noLevels} />
