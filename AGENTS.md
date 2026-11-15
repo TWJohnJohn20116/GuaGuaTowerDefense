@@ -202,6 +202,7 @@ services → types（只能 import type 或由入口注入）
 | **v4 改名，舊名不再產生 CSS** | `flex-shrink-*`→`shrink-*`、`shadow`→`shadow-sm`、`shadow-sm`→`shadow-xs`、`rounded`→`rounded-sm`、`rounded-sm`→`rounded-xs`、`outline-none`→`outline-hidden`、`ring`→`ring-3`、`bg-gradient-to-*`→`bg-linear-to-*`。**新程式碼一律寫新名**。 |
 | **`flex-shrink-0` 有相容層** | 專案仍有 88 處舊名，靠 `index.css` 的 `.flex-shrink-*` 規則撐著；那塊是待清償的相容層，不要再往裡面加東西。 |
 | **預設 `border-color` 變了** | v4 預設是 `currentColor`，已在相容層還原成 v3 的 `#e5e7eb`。新元件請顯式指定顏色（`border-[var(--hl-line)]`），不要依賴預設值。 |
+| **utilities 會蓋掉 components 層** | Tailwind 的 utilities 圖層在 components 之後，`shadow-[...]`／`bg-*`／`border-*` 會**蓋掉** `arc-*` 元件層的設定。所以元件的**視覺屬性（陰影／邊框／底色）只在變體層決定，`size` 只決定尺寸**。實例：`Btn` 的 `size="sm"` 帶 `shadow-[0_3px_0]`，`arc-btn--ghost` 的 `box-shadow:none` 被蓋回去，ghost 按鈕底下就浮著一條沒有按鈕本體的深色橫條。新增變體時要逐一驗 `hover`／`active`／`disabled`，不能只看預設態。 |
 | **瀏覽器基線提高** | v4 產物用到 `@property` 與 `color-mix()`，需要 Safari 16.4+／Chrome 111+。`vite.config.ts` 的 `build.target` 仍是 `safari13`（瀏覽器版），舊瀏覽器會掉樣式——要相容就得先降級這些特性。 |
 
 **還沒做**：`tailwind.config.js` 的 token 仍走 `@config` 相容路徑，尚未搬進 CSS 的 `@theme`。搬遷時要一起處理：`hl-*`／`nordic-*` 色票、把 `borderRadius` 與 `boxShadow` 全部歸零的宣告、`mask-edges-x` 等自訂 utility。
