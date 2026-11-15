@@ -43,23 +43,35 @@ export function compileLevelWaves(
 
   const compiled: WaveConfig[] = [];
   for (const wave of sourceWaves) {
+    // 停用的波次：編譯成「空波 + 0 獎勵」。引擎看到空佇列會立刻結束該波，
+    // 效果等於跳過，但波數與關卡長度不變，作者的編號不會亂掉。
+    const disabled = wave.enabled === false;
     const groups: WaveConfig['enemies'] = [];
-    for (const group of wave.enemies ?? []) {
-      if (enemyAssetIds.has(group.type)) {
-        groups.push({ ...group, type: runtimeAssetId(projectId, group.type) });
-        continue;
+    if (!disabled) {
+      for (const group of wave.enemies ?? []) {
+        if (enemyAssetIds.has(group.type)) {
+          groups.push({ ...group, type: runtimeAssetId(projectId, group.type) });
+          continue;
+        }
+        if (isBuiltinEnemyType(group.type)) {
+          groups.push({ ...group });
+          continue;
+        }
+        issues.push(createIssue('missingAsset', { levelId: level.id, assetId: group.type }));
       }
-      if (isBuiltinEnemyType(group.type)) {
-        groups.push({ ...group });
-        continue;
+      // 原本有敵人卻一個都對不上：留空波（波數不變）並回報
+      if (groups.length === 0 && (wave.enemies ?? []).length > 0) {
+        issues.push(createIssue('invalidWaveGroup', { levelId: level.id }));
       }
-      issues.push(createIssue('missingAsset', { levelId: level.id, assetId: group.type }));
     }
-    // 原本有敵人卻一個都對不上：留空波（波數不變）並回報
-    if (groups.length === 0 && (wave.enemies ?? []).length > 0) {
-      issues.push(createIssue('invalidWaveGroup', { levelId: level.id }));
-    }
-    compiled.push({ enemies: groups, reward: wave.reward });
+
+    const next: WaveConfig = { enemies: groups, reward: disabled ? 0 : wave.reward };
+    // 只帶有值的可選欄位：不要把 undefined 寫進 .ggmod
+    if (typeof wave.hpScale === 'number' && wave.hpScale > 0) next.hpScale = wave.hpScale;
+    if (typeof wave.intervalMs === 'number' && wave.intervalMs > 0) next.intervalMs = wave.intervalMs;
+    if (wave.chapter) next.chapter = wave.chapter;
+    if (wave.name) next.name = wave.name;
+    compiled.push(next);
   }
 
   return {
