@@ -6,6 +6,7 @@
 import type { ModScriptCommand } from '@/types/modScript';
 import type { StatusEffect, Tower, TowerType } from '@/types/game';
 import { applyScriptTowerMod } from '@/data/scriptTowerMods';
+import { applyDifficultyCommand } from '@/data/scriptMatchMods';
 import { PROTOCOL_HEALTH_CAP_BONUS } from '@/data/tacticalProtocolData';
 import { useModScriptStore } from '@/store/modScriptStore';
 import { MOD_SCRIPT_LIMITS } from './limits';
@@ -131,13 +132,9 @@ export async function applyModScriptCommands(
         break;
       }
       case 'setDifficulty': {
+        // 反覆觸發會累乘，所以夾的是「總量」不是單次倍率（見 scriptMatchMods）
         useGameStore.setState((state) => ({
-          difficultyModifiers: {
-            ...state.difficultyModifiers,
-            enemyHealthMult: state.difficultyModifiers.enemyHealthMult * (command.healthMult ?? 1),
-            enemySpeedMult: state.difficultyModifiers.enemySpeedMult * (command.speedMult ?? 1),
-            enemyRewardMult: state.difficultyModifiers.enemyRewardMult * (command.rewardMult ?? 1),
-          },
+          difficultyModifiers: applyDifficultyCommand(state.difficultyModifiers, command),
         }));
         applied += 1;
         break;
