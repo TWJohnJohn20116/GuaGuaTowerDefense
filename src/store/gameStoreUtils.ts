@@ -269,6 +269,8 @@ interface EnemyDamageOutcome {
 export const applyDamageToEnemy = (
   enemy: {
     type: string;
+    /** 自訂敵人原始 id（mod）；有值時裝甲等數值改查它 */
+    originType?: string;
     health: number;
     shield?: number;
     spawnTime?: number;

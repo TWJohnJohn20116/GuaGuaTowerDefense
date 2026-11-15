@@ -24,6 +24,8 @@ import { resolveEnemyData } from './enemyDataProvider';
 interface EnemyRenderFrame {
   id: string;
   type: EnemyType;
+  /** 自訂敵人的原始 mod id；有值時渲染與數值都改查它 */
+  originType?: string;
   /** 敵種主色（CSS 字串），2D 模型與 3D instance 染色共用，免去各自查 ENEMY_DATA */
   baseColor: string;
   /** 網格座標（格為單位），由各渲染器自行乘上 tileSize / toWorld */
@@ -268,6 +270,7 @@ export const writeRenderSnapshot = (
 
     frame.id = enemy.id;
     frame.type = enemy.type;
+    frame.originType = enemy.originType;
     frame.baseColor = resolveEnemyData(enemy.originType ?? enemy.type).color;
     frame.x = enemy.x;
     frame.y = enemy.y;

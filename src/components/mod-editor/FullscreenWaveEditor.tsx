@@ -630,7 +630,7 @@ function FullscreenWaveDetail({
   const { t } = useTranslation();
   const m = t.modEditorExt;
 
-  const updateEnemy = (idx: number, partial: Partial<{ type: EnemyType; count: number; delay: number }>) => {
+  const updateEnemy = (idx: number, partial: Partial<{ type: string; count: number; delay: number }>) => {
     const next = wave.enemies.map((e, i) => (i === idx ? { ...e, ...partial } : e));
     onChange({ ...wave, enemies: next });
   };

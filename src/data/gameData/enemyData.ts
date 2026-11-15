@@ -13,7 +13,7 @@ import {
 } from '@/data/combatStatus';
 
 // 敵人數據（速度值：1.0 = 基準速度，數值越高移動越快）
-export const ENEMY_DATA: Record<EnemyType, EnemyData> = {
+export const ENEMY_DATA: Record<EnemyType, EnemyData> & Record<string, EnemyData | undefined> = {
   normal: {
     name: '普通敵人',
     health: 80,

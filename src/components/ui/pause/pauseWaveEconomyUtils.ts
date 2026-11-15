@@ -3,11 +3,10 @@
  */
 
 import { ENEMY_DATA, WAVE_CONFIGS, generateEndlessWaveConfig } from '@/data/gameData';
-import type { EnemyType } from '@/types/game';
 import { findPlayableWaveSet } from '@/utils/waveSets';
 
 interface WaveConfigLike {
-  enemies: { type: EnemyType; count: number }[];
+  enemies: { type: string; count: number }[];
 }
 
 export function resolveNextWaveConfig(

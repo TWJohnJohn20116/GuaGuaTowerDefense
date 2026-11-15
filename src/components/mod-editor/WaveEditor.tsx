@@ -459,7 +459,7 @@ function WaveCard({
     return { points, total: t };
   })();
 
-  const updateEnemy = (idx: number, partial: Partial<{ type: EnemyType; count: number; delay: number }>) => {
+  const updateEnemy = (idx: number, partial: Partial<{ type: string; count: number; delay: number }>) => {
     const next = wave.enemies.map((e, i) => (i === idx ? { ...e, ...partial } : e));
     onChange({ ...wave, enemies: next });
   };
