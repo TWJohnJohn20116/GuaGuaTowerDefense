@@ -418,6 +418,40 @@ const drawChromeLayer = (
   );
   const handleRadius = Math.max(3.5, ts * 0.15);
 
+  // 4.5) 其他路段：淡淡畫出來，讓作者看得到整張叉路圖（編輯中的那段仍用正常顏色）
+  const otherSegments = (draft.segments ?? []).filter(
+    (segment) => segment.id !== draft.activeSegmentId && segment.waypoints.length > 1,
+  );
+  if (otherSegments.length > 0) {
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.strokeStyle = palette.sky;
+    ctx.fillStyle = palette.sky;
+    ctx.lineWidth = Math.max(1.5, ts * 0.05);
+    ctx.lineCap = 'round';
+    for (const segment of otherSegments) {
+      ctx.beginPath();
+      for (let i = 0; i < segment.waypoints.length; i += 1) {
+        const x = cellCenterX(geom, segment.waypoints[i].col);
+        const y = cellCenterY(geom, segment.waypoints[i].row);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      const first = segment.waypoints[0];
+      ctx.beginPath();
+      ctx.arc(
+        cellCenterX(geom, first.col),
+        cellCenterY(geom, first.row),
+        Math.max(2, ts * 0.08),
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
   // 5) 路徑點之間的白色虛線骨幹
   if (display.length > 1) {
     ctx.save();
