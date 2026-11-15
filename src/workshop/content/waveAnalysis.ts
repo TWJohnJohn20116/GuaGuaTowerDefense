@@ -14,9 +14,11 @@ import {
   summarizeWave,
   validateTimeline,
   waveHpScale,
+  waveIntervalMs,
   type EnemyLookup,
   type TimelineWave,
 } from '@/workshop/content/timeline';
+import { buildTrack } from '@/workshop/content/waveModel';
 
 /** 分析參數：全部可在面板調整，預設值就是官方 15 波的體感 */
 export interface AnalysisParams {
@@ -42,7 +44,7 @@ const clampNumber = (value: unknown, min: number, max: number, fallback: number)
   return Math.min(max, Math.max(min, parsed));
 };
 
-export function normalizeAnalysisParams(input: Partial<AnalysisParams>): AnalysisParams {
+function normalizeAnalysisParams(input: Partial<AnalysisParams>): AnalysisParams {
   return {
     startMoney: clampNumber(input.startMoney, 0, 999999, DEFAULT_ANALYSIS_PARAMS.startMoney),
     towerPrice: clampNumber(input.towerPrice, 1, 99999, DEFAULT_ANALYSIS_PARAMS.towerPrice),
@@ -71,7 +73,7 @@ export interface WaveSummaryRow {
   issueCount: number;
 }
 
-export function buildWaveSummaries(
+function buildWaveSummaries(
   waves: readonly TimelineWave[],
   lookup: EnemyLookup,
 ): WaveSummaryRow[] {
@@ -205,9 +207,67 @@ export function analyzeWaves(
   };
 }
 
-/** 柱狀圖的正規化高度（0..1），給 SVG 用 */
-export function barHeightRatio(bars: readonly WaveBar[], key: 'totalHp' | 'killReward' | 'difficulty'): number[] {
-  const values = bars.map((bar) => bar[key]);
-  const max = values.reduce((top, value) => Math.max(top, value), 0);
-  return values.map((value) => (max > 0 ? value / max : 0));
+/** 播放頭在某一刻的戰場快照（估算，不是真的模擬） */
+export interface PlayheadSnapshot {
+  atMs: number;
+  /** 此刻所在的波次（-1＝還在第一波之前） */
+  waveIndex: number;
+  /** 已生成的敵人總數 */
+  spawned: number;
+  /** 估算還在場上的敵人數（生成後 20 秒內視為仍在場） */
+  onField: number;
+  /** 累積 HP（已生成敵人的血量總和） */
+  hp: number;
+  /** 累積金幣（擊殺獎勵 + 已結束波次的通關獎勵） */
+  money: number;
+}
+
+/** 「生成後 20 秒仍在場」是估算值：真實存活時間取決於塔的輸出，編輯器不模擬戰鬥 */
+const ENEMY_ON_FIELD_MS = 20000;
+
+export function snapshotAt(
+  waves: readonly TimelineWave[],
+  lookup: EnemyLookup,
+  atMs: number,
+  input: Partial<AnalysisParams> = {},
+): PlayheadSnapshot {
+  const params = normalizeAnalysisParams(input);
+  const track = buildTrack(waves);
+  const time = Math.max(0, atMs);
+
+  let spawned = 0;
+  let onField = 0;
+  let hp = 0;
+  let money = 0;
+
+  for (const segment of track.segments) {
+    if (time < segment.absoluteStartMs) continue;
+    const wave = waves[segment.waveIndex];
+    if (!wave) continue;
+    const interval = waveIntervalMs(wave);
+    const scale = waveHpScale(wave);
+    const stats = lookup(segment.type);
+    const elapsed = time - segment.absoluteStartMs;
+    const count = Math.min(segment.count, Math.floor(elapsed / interval) + 1);
+    if (count <= 0) continue;
+    spawned += count;
+    hp += (stats?.health ?? 0) * scale * count;
+    money += (stats?.reward ?? 0) * count;
+    // 場上估算：生成時刻落在 [time - 20s, time] 的敵人
+    const firstAlive = Math.max(0, Math.ceil((elapsed - ENEMY_ON_FIELD_MS) / interval));
+    if (count > firstAlive) onField += count - firstAlive;
+  }
+
+  // 通關獎勵：波次結束時刻已過的波才發
+  waves.forEach((wave, index) => {
+    const start = track.waveStarts[index] ?? 0;
+    if (start + wave.durationMs <= time) money += wave.reward * params.incomeFactor;
+  });
+
+  let waveIndex = -1;
+  track.waveStarts.forEach((start, index) => {
+    if (time >= start) waveIndex = index;
+  });
+
+  return { atMs: time, waveIndex, spawned, onField, hp: Math.round(hp), money: Math.round(money) };
 }
