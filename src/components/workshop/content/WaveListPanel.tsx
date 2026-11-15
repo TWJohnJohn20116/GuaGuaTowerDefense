@@ -22,7 +22,6 @@ import {
   TrashIcon,
   WarningIcon,
 } from '@/components/ui/Icons';
-import { SelectableRow } from '@/components/ui/SelectableRow';
 import type { TimelineWave } from '@/workshop/content/timeline';
 import { listChapters } from '@/workshop/content/waveModel';
 import type { WaveSummaryRow } from '@/workshop/content/waveAnalysis';
@@ -157,24 +156,12 @@ export function WaveListPanel({
             row.enabled ? '' : 'opacity-55',
           ].join(' ')}
         >
-          <SelectableRow
-            variant="bare"
-            active={active}
-            tone="grape"
-            onClick={() => undefined}
-            label={title}
-            className="gap-2 px-2 py-1.5"
-          >
-            <span
-              role="button"
-              tabIndex={0}
+          <div className="flex items-center gap-2 px-2 py-1.5">
+            <button
+              type="button"
+              aria-pressed={active}
+              aria-label={title}
               onClick={(event) => pick(index, event)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  pick(index, { shiftKey: event.shiftKey, ctrlKey: event.ctrlKey, metaKey: event.metaKey });
-                }
-              }}
               className="flex min-w-0 flex-1 items-center gap-2 text-left"
             >
               <span className="w-6 shrink-0 text-center font-mono text-[11px] font-extrabold text-[var(--cn-ink-3)]">
@@ -183,7 +170,11 @@ export function WaveListPanel({
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-1.5">
                   <span className="truncate text-[12px] font-extrabold text-[var(--cn-ink)]">{title}</span>
-                  {row.bossLike && <Chip active className="px-1 py-0 text-[9px]">{c.boss}</Chip>}
+                  {row.bossLike && (
+                    <span className="shrink-0 rounded-[4px] border-2 border-[var(--cn-line)] bg-[var(--cn-coral-soft)] px-1 font-mono text-[8.5px] font-extrabold text-[var(--cn-signal-text)]">
+                      {c.boss}
+                    </span>
+                  )}
                   {row.issueCount > 0 && (
                     <span className="flex items-center gap-0.5 text-[var(--cn-caution-text)]">
                       <WarningIcon className="h-3 w-3" />
@@ -201,9 +192,9 @@ export function WaveListPanel({
                   <span>{fillTemplate(c.summaryDuration, { s: (row.durationMs / 1000).toFixed(1) })}</span>
                 </span>
               </span>
-            </span>
+            </button>
             <Toggle on={row.enabled} onChange={() => onToggleEnabled(index)} label={c.toggleEnabled} />
-          </SelectableRow>
+          </div>
         </div>
       </li>
     );
