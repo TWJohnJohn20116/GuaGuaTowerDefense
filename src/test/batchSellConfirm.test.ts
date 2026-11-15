@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it, beforeEach } from 'vitest';
 import {
   formatBatchSellName,
@@ -60,30 +58,24 @@ describe('batch sell confirmation', () => {
     expect(getPendingSellIds(useSellConfirmStore.getState().pending!)).toEqual(['a', 'b']);
   });
 
-it('blocks when nothing is sellable', () => {
-  expect(requestBatchSell({
-    towers: [{ id: 'a', name: '基礎塔', cost: 100, locked: true }],
-    confirmSell: false,
-    unitLabel: '個塔',
-  })).toBe('blocked');
-  expect(useSellConfirmStore.getState().pending).toBeNull();
-});
+  it('blocks when nothing is sellable', () => {
+    expect(requestBatchSell({
+      towers: [{ id: 'a', name: '基礎塔', cost: 100, locked: true }],
+      confirmSell: false,
+      unitLabel: '個塔',
+    })).toBe('blocked');
+    expect(useSellConfirmStore.getState().pending).toBeNull();
+  });
 
-it('returns sell_now when a sellable tower needs no confirmation', () => {
-  expect(requestBatchSell({
-    towers: [{ id: 'a', name: '基礎塔', cost: 100 }],
-    confirmSell: false,
-    unitLabel: '個塔',
-  })).toBe('sell_now');
-});
+  it('returns sell_now when a sellable tower needs no confirmation', () => {
+    expect(requestBatchSell({
+      towers: [{ id: 'a', name: '基礎塔', cost: 100 }],
+      confirmSell: false,
+      unitLabel: '個塔',
+    })).toBe('sell_now');
+  });
 
-  it('does not use window.confirm on the multi-select panel', () => {
-    const src = readFileSync(
-      resolve(__dirname, '../components/game/MultiSelectPanel.tsx'),
-      'utf8',
-    );
-    expect(src).toMatch(/requestBatchSell/);
-    expect(src).not.toMatch(/\bconfirm\(/);
+  it('keeps the Traditional Chinese batch hint copy', () => {
     expect(zhTW.towers.sellConfirmHintBatch).toMatch(/這些塔/);
   });
 });

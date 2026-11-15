@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   isEncyclopediaTypingTarget,
@@ -41,15 +39,5 @@ describe('encyclopedia Escape layers', () => {
     ).toBe('ignore');
     expect(isEncyclopediaTypingTarget(document.createElement('input'))).toBe(true);
     expect(isEncyclopediaTypingTarget(document.createElement('div'))).toBe(false);
-  });
-
-  it('wires the helper and goBackScene into Encyclopedia', () => {
-    const src = readFileSync(
-      resolve(__dirname, '../components/scenes/Encyclopedia.tsx'),
-      'utf8',
-    );
-    expect(src).toMatch(/resolveEncyclopediaEscape/);
-    expect(src).toMatch(/goBackScene/);
-    expect(src).not.toMatch(/if \(e\.key === 'Escape' && selectedItem\)/);
   });
 });

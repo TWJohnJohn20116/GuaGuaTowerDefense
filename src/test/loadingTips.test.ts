@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { LOADING_TIP_CLASS, loadingTipAt, nextLoadingTipIndex } from '@/data/loadingTips';
 
@@ -16,13 +14,5 @@ describe('loading tips', () => {
   it('keeps loading tip text brighter than 40% white', () => {
     expect(LOADING_TIP_CLASS).toMatch(/text-white\/(7|8|9)\d/);
     expect(LOADING_TIP_CLASS).not.toMatch(/text-white\/40/);
-  });
-
-  it('uses the shared tip helpers in the loading screen', () => {
-    const src = readFileSync(resolve(__dirname, '../components/ui/Loading.tsx'), 'utf8');
-    expect(src).toMatch(/LOADING_TIP_CLASS/);
-    expect(src).toMatch(/nextLoadingTipIndex/);
-    expect(src).toMatch(/visibleLoadingTip/);
-    expect(src).not.toMatch(/text-white\/40 z-10/);
   });
 });

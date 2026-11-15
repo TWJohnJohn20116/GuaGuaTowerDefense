@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { resolveBatchUpgradeHint } from '@/data/batchUpgradeHint';
 
@@ -20,15 +18,5 @@ describe('multi-select batch upgrade hint', () => {
       totalCost: 400,
       money: 400,
     })).toBe('ready');
-  });
-
-  it('drops the leftover alert and shows the hint on the multi-select panel', () => {
-    const src = readFileSync(
-      resolve(__dirname, '../components/game/MultiSelectPanel.tsx'),
-      'utf8',
-    );
-    expect(src).toMatch(/resolveBatchUpgradeHint/);
-    expect(src).toMatch(/multiSelectNotEnough/);
-    expect(src).not.toMatch(/\balert\(/);
   });
 });

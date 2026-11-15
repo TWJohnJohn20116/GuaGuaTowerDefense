@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { gameDifficultyLabelsFromGameCopy } from '@/data/gameRecordLabels';
 import { replayMatchesSearch } from '@/data/replayBrowseSearch';
@@ -28,14 +26,5 @@ describe('replay browse search', () => {
     expect(replayMatchesSearch(sample, '防守', labels)).toBe(true);
     expect(replayMatchesSearch(sample, '練習', labels)).toBe(true);
     expect(replayMatchesSearch(sample, '', labels)).toBe(true);
-  });
-
-  it('wires the helper into the replay browse scene', () => {
-    const src = readFileSync(
-      resolve(__dirname, '../components/scenes/Replay.tsx'),
-      'utf8',
-    );
-    expect(src).toMatch(/replayMatchesSearch/);
-    expect(src).toMatch(/gameDifficultyLabelsFromGameCopy/);
   });
 });

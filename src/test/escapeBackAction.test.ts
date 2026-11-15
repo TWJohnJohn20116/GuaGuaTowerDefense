@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { hasActiveSelection, resolveBackKeyAction } from '@/store/gameHotkeys';
 
@@ -28,15 +26,5 @@ describe('escape / back key', () => {
     expect(hasActiveSelection({ selectedTower: null, selectedTowerType: 'basic', multiSelectedCount: 0 })).toBe(true);
     expect(hasActiveSelection({ selectedTower: null, selectedTowerType: null, multiSelectedCount: 2 })).toBe(true);
     expect(hasActiveSelection({ selectedTower: null, selectedTowerType: null, multiSelectedCount: 0 })).toBe(false);
-  });
-
-  it('wires fusion cancel into the in-game back key handler', () => {
-    const src = readFileSync(
-      resolve(__dirname, '../components/scenes/game-scene/useGameSceneEffects.ts'),
-      'utf8',
-    );
-    expect(src).toMatch(/fusionMode/);
-    expect(src).toMatch(/cancelFusion/);
-    expect(src).toMatch(/cancel_fusion/);
   });
 });

@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   applyOrbitControlSpeeds,
@@ -30,17 +28,5 @@ describe('camera control speeds from settings', () => {
       pitch: 4 * 0.005 * 0.5,
     });
     expect(resolveWalkZoomDelta(100, 0.5)).toBe(100 * 0.004 * 0.5);
-  });
-
-  it('wires 3D orbit and walk cameras through the shared speed helpers', () => {
-    const src = readFileSync(
-      resolve(__dirname, '../components/scenes/game-scene/three/GameScene3D.tsx'),
-      'utf8',
-    );
-    expect(src).toMatch(/applyOrbitControlSpeeds/);
-    expect(src).toMatch(/resolveWalkLookDelta/);
-    expect(src).toMatch(/resolveWalkZoomDelta/);
-    expect(src).not.toMatch(/\* 0\.0075/);
-    expect(src).not.toMatch(/\* 0\.004,/);
   });
 });

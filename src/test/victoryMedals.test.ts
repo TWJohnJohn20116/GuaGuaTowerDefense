@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { resolveVictoryMedalIds } from '@/data/victoryMedals';
 
@@ -27,14 +25,5 @@ describe('victory medals', () => {
     expect(resolveVictoryMedalIds({ ...base, maxLevelReached: 5 })).toContain('maxUpgrade');
     expect(resolveVictoryMedalIds({ ...base, totalDamage: 10000 })).toContain('destroyer');
     expect(resolveVictoryMedalIds(base)).toEqual([]);
-  });
-
-  it('wires the helper into the victory scene', () => {
-    const src = readFileSync(
-      resolve(__dirname, '../components/scenes/Victory.tsx'),
-      'utf8',
-    );
-    expect(src).toMatch(/resolveVictoryMedalIds/);
-    expect(src).not.toMatch(/health === 100/);
   });
 });

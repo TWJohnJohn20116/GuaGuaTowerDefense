@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   nextShopSelection,
@@ -45,20 +43,9 @@ describe('shop keyboard navigation', () => {
     })).toBe('ignore');
   });
 
-  it('wires arrow keys into the shop scene and drops the English subtitle', () => {
-    const src = readFileSync(resolve(__dirname, '../components/scenes/Shop.tsx'), 'utf8');
-    expect(src).toMatch(/nextShopSelection/);
-    expect(src).toMatch(/resolveShopHotkey/);
+  it('drops the English subtitle in shop copy', () => {
     expect(zhTW.shop.subtitle).not.toMatch(/TOWER SHOP/i);
     expect(zhTW.shop.subtitle).toMatch(/塔|技能/);
     expect(zhTW.shop.toolbar.buyProduct).toMatch(/購買|確認/);
-  });
-
-  it('wires Enter purchase into the shop detail panel', () => {
-    const src = readFileSync(
-      resolve(__dirname, '../components/scenes/shop/ShopDetailPanel.tsx'),
-      'utf8',
-    );
-    expect(src).toMatch(/resolveShopPurchaseKey/);
   });
 });

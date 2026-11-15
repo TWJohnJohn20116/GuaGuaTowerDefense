@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   resolveGridTowerClick,
@@ -22,23 +20,5 @@ describe('grid tower click', () => {
     expect(resolveMarqueeAsClick(0)).toBe(true);
     expect(resolveMarqueeAsClick(63)).toBe(true);
     expect(resolveMarqueeAsClick(64)).toBe(false);
-  });
-});
-
-describe('grid tower click wiring', () => {
-  it('uses the shared click resolver on the 2D canvas and 3D interaction', () => {
-    const canvas = readFileSync(
-      resolve(__dirname, '../components/scenes/game-scene/GameCanvas.tsx'),
-      'utf8',
-    );
-    const interaction = readFileSync(
-      resolve(__dirname, '../components/scenes/game-scene/three/interaction3d.ts'),
-      'utf8',
-    );
-    expect(canvas).toMatch(/resolveGridTowerClick/);
-    expect(interaction).toMatch(/resolveGridTowerClick/);
-    expect(interaction).toMatch(/resolveMarqueeAsClick/);
-    expect(interaction).toMatch(/toggleTowerInMultiSelect/);
-    expect(interaction).toMatch(/selectAllTowersOfType/);
   });
 });

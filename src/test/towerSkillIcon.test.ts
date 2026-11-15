@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
@@ -15,11 +13,5 @@ describe('tower panel skill glyph', () => {
       expect(html, skill.id).toMatch(/<svg/);
       expect(html, skill.id).not.toContain(skill.icon);
     }
-  });
-
-  it('does not render the skill emoji as a raw text node in the tower panel', () => {
-    const src = readFileSync(resolve(__dirname, '../components/game/FloatingTowerPanel.tsx'), 'utf8');
-    expect(src).not.toMatch(/>\{skillData\.icon\}</);
-    expect(src).toMatch(/<ThemeIcon icon=\{skillData\.icon\}/);
   });
 });

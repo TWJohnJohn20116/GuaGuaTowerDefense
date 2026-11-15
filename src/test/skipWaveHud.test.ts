@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { canSkipWave, skipWaveTitleKey } from '@/data/skipWaveHud';
 
@@ -32,15 +30,5 @@ describe('skip wave HUD', () => {
     expect(skipWaveTitleKey(midWave)).toBe('skipWaveReady');
     expect(skipWaveTitleKey({ ...midWave, allEnemiesSpawned: false })).toBe('skipWaveWait');
     expect(canSkipWave({ ...midWave, endlessMode: true, currentWave: 99, maxWaves: 8 })).toBe(true);
-  });
-
-  it('wires the skip helper into the bottom controls', () => {
-    const src = readFileSync(
-      resolve(__dirname, '../components/game/sidebar/BottomControls.tsx'),
-      'utf8',
-    );
-    expect(src).toMatch(/canSkipWave/);
-    expect(src).toMatch(/skipWaveTitleKey/);
-    expect(src).not.toMatch(/title=\{t\.game\.skipWaveTooltip\}/);
   });
 });

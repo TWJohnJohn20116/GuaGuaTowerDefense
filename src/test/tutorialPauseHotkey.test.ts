@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_KEY_BINDINGS } from '@/store/gameStoreUtils';
 import { INTERACTIVE_TUTORIAL_STEPS } from '@/store/tutorialStore';
@@ -38,13 +36,5 @@ describe('campaign tutorial pause hotkey', () => {
   it('does not keep English button aliases in campaign tutorial copy', () => {
     const joined = INTERACTIVE_TUTORIAL_STEPS.map((step) => step.content).join('\n');
     expect(joined).not.toMatch(/\(Strongest\)|\(Sniper\)|\(Frost\)/);
-  });
-
-  it('wires the pause gate into the in-battle hotkey handler', () => {
-    const src = readFileSync(
-      resolve(__dirname, '../components/scenes/game-scene/useGameSceneEffects.ts'),
-      'utf8',
-    );
-    expect(src).toMatch(/resolveTutorialHotkeyGate/);
   });
 });

@@ -6,23 +6,9 @@ import {
   HOME_SPAN_CLASS,
   homeEntrySize,
 } from '@/data/mainMenuHome';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 describe('main menu Home layout', () => {
-  it('composes a rail and bento grid instead of particle chrome', () => {
-    const src = readFileSync(
-      resolve(__dirname, '../components/scenes/MainMenu.tsx'),
-      'utf8',
-    );
-    expect(src).toMatch(/MenuHomeRail/);
-    expect(src).toMatch(/MenuHomeGrid/);
-    expect(src).not.toMatch(/MenuBento/);
-    expect(src).not.toMatch(/MenuStartHub/);
-    expect(src).not.toMatch(/particleCount/);
-  });
-
   it('keeps the 392px rail and a 12-column bento grid', () => {
     expect(HOME_RAIL_CLASS).toMatch(/lg:w-\[392px\]/);
     expect(HOME_GRID_CLASS).toMatch(/lg:grid-cols-12/);

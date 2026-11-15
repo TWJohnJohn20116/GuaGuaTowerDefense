@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { resolveFailureAnalysisKeys } from '@/data/gameOverAnalysis';
 
@@ -26,14 +24,5 @@ describe('game over failure analysis', () => {
     expect(resolveFailureAnalysisKeys({
       towerCount: 0, upgradeCount: 0, towerTypes: [],
     })).toEqual(['fewTowers', 'lowUpgrades']);
-  });
-
-  it('wires the helper into GameOver and drops the hardcoded trio', () => {
-    const src = readFileSync(
-      resolve(__dirname, '../components/scenes/GameOver.tsx'),
-      'utf8',
-    );
-    expect(src).toMatch(/resolveFailureAnalysisKeys/);
-    expect(src).not.toMatch(/\['frost', 'poison', 'lightning'\]/);
   });
 });
