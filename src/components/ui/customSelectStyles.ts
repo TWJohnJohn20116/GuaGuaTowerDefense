@@ -98,7 +98,8 @@ export interface AccentStyle {
 
 export const ACCENT: Record<AccentToken, AccentStyle> = {
   primary: {
-    text: 'text-nordic-primary',
+    // 用主題的「強調色文字」角色，而不是固定亮橘：亮橘在奶油底只有 2.67:1
+    text: 'text-[var(--cn-accent-text)]',
     ring: 'border-nordic-primary/60',
     badge: 'bg-nordic-primary',
     rowBg: 'rgba(96, 165, 250, 0.18)',
