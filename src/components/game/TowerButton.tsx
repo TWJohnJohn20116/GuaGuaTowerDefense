@@ -235,9 +235,8 @@ export const TowerButton = ({
         )}
 
         {isLocked && (
-          <span className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-[2px] bg-[color-mix(in_oklab,var(--bd-floor)_94%,transparent)]">
-            <LockIcon className="h-4 w-4 text-[var(--bd-ink-3)]" />
-            <span className={`${BD_LABEL} text-[var(--bd-ink-2)]`}>{t.game.towerTooltipLocked}</span>
+          <span className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-[var(--cn-r-md)] bg-[color-mix(in_oklab,var(--cn-paper)_74%,transparent)]">
+            <LockIcon className="h-4 w-4 text-[var(--cn-ink-4)]" />
           </span>
         )}
 

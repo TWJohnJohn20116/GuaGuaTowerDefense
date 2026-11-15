@@ -1,64 +1,49 @@
 import { useState } from 'react';
-import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { useTutorialStore } from '@/store/tutorialStore';
 import { useTranslation } from '@/i18n';
 import { SearchIcon, CrossIcon } from '@/components/ui/Icons';
-import { BD_CELL, BD_CHECKER, BD_LABEL, BD_NUM, BD_SHEET, BD_SUNKEN } from '../hudBoard';
+import { BD_LABEL, BD_NUM, BD_SHEET } from '../hudBoard';
 
 /**
- * 頂部狀態帶（棋盤語彙）
+ * 戰況簇（無卡片）
  *
- * 讀的是戰場格子的顏色：面板底＝空地格、格線＝道路接縫、強調＝路徑導引線。
- * 四格固定順序：生命 → 金錢 → 波次 → 分數；右端一顆放大鏡開詳細統計。
+ * 四個數值排成一簇直接壓在戰場左上：數值 22px 黑體等寬、標籤 9px 大寫，
+ * 一眼先讀數字、再看標籤。不用白卡、不用格線，只靠字階與間距分組。
+ * 右端一顆放大鏡開詳細統計（彈窗才有紙卡底）。
  */
 
 type Tone = 'ink' | 'signal' | 'alarm' | 'caution' | 'muted';
 
-/** 數值色階：深底上只有這五種語意，不要自己加色 */
 const TONE_CLASS: Record<Tone, string> = {
-  ink: 'text-[var(--bd-ink)]',
-  signal: 'text-[var(--bd-accent)]',
-  alarm: 'text-[var(--bd-alarm)]',
-  caution: 'text-[var(--bd-caution)]',
-  muted: 'text-[var(--bd-ink-2)]',
+  ink: 'text-[var(--cn-ink)]',
+  signal: 'text-[var(--cn-accent-text)]',
+  alarm: 'text-[var(--cn-alarm-text)]',
+  caution: 'text-[var(--cn-caution-text)]',
+  muted: 'text-[var(--cn-ink-2)]',
 };
 
-/** 狀態帶單格：標籤在上、數值在下，右側 1px 格線 */
-function BandCell({
+function Stat({
   label,
   value,
   tone = 'ink',
   hint,
   title,
-  wide = false,
-  className = '',
 }: {
   label: string;
-  value: ReactNode;
+  value: string | number;
   tone?: Tone;
   hint?: string;
   title?: string;
-  wide?: boolean;
-  /** 窄版用：例如 'hidden sm:flex' 讓次要格在手機上退場 */
-  className?: string;
 }) {
   return (
-    <div
-      className={[
-        'flex h-full flex-col justify-center gap-1 px-3',
-        BD_CELL,
-        wide ? 'min-w-[92px]' : 'min-w-[74px]',
-        className,
-      ].join(' ')}
-      title={title}
-    >
-      <span className={`${BD_LABEL} truncate`}>{label}</span>
-      <span className="flex items-baseline gap-1">
-        <span className={`${BD_NUM} text-[13px] ${TONE_CLASS[tone]}`}>{value}</span>
-        {hint && <span className="font-mono text-[9.5px] text-[var(--bd-ink-4)]">{hint}</span>}
+    <div className="flex flex-col gap-1" title={title}>
+      <span className={`${BD_LABEL} whitespace-nowrap`}>{label}</span>
+      <span className={`hud-ink flex items-baseline gap-0.5 font-mono text-[22px] font-black leading-none tabular-nums ${TONE_CLASS[tone]}`}>
+        {value}
+        {hint && <span className="text-[11px] font-bold text-[var(--cn-ink-3)]">{hint}</span>}
       </span>
     </div>
   );
@@ -86,31 +71,17 @@ export const TopStatsBar = () => {
 
   return (
     <>
-      <div
-        id="tutorial-target-top-stats"
-        className="flex h-full min-w-0 items-stretch overflow-hidden"
-      >
-        <BandCell label={t.game.health} value={health} tone={health <= 3 ? 'alarm' : 'ink'} title={t.game.health} />
-        <BandCell label={t.game.money} value={Math.floor(money)} tone="signal" hint="$" title={t.game.money} />
-        <BandCell label={t.game.wave} value={waveValue} tone={endlessMode ? 'caution' : 'ink'} title={t.game.wave} />
-        <BandCell
-          label={t.game.score}
-          value={score}
-          tone="muted"
-          title={t.game.score}
-          className="hidden min-w-[74px] sm:flex"
-        />
+      <div id="tutorial-target-top-stats" className="flex items-end gap-5">
+        <Stat label={t.game.health} value={health} tone={health <= 3 ? 'alarm' : 'ink'} title={t.game.health} />
+        <Stat label={t.game.money} value={Math.floor(money)} tone="signal" hint="$" title={t.game.money} />
+        <Stat label={t.game.wave} value={waveValue} tone={endlessMode ? 'caution' : 'ink'} title={t.game.wave} />
+        <Stat label={t.game.score} value={score} tone="muted" title={t.game.score} />
         <button
           type="button"
           aria-label={t.game.zoomDetailInfo}
-          className={[
-            'flex h-full w-9 shrink-0 items-center justify-center rounded-none transition-colors duration-100',
-            tutorialActive
-              ? 'cursor-not-allowed text-[var(--bd-ink-4)]'
-              : 'text-[var(--bd-ink-3)] hover:bg-[var(--bd-tile-2)] hover:text-[var(--bd-ink)]',
-          ].join(' ')}
           onClick={() => !tutorialActive && setShowStatsDialog(true)}
           disabled={tutorialActive}
+          className="mb-0.5 flex h-6 w-6 items-center justify-center rounded-full text-[var(--cn-ink-3)] transition-colors duration-100 hover:bg-[color-mix(in_oklab,var(--cn-line)_16%,transparent)] hover:text-[var(--cn-ink)] disabled:opacity-40"
         >
           <SearchIcon className="h-3.5 w-3.5" />
         </button>
@@ -118,7 +89,7 @@ export const TopStatsBar = () => {
 
       {showStatsDialog && createPortal(
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[rgba(8,6,15,0.86)] p-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[rgba(46,36,64,0.55)] p-4"
           onClick={() => setShowStatsDialog(false)}
         >
           <motion.div
@@ -129,10 +100,10 @@ export const TopStatsBar = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className={`${BD_SHEET} flex max-h-[86vh] flex-col overflow-hidden`}>
-              <header className={`flex items-start gap-3 border-b border-[var(--bd-line)] px-4 py-3 ${BD_CHECKER}`}>
+              <header className="flex items-start gap-3 border-b-[3px] border-[var(--cn-line-soft)] px-4 py-3">
                 <div className="min-w-0 flex-1">
                   <div className={BD_LABEL}>theater / stats</div>
-                  <h2 className="mt-1 text-[17px] font-semibold leading-tight text-[var(--bd-ink)]">
+                  <h2 className="mt-1 text-[17px] font-extrabold leading-tight text-[var(--cn-ink)]">
                     {t.game.statsOverview}
                   </h2>
                 </div>
@@ -147,23 +118,23 @@ export const TopStatsBar = () => {
               </header>
 
               <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
-                <dl className="grid grid-cols-2 gap-px bg-[var(--bd-line)]">
+                <dl className="grid grid-cols-2 gap-2">
                   {[
                     { label: t.game.money, value: `$${Math.floor(money)}`, tone: 'signal' as Tone },
                     { label: t.game.health, value: String(health), tone: (health <= 3 ? 'alarm' : 'ink') as Tone },
                     { label: endlessMode ? t.pathSelection.endlessMode : t.game.wave, value: String(waveValue), tone: 'ink' as Tone },
                     { label: t.game.score, value: String(score), tone: 'ink' as Tone },
                   ].map((cell) => (
-                    <div key={cell.label} className="bg-[var(--bd-tile)] px-3 py-2.5">
+                    <div key={cell.label} className="rounded-[var(--cn-r-sm)] bg-[var(--cn-card-2)] px-3 py-2.5">
                       <dt className={BD_LABEL}>{cell.label}</dt>
-                      <dd className={`mt-1.5 ${BD_NUM} text-[16px] ${TONE_CLASS[cell.tone]}`}>{cell.value}</dd>
+                      <dd className={`mt-1.5 font-mono text-[16px] font-black tabular-nums ${TONE_CLASS[cell.tone]}`}>{cell.value}</dd>
                     </div>
                   ))}
                 </dl>
 
                 <div className="mt-4">
                   <div className={BD_LABEL}>{t.game.detailedStats}</div>
-                  <div className={`mt-2 ${BD_SUNKEN} px-3 py-1.5`}>
+                  <div className="mt-2">
                     {[
                       { k: t.game.towersPlacedLabel, v: `${placementStats.totalPlaced} ${t.game.unitTower}` },
                       { k: t.game.towersSoldLabel, v: `${placementStats.totalSold} ${t.game.unitTower}` },
@@ -176,7 +147,7 @@ export const TopStatsBar = () => {
                     ].map((row) => (
                       <div
                         key={row.k}
-                        className="flex items-baseline justify-between gap-4 border-b border-[var(--bd-line)] py-1.5 last:border-b-0"
+                        className="flex items-baseline justify-between gap-4 border-b border-[var(--cn-line-soft)] py-1.5 last:border-b-0"
                       >
                         <span className={BD_LABEL}>{row.k}</span>
                         <span className={`${BD_NUM} text-[12px]`}>{row.v}</span>
@@ -188,7 +159,7 @@ export const TopStatsBar = () => {
                 {autoBattleEnabled && (
                   <div className="mt-4">
                     <div className={BD_LABEL}>{t.game.aiStatsTitle}</div>
-                    <div className={`mt-2 ${BD_SUNKEN} px-3 py-1.5`}>
+                    <div className="mt-2">
                       {[
                         { k: t.game.aiPlacedLabel, v: `${autoBattleStats.towersPlaced} ${t.game.unitTower}` },
                         { k: t.game.aiSpentLabel, v: `$${autoBattleStats.moneySpent}` },
@@ -206,7 +177,7 @@ export const TopStatsBar = () => {
                       ].map((row) => (
                         <div
                           key={row.k}
-                          className="flex items-baseline justify-between gap-4 border-b border-[var(--bd-line)] py-1.5 last:border-b-0"
+                          className="flex items-baseline justify-between gap-4 border-b border-[var(--cn-line-soft)] py-1.5 last:border-b-0"
                         >
                           <span className={BD_LABEL}>{row.k}</span>
                           <span className={`${BD_NUM} text-[12px]`}>{row.v}</span>
@@ -217,7 +188,7 @@ export const TopStatsBar = () => {
                 )}
               </div>
 
-              <footer className="border-t border-[var(--bd-line)] p-3">
+              <footer className="border-t-[3px] border-[var(--cn-line-soft)] p-3">
                 <button
                   type="button"
                   className="w-full rounded-[var(--cn-r-sm)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-cta)] px-3 py-2 font-mono text-[11px] font-extrabold uppercase tracking-[0.08em] text-[var(--cn-on-cta)] shadow-[0_4px_0_var(--cn-line)] transition-[transform,box-shadow] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"

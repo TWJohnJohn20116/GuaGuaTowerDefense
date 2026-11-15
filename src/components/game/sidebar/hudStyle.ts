@@ -48,9 +48,3 @@ export function getHudStyleClasses(_layout: HudLayoutState, shape: HudShape): Hu
     combined: `${blur} ${border}`.trim(),
   };
 }
-/** 對局速度鈕：所有寬度都顯示，不能用 hidden sm:flex 藏掉。 */
-export const GAME_SPEED_BAR_CLASS =
-  'flex items-stretch gap-0 border-l border-[var(--bd-line)] bg-[var(--bd-floor)]';
-
-/** 儀表帶單格高度（上下兩條 HUD 帶共用） */
-export const HUD_BAND_HEIGHT = 44;

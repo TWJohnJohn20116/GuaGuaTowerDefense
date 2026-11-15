@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
-import { useSettingsStore } from '@/store/settingsStore';
 import { useTutorialStore, INTERACTIVE_TUTORIAL_STEPS } from '@/store/tutorialStore';
 import { useTranslation } from '@/i18n';
 import {
@@ -9,15 +8,19 @@ import {
   DoorExitIcon,
 } from '@/components/ui/Icons';
 import { NextWavePreview } from '@/components/game/NextWavePreview';
-import { PlayerSkillBar } from '@/components/game/PlayerSkillBar';
-import { GAME_SPEED_BAR_CLASS } from './hudStyle';
 import { GAME_SPEED_PRESETS } from '@/data/gameSpeedPresets';
 import { canSkipWave, skipWaveTitleKey } from '@/data/skipWaveHud';
 import { resolveLeaveMatchFromHud } from '@/data/leaveMatch';
 
-/** 指揮帶上的動作格：棋盤格、1px 線、等寬 */
-const CELL =
-  'flex h-full items-center justify-center gap-1.5 border-r border-[var(--bd-line)] px-3 font-mono text-[11px] transition-colors duration-100';
+/**
+ * 底部指揮膠囊
+ *
+ * 只有一顆主鍵（開始波次，橘色實心、帶貼紙投影），其餘都是同樣高度的圓形小鍵：
+ * 跳波、速度分段、暫停、離開。整個膠囊居中，不再橫貫全寬。
+ */
+
+const PILL =
+  'flex h-10 w-10 items-center justify-center rounded-full border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] text-[var(--cn-ink-2)] shadow-[0_4px_0_var(--cn-line)] transition-[transform,box-shadow,background-color] duration-75 hover:-translate-y-0.5 hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-40';
 
 export const BottomControls = () => {
   const { t } = useTranslation();
@@ -39,7 +42,6 @@ export const BottomControls = () => {
   const tutorialActive = useTutorialStore((s) => s.isActive);
   const tutorialStep = useTutorialStore((s) => INTERACTIVE_TUTORIAL_STEPS[s.currentStepIndex]);
   const pendingProtocol = useGameStore((s) => s.pendingProtocolChoices);
-  const showSkillBar = useSettingsStore((s) => s.hudLayout.showTowerSkillBar);
   const [showNextWavePreview, setShowNextWavePreview] = useState(false);
 
   const canStartWave = !waveActive && !pendingProtocol && (endlessMode || maxWaves === 0 || currentWave < maxWaves) && !(tutorialActive && tutorialStep?.action !== 'start_wave');
@@ -62,19 +64,11 @@ export const BottomControls = () => {
     (!endlessMode && maxWaves > 0 && currentWave >= maxWaves) ||
     (tutorialActive && tutorialStep?.action !== 'start_wave');
 
-  const startTone = waveActive
-    ? 'text-[var(--bd-ink-4)]'
-    : pendingProtocol
-      ? 'text-[var(--bd-caution)]'
-      : !endlessMode && maxWaves > 0 && currentWave >= maxWaves
-        ? 'text-[var(--bd-vital)]'
-        : 'text-[var(--cn-on-cta)]';
-
   return (
-    <div className="flex h-full min-w-0 items-stretch">
-      {/* 開始下一波：本帶唯一實心訊號格 */}
+    <div className="flex items-center gap-2">
+      {/* 開始波次：整條膠囊唯一的主鍵 */}
       <div
-        className="relative flex h-full items-stretch border-r border-[var(--bd-line)]"
+        className="relative flex items-center"
         onMouseEnter={() => setShowNextWavePreview(true)}
         onMouseLeave={() => setShowNextWavePreview(false)}
       >
@@ -83,13 +77,10 @@ export const BottomControls = () => {
           id="tutorial-target-start-wave"
           type="button"
           className={[
-            'flex h-full items-center justify-center gap-2 px-4 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] transition-[filter,background-color] duration-100',
-            waveActive || pendingProtocol || (!endlessMode && maxWaves > 0 && currentWave >= maxWaves) || tutorialActive
-              ? `cursor-not-allowed bg-transparent ${startTone}`
-              : 'bg-[var(--cn-cta)] text-[var(--cn-on-cta)] hover:brightness-110',
-            !waveActive && !pendingProtocol && tutorialActive && tutorialStep?.action !== 'start_wave'
-              ? 'opacity-40'
-              : '',
+            'flex h-11 items-center justify-center gap-2 rounded-full border-[3px] border-[var(--cn-line)] px-5 font-mono text-[12px] font-extrabold uppercase tracking-[0.06em] shadow-[0_5px_0_var(--cn-line)] transition-[transform,box-shadow,filter] duration-75',
+            canStartWave
+              ? 'bg-[var(--cn-cta)] text-[var(--cn-on-cta)] hover:-translate-y-0.5 hover:brightness-110 active:translate-y-1 active:shadow-none'
+              : 'cursor-not-allowed bg-[var(--cn-card)] text-[var(--cn-ink-3)] shadow-none',
           ].join(' ')}
           onClick={() => {
             if (!tutorialActive || tutorialStep?.action === 'start_wave') {
@@ -101,22 +92,22 @@ export const BottomControls = () => {
         >
           {waveActive ? (
             <>
-              <HourglassIcon className="h-3.5 w-3.5 animate-pulse" />
+              <HourglassIcon className="h-4 w-4 animate-pulse" />
               <span>{t.game.waveInProgress.replace('{count}', String(enemyCount))}</span>
             </>
           ) : pendingProtocol ? (
             <>
-              <StarIcon className="h-3.5 w-3.5" />
+              <StarIcon className="h-4 w-4" />
               <span>{t.game.tacticalProtocol.title}</span>
             </>
           ) : !endlessMode && maxWaves > 0 && currentWave >= maxWaves ? (
             <>
-              <StarIcon className="h-3.5 w-3.5" />
+              <StarIcon className="h-4 w-4" />
               <span>{t.game.completed}</span>
             </>
           ) : (
             <>
-              {endlessMode ? <InfinityIcon className="h-3.5 w-3.5" /> : <WaveIcon className="h-3.5 w-3.5" />}
+              {endlessMode ? <InfinityIcon className="h-4 w-4" /> : <WaveIcon className="h-4 w-4" />}
               <span>
                 {t.game.startWave} {currentWave + 1}
                 {maxWaves > 0 && !endlessMode ? `/${maxWaves}` : ''}
@@ -129,11 +120,7 @@ export const BottomControls = () => {
       {/* 跳波 */}
       <button
         type="button"
-        className={`${CELL} ${
-          skipAllowed
-            ? 'text-[var(--bd-caution)] hover:bg-[var(--bd-tile-2)]'
-            : 'cursor-not-allowed text-[var(--bd-ink-4)]'
-        }`}
+        className={`${PILL} ${skipAllowed ? 'text-[var(--cn-caution-text)]' : ''}`}
         onClick={skipWave}
         disabled={!skipAllowed}
         title={t.game[skipWaveTitleKey(skipHud)]}
@@ -141,18 +128,23 @@ export const BottomControls = () => {
         <SkipForwardIcon className="h-4 w-4" />
       </button>
 
-      {/* 速度：分段格 */}
-      <div id="tutorial-target-game-speed" className={GAME_SPEED_BAR_CLASS}>
+      {/* 速度：分段膠囊 */}
+      <div
+        id="tutorial-target-game-speed"
+        className="flex items-center gap-0.5 rounded-full border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] p-0.5 shadow-[0_4px_0_var(--cn-line)]"
+      >
         {GAME_SPEED_PRESETS.map((speed) => (
           <button
             key={speed}
             type="button"
-            className={`h-full min-w-9 px-2 font-mono text-[11px] tabular-nums transition-colors duration-[110ms] ${
+            className={`h-8 min-w-8 rounded-full px-1 font-mono text-[11px] tabular-nums transition-colors duration-75 ${
+              speed === 0.5 || speed === 5 ? 'hidden sm:block' : ''
+            } ${
               gameSpeed === speed
-                ? 'border-l border-[var(--bd-accent)] bg-[color-mix(in_oklab,var(--bd-accent)_18%,var(--bd-tile))] font-semibold text-[var(--bd-ink)] first:border-l-0'
+                ? 'bg-[var(--cn-sun-soft)] font-extrabold text-[var(--cn-ink)]'
                 : speedTutorialLocked
-                  ? 'cursor-not-allowed text-[var(--bd-ink-4)] opacity-40'
-                  : 'text-[var(--bd-ink-3)] hover:bg-[var(--bd-tile-2)] hover:text-[var(--bd-ink)]'
+                  ? 'cursor-not-allowed text-[var(--cn-ink-4)] opacity-40'
+                  : 'text-[var(--cn-ink-3)] hover:bg-[var(--cn-card-2)] hover:text-[var(--cn-ink)]'
             }`}
             disabled={speedTutorialLocked}
             onClick={() => {
@@ -167,24 +159,11 @@ export const BottomControls = () => {
         ))}
       </div>
 
-      {/* 技能：集中在指揮帶，顯示與否沿用 hudLayout.showTowerSkillBar */}
-      {showSkillBar && (
-        <div className="flex items-center px-2">
-          <PlayerSkillBar />
-        </div>
-      )}
-
       {/* 暫停 */}
       <button
         id="tutorial-target-pause"
         type="button"
-        className={`${CELL} ${
-          pauseTutorialLocked
-            ? 'cursor-not-allowed text-[var(--bd-ink-4)] opacity-40'
-            : isPaused
-              ? 'bg-[color-mix(in_oklab,var(--bd-accent)_18%,var(--bd-tile))] text-[var(--bd-ink)]'
-              : 'text-[var(--bd-ink-2)] hover:bg-[var(--bd-tile-2)] hover:text-[var(--bd-ink)]'
-        }`}
+        className={`${PILL} ${isPaused ? 'bg-[var(--cn-sun-soft)] text-[var(--cn-ink)]' : ''}`}
         onClick={() => {
           if (!tutorialActive || tutorialStep?.action === 'pause_game') {
             isPaused ? resumeGame() : pauseGame();
@@ -200,11 +179,7 @@ export const BottomControls = () => {
       {/* 離開對局 */}
       <button
         type="button"
-        className={`${CELL} ${
-          tutorialActive
-            ? 'cursor-not-allowed text-[var(--bd-ink-4)] opacity-40'
-            : 'text-[var(--bd-alarm)] hover:bg-[rgba(255,143,163,0.14)] hover:brightness-110'
-        }`}
+        className={`${PILL} ${tutorialActive ? '' : 'text-[var(--cn-alarm-text)]'}`}
         onClick={() => {
           if (resolveLeaveMatchFromHud({ tutorialActive }) !== 'reset_match') return;
           resetGame();
