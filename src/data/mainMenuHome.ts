@@ -35,7 +35,7 @@ export const HOME_QUICK_RIGHT_CLASS =
   QUICK_COL_BASE + ' order-4 lg:order-none lg:col-start-10 lg:col-end-13 lg:row-start-2 lg:row-end-4';
 
 /** 三群入口帶：橫貫 12 欄 */
-export const HOME_GROUPS_CLASS = 'order-5 lg:order-none lg:col-span-12';
+export const HOME_GROUPS_CLASS = 'order-5 lg:mb-3 lg:h-[164px] lg:order-none lg:col-span-12';
 
 /**
  * 三群：11 個入口全留，但高頻的 4 個（商店／天賦／成就／統計）升格成 Hero 環繞的快捷磚，

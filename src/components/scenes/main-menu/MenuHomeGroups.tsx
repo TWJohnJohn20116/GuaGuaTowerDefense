@@ -119,7 +119,7 @@ export function MenuHomeGroups({
                 {group.scenes.length}
               </span>
             </header>
-            <div className={['grid gap-2', HOME_GROUP_COLS_CLASS[group.span]].join(' ')}>
+            <div className={['grid min-h-0 flex-1 gap-2', HOME_GROUP_COLS_CLASS[group.span]].join(' ')}>
               {group.scenes.map((scene, i) => (
                 <MenuHomeCard
                   key={scene}

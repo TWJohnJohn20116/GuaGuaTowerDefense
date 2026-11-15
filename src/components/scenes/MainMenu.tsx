@@ -10,7 +10,6 @@ import { version as APP_VERSION } from '../../../package.json';
 import { MenuHomeHero } from '@/components/scenes/main-menu/MenuHomeHero';
 import { MenuHomeQuickLeft, MenuHomeQuickRight } from '@/components/scenes/main-menu/MenuHomeQuick';
 import { MenuHomeGroups } from '@/components/scenes/main-menu/MenuHomeGroups';
-import { HomeTelemetry } from '@/components/scenes/main-menu/HomeTelemetry';
 import { HOME_BRAND_CLASS, HOME_FOCUS_ORDER, HOME_SHELL_CLASS } from '@/data/mainMenuHome';
 import type { HomeFocusTarget } from '@/data/mainMenuHome';
 
@@ -74,7 +73,6 @@ export default function MainMenu() {
           <MenuHomeQuickRight focused={focus} onFocus={setFocus} />
           <MenuHomeGroups focused={focus} onFocus={setFocus} />
         </div>
-        <HomeTelemetry />
       </div>
     </SceneShell>
   );
