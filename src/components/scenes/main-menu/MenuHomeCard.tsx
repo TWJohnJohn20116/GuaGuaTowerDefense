@@ -112,7 +112,7 @@ export function MenuHomeCard({
         <span className="flex items-start justify-between gap-2">
           <span
             className={[
-              'flex shrink-0 items-center justify-center border-[3px] border-[var(--cn-line)] transition-transform duration-200 group-hover:-rotate-6',
+              'flex shrink-0 items-center justify-center border-[3px] border-[var(--cn-line)] transition-transform duration-200 group-hover:-rotate-6 group-hover:scale-110',
               t.tile,
               // 窄螢幕統一用緊湊尺寸，避免 132px 行高被大圖示撐破
               isTile

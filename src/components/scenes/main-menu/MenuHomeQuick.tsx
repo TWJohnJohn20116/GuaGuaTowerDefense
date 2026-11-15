@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { EASE_OUT, SPRING_SOFT } from '@/utils/motionTokens';
 import { useGameStore } from '@/store/gameStore';
 import { useShopStore } from '@/store/shopStore';
 import { useTalentStore } from '@/store/talentStore';
@@ -23,6 +25,9 @@ import { ShopIcon, TreeIcon, TrophyIcon, WrenchIcon } from '@/components/ui/Icon
  *   工坊  薄荷綠底（第三個色階）+ 斜格底 + 大圖示（224）
  * 高度也不等（flex-[1.25] / flex-[1]），左右不對稱。
  */
+
+/** 磚進場：淡入上移（常數化，避免 render 時重建物件） */
+const TILE_IN = { initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 } };
 
 type QuickTone = 'sun' | 'coral' | 'mint' | 'plain';
 
@@ -74,6 +79,7 @@ export function MenuHomeQuickLeft({ focused, onFocus }: QuickProps) {
         icon={<ShopIcon className="h-60 w-60" />}
         tone="sun"
         flex="lg:flex-[1.25]"
+        order={0}
         valueClass="lg:text-[64px]"
         focused={focused === 'shop'}
         onFocus={() => onFocus('shop')}
@@ -89,6 +95,7 @@ export function MenuHomeQuickLeft({ focused, onFocus }: QuickProps) {
         progress={catalog.length > 0 ? unlocked / catalog.length : 0}
         tone="plain"
         flex="lg:flex-[1]"
+        order={1}
         focused={focused === 'achievements'}
         onFocus={() => onFocus('achievements')}
         onSelect={() => setScene('achievements')}
@@ -115,6 +122,7 @@ export function MenuHomeQuickRight({ focused, onFocus }: QuickProps) {
         icon={<TreeIcon className="h-52 w-52" />}
         tone="coral"
         flex="lg:flex-[1.25]"
+        order={2}
         focused={focused === 'talentTree'}
         onFocus={() => onFocus('talentTree')}
         onSelect={() => setScene('talentTree')}
@@ -128,6 +136,7 @@ export function MenuHomeQuickRight({ focused, onFocus }: QuickProps) {
         icon={<WrenchIcon className="h-56 w-56" />}
         tone="mint"
         flex="lg:flex-[1]"
+        order={3}
         focused={focused === 'workshop'}
         onFocus={() => onFocus('workshop')}
         onSelect={() => setScene('workshop')}
@@ -147,6 +156,7 @@ function QuickTile({
   progress,
   tone,
   flex,
+  order = 0,
   valueClass = '',
   focused,
   onFocus,
@@ -162,6 +172,8 @@ function QuickTile({
   progress?: number;
   tone: QuickTone;
   flex: string;
+  /** 進場延遲序號（左欄 0/1、右欄 2/3） */
+  order?: number;
   valueClass?: string;
   focused: boolean;
   onFocus: () => void;
@@ -170,7 +182,9 @@ function QuickTile({
   const pattern = PATTERN[tone];
 
   return (
-    <button
+    <motion.button
+      {...TILE_IN}
+      transition={{ ...SPRING_SOFT, delay: 0.08 + order * 0.05 }}
       type="button"
       data-focus-id={id}
       onClick={onSelect}
@@ -190,7 +204,9 @@ function QuickTile({
           className="absolute inset-0"
           style={{ backgroundImage: pattern.image, backgroundSize: pattern.size }}
         />
-        <span className="absolute inset-0 flex items-center justify-center opacity-[0.11]">{icon}</span>
+        <span className="absolute inset-0 flex items-center justify-center opacity-[0.11] transition-transform duration-500 group-hover:scale-105">
+          {icon}
+        </span>
       </span>
 
       <span className="relative flex items-center gap-2">
@@ -219,9 +235,15 @@ function QuickTile({
         {progress !== undefined && (
           <span className="flex items-center gap-2">
             <span className="block h-2 flex-1 overflow-hidden rounded-full bg-[var(--cn-ink)]/10">
-              <span
+              <motion.span
                 className="block h-full rounded-full bg-[var(--cn-ink)]/45"
-                style={{ width: Math.round(Math.min(1, Math.max(0, progress)) * 100) + '%' }}
+                style={{
+                  width: Math.round(Math.min(1, Math.max(0, progress)) * 100) + '%',
+                  transformOrigin: 'left',
+                }}
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.6, delay: 0.45, ease: EASE_OUT }}
               />
             </span>
             <span className="shrink-0 font-mono text-[10px] font-extrabold opacity-65">
@@ -232,6 +254,6 @@ function QuickTile({
 
         <span className="font-mono text-[10px] uppercase tracking-[0.1em] opacity-60">{hint}</span>
       </span>
-    </button>
+    </motion.button>
   );
 }

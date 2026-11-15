@@ -1,4 +1,6 @@
 import type React from 'react';
+import { motion } from 'framer-motion';
+import { EASE_OUT } from '@/utils/motionTokens';
 import { useGameStore } from '@/store/gameStore';
 import { useStatsStore } from '@/store/statsStore';
 import { useTranslation } from '@/i18n';
@@ -106,9 +108,12 @@ export function MenuHomeGroups({
   return (
     <section className={HOME_GROUPS_CLASS}>
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-12">
-        {HOME_ENTRY_GROUPS.map((group) => (
-          <div
+        {HOME_ENTRY_GROUPS.map((group, gi) => (
+          <motion.div
             key={group.id}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.28 + gi * 0.06, ease: EASE_OUT }}
             className={['flex flex-col gap-1.5', HOME_GROUP_SPAN_CLASS[group.span]].join(' ')}
           >
             <header className="flex items-center gap-2">
@@ -136,7 +141,7 @@ export function MenuHomeGroups({
                 />
               ))}
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </section>

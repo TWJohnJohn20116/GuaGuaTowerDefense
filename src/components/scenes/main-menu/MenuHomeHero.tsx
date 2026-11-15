@@ -1,7 +1,16 @@
+import { motion } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { useTranslation } from '@/i18n';
 import { Btn, Dot } from '@/components/hl';
 import { HOME_HERO_CLASS } from '@/data/mainMenuHome';
+import { EASE_OUT } from '@/utils/motionTokens';
+
+/** 進場：淡入上移。常數放模組層，避免每次 render 建新物件讓動畫重播 */
+const FADE_UP = { initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 } };
+
+/** 裝飾圓慢速旋轉：90 秒一圈，幾乎察覺不到，但畫面不是死的 */
+const SPIN = { rotate: 360 };
+const SPIN_SLOW = { duration: 90, repeat: Infinity, ease: 'linear' as const };
 
 /**
  * 主選單 · Hero 舞台
@@ -10,8 +19,8 @@ import { HOME_HERO_CLASS } from '@/data/mainMenuHome';
  * 不再像舊版把品牌塞進左欄、主行動壓在欄底。
  * 全畫面只准許一處大面積訊號色 —— 就是這顆開始遊戲。
  *
- * 主行動只留一個入口：舊版還有第二顆「選擇地圖」，兩顆都只做 setScene('pathSelection')，
- * 同一個目的地放兩顆按鈕等於叫玩家猜差別在哪。
+ * 動效節奏吃 motionTokens：標籤 300ms、品牌 400ms、按鈕 400ms（延遲 220ms），
+ * 全部只動 transform 與 opacity。裝飾圓用虛線邊框，旋轉才看得出來。
  */
 export function MenuHomeHero({ focused, onFocus }: { focused: boolean; onFocus: () => void }) {
   const { t } = useTranslation();
@@ -20,33 +29,49 @@ export function MenuHomeHero({ focused, onFocus }: { focused: boolean; onFocus: 
   return (
     <section className={HOME_HERO_CLASS}>
       <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[22px] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] shadow-[0_6px_0_-1px_rgba(46,36,64,0.18)]">
-        {/* 同心圓裝飾：Hero 的舞台地板。包一層 overflow-hidden，避免絕對定位溢出被算進 scroll 區（會誤報 truncated） */}
+        {/* 同心圓裝飾：包一層 overflow-hidden，避免絕對定位溢出被算進 scroll 區 */}
         <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-          <span className="absolute -right-16 -top-16 h-56 w-56 rounded-full border-[10px] border-[var(--cn-ink)]/[0.06]" />
+          <motion.span
+            className="absolute -right-16 -top-16 h-56 w-56 rounded-full border-[10px] border-dashed border-[var(--cn-ink)]/[0.07]"
+            animate={SPIN}
+            transition={SPIN_SLOW}
+          />
           <span className="absolute -bottom-20 -left-12 h-64 w-64 rounded-full border-[10px] border-[var(--cn-ink)]/[0.05]" />
         </span>
 
         <div className="relative flex min-h-0 flex-1 flex-col justify-between gap-4 p-5 lg:p-7">
           {/* 頂：營運標籤 */}
-          <div className="flex items-center gap-2">
+          <motion.div
+            {...FADE_UP}
+            transition={{ duration: 0.3, ease: EASE_OUT }}
+            className="flex items-center gap-2"
+          >
             <Dot tone="signal" pulse />
             <span className="arc-label">{t.mainMenu.hero.kicker}</span>
             <span className="h-px flex-1 bg-[var(--cn-line-soft)]" />
-          </div>
+          </motion.div>
 
-          {/* 中：品牌（flex-1 置中，讓品牌落在舞台中央而不是貼著頂端） */}
+          {/* 中：品牌 */}
           <div className="flex flex-1 flex-col justify-center gap-3">
-            <div className="flex flex-col gap-1.5">
+            <motion.div
+              {...FADE_UP}
+              transition={{ duration: 0.4, delay: 0.06, ease: EASE_OUT }}
+              className="flex flex-col gap-1.5"
+            >
               <h1 className="text-[44px] font-black leading-[0.88] tracking-[-0.05em] text-[var(--cn-ink)] lg:text-[92px]">
                 {t.mainMenu.title}
               </h1>
               <p className="max-w-[34ch] text-[11.5px] leading-relaxed text-[var(--cn-ink-3)]">
                 {t.mainMenu.subtitle}
               </p>
-            </div>
+            </motion.div>
 
             {/* 三枚特色標籤：撐住品牌與按鈕之間那段空白 */}
-            <div className="flex flex-wrap gap-1.5">
+            <motion.div
+              {...FADE_UP}
+              transition={{ duration: 0.35, delay: 0.16, ease: EASE_OUT }}
+              className="flex flex-wrap gap-1.5"
+            >
               {[t.mainMenu.hero.tagOffline, t.mainMenu.hero.tagLocalSave, t.mainMenu.hero.tagRender].map((tag) => (
                 <span
                   key={tag}
@@ -55,11 +80,15 @@ export function MenuHomeHero({ focused, onFocus }: { focused: boolean; onFocus: 
                   {tag}
                 </span>
               ))}
-            </div>
+            </motion.div>
           </div>
 
           {/* 底：主行動 */}
-          <div className="flex flex-col gap-2">
+          <motion.div
+            {...FADE_UP}
+            transition={{ duration: 0.4, delay: 0.22, ease: EASE_OUT }}
+            className="flex flex-col gap-2"
+          >
             <Btn
               variant="signal"
               size="lg"
@@ -83,7 +112,7 @@ export function MenuHomeHero({ focused, onFocus }: { focused: boolean; onFocus: 
               <span>{t.mainMenu.hero.hintSave}</span>
               <span>{t.mainMenu.hero.hintRender}</span>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
