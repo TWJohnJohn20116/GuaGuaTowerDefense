@@ -240,7 +240,7 @@ const ACTION_SPECS: readonly GraphNodeSpec[] = [
     labelKey: 'studio.graph.node.log',
     descriptionKey: 'studio.graph.node.log.desc',
     glyph: 'LG',
-    inputs: [FLOW_IN],
+    inputs: [FLOW_IN, port('message', 'string', 'studio.graph.param.message')],
     outputs: [FLOW_OUT],
     params: [textParam('message', 'studio.graph.param.message', '', 'studio.graph.param.message.hint')],
     permissions: ['log'],
@@ -419,6 +419,10 @@ const VALUE_SPECS: readonly GraphNodeSpec[] = [
  * 這一整批都是「純 UI／編譯」：只讀 ModScriptStateSnapshot、只用既有 7 種指令，
  * 不需要動執行期、不需要新權限（除了變數讀寫沿用 storage）。
  */
+
+const TEXT_VALUE: GraphPort = { id: 'value', kind: 'string', labelKey: 'studio.graph.port.value' };
+const TEXT_A = port('a', 'string', 'studio.graph.port.a');
+const TEXT_B = port('b', 'string', 'studio.graph.port.b');
 
 const BOOL_A = port('a', 'boolean', 'studio.graph.port.a');
 const BOOL_B = port('b', 'boolean', 'studio.graph.port.b');
@@ -643,6 +647,73 @@ const TOWER_ACTION_SPECS: readonly GraphNodeSpec[] = [
   },
 ];
 
+/** 字串節點：讓 log／變數／狀態機能寫出可讀內容（埠種類早就有 string，只是沒有節點） */
+const TEXT_SPECS: readonly GraphNodeSpec[] = [
+  {
+    type: 'text.literal',
+    category: 'value',
+    labelKey: 'studio.graph.node.textLiteral',
+    descriptionKey: 'studio.graph.node.textLiteral.desc',
+    glyph: 'TX',
+    inputs: [],
+    outputs: [TEXT_VALUE],
+    params: [textParam('text', 'studio.graph.param.text', '')],
+  },
+  {
+    type: 'text.concat',
+    category: 'value',
+    labelKey: 'studio.graph.node.textConcat',
+    descriptionKey: 'studio.graph.node.textConcat.desc',
+    glyph: '++',
+    inputs: [TEXT_A, TEXT_B],
+    outputs: [TEXT_VALUE],
+    params: [],
+  },
+  {
+    type: 'text.number',
+    category: 'value',
+    labelKey: 'studio.graph.node.textNumber',
+    descriptionKey: 'studio.graph.node.textNumber.desc',
+    glyph: 'N2',
+    inputs: [NUM_VALUE],
+    outputs: [TEXT_VALUE],
+    params: [],
+  },
+  {
+    type: 'text.template',
+    category: 'value',
+    labelKey: 'studio.graph.node.textTemplate',
+    descriptionKey: 'studio.graph.node.textTemplate.desc',
+    glyph: 'TPL',
+    inputs: [NUM_VALUE],
+    outputs: [TEXT_VALUE],
+    params: [textParam('template', 'studio.graph.param.template', '漏了 {n} 隻')],
+  },
+  {
+    type: 'text.upper',
+    category: 'value',
+    labelKey: 'studio.graph.node.textUpper',
+    descriptionKey: 'studio.graph.node.textUpper.desc',
+    glyph: 'UP',
+    inputs: [TEXT_A],
+    outputs: [TEXT_VALUE],
+    params: [],
+  },
+  {
+    type: 'text.slice',
+    category: 'value',
+    labelKey: 'studio.graph.node.textSlice',
+    descriptionKey: 'studio.graph.node.textSlice.desc',
+    glyph: 'SL',
+    inputs: [TEXT_A],
+    outputs: [TEXT_VALUE],
+    params: [
+      numberParam('start', 'studio.graph.param.start', 0, 0, 200),
+      numberParam('length', 'studio.graph.param.length', 8, 1, 200),
+    ],
+  },
+];
+
 const CLEAR_VAR_SPEC: GraphNodeSpec = {
   type: 'action.clearVar',
   category: 'action',
@@ -734,6 +805,7 @@ const NODE_LIBRARY: readonly GraphNodeSpec[] = [
   ONCE_SPEC,
   ...VALUE_SPECS,
   ...STATE_VALUE_SPECS,
+  ...TEXT_SPECS,
   JS_SPEC,
 ];
 

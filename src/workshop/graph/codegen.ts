@@ -160,6 +160,34 @@ function valueExpression(ctx: EmitContext, node: GraphNode, stack: readonly stri
       return '(api.state.endless === ' + (str(node.params.value, 'true') === 'true' ? 'true' : 'false') + ')';
     case 'cond.varCompare':
       return '(Number(api.store.get(' + jsString(storeKey(node)) + ') ?? 0) ' + compareOp(node.params.op) + ' ' + num(node.params.value, 0) + ')';
+    case 'text.literal':
+      return jsString(str(node.params.text, ''));
+    case 'text.concat': {
+      const a = operandText(ctx, node.id, 'a', '', nextStack);
+      const b = operandText(ctx, node.id, 'b', '', nextStack);
+      return '(' + a + ' + ' + b + ')';
+    }
+    case 'text.number': {
+      const [value] = operands(['value'], [0]);
+      return 'String(' + value + ')';
+    }
+    case 'text.template': {
+      const [value] = operands(['value'], [0]);
+      const template = str(node.params.template, '{n}');
+      const parts = template.split('{n}');
+      if (parts.length === 1) return jsString(template);
+      return '(' + parts.map((part) => jsString(part)).join(' + String(' + value + ') + ') + ')';
+    }
+    case 'text.upper': {
+      const a = operandText(ctx, node.id, 'a', '', nextStack);
+      return '(' + a + ').toUpperCase()';
+    }
+    case 'text.slice': {
+      const a = operandText(ctx, node.id, 'a', '', nextStack);
+      const start = Math.max(0, Math.round(num(node.params.start, 0)));
+      const length = Math.max(1, Math.round(num(node.params.length, 8)));
+      return '(' + a + ').slice(' + start + ', ' + (start + length) + ')';
+    }
     case 'num.wave':
       return 'api.state.wave';
     case 'num.health':
@@ -204,6 +232,21 @@ function operandExpression(
   if (!edge) return String(fallback);
   const source = ctx.nodes.get(edge.from);
   if (!source) return String(fallback);
+  return valueExpression(ctx, source, stack);
+}
+
+/** 字串埠的運算式：沒接線時退回字面量，而不是數字 0 */
+function operandText(
+  ctx: EmitContext,
+  ownerId: string,
+  portId: string,
+  fallback: string,
+  stack: readonly string[],
+): string {
+  const edge = dataEdge(ctx.graph, ownerId, portId);
+  if (!edge) return jsString(fallback);
+  const source = ctx.nodes.get(edge.from);
+  if (!source) return jsString(fallback);
   return valueExpression(ctx, source, stack);
 }
 
@@ -276,8 +319,13 @@ function emitChain(ctx: EmitContext, nodeId: string, visited: Set<string>): void
       break;
     }
     case 'action.log': {
-      const message = str(node.params.message, '');
-      pushLine(ctx, 'api.log(' + jsString(message) + ');');
+      // 接了字串埠就用埠，否則用參數裡的固定字串
+      const messageEdge = dataEdge(ctx.graph, node.id, 'message');
+      const messageSource = messageEdge ? ctx.nodes.get(messageEdge.from) : undefined;
+      const message = messageSource
+        ? valueExpression(ctx, messageSource, [node.id])
+        : jsString(str(node.params.message, ''));
+      pushLine(ctx, 'api.log(' + message + ');');
       break;
     }
     case 'action.setVar': {
