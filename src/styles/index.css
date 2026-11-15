@@ -102,6 +102,7 @@
   }
 
   /* ---------------- 塔塢按鈕（糖果立體鍵） ---------------- */
+  /* 塔格＝棋盤的一格：深底、1px 線、3px 圓角，不做浮起位移 */
   .tower-btn {
     position: relative;
     display: flex;
@@ -109,37 +110,38 @@
     align-items: center;
     justify-content: center;
     gap: 0.25rem;
-    width: 4.5rem;
-    height: 5rem;
+    width: 100%;
+    height: auto;
     cursor: pointer;
-    background: var(--cn-card);
-    border: var(--cn-bw-strong) solid var(--cn-line);
-    border-radius: var(--cn-r-md);
-    box-shadow: 0 4px 0 var(--cn-line);
+    background: var(--bd-tile);
+    border: 1px solid var(--bd-line);
+    border-radius: 3px;
+    box-shadow: 0 2px 0 var(--bd-edge);
     transition:
-      transform var(--cn-t-fast) var(--cn-ease-out),
-      box-shadow var(--cn-t-fast) var(--cn-ease-out),
-      background-color var(--cn-t) var(--cn-ease-out);
+      background-color var(--cn-t-fast) var(--cn-ease-out),
+      border-color var(--cn-t-fast) var(--cn-ease-out);
   }
 
   .tower-btn:hover:not(.disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 0 var(--cn-line);
+    background: var(--bd-tile-2);
+    border-color: var(--bd-line-strong);
   }
 
   .tower-btn:active:not(.disabled) {
-    transform: translateY(4px);
-    box-shadow: 0 0 0 var(--cn-line);
+    background: var(--bd-floor);
   }
 
+  /* 選中：路徑導引線的顏色（與 canvas 射程圈、路徑高亮同一個 token） */
   .tower-btn.selected {
-    background: var(--cn-sun-soft);
-    border-color: var(--cn-line);
-    box-shadow: 0 4px 0 var(--cn-sun-deep);
+    background: color-mix(in oklab, var(--bd-accent) 20%, var(--bd-tile));
+    border-color: var(--bd-accent);
+    box-shadow:
+      0 2px 0 var(--bd-edge),
+      inset 0 0 0 1px var(--bd-accent);
   }
 
   .tower-btn.selected:active:not(.disabled) {
-    box-shadow: 0 0 0 var(--cn-sun-deep);
+    background: color-mix(in oklab, var(--bd-accent) 20%, var(--bd-tile));
   }
 
   .tower-btn.disabled {
@@ -150,8 +152,8 @@
   }
 
   .tower-btn.disabled:hover {
-    transform: none;
-    box-shadow: none;
+    background: var(--bd-tile);
+    border-color: var(--bd-line);
   }
 
   /* ---------------- 資源燈 ---------------- */
