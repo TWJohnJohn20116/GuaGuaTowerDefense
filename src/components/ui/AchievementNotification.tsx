@@ -35,7 +35,9 @@ export default function AchievementNotification() {
     });
   }, [notifications, dismissNotification]);
 
-  if (scene === 'workshop' || isPlaytest) return null;
+  // 主選單不跳成就通知：解鎖只發生在戰鬥／結算，回到主選單時殘留的通知
+  // 會固定在底部居中、蓋住右下三群磚的底部邊框（視覺稽核的 occlusion 會抓，但那是症狀不是病因）
+  if (scene === 'workshop' || scene === 'mainMenu' || isPlaytest) return null;
 
   return (
     <div className="pointer-events-none fixed bottom-4 left-1/2 z-50 flex w-[286px] -translate-x-1/2 flex-col gap-1.5">

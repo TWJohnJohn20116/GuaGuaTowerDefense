@@ -52,7 +52,7 @@ export default function MainMenu() {
 
   return (
     <SceneShell scrollable={false}>
-      <div className="flex h-full w-full flex-col gap-2">
+      <div className="flex h-full w-full flex-col gap-1.5">
         <div className={HOME_SHELL_CLASS} onKeyDown={handleKeyDown}>
           {/* 品牌條：只放英文標識與版本，中文名留給中央 Hero，不重複 */}
           <div

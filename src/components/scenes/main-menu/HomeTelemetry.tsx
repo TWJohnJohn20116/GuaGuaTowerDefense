@@ -12,7 +12,7 @@ export function HomeTelemetry() {
   const scene = useGameStore((s) => s.scene);
 
   return (
-    <footer className="flex h-7 shrink-0 items-center gap-3 border-t-2 border-[var(--cn-line-soft)] bg-[var(--cn-paper-2)] px-3">
+    <footer className="flex h-6 shrink-0 items-center gap-3 border-t-2 border-[var(--cn-line-soft)] bg-[var(--cn-paper-2)] px-3">
       <span className="flex items-center gap-1.5">
         <Dot tone="vital" />
         <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--cn-ink-3)]">ready</span>

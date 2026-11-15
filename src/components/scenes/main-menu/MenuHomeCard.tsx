@@ -79,7 +79,7 @@ export function MenuHomeCard({
       onMouseEnter={onFocus}
       onFocus={onFocus}
       className={[
-        'group relative flex h-full w-full flex-col overflow-hidden rounded-[18px] border-[3px] text-left',
+        'group relative flex h-full min-h-[120px] w-full flex-col overflow-hidden rounded-[18px] border-[3px] text-left',
         'transition-[transform,border-color,box-shadow,background-color] duration-[160ms]',
         focused
           ? '-translate-y-1 border-[var(--cn-line)] bg-[var(--cn-card)] shadow-[0_8px_0_var(--cn-line)]'
