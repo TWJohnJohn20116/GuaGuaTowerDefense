@@ -36,7 +36,7 @@ export interface WaveFormula {
 
 export const DEFAULT_WAVE_FORMULA: WaveFormula = {
   waves: 15,
-  tiers: [{ type: 'grunt', fromWave: 1, count: 6 }],
+  tiers: [{ type: 'normal', fromWave: 1, count: 6 }],
   countGrowth: 2,
   bossEvery: 5,
   bossType: 'boss',
@@ -133,7 +133,7 @@ export interface CurveFormula {
 
 export const DEFAULT_CURVE_FORMULA: CurveFormula = {
   waves: 15,
-  type: 'grunt',
+  type: 'normal',
   baseHealth: 100,
   targetHp: 20000,
   shape: 'ease',
