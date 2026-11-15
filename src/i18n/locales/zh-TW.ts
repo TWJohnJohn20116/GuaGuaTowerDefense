@@ -147,7 +147,13 @@ export const zhTW = {
         'random.desc': '範圍內的隨機整數',
         'js.desc': '直接寫 JS；此節點無法靜態分析',
       },
-      canvas: { label: '規則圖畫布', empty: '雙擊空白開始建立規則' },
+      canvas: {
+        label: '規則圖畫布',
+        empty: '雙擊空白開始建立規則',
+        snapOn: '吸附：開',
+        snapOff: '吸附：關',
+        snapHint: '拖曳時對齊其他節點的邊與中心；沒有目標就吸格線；按住 Alt 暫時關閉',
+      },
       palette: {
         title: '節點庫',
         events: '事件',

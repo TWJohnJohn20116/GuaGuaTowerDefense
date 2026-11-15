@@ -9,11 +9,15 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrophyIcon } from '@/components/ui/Icons';
 import { useAchievementStore } from '@/store/achievementStore';
+import { useGameStore } from '@/store/gameStore';
 import { getAchievement } from '@/data/achievementData';
 import { RARITY_CONFIG } from '@/types/achievement';
 
 export default function AchievementNotification() {
   const { notifications, dismissNotification } = useAchievementStore();
+  // 工坊與臨時局不跳成就通知：編輯時沒有「這一局」的概念，通知只會蓋住面板
+  const scene = useGameStore((s) => s.scene);
+  const isPlaytest = useGameStore((s) => s.isPlaytest);
   const [visibleNotifications, setVisibleNotifications] = useState<string[]>([]);
 
   useEffect(() => {
@@ -30,6 +34,8 @@ export default function AchievementNotification() {
       }, 5000);
     });
   }, [notifications, dismissNotification]);
+
+  if (scene === 'workshop' || isPlaytest) return null;
 
   return (
     <div className="pointer-events-none fixed bottom-4 left-1/2 z-50 flex w-[286px] -translate-x-1/2 flex-col gap-1.5">

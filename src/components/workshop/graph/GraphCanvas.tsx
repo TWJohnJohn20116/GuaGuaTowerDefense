@@ -41,6 +41,11 @@ const ZOOM_FACTOR = 1.12;
 const BEZIER_MIN = 36;
 const BOX_MIN_SIZE = 2;
 
+/** 拖曳吸附門檻（圖座標單位）：對齊其他節點的邊／中心 */
+const SNAP_THRESHOLD = 6;
+/** 沒有對齊目標時的格線吸附間距 */
+const GRID_STEP = 10;
+
 /** 標題列：上緣圓角、下緣切平 */
 const HEADER_PATH =
   'M 0 ' + NODE_RADIUS +
@@ -163,7 +168,7 @@ interface LinkDrag {
 
 type DragState =
   | { mode: 'pan'; startX: number; startY: number; originX: number; originY: number }
-  | { mode: 'move'; idSet: Set<string>; startX: number; startY: number; dx: number; dy: number }
+  | { mode: 'move'; idSet: Set<string>; primaryId: string; startX: number; startY: number; dx: number; dy: number }
   | { mode: 'box'; startX: number; startY: number; additive: boolean; rect: BoxRect }
   | { mode: 'connect'; source: LinkSource; start: Point; target: PortAnchor | null };
 
@@ -290,6 +295,9 @@ export function GraphCanvas({
   const [link, setLink] = useState<LinkDrag | null>(null);
   const [panning, setPanning] = useState(false);
   const [spaceHeld, setSpaceHeld] = useState(false);
+  /** 吸附：拖曳時對齊其他節點的邊／中心；沒有目標就吸格線 */
+  const [snapEnabled, setSnapEnabled] = useState(true);
+  const [guides, setGuides] = useState<{ x: number[]; y: number[] } | null>(null);
 
   const gridId = 'graph-grid-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
 
@@ -485,7 +493,7 @@ export function GraphCanvas({
     const nodes = additive ? unionIds(selection.nodes, [nodeId]) : already ? selection.nodes.slice() : [nodeId];
     onSelectionChange({ nodes, edges: additive ? selection.edges : [] });
 
-    dragRef.current = { mode: 'move', idSet: new Set(nodes), startX: event.clientX, startY: event.clientY, dx: 0, dy: 0 };
+    dragRef.current = { mode: 'move', idSet: new Set(nodes), primaryId: nodeId, startX: event.clientX, startY: event.clientY, dx: 0, dy: 0 };
     capturePointer(event.pointerId);
   }
 
@@ -539,6 +547,67 @@ export function GraphCanvas({
     return best;
   }
 
+  /**
+   * 拖曳吸附：優先對齊其他節點的「邊／中心」（門檻 6 個圖座標單位），
+   * 沒有對齊目標時吸 10 單位格線；回傳的 guides 用來畫輔助線。
+   * 多選拖曳時只用主節點（滑鼠按下的那顆）算吸附，其餘跟著位移。
+   */
+  function snapMove(
+    primaryId: string,
+    idSet: Set<string>,
+    rawDx: number,
+    rawDy: number,
+  ): { dx: number; dy: number; guides: { x: number[]; y: number[] } | null } {
+    const primary = graph.nodes.find((node) => node.id === primaryId);
+    const primaryBox = scene.boxes.find((box) => box.nodeId === primaryId);
+    if (!primary || !primaryBox) return { dx: rawDx, dy: rawDy, guides: null };
+
+    const x0 = primary.x + rawDx;
+    const y0 = primary.y + rawDy;
+    const xs = [x0, x0 + NODE_W / 2, x0 + NODE_W];
+    const ys = [y0, y0 + primaryBox.height / 2, y0 + primaryBox.height];
+
+    let bestX: { diff: number; at: number } | null = null;
+    let bestY: { diff: number; at: number } | null = null;
+
+    for (const box of scene.boxes) {
+      if (idSet.has(box.nodeId)) continue;
+      const targetsX = [box.x, box.x + NODE_W / 2, box.x + NODE_W];
+      const targetsY = [box.y, box.y + box.height / 2, box.y + box.height];
+      for (const current of xs) {
+        for (const target of targetsX) {
+          const diff = target - current;
+          if (Math.abs(diff) <= SNAP_THRESHOLD && (bestX === null || Math.abs(diff) < Math.abs(bestX.diff))) {
+            bestX = { diff, at: target };
+          }
+        }
+      }
+      for (const current of ys) {
+        for (const target of targetsY) {
+          const diff = target - current;
+          if (Math.abs(diff) <= SNAP_THRESHOLD && (bestY === null || Math.abs(diff) < Math.abs(bestY.diff))) {
+            bestY = { diff, at: target };
+          }
+        }
+      }
+    }
+
+    const dx = bestX !== null
+      ? rawDx + bestX.diff
+      : Math.round((primary.x + rawDx) / GRID_STEP) * GRID_STEP - primary.x;
+    const dy = bestY !== null
+      ? rawDy + bestY.diff
+      : Math.round((primary.y + rawDy) / GRID_STEP) * GRID_STEP - primary.y;
+
+    return {
+      dx,
+      dy,
+      guides: bestX !== null || bestY !== null
+        ? { x: bestX !== null ? [bestX.at] : [], y: bestY !== null ? [bestY.at] : [] }
+        : null,
+    };
+  }
+
   function handlePointerMove(event: React.PointerEvent<SVGSVGElement>): void {
     const drag = dragRef.current;
     if (drag === null) return;
@@ -553,11 +622,15 @@ export function GraphCanvas({
     }
 
     if (drag.mode === 'move') {
-      const dx = (event.clientX - drag.startX) / view.k;
-      const dy = (event.clientY - drag.startY) / view.k;
-      drag.dx = dx;
-      drag.dy = dy;
-      setPreview({ ids: drag.idSet, dx, dy });
+      const rawDx = (event.clientX - drag.startX) / view.k;
+      const rawDy = (event.clientY - drag.startY) / view.k;
+      const snapped = snapEnabled && !event.altKey
+        ? snapMove(drag.primaryId, drag.idSet, rawDx, rawDy)
+        : { dx: rawDx, dy: rawDy, guides: null };
+      drag.dx = snapped.dx;
+      drag.dy = snapped.dy;
+      setPreview({ ids: drag.idSet, dx: snapped.dx, dy: snapped.dy });
+      setGuides(snapped.guides);
       return;
     }
 
@@ -591,6 +664,7 @@ export function GraphCanvas({
 
     if (drag.mode === 'move') {
       setPreview(null);
+      setGuides(null);
       if (drag.dx !== 0 || drag.dy !== 0) {
         const moves: { id: string; x: number; y: number }[] = [];
         for (const node of graph.nodes) {
@@ -786,6 +860,19 @@ export function GraphCanvas({
       className="relative h-full min-h-[420px] w-full overflow-hidden rounded-[var(--cn-r-lg)] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] outline-hidden focus-visible:ring-3 focus-visible:ring-[var(--cn-signal-text)]"
       style={{ touchAction: 'none' }}
     >
+      <button
+        type="button"
+        onClick={() => setSnapEnabled((value) => !value)}
+        title={studioText(t, 'studio.graph.canvas.snapHint')}
+        className={`absolute right-2 top-2 z-10 rounded-[8px] border-2 px-2 py-0.5 font-mono text-[10px] transition-colors ${
+          snapEnabled
+            ? 'border-[var(--cn-signal-text)] bg-[var(--cn-coral-soft)] text-[var(--cn-signal-text)]'
+            : 'border-[var(--cn-line)] bg-[var(--cn-card)] text-[var(--cn-ink-3)]'
+        }`}
+      >
+        {studioText(t, snapEnabled ? 'studio.graph.canvas.snapOn' : 'studio.graph.canvas.snapOff')}
+      </button>
+
       <svg
         ref={svgRef}
         className="absolute inset-0 h-full w-full select-none"
@@ -806,6 +893,27 @@ export function GraphCanvas({
         <g transform={'translate(' + r1(view.x) + ' ' + r1(view.y) + ') scale(' + view.k + ')'}>
           <rect x={-4000} y={-4000} width={8000} height={8000} fill={'url(#' + gridId + ')'}
             pointerEvents="none" />
+
+          {guides !== null && (
+            <g pointerEvents="none">
+              {guides.x.map((x) => (
+                <line
+                  key={'guide-x-' + x}
+                  x1={x} y1={-4000} x2={x} y2={4000}
+                  stroke="var(--cn-signal-text)" strokeWidth={1}
+                  strokeDasharray="6 4" vectorEffect="non-scaling-stroke"
+                />
+              ))}
+              {guides.y.map((y) => (
+                <line
+                  key={'guide-y-' + y}
+                  x1={-4000} y1={y} x2={4000} y2={y}
+                  stroke="var(--cn-signal-text)" strokeWidth={1}
+                  strokeDasharray="6 4" vectorEffect="non-scaling-stroke"
+                />
+              ))}
+            </g>
+          )}
 
           {scene.edges.map((shape) => {
             const selected = selectionEdgeSet.has(shape.edge.id);
