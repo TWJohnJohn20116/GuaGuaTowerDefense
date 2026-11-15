@@ -21,6 +21,8 @@ import type { PlayerSkillId } from '@/data/playerSkillData';
 import { hasActiveSelection, resolveBackKeyAction, resolveMatchKeyAction } from '@/store/gameHotkeys';
 import { getProtocolWaveMods } from '@/data/tacticalProtocolData';
 import { shouldApplyQuickPlaceDefaultSync } from '@/data/quickPlaceSync';
+import { notifyModScripts } from '@/mod-script/dispatch';
+import { MOD_SCRIPT_LIMITS } from '@/mod-script/limits';
 
 // 遊戲場景效果 Hook 回傳值
 interface GameSceneEffectsReturn {
@@ -103,6 +105,8 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
   const spawnQueueRef = useRef<{ type: string; delay: number }[]>([]);
   // 使用「遊戲時間」累計器(ms)，受 gameSpeed 影響；非 Date.now() 真實時間
   const spawnElapsedRef = useRef(0);
+  /** onTick 的最後派發時間（遊戲時間），避免每幀都叫醒 worker */
+  const scriptTickRef = useRef(0);
   
   // ===== 成就追蹤 =====
   useAchievementTracking();
@@ -384,6 +388,12 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
       const deltaTime = (currentTime - lastTime) * gameSpeed;
       lastTime = currentTime;
 
+      // Mod 腳本：onTick（節流到 tickIntervalMs，且腳本本身還能再設 throttleMs）
+      if (currentTime - scriptTickRef.current >= MOD_SCRIPT_LIMITS.tickIntervalMs) {
+        scriptTickRef.current = currentTime;
+        notifyModScripts('onTick');
+      }
+
       // 生成敵人：使用「遊戲時間」累計，倍速會同步加快生成節奏
       if (waveActive && spawnQueueRef.current.length > 0) {
         spawnElapsedRef.current += deltaTime;
@@ -574,11 +584,16 @@ export function useGameSceneEffects(): GameSceneEffectsReturn {
             }
             useAchievementStore.getState().batchOnEnemyKilled(kills, rewardTotal);
             useStatsStore.getState().trackEnemyKilledBatch(killedTypes, rewardTotal);
+            notifyModScripts('enemyKilled', {
+              killCount: killedEnemies.length,
+              enemyTypes: killedTypes,
+            });
           }
         }
 
         const latestEnemies = useGameStore.getState().enemies;
         if (waveActive && spawnQueueRef.current.length === 0 && latestEnemies.length === 0) {
+          notifyModScripts('waveClear', { wave: currentWave });
           const ending = useGameStore.getState();
           const clearBonus = getProtocolWaveMods(ending.activeProtocol).waveClearBonus;
           useGameStore.setState({ waveActive: false, activeProtocol: null });

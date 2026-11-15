@@ -13,6 +13,7 @@ import { tickTowerSkills } from '@/data/skillAura';
 import { getTowerData, generateId, applyDamageToEnemy } from './gameStoreUtils';
 import type { GameStore } from './gameStoreTypes';
 import { useTutorialStore, INTERACTIVE_TUTORIAL_STEPS } from './tutorialStore';
+import { notifyModScripts } from '@/mod-script/dispatch';
 import { playBuild, playUpgrade } from '@/services/audioService';
 
 const getAchievementStore = () => import('./achievementStore').then(m => m.useAchievementStore);
@@ -97,6 +98,9 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
       // 如果不是快速放置模式，清除選擇
       selectedTowerType: quickPlaceMode ? selectedTowerType : null,
     });
+
+    // Mod 腳本：建塔事件
+    notifyModScripts('towerPlaced', { towerType: selectedTowerType, row: pos.row, col: pos.col });
 
     // 追蹤成就
     getAchievementStore().then(store => {

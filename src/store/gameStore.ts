@@ -16,6 +16,7 @@ import {
   saveGameSpeed 
 } from './gameStoreUtils';
 import type { GameStore } from './gameStoreTypes';
+import { notifyModScripts } from '@/mod-script/dispatch';
 import { createTowerActions } from './gameStoreActions';
 import { createWaveActions } from './gameStoreWave';
 import { createLoopActions } from './gameStoreLoop';
@@ -295,6 +296,9 @@ export const useGameStore = create<GameStore>()(
       // 保存原始啟動參數（再玩一次 / 快速重試時完整復原本局設定）
       lastStartArgs: { pathName, difficulty, endless, maxWaves, customModifiers, customWaveSetId },
     });
+
+    // Mod 腳本：開局事件（非阻塞；腳本再慢也不影響開局）
+    notifyModScripts('gameStart');
     
     // 如果是教學模式，重置為 1 倍速
     try {
@@ -326,7 +330,11 @@ export const useGameStore = create<GameStore>()(
     } catch (e) { /* ignore */ }
   },
   
-  setVictory: () => { set({ isVictory: true, isPlaying: false }); playVictory(); },
+  setVictory: () => {
+    set({ isVictory: true, isPlaying: false });
+    playVictory();
+    notifyModScripts('victory');
+  },
   setGameSpeed: (speed) => {
     saveGameSpeed(speed);
     

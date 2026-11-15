@@ -17,6 +17,7 @@ import {
   shouldOfferProtocol,
 } from '@/data/tacticalProtocolData';
 import { useTutorialStore } from './tutorialStore';
+import { notifyModScripts } from '@/mod-script/dispatch';
 
 // 延遲導入成就 Store 以避免循環依賴
 const getAchievementStore = () => import('./achievementStore').then(m => m.useAchievementStore);
@@ -52,6 +53,8 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
     } else {
       set({ waveActive: true, currentWave: newWave, allEnemiesSpawned: false });
     }
+    // Mod 腳本：開波事件
+    notifyModScripts('waveStart', { wave: newWave });
     playWaveStart(); // 開波音
   },
   
@@ -115,6 +118,7 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
     if (newHealth <= 0) {
       // 切換到獨立的「遊戲結束」介面場景（非彈窗）
       set({ health: 0, isGameOver: true, isPlaying: false, isPaused: false, scene: 'gameOver' });
+      notifyModScripts('gameOver');
       playGameOver(); // 失敗音
     } else {
       set({ health: newHealth });
