@@ -192,10 +192,17 @@ export function flowPredecessor(graph: RuleGraph, nodeId: string): GraphEdge | n
  * 缺鍵時回退成 key 本身，這樣 UI 永遠有字可顯示、CI 也不會因為鍵的先後順序而紅。
  */
 export function studioText(tree: unknown, key: string): string {
+  const parts = key.split('.');
   let cursor: unknown = tree;
-  for (const part of key.split('.')) {
+  for (let index = 0; index < parts.length; index += 1) {
     if (typeof cursor !== 'object' || cursor === null) return key;
-    cursor = (cursor as Record<string, unknown>)[part];
+    const record = cursor as Record<string, unknown>;
+    // 葉鍵本身可能含點（例：'gameStart.desc'）：先試整段剩餘路徑，再逐段下降
+    const leaf = record[parts.slice(index).join('.')];
+    if (leaf !== undefined) return typeof leaf === 'string' ? leaf : key;
+    const direct = record[parts[index]];
+    if (direct === undefined) return key;
+    cursor = direct;
   }
   return typeof cursor === 'string' ? cursor : key;
 }

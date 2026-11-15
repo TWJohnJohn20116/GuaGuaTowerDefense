@@ -425,6 +425,18 @@ export function GraphCanvas({
 
   /* --------------------------------------------------------- 指標事件 */
 
+  /**
+   * 指標捕獲容錯：合成事件或指標已釋放時 setPointerCapture 會丟 NotFoundError，
+   * 不該讓一次拖曳把整個畫布打斷（真實滑鼠不受影響）。
+   */
+  function capturePointer(pointerId: number): void {
+    try {
+      svgRef.current?.setPointerCapture(pointerId);
+    } catch {
+      /* 沒有可捕獲的指標時忽略 */
+    }
+  }
+
   function handleCanvasPointerDown(event: React.PointerEvent<SVGSVGElement>): void {
     if (event.button === 1 || spaceRef.current || event.altKey) {
       event.preventDefault();
@@ -433,18 +445,27 @@ export function GraphCanvas({
         mode: 'pan', startX: event.clientX, startY: event.clientY, originX: view.x, originY: view.y,
       };
       setPanning(true);
-      svgRef.current?.setPointerCapture(event.pointerId);
+      capturePointer(event.pointerId);
       return;
     }
     if (event.button !== 0) return;
     event.preventDefault();
     focusCanvas();
+    // 節點編輯器慣例：空白左拖＝平移畫布；Shift+左拖＝框選
+    if (!event.shiftKey) {
+      onSelectionChange({ nodes: [], edges: [] });
+      dragRef.current = {
+        mode: 'pan', startX: event.clientX, startY: event.clientY, originX: view.x, originY: view.y,
+      };
+      setPanning(true);
+      capturePointer(event.pointerId);
+      return;
+    }
     const point = toGraphPoint(event.clientX, event.clientY);
     const rect = { x: point.x, y: point.y, w: 0, h: 0 };
-    dragRef.current = { mode: 'box', startX: point.x, startY: point.y, additive: event.shiftKey, rect };
+    dragRef.current = { mode: 'box', startX: point.x, startY: point.y, additive: true, rect };
     setBoxRect(rect);
-    if (!event.shiftKey) onSelectionChange({ nodes: [], edges: [] });
-    svgRef.current?.setPointerCapture(event.pointerId);
+    capturePointer(event.pointerId);
   }
 
   function handleNodePointerDown(event: React.PointerEvent<SVGGElement>, nodeId: string): void {
@@ -465,7 +486,7 @@ export function GraphCanvas({
     onSelectionChange({ nodes, edges: additive ? selection.edges : [] });
 
     dragRef.current = { mode: 'move', idSet: new Set(nodes), startX: event.clientX, startY: event.clientY, dx: 0, dy: 0 };
-    svgRef.current?.setPointerCapture(event.pointerId);
+    capturePointer(event.pointerId);
   }
 
   function handleEdgePointerDown(event: React.PointerEvent<SVGPathElement>, edgeId: string): void {
@@ -498,7 +519,7 @@ export function GraphCanvas({
     setLink({
       x1: start.x, y1: start.y, x2: start.x, y2: start.y, dir, kind: row.kind, hoverKey: null, hoverOk: false,
     });
-    svgRef.current?.setPointerCapture(event.pointerId);
+    capturePointer(event.pointerId);
   }
 
   /** 找游標附近「方向相反」的埠（不檢查相容性，讓不合法的目標也能高亮成錯誤色） */
@@ -698,6 +719,15 @@ export function GraphCanvas({
         onPointerDown={(event) => handleNodePointerDown(event, box.nodeId)}
         onDoubleClick={(event) => handleNodeDoubleClick(event, box.nodeId)}
       >
+        {/* 命中區：底下所有圖形都是 pointerEvents="none"，少了這塊整個節點收不到事件（拖不動） */}
+        <rect
+          data-node-hit="1"
+          width={NODE_W}
+          height={box.height}
+          rx={NODE_RADIUS}
+          fill="transparent"
+          pointerEvents="all"
+        />
         <rect x={-FRAME_OFFSET} y={-FRAME_OFFSET} width={NODE_W + FRAME_OFFSET * 2}
           height={box.height + FRAME_OFFSET * 2} rx={NODE_RADIUS + FRAME_OFFSET} fill="none"
           stroke={frame} strokeWidth={3} pointerEvents="none"
@@ -743,7 +773,7 @@ export function GraphCanvas({
     );
   }
 
-  const cursor = panning ? 'grabbing' : spaceHeld ? 'grab' : 'default';
+  const cursor = panning || spaceHeld ? 'grabbing' : 'grab';
   const zoomLabel = Math.round(view.k * 100) + '%';
 
   return (

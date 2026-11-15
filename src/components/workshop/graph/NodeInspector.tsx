@@ -13,6 +13,7 @@ import type { GraphIssue } from '@/workshop/graph/validate';
 import type { GraphNode, GraphParamSpec, GraphParamValue, RuleGraph } from '@/workshop/graph/model';
 import { findNode, studioText } from '@/workshop/graph/model';
 import { nodeSpec } from '@/workshop/graph/nodeLibrary';
+import { ScriptFullEditor } from './ScriptFullEditor';
 
 export interface NodeInspectorProps {
   graph: RuleGraph;
@@ -174,9 +175,17 @@ function IssueList({
 
 function JsEditor({ node, onChange }: { node: GraphNode; onChange: (js: string) => void }) {
   const { t } = useTranslation();
+  const [full, setFull] = useState(false);
   return (
     <div className="flex flex-col gap-1.5">
-      <SegHead label={studioText(t, 'studio.graph.inspector.js')} />
+      <SegHead
+        label={studioText(t, 'studio.graph.inspector.js')}
+        right={(
+          <Btn size="sm" variant="line" onClick={() => setFull(true)}>
+            {studioText(t, 'studio.graph.inspector.fullEditor')}
+          </Btn>
+        )}
+      />
       <div className="rounded-[10px] border-2 border-[var(--cn-caution)] bg-[var(--cn-caution-soft)] px-2.5 py-1.5 text-[11.5px] font-bold text-[var(--cn-caution-text)]">
         {studioText(t, 'studio.graph.inspector.jsHint')}
       </div>
@@ -187,6 +196,17 @@ function JsEditor({ node, onChange }: { node: GraphNode; onChange: (js: string) 
         placeholder={studioText(t, 'studio.graph.inspector.jsPlaceholder')}
         onChange={(event) => onChange(event.target.value)}
       />
+      {full && (
+        <ScriptFullEditor
+          title={node.type + ' · ' + node.id}
+          value={node.js ?? ''}
+          onSave={(next) => {
+            onChange(next);
+            setFull(false);
+          }}
+          onClose={() => setFull(false)}
+        />
+      )}
     </div>
   );
 }

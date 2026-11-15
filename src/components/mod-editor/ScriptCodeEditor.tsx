@@ -12,11 +12,15 @@ interface ScriptCodeEditorProps {
   onChange: (next: string) => void;
   placeholder?: string;
   hint?: string;
+  /** 高度類別（預設 h-64；全螢幕編輯器傳 h-full） */
+  heightClass?: string;
+  /** 根節點額外類別（全螢幕編輯器需要 h-full 才不會塌成 0 高） */
+  className?: string;
 }
 
 const SHARED = 'font-mono text-[11.5px] leading-relaxed whitespace-pre-wrap break-words';
 
-export function ScriptCodeEditor({ value, onChange, placeholder, hint }: ScriptCodeEditorProps) {
+export function ScriptCodeEditor({ value, onChange, placeholder, hint, heightClass = 'h-64', className = '' }: ScriptCodeEditorProps) {
   const areaRef = useRef<HTMLTextAreaElement | null>(null);
   const preRef = useRef<HTMLPreElement | null>(null);
   const [query, setQuery] = useState<string | null>(null);
@@ -47,8 +51,8 @@ export function ScriptCodeEditor({ value, onChange, placeholder, hint }: ScriptC
   };
 
   return (
-    <div className="relative">
-      <div className="relative h-64 w-full overflow-hidden border border-[var(--cn-line-soft)] bg-[var(--cn-card)]">
+    <div className={`relative flex flex-col ${className}`}>
+      <div className={`relative w-full overflow-hidden border border-[var(--cn-line-soft)] bg-[var(--cn-card)] ${heightClass}`}>
         <pre
           ref={preRef}
           aria-hidden="true"
