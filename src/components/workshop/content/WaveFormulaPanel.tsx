@@ -80,7 +80,7 @@ export function WaveFormulaPanel({
         <>
           <div className="flex flex-wrap items-end gap-1.5">
             <label className="flex flex-col gap-0.5">
-              <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.basicWaves}</span>
+              <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.waves}</span>
               <Input
                 type="number"
                 min={1}
@@ -91,7 +91,7 @@ export function WaveFormulaPanel({
               />
             </label>
             <label className="flex flex-col gap-0.5">
-              <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.basicGrowth}</span>
+              <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.growth}</span>
               <Input
                 type="number"
                 min={0}
@@ -102,7 +102,7 @@ export function WaveFormulaPanel({
               />
             </label>
             <label className="flex flex-col gap-0.5">
-              <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.basicBossEvery}</span>
+              <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.bossEvery}</span>
               <Input
                 type="number"
                 min={0}
@@ -113,7 +113,7 @@ export function WaveFormulaPanel({
               />
             </label>
             <label className="flex flex-col gap-0.5">
-              <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.basicBossCount}</span>
+              <span className="font-mono text-[9px] text-[var(--cn-ink-3)]">{c.bossCount}</span>
               <Input
                 type="number"
                 min={1}

@@ -69,7 +69,7 @@ export function WaveInspector({
   const { t } = useTranslation();
   const c = t.studio.content;
   const w = c.wave;
-  const ins = c.inspector;
+  const ins = c.detail;
 
   if (!wave || waveIndex === null) {
     return (

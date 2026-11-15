@@ -136,7 +136,9 @@ export function ContentPage({ projectId }: ContentPageProps) {
 
   const enemyOptions = useMemo(
     () => [
-      ...Object.entries(ENEMY_DATA).map(([id, data]) => ({ id, name: data.name, health: data.health })),
+      ...Object.entries(ENEMY_DATA).flatMap(([id, data]) =>
+        data ? [{ id, name: data.name, health: data.health }] : [],
+      ),
       ...enemyAssets.map((asset) => ({ id: asset.id, name: asset.name, health: asset.health })),
     ],
     [enemyAssets],
