@@ -4,12 +4,11 @@
  * 外殼只負責：左軌導覽、當前專案、頁面裝配。每一頁自己讀寫 workshopStore，
  * 不從外殼傳資料（唯一傳的是 projectId / levelId）。
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SceneShell } from '@/components/ui/SceneShell';
 import { Num, Rail, RailItem, TopBar, Btn } from '@/components/hl';
 import { WrenchIcon } from '@/components/ui/Icons';
 import { useTranslation } from '@/i18n';
-import { useEffect, useState } from 'react';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { writeBackup } from '@/workshop/backup';
 import { ProjectsPage, type StudioPage } from '@/components/workshop/projects/ProjectsPage';
