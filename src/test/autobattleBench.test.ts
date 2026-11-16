@@ -317,17 +317,24 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
       appendWave(sim, waveIndex);
       continue;
     }
-    const action = policy(sim, tick + seedOffset);
-    const executed = apply(sim, action);
-    if (!executed && sim.money > 400) idleTicks++;
-    const key = action ? `${action.kind}:${'type' in action ? action.type : ''}:${'col' in action ? `${action.col},${action.row}` : ''}${'id' in action ? action.id : ''}` : '';
-    if (key && key === lastKey) {
-      repeats++;
-      if (repeats === 3) jitter++;
-    } else {
-      repeats = 0;
+    // 每個 tick 最多連續 3 個動作：錢多時不必等下一次決策才再花一次
+    let acted = false;
+    for (let k = 0; k < 3; k++) {
+      const action = policy(sim, tick + seedOffset);
+      if (!apply(sim, action)) break;
+      acted = true;
+      const key = action
+        ? `${action.kind}:${'type' in action ? action.type : ''}:${'col' in action ? `${action.col},${action.row}` : ''}${'id' in action ? action.id : ''}`
+        : '';
+      if (key && key === lastKey) {
+        repeats++;
+        if (repeats === 3) jitter++;
+      } else {
+        repeats = 0;
+      }
+      lastKey = key;
     }
-    lastKey = key;
+    if (!acted && sim.money > 400) idleTicks++;
   }
   const coverSum = sim.towers.reduce((sum, t) => sum + coverage(t.col, t.row, rangeOf(t.type)), 0);
   return {
