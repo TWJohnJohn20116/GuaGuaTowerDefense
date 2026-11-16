@@ -223,6 +223,10 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         return dpsOf(type, 1) > currentDps * 1.2;
       });
       if (!betterReplacement) continue;
+      // 只有「塔位真的吃緊」且「這座塔的覆蓋大多被其他塔重複」時才值得換；
+      // 否則會出現賣了又建、建了又賣的來回震盪。
+      if (slotPressure(ctx) < 0.85) continue;
+      if (uniqueRatio > 0.4) continue;
       const factors = [
         makeFactor('safety', safety, safety, weights.safety ?? 0, `重複覆蓋 ${((1 - uniqueRatio) * 100).toFixed(0)}%`),
         makeFactor('economyROI', refund, scaleBetween(refund, 0, 300), weights.economyROI ?? 0),
