@@ -46,6 +46,7 @@ interface Sim {
   allSpawned: boolean;
   spawnQueue: { type: EnemyType; at: number; hpScale: number }[];
   lastSkipAt: number;
+  firstLeakWave: number;
 }
 
 // 用真實地圖（zigzag），確保覆蓋計算與實戰同一份路徑資料
@@ -108,6 +109,7 @@ const makeSim = (): Sim => ({
   allSpawned: false,
   spawnQueue: [],
   lastSkipAt: -999,
+  firstLeakWave: -1,
 });
 
 const step = (sim: Sim, dt: number): void => {
@@ -184,7 +186,7 @@ const step = (sim: Sim, dt: number): void => {
     }
     if (e.progress >= 1) {
       sim.health -= 1;
-      if (firstLeakWave < 0) firstLeakWave = sim.wave;
+      if (sim.firstLeakWave < 0) sim.firstLeakWave = sim.wave;
       continue;
     }
     alive.push(e);
@@ -385,7 +387,6 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
   let upgraded = 0;
   let fused = 0;
   let jitter = 0;
-  let firstLeakWave = -1;
   let lastKey = '';
   let repeats = 0;
   let tick = 0;
@@ -436,7 +437,7 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
     placed,
     upgraded,
     fused,
-    firstLeakWave,
+    firstLeakWave: sim.firstLeakWave,
   };
 };
 
