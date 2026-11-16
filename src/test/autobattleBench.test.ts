@@ -74,7 +74,7 @@ const bestSpot = (sim: Sim, range: number): { col: number; row: number; cover: n
 };
 
 /** 血量倍率爬升：模擬「越打越硬」，否則兩邊都能無限存活，存活波次沒有鑑別度 */
-export const HP_RAMP = 0.35;
+export const HP_RAMP = 1.2;
 export const hpScaleAt = (wave: number): number => 1 + HP_RAMP * (wave - 1);
 
 /** 追加一波敵人（不清空現有佇列：略波只是提前放下一波，場上敵人不會消失） */
@@ -86,7 +86,7 @@ const appendWave = (sim: Sim, wave: number): void => {
   for (const group of cfg.enemies) {
     for (let i = 0; i < group.count; i++) {
       sim.spawnQueue.push({ type: group.type as EnemyType, at, hpScale: scale });
-      at += 0.45;
+      at += 0.3;
     }
   }
   sim.allSpawned = false;
