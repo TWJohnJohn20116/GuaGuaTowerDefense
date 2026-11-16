@@ -1,4 +1,4 @@
-import type { AutoBattleCandidate, AutoBattleContext, ScoreFactor } from '@/types/autobattle';
+import type { AutoBattleCandidate, AutoBattleContext, AutoBattleWeights, ScoreFactor } from '@/types/autobattle';
 import type { TowerType } from '@/types/game';
 import { TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
 import { getTowerUpgradeCost, canAutoUpgradeTower } from '@/data/towerUpgradeCost';
@@ -8,7 +8,7 @@ import { counterAffinity } from '@/data/enemyCounters';
 import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { collectPathPoints, coveragePointsOf, maxCoverageOfMap, gridSizeOf } from '@/data/autobattle/mapInfo';
 import { DECISION_LIMITS } from '@/data/autobattle/scoreWeights';
-import { applyPresetBoost, finalizeCandidate, makeFactor, resolveWeights, scaleBetween, sumFactors } from './scoring';
+import { applyPresetBoost, clamp01, finalizeCandidate, makeFactor, resolveWeights, scaleBetween, sumFactors } from './scoring';
 import type { PathConfig } from '@/types/game';
 
 /** 塔的有效 DPS 估算（與舊引擎同公式；升級每級 +25%） */
@@ -118,7 +118,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         const cost = buildCostOf(type, costMult);
         const range = data.range;
         const near = enemiesNear(ctx, spot.col, spot.row, range);
-        const weights = resolveWeights('place', ctx.config);
+        const weights = adjustWeightsForSurplus(resolveWeights('place', ctx.config), ctx);
         const factors = [
           makeFactor('coverage', spot.coverage, coveragePointsOf(points, spot.col, spot.row, range) / maxCoverage, weights.coverage ?? 0, `${spot.coverage}/${maxCoverage}`),
           makeFactor('threatFit', sumEnemyWeight(near), scaleBetween(sumEnemyWeight(near), 0, 6), weights.threatFit ?? 0),
@@ -158,7 +158,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const after = dpsOf(tower.type, tower.level + 1);
     const gain = before > 0 ? (after - before) / before : 0;
     const near = enemiesNear(ctx, tower.col, tower.row, data.range);
-    const weights = resolveWeights('upgrade', ctx.config);
+    const weights = adjustWeightsForSurplus(resolveWeights('upgrade', ctx.config), ctx);
     const factors = [
       makeFactor('marginal', gain, scaleBetween(gain, 0, 0.6), weights.marginal ?? 0, `Lv${tower.level}→${tower.level + 1}`),
       makeFactor('economyROI', (after - before) / Math.max(1, cost), scaleBetween((after - before) / Math.max(1, cost), 0, 2), weights.economyROI ?? 0),
@@ -290,10 +290,30 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
 export const sumEnemyWeight = (list: AutoBattleContext['enemies']): number =>
   list.reduce((sum, e) => sum + enemyWeight(e), 0);
 
-/** 花錢節奏 0..1：波中且敵人逼近 → 高；剛開波金錢不足 → 低 */
+/** 花錢節奏 0..1：波中且敵人逼近 → 高；金錢遠超保留需求 → 更高；剛開波金錢不足 → 低 */
 export const tempoRaw = (ctx: AutoBattleContext): number => {
   const pressure = ctx.lookahead.pressure;
   const healthRatio = ctx.maxHealth > 0 ? ctx.health / ctx.maxHealth : 1;
   const base = ctx.waveActive ? 0.7 : 0.45;
-  return Math.min(1, base + pressure * 0.5 + (1 - healthRatio) * 0.3);
+  const richness = clamp01(ctx.money / Math.max(1, ctx.lookahead.moneyReserve) - 1);
+  return Math.min(1, base + pressure * 0.5 + (1 - healthRatio) * 0.3 + richness * 0.25);
+};
+
+/**
+ * 金錢溢出修正：持有金 ≥ 兩倍保留金時，代表「該花沒花」。
+ * 此時壓低 reserve 權重、放大 tempo 權重，讓評分願意把錢變成塔與等級。
+ */
+export const adjustWeightsForSurplus = (
+  weights: AutoBattleWeights,
+  ctx: AutoBattleContext,
+): AutoBattleWeights => {
+  const reserve = Math.max(1, ctx.lookahead.moneyReserve);
+  const ratio = ctx.money / reserve;
+  if (ratio < 2) return weights;
+  const overflow = Math.min(1, (ratio - 2) / 2);
+  return {
+    ...weights,
+    reserve: (weights.reserve ?? 0) * (1 - overflow),
+    tempo: Math.min(1, (weights.tempo ?? 0) * (1 + overflow * 2)),
+  };
 };
