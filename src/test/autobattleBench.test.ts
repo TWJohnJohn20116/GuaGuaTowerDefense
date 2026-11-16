@@ -283,11 +283,17 @@ const runUtilityPolicy = (sim: Sim): Action => {
   return null;
 };
 
+/** 賣塔後同一格的重建冷卻（與引擎 DECISION_LIMITS.rebuildLockMs 一致） */
+const soldAt = new Map<string, number>();
+const REBUILD_LOCK_S = 12;
+
 const apply = (sim: Sim, action: Action): boolean => {
   if (!action) return false;
   if (action.kind === 'place') {
     const cost = costOf(action.type);
     if (cost > sim.money) return false;
+    const key = `${action.col},${action.row}`;
+    if (sim.time - (soldAt.get(key) ?? -999) < REBUILD_LOCK_S) return false;
     if (sim.towers.some((t) => Math.hypot(t.col - action.col, t.row - action.row) < 1.6)) return false;
     sim.money -= cost;
     sim.towers.push({ id: `t${sim.towers.length}`, type: action.type, level: 1, col: action.col, row: action.row, upgradePath: null });
@@ -297,6 +303,7 @@ const apply = (sim: Sim, action: Action): boolean => {
     const tower = sim.towers.find((t) => t.id === action.id);
     if (!tower) return false;
     sim.money += Math.floor(costOf(tower.type) * 0.6);
+    soldAt.set(`${tower.col},${tower.row}`, sim.time);
     sim.towers = sim.towers.filter((t) => t.id !== action.id);
     return true;
   }
@@ -340,6 +347,7 @@ const apply = (sim: Sim, action: Action): boolean => {
 const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, seedOffset = 0): AgentResult => {
   const sim = makeSim();
   lastActionAt.clear();
+  soldAt.clear();
   benchHoldStreak = 0;
   let idleTicks = 0;
   let placed = 0;
