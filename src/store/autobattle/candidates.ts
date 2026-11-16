@@ -28,6 +28,12 @@ export const buildCostOf = (type: TowerType, costMult: number): number => {
 
 const cellKey = (col: number, row: number): string => `${col},${row}`;
 
+/**
+ * 塔位壓力 0..1：場上塔越多，新增塔位的邊際價值越低。
+ * 用於給「不佔新塔位」的動作（升級、融合）加分，避免防線卡在塔位上限。
+ */
+const slotPressure = (ctx: AutoBattleContext): number => clamp01((ctx.towers.length - 10) / 24);
+
 const occupied = (ctx: AutoBattleContext, col: number, row: number): boolean =>
   ctx.towers.some((t) => Math.hypot(t.col - col, t.row - row) < 1.6);
 
@@ -178,7 +184,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       row: tower.row,
       cost,
       factors,
-      softBonus: 0,
+      softBonus: 0.24 * slotPressure(ctx),
       penalties: 0,
       total: 0,
       vetoedBy: [],
@@ -265,7 +271,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         row: a.row,
         cost,
         factors: applyPresetBoost(factors, ctx.config.presetId),
-        softBonus: 0,
+        softBonus: 0.45 * slotPressure(ctx),
         penalties: 0,
         total: 0,
         vetoedBy: [],

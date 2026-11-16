@@ -175,6 +175,10 @@ interface AgentResult {
   totalDps: number;
   levelSum: number;
   maxLevelTowers: number;
+  /** 動作組成：用來判斷決策層實際偏好的動作 */
+  placed: number;
+  upgraded: number;
+  fused: number;
 }
 
 type Action =
@@ -326,6 +330,9 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
   lastActionAt.clear();
   benchHoldStreak = 0;
   let idleTicks = 0;
+  let placed = 0;
+  let upgraded = 0;
+  let fused = 0;
   let jitter = 0;
   let lastKey = '';
   let repeats = 0;
@@ -345,6 +352,11 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
     }
     const action = policy(sim, tick + seedOffset);
     const executed = apply(sim, action);
+    if (executed) {
+      if (action?.kind === 'place') placed++;
+      else if (action?.kind === 'upgrade') upgraded++;
+      else if (action?.kind === 'fuse') fused++;
+    }
     if (!executed && sim.money > 400) idleTicks++;
     const key = action
       ? `${action.kind}:${'type' in action ? action.type : ''}:${'col' in action ? `${action.col},${action.row}` : ''}${'id' in action ? action.id : ''}`
@@ -369,6 +381,9 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
     totalDps: Math.round(sim.towers.reduce((sum, t) => sum + dpsOf(t.type, t.level), 0)),
     levelSum: sim.towers.reduce((sum, t) => sum + t.level, 0),
     maxLevelTowers: sim.towers.filter((t) => t.level >= 5).length,
+    placed,
+    upgraded,
+    fused,
   };
 };
 
