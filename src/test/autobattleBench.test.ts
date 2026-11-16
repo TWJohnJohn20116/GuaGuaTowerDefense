@@ -178,7 +178,7 @@ type Action =
 
 const runLegacyPolicy = (sim: Sim, tick: number): Action => {
   void tick;
-  if (sim.waveActive && sim.allSpawned && sim.enemies.length > 0 && sim.towers.length >= 3) return { kind: 'skip' };
+  // 基準刻意不略波：要比較的是「防線能撐幾波」，不是誰比較會按略波
   const money = sim.money;
   if (sim.towers.length > 0 && money > 250) {
     const up = [...sim.towers].filter((t) => t.level < 5).sort((a, b) => b.level - a.level)[0];
@@ -258,10 +258,7 @@ const runUtilityPolicy = (sim: Sim): Action => {
     lastActionAt.set(c.id, ctx.time);
     return { kind: 'upgrade', id: c.towerId };
   }
-  if (c.kind === 'skip') {
-    lastActionAt.set(c.id, ctx.time);
-    return { kind: 'skip' };
-  }
+  // 略波在基準中一律不採用（見上）
   return null;
 };
 
