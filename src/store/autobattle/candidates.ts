@@ -78,10 +78,6 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
   const { cols, rows } = gridSizeOf(pathConfig);
   const out: AutoBattleCandidate[] = [];
   const affordable = (type: TowerType): boolean => buildCostOf(type, costMult) <= ctx.money;
-  // 全場最佳塔位能覆蓋多少路徑點：賣塔的「覆蓋損失」要用這個當分母，
-  // 否則除以整條路徑長會讓每一座塔看起來都只是零星覆蓋，於是永遠「很安全、可以賣」。
-  const maxRangeAll = Math.max(0, ...(Object.keys(TOWER_DATA) as TowerType[]).map((t) => TOWER_DATA[t].range));
-  const globalMaxCoverage = Math.max(1, points.length > 0 ? maxCoverageOfMap(points, cols, rows, maxRangeAll) : 1);
 
 
   // ---- 放塔 ----
@@ -217,10 +213,9 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       const uniqueRatio = coveredPoints.length > 0 ? uniquePoints.length / coveredPoints.length : 1;
       // 獨佔覆蓋越高＝越不能賣；完全被其他塔重複涵蓋才視為安全
       const safety = clamp01(1 - uniqueRatio);
-      void globalMaxCoverage;
       const refund = Math.floor(buildCostOf(tower.type, costMult) * 0.6);
       const factors = [
-        makeFactor('safety', safety, safety, weights.safety ?? 0, `覆蓋 ${(cover * 100).toFixed(0)}%`),
+        makeFactor('safety', safety, safety, weights.safety ?? 0, `重複覆蓋 ${((1 - uniqueRatio) * 100).toFixed(0)}%`),
         makeFactor('economyROI', refund, scaleBetween(refund, 0, 300), weights.economyROI ?? 0),
         makeFactor('tempo', 1 - tempoRaw(ctx), 1 - tempoRaw(ctx), weights.tempo ?? 0),
         makeFactor('reserve', ctx.money + refund, scaleBetween(ctx.money + refund, 0, Math.max(1, ctx.lookahead.moneyReserve)), weights.reserve ?? 0),
