@@ -185,6 +185,7 @@ type Action =
   | { kind: 'place'; type: TowerType; col: number; row: number }
   | { kind: 'upgrade'; id: string }
   | { kind: 'fuse'; a: string; b: string }
+  | { kind: 'sell'; id: string }
   | { kind: 'skip' }
   | null;
 
@@ -266,6 +267,10 @@ const runUtilityPolicy = (sim: Sim): Action => {
     lastActionAt.set(c.id, ctx.time);
     return { kind: 'place', type: c.towerType, col: c.col, row: c.row };
   }
+  if (c.kind === 'sell' && c.towerId) {
+    lastActionAt.set(c.id, ctx.time);
+    return { kind: 'sell', id: c.towerId };
+  }
   if (c.kind === 'fusion' && c.towerId && c.targetTowerId) {
     lastActionAt.set(c.id, ctx.time);
     return { kind: 'fuse', a: c.towerId, b: c.targetTowerId };
@@ -286,6 +291,13 @@ const apply = (sim: Sim, action: Action): boolean => {
     if (sim.towers.some((t) => Math.hypot(t.col - action.col, t.row - action.row) < 1.6)) return false;
     sim.money -= cost;
     sim.towers.push({ id: `t${sim.towers.length}`, type: action.type, level: 1, col: action.col, row: action.row, upgradePath: null });
+    return true;
+  }
+  if (action.kind === 'sell') {
+    const tower = sim.towers.find((t) => t.id === action.id);
+    if (!tower) return false;
+    sim.money += Math.floor(costOf(tower.type) * 0.6);
+    sim.towers = sim.towers.filter((t) => t.id !== action.id);
     return true;
   }
   if (action.kind === 'fuse') {
