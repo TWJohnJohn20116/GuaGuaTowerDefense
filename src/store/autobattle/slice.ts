@@ -3,7 +3,6 @@ import type {
   AutoBattleConfig,
   AutoBattleCurvePoint,
   AutoBattleDecision,
-  AutoBattlePreset,
   AutoBattleRule,
   AutoBattleWeights,
 } from '@/types/autobattle';

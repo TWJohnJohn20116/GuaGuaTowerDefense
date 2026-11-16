@@ -1,4 +1,4 @@
-import type { AutoBattleCandidate, AutoBattleContext } from '@/types/autobattle';
+import type { AutoBattleCandidate, AutoBattleContext, ScoreFactor } from '@/types/autobattle';
 import type { TowerType } from '@/types/game';
 import { TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
 import { getTowerUpgradeCost, canAutoUpgradeTower } from '@/data/towerUpgradeCost';
@@ -118,7 +118,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         const cost = buildCostOf(type, costMult);
         const range = data.range;
         const near = enemiesNear(ctx, spot.col, spot.row, range);
-        const weights = applyPresetBoost(resolveWeights('place', ctx.config), ctx.config.presetId);
+        const weights = resolveWeights('place', ctx.config);
         const factors = [
           makeFactor('coverage', spot.coverage, coveragePointsOf(points, spot.col, spot.row, range) / maxCoverage, weights.coverage ?? 0, `${spot.coverage}/${maxCoverage}`),
           makeFactor('threatFit', sumEnemyWeight(near), scaleBetween(sumEnemyWeight(near), 0, 6), weights.threatFit ?? 0),
@@ -137,7 +137,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           col: spot.col,
           row: spot.row,
           cost,
-          factors,
+          factors: applyPresetBoost(factors as ScoreFactor[], ctx.config.presetId),
           softBonus: 0,
           penalties: 0,
           total: 0,
@@ -158,7 +158,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const after = dpsOf(tower.type, tower.level + 1);
     const gain = before > 0 ? (after - before) / before : 0;
     const near = enemiesNear(ctx, tower.col, tower.row, data.range);
-    const weights = applyPresetBoost(resolveWeights('upgrade', ctx.config), ctx.config.presetId);
+    const weights = resolveWeights('upgrade', ctx.config);
     const factors = [
       makeFactor('marginal', gain, scaleBetween(gain, 0, 0.6), weights.marginal ?? 0, `Lv${tower.level}→${tower.level + 1}`),
       makeFactor('economyROI', (after - before) / Math.max(1, cost), scaleBetween((after - before) / Math.max(1, cost), 0, 2), weights.economyROI ?? 0),
@@ -188,7 +188,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
   if (ctx.towers.length >= 4) {
     for (const tower of ctx.towers) {
       if (isLocked(ctx, tower.id)) continue;
-      const weights = applyPresetBoost(resolveWeights('sell', ctx.config), ctx.config.presetId);
+      const weights = resolveWeights('sell', ctx.config);
       const near = enemiesNear(ctx, tower.col, tower.row, TOWER_DATA[tower.type]?.range ?? 3);
       const cover = points.length > 0
         ? coveragePointsOf(points, tower.col, tower.row, TOWER_DATA[tower.type]?.range ?? 3) / Math.max(1, points.length)
@@ -227,7 +227,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const range = TOWER_DATA[tower.type]?.range ?? 3;
     const near = enemiesNear(ctx, tower.col, tower.row, range);
     if (near.length === 0) continue;
-    const weights = applyPresetBoost(resolveWeights('skill', ctx.config), ctx.config.presetId);
+    const weights = resolveWeights('skill', ctx.config);
     const boss = near.some((e) => e.type === 'boss' || e.type === 'miniboss');
     const timing = Math.min(1, near.length / 6) * (boss ? 1.2 : 1);
     const factors = [
@@ -261,7 +261,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const ttk = totalDps > 0 ? remainingHp / totalDps : Number.POSITIVE_INFINITY;
     const maxProgress = ctx.enemies.reduce((m, e) => Math.max(m, e.progress), 0);
     const healthRatio = ctx.maxHealth > 0 ? ctx.health / ctx.maxHealth : 1;
-    const weights = applyPresetBoost(resolveWeights('skip', ctx.config), ctx.config.presetId);
+    const weights = resolveWeights('skip', ctx.config);
     const safety = (1 - Math.min(1, ttk / 10)) * (1 - maxProgress) * healthRatio;
     const factors = [
       makeFactor('skipSafety', safety, safety, weights.skipSafety ?? 0, `清除 ${ttk.toFixed(1)}s`),

@@ -96,7 +96,9 @@ export const applyRules = (
       const weight = f.weight * mul;
       return { ...f, weight, contribution: f.normalized * weight };
     });
-    const total = vetoedBy.length > 0 ? 0 : Math.max(0, sumFactors(factors) + bonus - c.penalties);
+    // 因子為空時（測試或外部候選）沿用原總分，不要把分數洗成 0
+    const baseScore = factors.length > 0 ? sumFactors(factors) : c.total - c.softBonus + c.penalties;
+    const total = vetoedBy.length > 0 ? 0 : Math.max(0, baseScore + bonus - c.penalties);
     return { ...c, factors, softBonus: bonus, vetoedBy, total };
   });
 

@@ -16,6 +16,7 @@ import {
   PROTOCOL_SLOW_DURATION_MS,
   shouldOfferProtocol,
 } from '@/data/tacticalProtocolData';
+import { strategyOfPreset } from '@/data/autobattle/presets';
 import { useTutorialStore } from './tutorialStore';
 import { notifyModScripts } from '@/mod-script/dispatch';
 
