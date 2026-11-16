@@ -40,7 +40,7 @@ const cellKey = (col: number, row: number): string => `${col},${row}`;
  * 塔位壓力 0..1：場上塔越多，新增塔位的邊際價值越低。
  * 用於給「不佔新塔位」的動作（升級、融合）加分，避免防線卡在塔位上限。
  */
-const slotPressure = (ctx: AutoBattleContext): number => clamp01((ctx.towers.length - 10) / 24);
+const slotPressure = (ctx: AutoBattleContext): number => clamp01((ctx.towers.length - 6) / 20);
 
 
 /** 塔位最小間距（格）：與實際放置的圓形佔位接近，太保守會浪費可用格 */
