@@ -13,6 +13,7 @@ const ctx = (over: Partial<AutoBattleContext> = {}): AutoBattleContext => ({
   towers: [],
   waveActive: false,
   allEnemiesSpawned: false,
+  playerSkills: [],
   lookahead: { moneyReserve: 120, expectedAbilities: [], expectedEnemyCount: 0, pressure: 0, nextWaveTypes: [] },
   config: {
     mode: 'coach',

@@ -384,8 +384,8 @@ const apply = (sim: Sim, action: Action): boolean => {
   }
   if (action.kind === 'playerSkill') {
     if (sim.time < sim.playerSkillReadyAt) return false;
-    sim.playerSkillReadyAt = sim.time + 60;
-    const burst = 150 * (1 + 0.5 * sim.wave);
+    sim.playerSkillReadyAt = sim.time + 90;
+    const burst = 80 * (1 + 0.25 * sim.wave);
     for (const e of sim.enemies) e.hp -= burst;
     return true;
   }
