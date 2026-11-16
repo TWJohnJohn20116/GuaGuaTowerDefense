@@ -4,6 +4,7 @@ import type { EnemyType, PathConfig, TowerType } from '@/types/game';
 import { ENEMY_DATA, GAME_CONSTANTS, PATHS, TOWER_DATA, generateEndlessWaveConfig } from '@/data/gameData';
 import { DEFAULT_AUTO_BATTLE_RULES } from '@/data/autobattle/defaultRules';
 import { computeFusionCost, getFusionRecipe } from '@/data/fusionRecipes';
+import { SKILL_DATA, TOWER_SKILLS } from '@/data/skillData';
 import { decide } from '@/store/autobattle/decide';
 import { collectPathPoints } from '@/data/autobattle/mapInfo';
 
@@ -34,6 +35,10 @@ interface SimTower {
   row: number;
   /** Lv2 起必須有路線，否則升級路徑會卡死（引擎端 canAutoUpgradeTower 會擋） */
   upgradePath: 'A' | 'B' | null;
+  /** 技能冷卻結束時間（秒）；0 = 隨時可用 */
+  skillReadyAt: number;
+  /** 技能爆發結束時間（秒）：期間輸出 ×2.5 */
+  skillUntil: number;
 }
 interface Sim {
   money: number;
@@ -165,6 +170,7 @@ const step = (sim: Sim, dt: number): void => {
     if (target) {
       // 裝甲：每次命中固定減傷（毒／火無視裝甲），高單發傷害的塔受影響較小
       const armor = ENEMY_DATA[target.type].armorValue ?? 0;
+      const burst = sim.time < t.skillUntil ? 2.5 : 1;
       const data = TOWER_DATA[t.type];
       let dps = dpsOf(t.type, t.level);
       if (armor > 0 && !data.poisonEffect && !data.flameEffect) {
@@ -173,7 +179,7 @@ const step = (sim: Sim, dt: number): void => {
         const perShot = (data.damage > 0 ? data.damage : dps / levelScale / Math.max(0.0001, fireRate)) * levelScale;
         dps = Math.max(1, perShot - armor) * fireRate;
       }
-      target.hp -= dps * dt;
+      target.hp -= dps * burst * dt;
     }
   }
 
@@ -219,6 +225,7 @@ type Action =
   | { kind: 'upgrade'; id: string }
   | { kind: 'fuse'; a: string; b: string }
   | { kind: 'sell'; id: string }
+  | { kind: 'skill'; id: string }
   | { kind: 'skip' }
   | null;
 
@@ -263,7 +270,15 @@ const ctxOf = (sim: Sim): AutoBattleContext => ({
     const pos = POINTS[Math.round(e.idx)];
     return { id: e.id, type: e.type, x: pos.col, y: pos.row, health: e.hp, maxHealth: e.maxHp, progress: e.progress };
   }),
-  towers: sim.towers.map((t) => ({ ...t, skillReady: false })),
+  towers: sim.towers.map((t) => ({
+    id: t.id,
+    type: t.type,
+    level: t.level,
+    col: t.col,
+    row: t.row,
+    skillReady: sim.time >= t.skillReadyAt,
+    upgradePath: t.upgradePath,
+  })),
   waveActive: sim.waveActive,
   allEnemiesSpawned: sim.allSpawned,
   lookahead: {
@@ -300,6 +315,10 @@ const runUtilityPolicy = (sim: Sim): Action => {
     lastActionAt.set(c.id, ctx.time);
     return { kind: 'place', type: c.towerType, col: c.col, row: c.row };
   }
+  if (c.kind === 'skill' && c.towerId) {
+    lastActionAt.set(c.id, ctx.time);
+    return { kind: 'skill', id: c.towerId };
+  }
   if (c.kind === 'sell' && c.towerId) {
     lastActionAt.set(c.id, ctx.time);
     return { kind: 'sell', id: c.towerId };
@@ -329,7 +348,26 @@ const apply = (sim: Sim, action: Action): boolean => {
     if (sim.time - (soldAt.get(key) ?? -999) < REBUILD_LOCK_S) return false;
     if (sim.towers.some((t) => Math.hypot(t.col - action.col, t.row - action.row) < 1.3)) return false;
     sim.money -= cost;
-    sim.towers.push({ id: `t${sim.towers.length}`, type: action.type, level: 1, col: action.col, row: action.row, upgradePath: null });
+    sim.towers.push({
+      id: `t${sim.towers.length}`,
+      type: action.type,
+      level: 1,
+      col: action.col,
+      row: action.row,
+      upgradePath: null,
+      skillReadyAt: 0,
+      skillUntil: 0,
+    });
+    return true;
+  }
+  if (action.kind === 'skill') {
+    const tower = sim.towers.find((t) => t.id === action.id);
+    if (!tower) return false;
+    if (sim.time < tower.skillReadyAt) return false;
+    const skillId = TOWER_SKILLS[tower.type];
+    const cooldown = skillId ? (SKILL_DATA[skillId]?.cooldown ?? 20000) / 1000 : 20;
+    tower.skillReadyAt = sim.time + cooldown;
+    tower.skillUntil = sim.time + 2.5;
     return true;
   }
   if (action.kind === 'sell') {
@@ -357,6 +395,8 @@ const apply = (sim: Sim, action: Action): boolean => {
       col: a.col,
       row: a.row,
       upgradePath: null,
+      skillReadyAt: 0,
+      skillUntil: 0,
     });
     return true;
   }
