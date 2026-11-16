@@ -117,14 +117,20 @@ export function BriefingOverlay({
   const locked = !!map.isLocked;
 
   return (
-    <section
-      role="dialog"
-      aria-modal="true"
-      aria-label={map.name}
-      className="fixed inset-0 z-40 flex flex-col bg-[var(--cn-paper)]"
+    <div
+      className="fixed inset-0 z-40 flex items-center justify-center bg-[rgba(46,36,64,0.32)] p-3 sm:p-6"
+      onClick={onClose}
+      role="presentation"
     >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-label={map.name}
+        onClick={(event) => event.stopPropagation()}
+        className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-[1680px] flex-col overflow-hidden rounded-[28px] border-[3px] border-[var(--cn-line)] bg-[var(--cn-paper)] shadow-[0_28px_70px_-24px_rgba(46,36,64,0.55)] sm:max-h-[calc(100vh-3rem)]"
+      >
       {/* 頂列：返回牆 + 地圖識別 + 原生難度 */}
-      <header className="flex shrink-0 items-center gap-3 border-b-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] px-3 py-2.5">
+      <header className="flex shrink-0 items-center gap-3 border-b-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] px-4 py-2.5 sm:px-5">
         <Btn size="sm" variant="ghost" onClick={onClose}>
           ← {t.common.back}
         </Btn>
@@ -244,7 +250,7 @@ export function BriefingOverlay({
       </div>
 
       {/* 出擊列 */}
-      <footer className="shrink-0 border-t-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] px-3 py-2.5">
+      <footer className="shrink-0 border-t-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] px-4 py-2.5 sm:px-5">
         <div className="mx-auto flex w-full max-w-[1680px] flex-wrap items-center gap-2.5">
           <div className="hidden min-w-0 flex-1 flex-wrap items-center gap-2 overflow-hidden sm:flex">
             <span className="arc-label shrink-0">{c.deploySummary}</span>
@@ -269,7 +275,8 @@ export function BriefingOverlay({
           </div>
         </div>
       </footer>
-    </section>
+      </section>
+    </div>
   );
 }
 
