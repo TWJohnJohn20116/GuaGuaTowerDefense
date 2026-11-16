@@ -5,7 +5,6 @@ import { getTowerUpgradeCost, canAutoUpgradeTower } from '@/data/towerUpgradeCos
 import { getTowerBuildCost } from '@/data/towerCost';
 import { findSynergyRecipe } from '@/data/towerSynergyData';
 import { computeFusionCost, getFusionRecipe } from '@/data/fusionRecipes';
-import { effectiveDps } from '@/data/autobattle/towerDps';
 import { counterAffinity } from '@/data/enemyCounters';
 import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { collectPathPoints, coveragePointsOf, maxCoverageOfMap, gridSizeOf } from '@/data/autobattle/mapInfo';
@@ -13,8 +12,13 @@ import { DECISION_LIMITS } from '@/data/autobattle/scoreWeights';
 import { applyPresetBoost, clamp01, finalizeCandidate, makeFactor, resolveWeights, scaleBetween, sumFactors } from './scoring';
 import type { PathConfig } from '@/types/game';
 
-/** 塔的有效 DPS（暴擊／連鎖／濺射都算進去；決策層與基準共用） */
-export const dpsOf = (type: TowerType, level: number): number => effectiveDps(type, level);
+/** 塔的 DPS 估算（基礎傷害 × 攻速；升級每級 +25%） */
+export const dpsOf = (type: TowerType, level: number): number => {
+  const data = TOWER_DATA[type];
+  if (!data) return 0;
+  const base = data.damagePerSecond ?? data.damage * (data.fireRate ?? 1);
+  return base * (1 + (level - 1) * 0.25);
+};
 
 /** 塔的建造成本（含難度倍率） */
 export const buildCostOf = (type: TowerType, costMult: number): number => {
