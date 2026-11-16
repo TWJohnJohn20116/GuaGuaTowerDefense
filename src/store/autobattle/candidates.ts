@@ -78,6 +78,10 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
   const { cols, rows } = gridSizeOf(pathConfig);
   const out: AutoBattleCandidate[] = [];
   const affordable = (type: TowerType): boolean => buildCostOf(type, costMult) <= ctx.money;
+  // 全場最佳塔位能覆蓋多少路徑點：賣塔的「覆蓋損失」要用這個當分母，
+  // 否則除以整條路徑長會讓每一座塔看起來都只是零星覆蓋，於是永遠「很安全、可以賣」。
+  const maxRangeAll = Math.max(0, ...(Object.keys(TOWER_DATA) as TowerType[]).map((t) => TOWER_DATA[t].range));
+  const globalMaxCoverage = Math.max(1, points.length > 0 ? maxCoverageOfMap(points, cols, rows, maxRangeAll) : 1);
 
 
   // ---- 放塔 ----
@@ -203,9 +207,10 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       const weights = resolveWeights('sell', ctx.config);
       const near = enemiesNear(ctx, tower.col, tower.row, TOWER_DATA[tower.type]?.range ?? 3);
       const cover = points.length > 0
-        ? coveragePointsOf(points, tower.col, tower.row, TOWER_DATA[tower.type]?.range ?? 3) / Math.max(1, points.length)
+        ? coveragePointsOf(points, tower.col, tower.row, TOWER_DATA[tower.type]?.range ?? 3) / globalMaxCoverage
         : 0;
-      const safety = 1 - cover;
+      // 只剩「賣掉會少掉多少最佳覆蓋」這段風險；覆蓋好的塔幾乎不會被列入考慮
+      const safety = clamp01(1 - Math.min(1, cover));
       const refund = Math.floor(buildCostOf(tower.type, costMult) * 0.6);
       const factors = [
         makeFactor('safety', safety, safety, weights.safety ?? 0, `覆蓋 ${(cover * 100).toFixed(0)}%`),
