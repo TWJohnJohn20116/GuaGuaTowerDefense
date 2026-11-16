@@ -44,7 +44,7 @@ const slotPressure = (ctx: AutoBattleContext): number => clamp01((ctx.towers.len
 
 
 /** 塔位最小間距（格）：與實際放置的圓形佔位接近，太保守會浪費可用格 */
-const MIN_TOWER_GAP = 1.45;
+const MIN_TOWER_GAP = 1.3;
 
 const occupied = (ctx: AutoBattleContext, col: number, row: number): boolean =>
   ctx.towers.some((t) => Math.hypot(t.col - col, t.row - row) < MIN_TOWER_GAP);
