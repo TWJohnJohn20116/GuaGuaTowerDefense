@@ -44,7 +44,9 @@ const slotPressure = (ctx: AutoBattleContext): number => clamp01((ctx.towers.len
 
 
 /** 塔位最小間距（格）：與實際放置的圓形佔位接近，太保守會浪費可用格 */
-const MIN_TOWER_GAP = 1.3;
+const MIN_TOWER_GAP = 1.0;
+/** 放置掃描步進（格）：真實地圖是連續座標，半步進可以塞進單元格塞不下的位置 */
+const PLACE_STEP = 0.5;
 
 const occupied = (ctx: AutoBattleContext, col: number, row: number): boolean =>
   ctx.towers.some((t) => Math.hypot(t.col - col, t.row - row) < MIN_TOWER_GAP);
@@ -129,8 +131,8 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const maxDps = Math.max(1, ...towerTypes.map((t) => valueOf(t, 1)));
 
     const spots: { col: number; row: number; coverage: number }[] = [];
-    for (let col = 0; col < cols; col++) {
-      for (let row = 0; row < rows; row++) {
+    for (let col = PLACE_STEP; col < cols; col += PLACE_STEP) {
+      for (let row = PLACE_STEP; row < rows; row += PLACE_STEP) {
         if (occupied(ctx, col, row)) continue;
         if (!inAllowedZone(ctx, col, row)) continue;
         if (isLocked(ctx, cellKey(col, row))) continue;
