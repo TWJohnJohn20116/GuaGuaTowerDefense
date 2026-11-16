@@ -69,6 +69,32 @@ const enemyWeight = (e: AutoBattleContext['enemies'][number]): number => {
   return (0.35 + e.progress) * hp * danger;
 };
 
+/**
+ * 對甲契合度 0..1：射程內有裝甲敵人時，這個塔型打不打得到傷害。
+ * 毒／火無視裝甲；單發傷害越高，被固定減傷吃掉的比例越小。
+ */
+const armorFitOf = (type: TowerType, enemies: AutoBattleContext['enemies']): number => {
+  if (enemies.length === 0) return 0.5;
+  const data = TOWER_DATA[type];
+  const perShot = data.damage > 0 ? data.damage : (data.damagePerSecond ?? 0);
+  let weightSum = 0;
+  let fitSum = 0;
+  for (const e of enemies) {
+    const armor = ENEMY_DATA[e.type]?.armorValue ?? 0;
+    if (armor <= 0) continue;
+    const w = enemyWeight(e);
+    const fit = data.poisonEffect || data.flameEffect
+      ? 1
+      : Math.max(0.2, Math.min(1, (perShot - armor) / Math.max(1, perShot)));
+    fitSum += fit * w;
+    weightSum += w;
+  }
+  // 沒有裝甲敵人時給中性值，避免因子把「沒裝甲」誤判成優勢
+  return weightSum > 0 ? fitSum / weightSum : 0.5;
+};
+
+const mixTypeMatch = (counter: number, armorFit: number): number => 0.6 * counter + 0.4 * armorFit;
+
 const enemiesNear = (ctx: AutoBattleContext, col: number, row: number, range: number): AutoBattleContext['enemies'] =>
   ctx.enemies.filter((e) => Math.hypot(e.x - col, e.y - row) <= range + 0.5);
 
@@ -149,7 +175,12 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         const factors = [
           makeFactor('coverage', spot.coverage, coveragePointsOf(points, spot.col, spot.row, range) / maxCoverage, weights.coverage ?? 0, `${spot.coverage}/${maxCoverage}`),
           makeFactor('threatFit', sumEnemyWeight(near), scaleBetween(sumEnemyWeight(near), 0, 6), weights.threatFit ?? 0),
-          makeFactor('typeMatch', counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), type), counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), type), weights.typeMatch ?? 0),
+          makeFactor(
+            'typeMatch',
+            mixTypeMatch(counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), type), armorFitOf(type, near)),
+            mixTypeMatch(counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), type), armorFitOf(type, near)),
+            weights.typeMatch ?? 0,
+          ),
           makeFactor('economyROI', dpsOf(type, 1) / Math.max(1, cost), (dpsOf(type, 1) / Math.max(1, cost)) / bestRoi, weights.economyROI ?? 0),
           makeFactor('tempo', tempoRaw(ctx), tempoRaw(ctx), weights.tempo ?? 0),
           makeFactor('reserve', ctx.money - cost, scaleBetween(ctx.money - cost, 0, Math.max(1, ctx.lookahead.moneyReserve)), weights.reserve ?? 0),
@@ -189,7 +220,12 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const factors = [
       makeFactor('marginal', gain, scaleBetween(gain, 0, 0.6), weights.marginal ?? 0, `Lv${tower.level}→${tower.level + 1}`),
       makeFactor('economyROI', (after - before) / Math.max(1, cost), scaleBetween((after - before) / Math.max(1, cost), 0, 2), weights.economyROI ?? 0),
-      makeFactor('typeMatch', counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), tower.type), counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), tower.type), weights.typeMatch ?? 0),
+      makeFactor(
+        'typeMatch',
+        mixTypeMatch(counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), tower.type), armorFitOf(tower.type, near)),
+        mixTypeMatch(counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), tower.type), armorFitOf(tower.type, near)),
+        weights.typeMatch ?? 0,
+      ),
       makeFactor('threatFit', sumEnemyWeight(near), scaleBetween(sumEnemyWeight(near), 0, 6), weights.threatFit ?? 0),
       makeFactor('reserve', ctx.money - cost, scaleBetween(ctx.money - cost, 0, Math.max(1, ctx.lookahead.moneyReserve)), weights.reserve ?? 0),
     ];
