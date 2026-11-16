@@ -231,6 +231,16 @@ type Action =
 
 const runLegacyPolicy = (sim: Sim, tick: number): Action => {
   void tick;
+  // 舊引擎有「技能就放」的邏輯（每 500ms 檢查、範圍內敵人數達門檻就放），基準也照做
+  for (const tower of sim.towers) {
+    if (sim.time < tower.skillReadyAt) continue;
+    const near = sim.enemies.filter((e) => {
+      const pos = POINTS[Math.round(e.idx)];
+      return Math.hypot(pos.col - tower.col, pos.row - tower.row) <= rangeOf(tower.type) + 0.5;
+    });
+    const hasBoss = near.some((e) => e.type === 'boss' || e.type === 'miniboss');
+    if (near.length >= 3 || hasBoss) return { kind: 'skill', id: tower.id };
+  }
   // 基準刻意不略波：要比較的是「防線能撐幾波」，不是誰比較會按略波
   const money = sim.money;
   if (sim.towers.length > 0 && money > 250) {
