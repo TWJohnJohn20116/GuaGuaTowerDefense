@@ -34,6 +34,13 @@ const cellKey = (col: number, row: number): string => `${col},${row}`;
  */
 const slotPressure = (ctx: AutoBattleContext): number => clamp01((ctx.towers.length - 10) / 24);
 
+/**
+ * 場上已有哪些塔能和這個塔型融合。
+ * 目的是讓 AI 主動湊出融合配方，而不是等塔位塞滿才發現沒得合。
+ */
+const fusionPartnersOf = (ctx: AutoBattleContext, type: TowerType): number =>
+  ctx.towers.reduce((count, tower) => (getFusionRecipe(type, tower.type) ? count + 1 : count), 0);
+
 const occupied = (ctx: AutoBattleContext, col: number, row: number): boolean =>
   ctx.towers.some((t) => Math.hypot(t.col - col, t.row - row) < 1.6);
 
@@ -145,7 +152,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           row: spot.row,
           cost,
           factors: applyPresetBoost(factors as ScoreFactor[], ctx.config.presetId),
-          softBonus: 0,
+          softBonus: 0.14 * Math.min(2, fusionPartnersOf(ctx, type)) * (0.5 + slotPressure(ctx)),
           penalties: 0,
           total: 0,
           vetoedBy: [],
