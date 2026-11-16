@@ -276,10 +276,20 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       if (uniqueRatio > 0.4) continue;
       // 賣塔不能當提款機：手上現金已經低於保留金時，先想辦法賺錢或升級，不是拆防線
       if (ctx.money < ctx.lookahead.moneyReserve) continue;
-      // 只有剛蓋好的塔可能被換掉：已經投資過等級的塔，換掉等於把升級費丟掉
-      if (tower.level > 1) continue;
-      if (uniqueRatio > 0.2) continue;
       if (!getPreset(ctx.config.presetId).allowSell) continue;
+      // 換塔的兩種情形：
+      // 1) 剛蓋好的重複塔（覆蓋幾乎被別塔吃光）
+      // 2) 已升級的塔，但存在「同級更高 DPS、射程不吃虧」的替代塔，而且手上錢多得沒處花
+      const swapTarget = (Object.keys(TOWER_DATA) as TowerType[])
+        .filter((type) => type !== tower.type)
+        .filter((type) => (TOWER_DATA[type]?.range ?? 0) >= (TOWER_DATA[tower.type]?.range ?? 0) * 0.8)
+        .filter((type) => buildCostOf(type, costMult) <= ctx.money + refund)
+        .filter((type) => dpsOf(type, tower.level) > dpsOf(tower.type, tower.level) * 1.25)
+        .sort((a, b) => dpsOf(b, tower.level) - dpsOf(a, tower.level))[0];
+
+      const cheapDuplicate = tower.level <= 1 && uniqueRatio <= 0.2;
+      const levelSwap = Boolean(swapTarget) && ctx.money >= ctx.lookahead.moneyReserve * 2 && slotPressure(ctx) >= 0.9;
+      if (!cheapDuplicate && !levelSwap) continue;
       if (uniqueRatio > 0.15 && ctx.money < ctx.lookahead.moneyReserve * 2) continue;
       const factors = [
         makeFactor('safety', safety, safety, weights.safety ?? 0, `重複覆蓋 ${((1 - uniqueRatio) * 100).toFixed(0)}%`),
