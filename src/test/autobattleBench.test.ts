@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { AutoBattleContext, AutoBattleConfig } from '@/types/autobattle';
 import type { EnemyType, PathConfig, TowerType } from '@/types/game';
-import { ENEMY_DATA, GAME_CONSTANTS, PATHS, TOWER_DATA, WAVE_CONFIGS } from '@/data/gameData';
+import { ENEMY_DATA, GAME_CONSTANTS, PATHS, TOWER_DATA, generateEndlessWaveConfig } from '@/data/gameData';
 import { DEFAULT_AUTO_BATTLE_RULES } from '@/data/autobattle/defaultRules';
 import { decide } from '@/store/autobattle/decide';
 import { collectPathPoints } from '@/data/autobattle/mapInfo';
@@ -73,11 +73,12 @@ const bestSpot = (sim: Sim, range: number): { col: number; row: number; cover: n
 };
 
 /** 血量倍率爬升：模擬「越打越硬」，否則兩邊都能無限存活，存活波次沒有鑑別度 */
-export const HP_RAMP = 0.22;
+export const HP_RAMP = 0.35;
 export const hpScaleAt = (wave: number): number => 1 + HP_RAMP * (wave - 1);
 
 const spawnWave = (sim: Sim, wave: number): void => {
-  const cfg = WAVE_CONFIGS[Math.min(wave - 1, WAVE_CONFIGS.length - 1)];
+  // 用真實的無盡模式生成器：敵人數量隨波次成長，才會有「防線被壓垮」的臨界點
+  const cfg = generateEndlessWaveConfig(wave);
   const scale = hpScaleAt(wave);
   let at = sim.time;
   sim.spawnQueue = [];
@@ -336,8 +337,8 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
 
 describe('autobattle A/B benchmark', () => {
   it('同一份戰鬥模型下比較舊策略與新效用引擎', () => {
-    const legacy = simulate(runLegacyPolicy, 30);
-    const utility = simulate(runUtilityPolicy, 30);
+    const legacy = simulate(runLegacyPolicy, 40);
+    const utility = simulate(runUtilityPolicy, 40);
     const report = { legacy, utility };
     console.info('[autobattle-bench] ' + JSON.stringify(report));
     expect(legacy.towerCount).toBeGreaterThan(0);
