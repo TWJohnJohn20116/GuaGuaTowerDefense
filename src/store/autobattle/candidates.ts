@@ -406,6 +406,31 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     }));
   }
 
+  // ---- 玩家主動技能（全域爆發，後期唯一的非塔位輸出）----
+  for (const skill of ctx.playerSkills) {
+    if (!skill.ready) continue;
+    const weights = resolveWeights('playerSkill', ctx.config);
+    const threat = sumEnemyWeight(ctx.enemies);
+    const timing = clamp01(0.25 + ctx.enemies.length / 20 + (ctx.health / Math.max(1, ctx.maxHealth) < 0.6 ? 0.25 : 0));
+    const factors: ScoreFactor[] = [
+      makeFactor('timing', timing, timing, weights.timing ?? 0, `${ctx.enemies.length} 敵`),
+      makeFactor('threatFit', threat, scaleBetween(threat, 0, 8), weights.threatFit ?? 0),
+    ];
+    out.push(finalizeCandidate({
+      id: `playerSkill:${skill.id}`,
+      kind: 'playerSkill',
+      labelKey: 'content.autoBattle.action.playerSkill',
+      labelParams: { skill: skill.id },
+      playerSkillId: skill.id,
+      cost: 0,
+      factors: applyPresetBoost(factors, ctx.config.presetId),
+      softBonus: 0,
+      penalties: 0,
+      total: 0,
+      vetoedBy: [],
+    }));
+  }
+
   // ---- 略波 ----
   if (ctx.waveActive && ctx.allEnemiesSpawned && ctx.enemies.length > 0 && ctx.towers.length >= 3) {
     let totalDps = 0;

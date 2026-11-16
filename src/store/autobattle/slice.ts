@@ -12,6 +12,7 @@ import { GAME_CONSTANTS } from '@/data/gameData/waveData';
 import { DEFAULT_AUTO_BATTLE_RULES } from '@/data/autobattle/defaultRules';
 import { getPreset } from '@/data/autobattle/presets';
 import { DECISION_LIMITS } from '@/data/autobattle/scoreWeights';
+import type { PlayerSkillId } from '@/data/playerSkillData';
 import { buildContext } from './context';
 import { buildLookahead } from './plan';
 import { decide, trimDecisions } from './decide';
@@ -181,6 +182,7 @@ export const createAutoBattleSlice = (get: GetState, set: SetState) => ({
       },
       activateSkill: (towerId) => get().activateSkill(towerId),
       fuse: (sourceId, targetId) => get().fuseTowers(sourceId, targetId),
+      playerSkill: (skillId) => get().activatePlayerSkill(skillId as PlayerSkillId),
       skip: () => get().skipWave(),
     });
 
@@ -228,6 +230,7 @@ export const createAutoBattleSlice = (get: GetState, set: SetState) => ({
       },
       activateSkill: (towerId) => get().activateSkill(towerId),
       fuse: (sourceId, targetId) => get().fuseTowers(sourceId, targetId),
+      playerSkill: (skillId) => get().activatePlayerSkill(skillId as PlayerSkillId),
       skip: () => get().skipWave(),
     });
     return outcome.executed;

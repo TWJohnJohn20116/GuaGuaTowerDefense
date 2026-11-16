@@ -2,6 +2,7 @@ import type { AutoBattleConfig, AutoBattleContext, AutoBattleLookahead, AutoBatt
 import { GAME_CONSTANTS } from '@/data/gameData';
 import { isSkillReady } from '@/data/skillData';
 import { SKILL_DATA } from '@/data/skillData';
+import { PLAYER_SKILLS } from '@/data/playerSkillData';
 import type { GameStore } from '@/store/gameStoreTypes';
 
 /** 從 store 快照產生一次決策的唯讀輸入（不含前瞻，前瞻由 plan.ts 補） */
@@ -38,6 +39,10 @@ export const buildContext = (
     })),
     waveActive: state.waveActive,
     allEnemiesSpawned: state.allEnemiesSpawned,
+    playerSkills: PLAYER_SKILLS.map((s) => ({
+      id: s.id,
+      ready: now - (state.playerSkillStates[s.id]?.lastUsedTime ?? 0) >= s.cooldown,
+    })),
     lookahead,
     config,
     trigger,

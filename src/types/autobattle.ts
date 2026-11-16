@@ -48,6 +48,8 @@ export interface AutoBattleCandidate {
   targetTowerId?: string;
   /** 融合產物（給 UI 顯示「會變成什麼」） */
   resultType?: TowerType;
+  /** 玩家主動技能 id（kind='playerSkill' 時有值） */
+  playerSkillId?: string;
   col?: number;
   row?: number;
   cost: number;
@@ -162,6 +164,8 @@ export interface AutoBattleContext {
   }[];
   waveActive: boolean;
   allEnemiesSpawned: boolean;
+  /** 玩家主動技能的就緒狀態（AI 目前只放全域型技能） */
+  playerSkills: { id: string; ready: boolean }[];
   lookahead: AutoBattleLookahead;
   config: AutoBattleConfig;
   trigger: AutoBattleTrigger[];

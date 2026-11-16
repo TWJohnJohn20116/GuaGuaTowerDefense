@@ -8,6 +8,7 @@ export interface AutoBattleExecuteApi {
   sell: (towerId: string) => boolean;
   activateSkill: (towerId: string) => boolean;
   fuse: (sourceId: string, targetId: string) => boolean;
+  playerSkill: (skillId: string) => boolean;
   skip: () => void;
 }
 
@@ -48,6 +49,13 @@ export const executeDecision = (decision: AutoBattleDecision, api: AutoBattleExe
     case 'skill': {
       if (!chosen.towerId) return { executed: false, kind: chosen.kind, targetKey: null, reason: 'api-failed' };
       const ok = api.activateSkill(chosen.towerId);
+      return { executed: ok, kind: chosen.kind, targetKey: chosen.id, reason: ok ? undefined : 'api-failed' };
+    }
+    case 'playerSkill': {
+      if (!chosen.playerSkillId) {
+        return { executed: false, kind: chosen.kind, targetKey: null, reason: 'api-failed' };
+      }
+      const ok = api.playerSkill(chosen.playerSkillId);
       return { executed: ok, kind: chosen.kind, targetKey: chosen.id, reason: ok ? undefined : 'api-failed' };
     }
     case 'fusion': {

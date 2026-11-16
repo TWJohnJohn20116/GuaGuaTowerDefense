@@ -52,6 +52,7 @@ interface Sim {
   spawnQueue: { type: EnemyType; at: number; hpScale: number }[];
   lastSkipAt: number;
   firstLeakWave: number;
+  playerSkillReadyAt: number;
 }
 
 // 用真實地圖（zigzag），確保覆蓋計算與實戰同一份路徑資料
@@ -115,6 +116,7 @@ const makeSim = (): Sim => ({
   spawnQueue: [],
   lastSkipAt: -999,
   firstLeakWave: -1,
+  playerSkillReadyAt: 0,
 });
 
 const step = (sim: Sim, dt: number): void => {
@@ -226,11 +228,15 @@ type Action =
   | { kind: 'fuse'; a: string; b: string }
   | { kind: 'sell'; id: string }
   | { kind: 'skill'; id: string }
+  | { kind: 'playerSkill' }
   | { kind: 'skip' }
   | null;
 
 const runLegacyPolicy = (sim: Sim, tick: number): Action => {
   void tick;
+  // 舊引擎同時會放玩家主動技能（tryActivatePlayerSkill），基準也照做
+  if (sim.time >= sim.playerSkillReadyAt && sim.enemies.length >= 8) return { kind: 'playerSkill' };
+
   // 舊引擎有「技能就放」的邏輯（每 500ms 檢查、範圍內敵人數達門檻就放），基準也照做
   for (const tower of sim.towers) {
     if (sim.time < tower.skillReadyAt) continue;
@@ -291,6 +297,8 @@ const ctxOf = (sim: Sim): AutoBattleContext => ({
   })),
   waveActive: sim.waveActive,
   allEnemiesSpawned: sim.allSpawned,
+  // 基準只模擬一個全域爆發技能，冷卻 60 秒
+  playerSkills: [{ id: 'benchBurst', ready: sim.time >= sim.playerSkillReadyAt }],
   lookahead: {
     moneyReserve: 120 + sim.wave * 20,
     expectedAbilities: [],
@@ -324,6 +332,10 @@ const runUtilityPolicy = (sim: Sim): Action => {
   if (c.kind === 'place' && c.towerType && c.col != null && c.row != null) {
     lastActionAt.set(c.id, ctx.time);
     return { kind: 'place', type: c.towerType, col: c.col, row: c.row };
+  }
+  if (c.kind === 'playerSkill') {
+    lastActionAt.set(c.id, ctx.time);
+    return { kind: 'playerSkill' };
   }
   if (c.kind === 'skill' && c.towerId) {
     lastActionAt.set(c.id, ctx.time);
@@ -368,6 +380,13 @@ const apply = (sim: Sim, action: Action): boolean => {
       skillReadyAt: 0,
       skillUntil: 0,
     });
+    return true;
+  }
+  if (action.kind === 'playerSkill') {
+    if (sim.time < sim.playerSkillReadyAt) return false;
+    sim.playerSkillReadyAt = sim.time + 60;
+    const burst = 150 * (1 + 0.5 * sim.wave);
+    for (const e of sim.enemies) e.hp -= burst;
     return true;
   }
   if (action.kind === 'skill') {
