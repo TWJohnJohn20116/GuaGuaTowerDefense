@@ -37,7 +37,7 @@
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "three": "^0.187.0",
-    "zustand": "^4.5.0"
+    "zustand": "^5.1.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",
