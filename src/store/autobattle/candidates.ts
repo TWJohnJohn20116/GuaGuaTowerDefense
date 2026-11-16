@@ -36,8 +36,11 @@ const cellKey = (col: number, row: number): string => `${col},${row}`;
 const slotPressure = (ctx: AutoBattleContext): number => clamp01((ctx.towers.length - 10) / 24);
 
 
+/** 塔位最小間距（格）：與實際放置的圓形佔位接近，太保守會浪費可用格 */
+const MIN_TOWER_GAP = 1.45;
+
 const occupied = (ctx: AutoBattleContext, col: number, row: number): boolean =>
-  ctx.towers.some((t) => Math.hypot(t.col - col, t.row - row) < 1.6);
+  ctx.towers.some((t) => Math.hypot(t.col - col, t.row - row) < MIN_TOWER_GAP);
 
 const inAllowedZone = (ctx: AutoBattleContext, col: number, row: number): boolean => {
   if (ctx.config.mode !== 'zones') return true;
