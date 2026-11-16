@@ -214,6 +214,15 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       // 獨佔覆蓋越高＝越不能賣；完全被其他塔重複涵蓋才視為安全
       const safety = clamp01(1 - uniqueRatio);
       const refund = Math.floor(buildCostOf(tower.type, costMult) * 0.6);
+      // 賣塔只能是「換更好的塔」的手段，不是提款機：
+      // 沒有買得起、而且明顯更強的替代塔時，就不要賣。
+      const currentDps = dpsOf(tower.type, tower.level);
+      const betterReplacement = (Object.keys(TOWER_DATA) as TowerType[]).some((type) => {
+        if (type === tower.type) return false;
+        if (buildCostOf(type, costMult) > ctx.money + refund) return false;
+        return dpsOf(type, 1) > currentDps * 1.2;
+      });
+      if (!betterReplacement) continue;
       const factors = [
         makeFactor('safety', safety, safety, weights.safety ?? 0, `重複覆蓋 ${((1 - uniqueRatio) * 100).toFixed(0)}%`),
         makeFactor('economyROI', refund, scaleBetween(refund, 0, 300), weights.economyROI ?? 0),
