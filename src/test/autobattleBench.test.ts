@@ -136,6 +136,12 @@ const step = (sim: Sim, dt: number): void => {
     e.progress = e.idx / (POINTS.length - 1);
   }
 
+  // 經濟塔：在場上時持續產金（與 TOWER_DATA 的 moneyPerSecond 一致）
+  for (const t of sim.towers) {
+    const d = TOWER_DATA[t.type];
+    if (d.moneyGeneration) sim.money += (d.moneyPerSecond ?? 5) * dt;
+  }
+
   // 塔輸出：射程內打血最多（同分取 id 小）的敵人
   for (const t of sim.towers) {
     let target: SimEnemy | null = null;

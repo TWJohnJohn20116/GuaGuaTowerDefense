@@ -13,6 +13,17 @@ import { DECISION_LIMITS } from '@/data/autobattle/scoreWeights';
 import { applyPresetBoost, clamp01, finalizeCandidate, makeFactor, resolveWeights, scaleBetween, sumFactors } from './scoring';
 import type { PathConfig } from '@/types/game';
 
+/**
+ * 塔的「綜合價值」：DPS + 經濟塔的產金能力（每 1 金/秒 折算成 15 DPS 的份量）。
+ * 只用 DPS 估價會讓經濟塔永遠排最後，前期錯過複利。
+ */
+export const valueOf = (type: TowerType, level: number): number => {
+  const data = TOWER_DATA[type];
+  const dps = dpsOf(type, level);
+  const income = data?.moneyGeneration ? (data.moneyPerSecond ?? 0) * 15 : 0;
+  return dps + income;
+};
+
 /** 塔的 DPS 估算（基礎傷害 × 攻速；升級每級 +25%） */
 export const dpsOf = (type: TowerType, level: number): number => {
   const data = TOWER_DATA[type];
@@ -91,9 +102,9 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const maxCoverage = Math.max(1, maxCoverageOfMap(points, cols, rows, maxRange));
     const bestRoi = Math.max(
       0.0001,
-      ...towerTypes.map((t) => dpsOf(t, 1) / Math.max(1, buildCostOf(t, costMult))),
+      ...towerTypes.map((t) => valueOf(t, 1) / Math.max(1, buildCostOf(t, costMult))),
     );
-    const maxDps = Math.max(1, ...towerTypes.map((t) => dpsOf(t, 1)));
+    const maxDps = Math.max(1, ...towerTypes.map((t) => valueOf(t, 1)));
 
     const spots: { col: number; row: number; coverage: number }[] = [];
     for (let col = 0; col < cols; col++) {
@@ -120,9 +131,9 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
             near.map((e) => ({ type: e.type, weight: enemyWeight(e) })),
             type,
           );
-          const roi = (dpsOf(type, 1) / Math.max(1, buildCostOf(type, costMult))) / bestRoi;
+          const roi = (valueOf(type, 1) / Math.max(1, buildCostOf(type, costMult))) / bestRoi;
           // 塔位吃緊時，「每格 DPS」比「每塊錢 DPS」重要：位置有限，錢可以再賺
-          const perSlot = dpsOf(type, 1) / maxDps;
+          const perSlot = valueOf(type, 1) / maxDps;
           return { type, score: cover * 0.45 + typeMatch * 0.25 + roi * 0.15 + perSlot * 0.15 * slotPressure(ctx) };
         })
         .sort((a, b) => b.score - a.score)
