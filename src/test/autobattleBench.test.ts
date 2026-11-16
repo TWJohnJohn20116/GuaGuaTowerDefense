@@ -68,7 +68,7 @@ const bestSpot = (sim: Sim, range: number): { col: number; row: number; cover: n
   let best = { col: -1, row: -1, cover: -1 };
   for (let col = 0; col < COLS; col++) {
     for (let row = 0; row < ROWS; row++) {
-      if (sim.towers.some((t) => Math.hypot(t.col - col, t.row - row) < 1.6)) continue;
+      if (sim.towers.some((t) => Math.hypot(t.col - col, t.row - row) < 1.45)) continue;
       const cover = coverage(col, row, range);
       if (cover > best.cover) best = { col, row, cover };
     }
@@ -294,7 +294,7 @@ const apply = (sim: Sim, action: Action): boolean => {
     if (cost > sim.money) return false;
     const key = `${action.col},${action.row}`;
     if (sim.time - (soldAt.get(key) ?? -999) < REBUILD_LOCK_S) return false;
-    if (sim.towers.some((t) => Math.hypot(t.col - action.col, t.row - action.row) < 1.6)) return false;
+    if (sim.towers.some((t) => Math.hypot(t.col - action.col, t.row - action.row) < 1.45)) return false;
     sim.money -= cost;
     sim.towers.push({ id: `t${sim.towers.length}`, type: action.type, level: 1, col: action.col, row: action.row, upgradePath: null });
     return true;
