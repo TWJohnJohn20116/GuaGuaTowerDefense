@@ -223,10 +223,22 @@ const ctxOf = (sim: Sim): AutoBattleContext => ({
 });
 
 const lastActionAt = new Map<string, number>();
+/** 與線上 slice 相同的連續猶豫計數，確保基準反映真實行為 */
+let benchHoldStreak = 0;
 
 const runUtilityPolicy = (sim: Sim): Action => {
   const ctx = ctxOf(sim);
-  const decision = decide({ ctx, pathConfig: PATH_CONFIG, costMult: 1, rules: DEFAULT_AUTO_BATTLE_RULES, triggers: ['cooldown'], lastActionAt });
+  const decision = decide({
+    ctx,
+    pathConfig: PATH_CONFIG,
+    costMult: 1,
+    rules: DEFAULT_AUTO_BATTLE_RULES,
+    triggers: ['cooldown'],
+    lastActionAt,
+    holdStreak: benchHoldStreak,
+  });
+  if (decision.verdict === 'hold') benchHoldStreak++;
+  else if (decision.verdict === 'executed') benchHoldStreak = 0;
   if (decision.verdict !== 'executed' || !decision.chosen) return null;
   const c = decision.chosen;
   if (c.kind === 'place' && c.towerType && c.col != null && c.row != null) {
@@ -273,6 +285,7 @@ const apply = (sim: Sim, action: Action): boolean => {
 const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, seedOffset = 0): AgentResult => {
   const sim = makeSim();
   lastActionAt.clear();
+  benchHoldStreak = 0;
   let idleTicks = 0;
   let jitter = 0;
   let lastKey = '';
