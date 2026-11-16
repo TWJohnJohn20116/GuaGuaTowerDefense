@@ -4,7 +4,7 @@ import { useGameStore } from '@/store/gameStore';
 import { useTranslation } from '@/i18n';
 import { GAME_CONSTANTS } from '@/data/gameData';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
-import { BrainIcon, RobotIcon, SparklesIcon, UpArrowIcon } from '@/components/ui/Icons';
+import { BrainIcon, RobotIcon, SkipForwardIcon, SparklesIcon, UpArrowIcon } from '@/components/ui/Icons';
 import { Btn, SegHead } from '@/components/hl';
 import { AUTO_BATTLE_PRESETS } from '@/data/autobattle/presets';
 import { formatNarration } from '@/components/game/autobattle/formatNarration';

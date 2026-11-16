@@ -34,6 +34,7 @@ export const buildContext = (
       col: t.pos.x,
       row: t.pos.y,
       skillReady: Boolean(t.skill && isSkillReady(t.skill.lastUsedTime, SKILL_DATA[t.skill.skillId]?.cooldown ?? 0) && !t.skill.isActive),
+      upgradePath: t.upgradePath ?? null,
     })),
     waveActive: state.waveActive,
     allEnemiesSpawned: state.allEnemiesSpawned,

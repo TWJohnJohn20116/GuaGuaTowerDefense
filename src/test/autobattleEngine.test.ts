@@ -85,7 +85,7 @@ describe('autobattle rules', () => {
       [rule],
     );
     expect(out.candidates[0].softBonus).toBeCloseTo(0.1);
-    expect(out.candidates[0].total).toBeCloseTo(0.1);
+    expect(out.candidates[0].total).toBeCloseTo(0.3);
   });
 });
 

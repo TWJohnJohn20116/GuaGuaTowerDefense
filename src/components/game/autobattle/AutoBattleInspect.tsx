@@ -108,7 +108,7 @@ const Curve = ({ curve }: { curve: AutoBattleCurvePoint[] }) => {
       </svg>
       <ul className="grid grid-cols-3 gap-1 text-[10px]">
         <li>{t.content.autoBattle.stats.executed} · {t.content.autoBattle.stats.decisions}</li>
-        <li className="text-[var(--hl-ink-3)]">{t.content.autoBattle.rules.title}</li>
+        <li className="text-[var(--hl-ink-3)]">{t.content.autoBattle.rule.title}</li>
       </ul>
     </div>
   );

@@ -147,7 +147,15 @@ export interface AutoBattleContext {
   health: number;
   maxHealth: number;
   enemies: { id: string; type: EnemyType; x: number; y: number; health: number; maxHealth: number; progress: number }[];
-  towers: { id: string; type: TowerType; level: number; col: number; row: number; skillReady: boolean }[];
+  towers: {
+    id: string;
+    type: TowerType;
+    level: number;
+    col: number;
+    row: number;
+    skillReady: boolean;
+    upgradePath: 'A' | 'B' | null;
+  }[];
   waveActive: boolean;
   allEnemiesSpawned: boolean;
   lookahead: AutoBattleLookahead;
