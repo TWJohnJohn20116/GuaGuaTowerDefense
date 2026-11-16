@@ -227,6 +227,9 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       // 否則會出現賣了又建、建了又賣的來回震盪。
       if (slotPressure(ctx) < 0.85) continue;
       if (uniqueRatio > 0.4) continue;
+      // 賣塔不能當提款機：手上現金已經低於保留金時，先想辦法賺錢或升級，不是拆防線
+      if (ctx.money < ctx.lookahead.moneyReserve) continue;
+      if (uniqueRatio > 0.15 && ctx.money < ctx.lookahead.moneyReserve * 2) continue;
       const factors = [
         makeFactor('safety', safety, safety, weights.safety ?? 0, `重複覆蓋 ${((1 - uniqueRatio) * 100).toFixed(0)}%`),
         makeFactor('economyROI', refund, scaleBetween(refund, 0, 300), weights.economyROI ?? 0),
