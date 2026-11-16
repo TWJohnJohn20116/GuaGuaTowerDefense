@@ -150,7 +150,19 @@ const step = (sim: Sim, dt: number): void => {
       if (Math.hypot(pos.col - t.col, pos.row - t.row) > rangeOf(t.type)) continue;
       if (!target || e.hp > target.hp) target = e;
     }
-    if (target) target.hp -= dpsOf(t.type, t.level) * dt;
+    if (target) {
+      // 裝甲：每次命中固定減傷（毒／火無視裝甲），高單發傷害的塔受影響較小
+      const armor = ENEMY_DATA[target.type].armorValue ?? 0;
+      const data = TOWER_DATA[t.type];
+      let dps = dpsOf(t.type, t.level);
+      if (armor > 0 && !data.poisonEffect && !data.flameEffect) {
+        const levelScale = 1 + (t.level - 1) * 0.25;
+        const fireRate = data.fireRate ?? 1;
+        const perShot = (data.damage > 0 ? data.damage : dps / levelScale / Math.max(0.0001, fireRate)) * levelScale;
+        dps = Math.max(1, perShot - armor) * fireRate;
+      }
+      target.hp -= dps * dt;
+    }
   }
 
   // 死亡與漏怪
