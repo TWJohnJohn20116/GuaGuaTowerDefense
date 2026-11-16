@@ -84,7 +84,7 @@ const bestSpot = (sim: Sim, range: number): { col: number; row: number; cover: n
 };
 
 /** 血量倍率爬升：模擬「越打越硬」，否則兩邊都能無限存活，存活波次沒有鑑別度 */
-export const HP_RAMP = 0.8;
+export const HP_RAMP = 1.0;
 export const hpScaleAt = (wave: number): number => 1 + HP_RAMP * (wave - 1);
 
 /** 追加一波敵人（不清空現有佇列：略波只是提前放下一波，場上敵人不會消失） */
@@ -460,7 +460,7 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
   let repeats = 0;
   let tick = 0;
   const dt = 0.3;
-  const maxTicks = waves * 400;
+  const maxTicks = waves * 700;
   let waveIndex = 1;
   appendWave(sim, waveIndex);
   while (tick < maxTicks && sim.health > 0) {
@@ -511,7 +511,7 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
 };
 
 describe('autobattle A/B benchmark', () => {
-  it('同一份戰鬥模型下比較舊策略與新效用引擎', { timeout: 120000 }, () => {
+  it('同一份戰鬥模型下比較舊策略與新效用引擎', { timeout: 240000 }, () => {
     const legacy = simulate(runLegacyPolicy, 80);
     const utility = simulate(runUtilityPolicy, 80);
     const report = { legacy, utility };
