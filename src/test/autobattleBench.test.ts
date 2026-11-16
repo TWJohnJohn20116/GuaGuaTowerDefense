@@ -42,6 +42,7 @@ interface Sim {
   waveActive: boolean;
   allSpawned: boolean;
   spawnQueue: { type: EnemyType; at: number; hpScale: number }[];
+  lastSkipAt: number;
 }
 
 // 用真實地圖（zigzag），確保覆蓋計算與實戰同一份路徑資料
@@ -76,12 +77,12 @@ const bestSpot = (sim: Sim, range: number): { col: number; row: number; cover: n
 export const HP_RAMP = 0.35;
 export const hpScaleAt = (wave: number): number => 1 + HP_RAMP * (wave - 1);
 
-const spawnWave = (sim: Sim, wave: number): void => {
+/** 追加一波敵人（不清空現有佇列：略波只是提前放下一波，場上敵人不會消失） */
+const appendWave = (sim: Sim, wave: number): void => {
   // 用真實的無盡模式生成器：敵人數量隨波次成長，才會有「防線被壓垮」的臨界點
   const cfg = generateEndlessWaveConfig(wave);
   const scale = hpScaleAt(wave);
   let at = sim.time;
-  sim.spawnQueue = [];
   for (const group of cfg.enemies) {
     for (let i = 0; i < group.count; i++) {
       sim.spawnQueue.push({ type: group.type as EnemyType, at, hpScale: scale });
@@ -90,7 +91,7 @@ const spawnWave = (sim: Sim, wave: number): void => {
   }
   sim.allSpawned = false;
   sim.waveActive = true;
-  sim.wave = wave;
+  sim.wave = Math.max(sim.wave, wave);
 };
 
 const makeSim = (): Sim => ({
@@ -103,6 +104,7 @@ const makeSim = (): Sim => ({
   waveActive: false,
   allSpawned: false,
   spawnQueue: [],
+  lastSkipAt: -999,
 });
 
 const step = (sim: Sim, dt: number): void => {
@@ -282,10 +284,10 @@ const apply = (sim: Sim, action: Action): boolean => {
     tower.level += 1;
     return true;
   }
-  // skip：直接清空本波
-  sim.enemies = [];
-  sim.spawnQueue = [];
-  sim.allSpawned = true;
+  // skip：提前放下一波，場上敵人留著（與實戰 skipWave 語意一致），並有 8 秒冷卻
+  if (sim.time - sim.lastSkipAt < 8) return false;
+  sim.lastSkipAt = sim.time;
+  appendWave(sim, sim.wave + 1);
   return true;
 };
 
@@ -301,14 +303,14 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
   const dt = 0.3;
   const maxTicks = waves * 400;
   let waveIndex = 1;
-  spawnWave(sim, waveIndex);
+  appendWave(sim, waveIndex);
   while (tick < maxTicks && sim.health > 0) {
     step(sim, dt);
     tick++;
     if (sim.enemies.length === 0 && sim.spawnQueue.length === 0) {
       if (waveIndex >= waves) break;
       waveIndex++;
-      spawnWave(sim, waveIndex);
+      appendWave(sim, waveIndex);
       continue;
     }
     const action = policy(sim, tick + seedOffset);
@@ -336,7 +338,7 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
 };
 
 describe('autobattle A/B benchmark', () => {
-  it('同一份戰鬥模型下比較舊策略與新效用引擎', () => {
+  it('同一份戰鬥模型下比較舊策略與新效用引擎', { timeout: 120000 }, () => {
     const legacy = simulate(runLegacyPolicy, 40);
     const utility = simulate(runUtilityPolicy, 40);
     const report = { legacy, utility };
