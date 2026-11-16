@@ -3,6 +3,7 @@ import type { AutoBattleContext, AutoBattleConfig } from '@/types/autobattle';
 import type { EnemyType, PathConfig, TowerType } from '@/types/game';
 import { ENEMY_DATA, GAME_CONSTANTS, PATHS, TOWER_DATA, generateEndlessWaveConfig } from '@/data/gameData';
 import { DEFAULT_AUTO_BATTLE_RULES } from '@/data/autobattle/defaultRules';
+import { computeFusionCost, getFusionRecipe } from '@/data/fusionRecipes';
 import { decide } from '@/store/autobattle/decide';
 import { collectPathPoints } from '@/data/autobattle/mapInfo';
 
@@ -179,6 +180,7 @@ interface AgentResult {
 type Action =
   | { kind: 'place'; type: TowerType; col: number; row: number }
   | { kind: 'upgrade'; id: string }
+  | { kind: 'fuse'; a: string; b: string }
   | { kind: 'skip' }
   | null;
 
@@ -260,6 +262,10 @@ const runUtilityPolicy = (sim: Sim): Action => {
     lastActionAt.set(c.id, ctx.time);
     return { kind: 'place', type: c.towerType, col: c.col, row: c.row };
   }
+  if (c.kind === 'fusion' && c.towerId && c.targetTowerId) {
+    lastActionAt.set(c.id, ctx.time);
+    return { kind: 'fuse', a: c.towerId, b: c.targetTowerId };
+  }
   if (c.kind === 'upgrade' && c.towerId) {
     lastActionAt.set(c.id, ctx.time);
     return { kind: 'upgrade', id: c.towerId };
@@ -276,6 +282,26 @@ const apply = (sim: Sim, action: Action): boolean => {
     if (sim.towers.some((t) => Math.hypot(t.col - action.col, t.row - action.row) < 1.6)) return false;
     sim.money -= cost;
     sim.towers.push({ id: `t${sim.towers.length}`, type: action.type, level: 1, col: action.col, row: action.row, upgradePath: null });
+    return true;
+  }
+  if (action.kind === 'fuse') {
+    const a = sim.towers.find((t) => t.id === action.a);
+    const b = sim.towers.find((t) => t.id === action.b);
+    if (!a || !b) return false;
+    const recipe = getFusionRecipe(a.type, b.type);
+    if (!recipe) return false;
+    const cost = computeFusionCost(costOf(a.type), costOf(b.type), 1);
+    if (cost > sim.money) return false;
+    sim.money -= cost;
+    sim.towers = sim.towers.filter((t) => t.id !== a.id && t.id !== b.id);
+    sim.towers.push({
+      id: `t${sim.towers.length}-${Math.round(sim.time * 10)}`,
+      type: recipe.result,
+      level: 1,
+      col: a.col,
+      row: a.row,
+      upgradePath: null,
+    });
     return true;
   }
   if (action.kind === 'upgrade') {

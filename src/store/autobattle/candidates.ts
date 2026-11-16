@@ -4,6 +4,7 @@ import { TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
 import { getTowerUpgradeCost, canAutoUpgradeTower } from '@/data/towerUpgradeCost';
 import { getTowerBuildCost } from '@/data/towerCost';
 import { findSynergyRecipe } from '@/data/towerSynergyData';
+import { computeFusionCost, getFusionRecipe } from '@/data/fusionRecipes';
 import { counterAffinity } from '@/data/enemyCounters';
 import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { collectPathPoints, coveragePointsOf, maxCoverageOfMap, gridSizeOf } from '@/data/autobattle/mapInfo';
@@ -218,6 +219,58 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         total: 0,
         vetoedBy: [],
       }, penalty));
+    }
+  }
+
+  // ---- 融合（兩塔合一：少佔一個塔位、DPS 上限更高）----
+  const fusionLimit = 4;
+  let fusionCount = 0;
+  for (let i = 0; i < ctx.towers.length && fusionCount < fusionLimit; i++) {
+    for (let j = i + 1; j < ctx.towers.length && fusionCount < fusionLimit; j++) {
+      const a = ctx.towers[i];
+      const b = ctx.towers[j];
+      const recipe = getFusionRecipe(a.type, b.type);
+      if (!recipe) continue;
+      if (isLocked(ctx, a.id) || isLocked(ctx, b.id)) continue;
+      const cost = computeFusionCost(TOWER_DATA[a.type].cost, TOWER_DATA[b.type].cost, costMult);
+      if (cost > ctx.money) continue;
+      const result = recipe.result;
+      const range = TOWER_DATA[result]?.range ?? 3;
+      const near = enemiesNear(ctx, a.col, a.row, range);
+      const before = dpsOf(a.type, a.level) + dpsOf(b.type, b.level);
+      const after = dpsOf(result, 1);
+      const gain = before > 0 ? (after - before) / before : 0;
+      const weights = resolveWeights('fusion', ctx.config);
+      const factors: ScoreFactor[] = [
+        makeFactor('synergy', 1, 1, weights.synergy ?? 0, `${a.type}+${b.type}→${result}`),
+        makeFactor('economyROI', gain, scaleBetween(gain, -0.2, 0.8), weights.economyROI ?? 0),
+        makeFactor(
+          'typeMatch',
+          counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), result),
+          counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), result),
+          weights.typeMatch ?? 0,
+        ),
+        makeFactor('reserve', ctx.money - cost, scaleBetween(ctx.money - cost, 0, Math.max(1, ctx.lookahead.moneyReserve)), weights.reserve ?? 0),
+      ];
+      out.push(finalizeCandidate({
+        id: `fusion:${a.id}+${b.id}`,
+        kind: 'fusion',
+        labelKey: 'content.autoBattle.action.fusion',
+        labelParams: { tower: result, a: a.type, b: b.type },
+        towerType: result,
+        towerId: a.id,
+        targetTowerId: b.id,
+        resultType: result,
+        col: a.col,
+        row: a.row,
+        cost,
+        factors: applyPresetBoost(factors, ctx.config.presetId),
+        softBonus: 0,
+        penalties: 0,
+        total: 0,
+        vetoedBy: [],
+      }));
+      fusionCount++;
     }
   }
 

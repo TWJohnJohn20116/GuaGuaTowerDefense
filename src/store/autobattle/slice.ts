@@ -180,6 +180,7 @@ export const createAutoBattleSlice = (get: GetState, set: SetState) => ({
         return true;
       },
       activateSkill: (towerId) => get().activateSkill(towerId),
+      fuse: (sourceId, targetId) => get().fuseTowers(sourceId, targetId),
       skip: () => get().skipWave(),
     });
 
@@ -226,6 +227,7 @@ export const createAutoBattleSlice = (get: GetState, set: SetState) => ({
         return true;
       },
       activateSkill: (towerId) => get().activateSkill(towerId),
+      fuse: (sourceId, targetId) => get().fuseTowers(sourceId, targetId),
       skip: () => get().skipWave(),
     });
     return outcome.executed;

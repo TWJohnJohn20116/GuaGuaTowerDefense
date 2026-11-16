@@ -44,6 +44,10 @@ export interface AutoBattleCandidate {
   labelParams?: Record<string, string | number>;
   towerType?: TowerType;
   towerId?: string;
+  /** 融合動作的第二座來源塔 */
+  targetTowerId?: string;
+  /** 融合產物（給 UI 顯示「會變成什麼」） */
+  resultType?: TowerType;
   col?: number;
   row?: number;
   cost: number;
