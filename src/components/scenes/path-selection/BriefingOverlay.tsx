@@ -128,7 +128,7 @@ export function BriefingOverlay({
         aria-modal="true"
         aria-label={map.name}
         onClick={(event) => event.stopPropagation()}
-        className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-[1680px] flex-col overflow-hidden rounded-[28px] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] shadow-[0_28px_70px_-24px_rgba(46,36,64,0.55)] sm:max-h-[calc(100vh-3rem)]"
+        className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-[1200px] flex-col overflow-hidden rounded-[28px] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] shadow-[0_28px_70px_-24px_rgba(46,36,64,0.55)] sm:max-h-[calc(100vh-3rem)]"
       >
       {/* 頂列：返回牆 + 地圖識別 + 原生難度 */}
       <header className="flex shrink-0 items-center gap-3 border-b-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] px-4 py-2.5 sm:px-5">
@@ -161,7 +161,7 @@ export function BriefingOverlay({
 
       {/* 主體 */}
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-3 p-3">
+        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-3 p-3">
           {/* 地圖 hero：左真渲染預覽，右識別與數據 */}
           <section className="arc-panel grid shrink-0 overflow-hidden lg:grid-cols-[300px_minmax(0,1fr)]">
             <div className="flex flex-col justify-center gap-2 border-b-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] p-3 lg:border-b-0 lg:border-r-[3px]">
@@ -256,7 +256,7 @@ export function BriefingOverlay({
 
       {/* 出擊列 */}
       <footer className="shrink-0 border-t-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] px-4 py-2.5 sm:px-5">
-        <div className="mx-auto flex w-full max-w-[1680px] flex-wrap items-center gap-2.5">
+        <div className="mx-auto flex w-full max-w-[1200px] flex-wrap items-center gap-2.5">
           <div className="hidden min-w-0 flex-1 flex-wrap items-center gap-2 overflow-hidden sm:flex">
             <span className="arc-label shrink-0">{c.deploySummary}</span>
             <SummaryChip label={c.mapLabel} value={map.name} />
