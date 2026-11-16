@@ -28,7 +28,12 @@ export default function MapPreview({ map, width = 360, height = 264, className =
     segments: map.segments,
   };
   const bounds = boundsOf(pathConfig);
-  const cellSize = Math.min(width / bounds.width, height / bounds.height);
+  // 預留邊距，讓路徑帶的圓角端點與起終點標記不會貼在縮圖邊緣
+  const padding = 16;
+  const cellSize = Math.min(
+    (width - padding * 2) / bounds.width,
+    (height - padding * 2) / bounds.height,
+  );
   const offsetX = (width - bounds.width * cellSize) / 2;
   const offsetY = (height - bounds.height * cellSize) / 2;
 

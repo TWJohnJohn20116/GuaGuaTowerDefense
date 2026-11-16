@@ -27,7 +27,8 @@ export const PathPreview = ({
 
   const bounds = boundsOf(path);
   const cellSize = size === 'small' ? 16 : size === 'large' ? 32 : 24;
-  const padding = size === 'small' ? 8 : size === 'large' ? 24 : 12;
+  // 邊距至少一格：路徑帶半寬約 0.45 格，留一格才不會貼邊被誤認為裁切
+  const padding = cellSize;
   const w = bounds.width * cellSize + padding * 2;
   const h = bounds.height * cellSize + padding * 2;
 

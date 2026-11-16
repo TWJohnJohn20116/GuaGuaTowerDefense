@@ -142,9 +142,11 @@ const GameCanvasImpl = () => {
     });
   }, [showTacticalView, activeMap, selectedTowerType, getTowerData]);
 
+  // 四周各留半格：路徑帶的圓角端點半徑約 0.45 格，留 0.5 格才不會頂到場地邊緣
+  // （之前用固定 40px 邊距，格很大時路徑帶會貼邊，看起來像被裁切）
   const tileSize = Math.max(0, Math.min(
-    (dimensions.width - 40) / bounds.width,
-    (dimensions.height - 40) / bounds.height
+    dimensions.width / (bounds.width + 1),
+    dimensions.height / (bounds.height + 1)
   ));
 
   const gridWidth = tileSize * bounds.width;
