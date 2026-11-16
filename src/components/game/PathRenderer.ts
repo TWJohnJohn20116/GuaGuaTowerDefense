@@ -51,6 +51,36 @@ const drawTerrain = (
   ctx.globalAlpha = 1;
 };
 
+/**
+ * 真正的入口與出口。
+ *
+ * 入口：`startSegmentId` 指定那一段的第一點（缺省取第一段／第一條折線）。
+ * 出口：所有「沒有下一段」的路段終點；沒有 segments 的普通地圖就是折線末端。
+ */
+const resolvePathEnds = (path: PathConfig): { kind: 'start' | 'end'; point: GridPosition }[] => {
+  const result: { kind: 'start' | 'end'; point: GridPosition }[] = [];
+  const segments = path.segments;
+
+  if (segments && segments.length > 0) {
+    const startSeg = segments.find((s) => s.id === path.startSegmentId) ?? segments[0];
+    if (startSeg?.waypoints.length) result.push({ kind: 'start', point: startSeg.waypoints[0] });
+    for (const seg of segments) {
+      if (seg.next.length === 0 && seg.waypoints.length > 0) {
+        result.push({ kind: 'end', point: seg.waypoints[seg.waypoints.length - 1] });
+      }
+    }
+    return result;
+  }
+
+  const lines = pathPolylines(path);
+  if (lines.length > 0) {
+    result.push({ kind: 'start', point: lines[0][0] });
+    const lastLine = lines[lines.length - 1];
+    result.push({ kind: 'end', point: lastLine[lastLine.length - 1] });
+  }
+  return result;
+};
+
 const strokePolyline = (
   ctx: CanvasRenderingContext2D,
   pts: readonly GridPosition[],
@@ -107,12 +137,18 @@ export const drawField = (
   // 2) 地形點綴
   if (showTerrain) drawTerrain(ctx, bounds.width, bounds.height, tileSize, offsetX, offsetY);
 
-  // 3) 路徑帶：外描邊 + 內填，圓角接合讓轉彎不會出現尖角
+  // 3) 路徑帶：外描邊 + 內填
+  //
+  // 一定要「先畫完所有外描邊，再畫所有內填」。
+  // 逐條「外→內」的話，後畫那條的外描邊會壓在前一條的內填上：
+  // 分岔點（多段交會處）就會露出一圈描邊色的弧線，看起來像接縫。
   if (showPath && path) {
     const lines = pathPolylines(path);
     const bandWidth = pathWidthOf(path) * tileSize;
     for (const line of lines) {
       strokePolyline(ctx, line, tileSize, offsetX, offsetY, bandWidth + 3, board.edge);
+    }
+    for (const line of lines) {
       strokePolyline(ctx, line, tileSize, offsetX, offsetY, bandWidth, board.path);
     }
   }
@@ -137,19 +173,19 @@ export const drawField = (
     }
   }
 
-  // 5) 起點／終點：每條折線的兩端各一顆
+  // 5) 起點／終點：只標真正的入口與出口
+  //    逐條折線各畫一顆的話，分岔點會被當成多條線的起點而疊出綠圓。
   if (showEndpoints && path) {
-    const lines = pathPolylines(path);
-    for (const line of lines) {
-      const first = line[0];
-      const last = line[line.length - 1];
+    for (const end of resolvePathEnds(path)) {
       ctx.beginPath();
-      ctx.arc(offsetX + first.col * tileSize, offsetY + first.row * tileSize, tileSize * 0.32, 0, Math.PI * 2);
-      ctx.fillStyle = board.start;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(offsetX + last.col * tileSize, offsetY + last.row * tileSize, tileSize * 0.32, 0, Math.PI * 2);
-      ctx.fillStyle = board.end;
+      ctx.arc(
+        offsetX + end.point.col * tileSize,
+        offsetY + end.point.row * tileSize,
+        tileSize * 0.32,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fillStyle = end.kind === 'start' ? board.start : board.end;
       ctx.fill();
     }
   }
