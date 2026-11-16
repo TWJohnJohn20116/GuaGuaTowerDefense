@@ -206,11 +206,18 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       if (isLocked(ctx, tower.id)) continue;
       const weights = resolveWeights('sell', ctx.config);
       const near = enemiesNear(ctx, tower.col, tower.row, TOWER_DATA[tower.type]?.range ?? 3);
-      const cover = points.length > 0
-        ? coveragePointsOf(points, tower.col, tower.row, TOWER_DATA[tower.type]?.range ?? 3) / globalMaxCoverage
-        : 0;
-      // 只剩「賣掉會少掉多少最佳覆蓋」這段風險；覆蓋好的塔幾乎不會被列入考慮
-      const safety = clamp01(1 - Math.min(1, cover));
+      const range = TOWER_DATA[tower.type]?.range ?? 3;
+      const coveredPoints = points.filter((p) => Math.hypot(p.col - tower.col, p.row - tower.row) <= range);
+      // 這座塔「獨佔」的路徑點：拿掉它之後沒有任何其他塔還打得到
+      const uniquePoints = coveredPoints.filter((p) => !ctx.towers.some((other) => {
+        if (other.id === tower.id) return false;
+        const otherRange = TOWER_DATA[other.type]?.range ?? 3;
+        return Math.hypot(p.col - other.col, p.row - other.row) <= otherRange;
+      }));
+      const uniqueRatio = coveredPoints.length > 0 ? uniquePoints.length / coveredPoints.length : 1;
+      // 獨佔覆蓋越高＝越不能賣；完全被其他塔重複涵蓋才視為安全
+      const safety = clamp01(1 - uniqueRatio);
+      void globalMaxCoverage;
       const refund = Math.floor(buildCostOf(tower.type, costMult) * 0.6);
       const factors = [
         makeFactor('safety', safety, safety, weights.safety ?? 0, `覆蓋 ${(cover * 100).toFixed(0)}%`),
