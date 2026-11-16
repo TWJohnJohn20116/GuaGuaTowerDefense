@@ -223,8 +223,9 @@ export default function PathSelection() {
   }, [category, t, c]);
 
   return (
+    <>
     <SceneShell scrollable={false}>
-      <div className="relative flex h-full w-full flex-col gap-3">
+      <div className="flex h-full w-full flex-col gap-3">
         <TopBar
           title={t.pathSelection.title}
           meta={t.pathSelection.subtitle}
@@ -246,25 +247,28 @@ export default function PathSelection() {
           />
         </div>
 
-        {briefingOpen && activeMap && (
-          <BriefingOverlay
-            map={activeMap}
-            onClose={closeBriefing}
-            difficulty={difficulty}
-            setDifficulty={setDifficulty}
-            customModifiers={customModifiers}
-            setCustomModifiers={setCustomModifiers}
-            modifiers={modifiers}
-            endlessMode={endlessMode}
-            setEndlessMode={setEndlessMode}
-            selectedWaves={selectedWaves}
-            setSelectedWaves={setSelectedWaves}
-            customWaveSetId={customWaveSetId}
-            setCustomWaveSetId={setCustomWaveSetId}
-            onStart={handleStart}
-          />
-        )}
       </div>
     </SceneShell>
+
+    {/* 全屏覆蓋層放在 SceneShell 外面：它不該吃到場景的 p-3 內距 */}
+    {briefingOpen && activeMap && (
+      <BriefingOverlay
+        map={activeMap}
+        onClose={closeBriefing}
+        difficulty={difficulty}
+        setDifficulty={setDifficulty}
+        customModifiers={customModifiers}
+        setCustomModifiers={setCustomModifiers}
+        modifiers={modifiers}
+        endlessMode={endlessMode}
+        setEndlessMode={setEndlessMode}
+        selectedWaves={selectedWaves}
+        setSelectedWaves={setSelectedWaves}
+        customWaveSetId={customWaveSetId}
+        setCustomWaveSetId={setCustomWaveSetId}
+        onStart={handleStart}
+      />
+    )}
+    </>
   );
 }
