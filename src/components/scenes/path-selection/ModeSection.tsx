@@ -1,9 +1,10 @@
 /**
  * 簡報層 · 遊戲模式
  *
- * 三層，順序就是決策順序：無盡開關（這局有沒有終點）→ 目標波次（多長）
- * → 自訂波次組（用哪套波）。後兩者互斥：選了波次組就由該組的波數決定長度。
- * 波次組清單預設收起，十幾組攤開會把簡報層撐得比地圖資訊還長。
+ * 兩個控制塊並排靠左（無盡開關、目標波次），波次組清單收在下方。
+ * 關鍵約束：**點任何一個控制都不准移動其他控制的位置**。
+ * 舊版把波次塊用條件渲染拿掉，無盡一開左塊就撐滿整行、開關被推到最右邊——
+ * 所以這裡改成：無盡開啟時波次塊灰掉停用，而不是消失。
  */
 
 import { useMemo } from 'react';
@@ -49,12 +50,14 @@ export function ModeSection({
   const hasWaveSets = waveSets.length > 0;
   const usingWaveSet = !!customWaveSetId && hasWaveSets;
   const activeWaveSet = waveSets.find((set) => set.id === customWaveSetId);
+  // 無盡模式沒有終點，波次長度與波次組都失去意義——停用而不是隱藏
+  const waveBlockOff = endlessMode || usingWaveSet;
 
   return (
     <div className="flex flex-col gap-2">
-      <div className={`grid gap-2 ${endlessMode ? '' : 'lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]'}`}>
-        {/* 無盡開關 */}
-        <div className="flex items-center justify-between gap-3 rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card)] px-3 py-2.5">
+      <div className="flex flex-wrap items-start gap-2">
+        {/* 無盡模式：寬度由內容決定，開關緊貼說明，不會被推走 */}
+        <div className="flex items-center gap-3 rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card)] px-3 py-2">
           <div className="min-w-0">
             <div className="text-[12.5px] font-extrabold text-[var(--cn-ink)]">
               {t.pathSelection.endlessMode}
@@ -70,53 +73,67 @@ export function ModeSection({
           />
         </div>
 
-        {/* 目標波次 */}
-        {!endlessMode && (
-          <div className="rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card)] px-3 py-2.5">
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <span className="arc-label">{t.pathSelection.targetWaves}</span>
-              <span className="font-mono text-[12px] font-extrabold tabular-nums text-[var(--cn-ink)]">
-                {usingWaveSet
-                  ? `${activeWaveSet?.waves ?? 0} ${t.pathSelection.waves}`
-                  : `${selectedWaves} ${t.pathSelection.waves}`}
-              </span>
-            </div>
-            <div role="radiogroup" className="grid grid-cols-6 gap-1.5">
-              {WAVE_OPTIONS.map((waves) => {
-                const active = selectedWaves === waves && !usingWaveSet;
-                return (
-                  <button
-                    key={waves}
-                    type="button"
-                    role="radio"
-                    aria-checked={active}
-                    disabled={usingWaveSet}
-                    onClick={() => {
-                      setSelectedWaves(waves);
-                      setCustomWaveSetId('');
-                    }}
-                    onMouseEnter={() => playUiHover()}
-                    className={[
-                      'rounded-[var(--cn-r-sm)] border-[3px] py-1.5 font-mono text-[12px] font-extrabold tabular-nums',
-                      'transition-[background-color,border-color,box-shadow] duration-[160ms]',
-                      'disabled:cursor-not-allowed disabled:opacity-40',
-                      active
-                        ? 'border-[var(--cn-line)] bg-[var(--cn-sun)] text-[var(--cn-ink)] shadow-[0_3px_0_var(--cn-sun-deep)]'
-                        : 'border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] text-[var(--cn-ink-2)] hover:border-[var(--cn-line-mid)] hover:text-[var(--cn-ink)]',
-                    ].join(' ')}
-                  >
-                    {waves}
-                  </button>
-                );
-              })}
-            </div>
+        {/* 目標波次：無盡時灰掉，位置不動 */}
+        <div
+          className={[
+            'flex flex-wrap items-center gap-2 rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card)] px-3 py-2',
+            'transition-opacity duration-[160ms]',
+            endlessMode ? 'opacity-45' : '',
+          ].join(' ')}
+        >
+          <span className="arc-label shrink-0">{t.pathSelection.targetWaves}</span>
+
+          {/* 固定寬度的籤：邊框恆為 2px、陰影只往下，選中只換色，位置不會隨點擊位移 */}
+          <div role="radiogroup" className="flex flex-wrap items-center gap-1.5">
+            {WAVE_OPTIONS.map((waves) => {
+              const active = selectedWaves === waves && !usingWaveSet;
+              return (
+                <button
+                  key={waves}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  disabled={waveBlockOff}
+                  onClick={() => {
+                    setSelectedWaves(waves);
+                    setCustomWaveSetId('');
+                  }}
+                  onMouseEnter={() => playUiHover()}
+                  className={[
+                    'min-w-[56px] rounded-[var(--cn-r-pill)] border-2 px-3 py-1.5',
+                    'font-mono text-[12px] font-extrabold tabular-nums',
+                    'transition-[background-color,border-color,color] duration-[160ms]',
+                    'disabled:cursor-not-allowed',
+                    active
+                      ? 'border-[var(--cn-line)] bg-[var(--cn-sun)] text-[var(--cn-ink)]'
+                      : 'border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] text-[var(--cn-ink-2)] hover:border-[var(--cn-line-mid)] hover:text-[var(--cn-ink)]',
+                  ].join(' ')}
+                >
+                  {waves}
+                </button>
+              );
+            })}
           </div>
-        )}
+
+          <span className="ml-1 shrink-0 font-mono text-[12px] font-extrabold tabular-nums text-[var(--cn-ink)]">
+            {endlessMode
+              ? '∞'
+              : usingWaveSet
+                ? `${activeWaveSet?.waves ?? 0} ${t.pathSelection.waves}`
+                : `${selectedWaves} ${t.pathSelection.waves}`}
+          </span>
+        </div>
       </div>
 
-      {/* 自訂波次組 */}
-      {!endlessMode && hasWaveSets && (
-        <details className="group rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card)]">
+      {/* 自訂波次組：無盡時同樣灰掉而非消失 */}
+      {hasWaveSets && (
+        <details
+          className={[
+            'group rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card)]',
+            'transition-opacity duration-[160ms]',
+            endlessMode ? 'pointer-events-none opacity-45' : '',
+          ].join(' ')}
+        >
           <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[var(--cn-line-soft)] text-[10px] leading-none text-[var(--cn-ink-3)] transition-transform duration-200 group-open:rotate-90">
               ▸
