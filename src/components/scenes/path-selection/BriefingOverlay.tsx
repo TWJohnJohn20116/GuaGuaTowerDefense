@@ -128,7 +128,7 @@ export function BriefingOverlay({
         aria-modal="true"
         aria-label={map.name}
         onClick={(event) => event.stopPropagation()}
-        className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-[1680px] flex-col overflow-hidden rounded-[28px] border-[3px] border-[var(--cn-line)] bg-[var(--cn-paper)] shadow-[0_28px_70px_-24px_rgba(46,36,64,0.55)] sm:max-h-[calc(100vh-3rem)]"
+        className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-[1680px] flex-col overflow-hidden rounded-[28px] border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] shadow-[0_28px_70px_-24px_rgba(46,36,64,0.55)] sm:max-h-[calc(100vh-3rem)]"
       >
       {/* 頂列：返回牆 + 地圖識別 + 原生難度 */}
       <header className="flex shrink-0 items-center gap-3 border-b-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] px-4 py-2.5 sm:px-5">
