@@ -140,44 +140,32 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       }
     }
     spots.sort((a, b) => b.coverage - a.coverage);
-    // 先決定「蓋哪三種塔」，再讓每種塔用『自己的射程』去找最佳點位；
-    // 先前先用最長射程挑點、再塞短射程塔，會挑到對短射程根本沒覆蓋的位置。
+    const spotLimit = Math.min(12, spots.length);
+    for (let i = 0; i < spotLimit; i++) {
+      const spot = spots[i];
+      // 依「覆蓋 × 對位 × ROI」挑前三種塔，避免 12 格 × 22 種的組合爆炸
+      const ranked = [...towerTypes]
+        .map((type) => {
+          const range = TOWER_DATA[type].range;
+          const cover = coveragePointsOf(points, spot.col, spot.row, range) / maxCoverage;
+          const near = enemiesNear(ctx, spot.col, spot.row, range);
+          const typeMatch = counterAffinity(
+            near.map((e) => ({ type: e.type, weight: enemyWeight(e) })),
+            type,
+          );
+          const roi = (valueOf(type, 1) / Math.max(1, buildCostOf(type, costMult))) / bestRoi;
+          // 塔位吃緊時，「每格 DPS」比「每塊錢 DPS」重要：位置有限，錢可以再賺
+          const perSlot = valueOf(type, 1) / maxDps;
+          return { type, score: cover * 0.45 + typeMatch * 0.25 + roi * 0.15 + perSlot * 0.15 * slotPressure(ctx) };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3);
 
-    const typeRank = [...towerTypes]
-      .map((type) => {
-        const value = valueOf(type, 1);
-        const roi = value / Math.max(1, buildCostOf(type, costMult)) / bestRoi;
-        const perSlot = value / maxDps;
-        return { type, score: roi * 0.45 + perSlot * (0.55 + 0.45 * slotPressure(ctx)) };
-      })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
-
-    const picks: { type: TowerType; col: number; row: number; coverage: number }[] = [];
-    for (const entry of typeRank) {
-      const range = TOWER_DATA[entry.type].range;
-      // 每種塔型對整張網格用自己的射程找點：用「最長射程」的點位池會偏向離路徑較遠的位置，
-      // 短射程塔放上去幾乎打不到東西。
-      const best: { col: number; row: number; coverage: number }[] = [];
-      for (let col = 0; col < cols; col++) {
-        for (let row = 0; row < rows; row++) {
-          if (occupied(ctx, col, row)) continue;
-          if (!inAllowedZone(ctx, col, row)) continue;
-          if (isLocked(ctx, cellKey(col, row))) continue;
-          const coverage = coveragePointsOf(points, col, row, range);
-          if (coverage > 0) best.push({ col, row, coverage });
-        }
-      }
-      best.sort((x, y) => y.coverage - x.coverage);
-      for (const s of best.slice(0, 4)) picks.push({ type: entry.type, col: s.col, row: s.row, coverage: s.coverage });
-    }
-
-    for (const pick of picks) {
+      for (const pick of ranked) {
         const type = pick.type;
         const data = TOWER_DATA[type];
         const cost = buildCostOf(type, costMult);
         const range = data.range;
-        const spot = { col: pick.col, row: pick.row, coverage: pick.coverage };
         const near = enemiesNear(ctx, spot.col, spot.row, range);
         const weights = adjustWeightsForSurplus(resolveWeights('place', ctx.config), ctx);
         const factors = [
@@ -209,6 +197,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           total: 0,
           vetoedBy: [],
         }));
+      }
     }
   }
 
