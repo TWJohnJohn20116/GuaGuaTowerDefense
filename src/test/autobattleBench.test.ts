@@ -4,6 +4,7 @@ import type { EnemyType, PathConfig, TowerType } from '@/types/game';
 import { ENEMY_DATA, GAME_CONSTANTS, PATHS, TOWER_DATA, generateEndlessWaveConfig } from '@/data/gameData';
 import { DEFAULT_AUTO_BATTLE_RULES } from '@/data/autobattle/defaultRules';
 import { computeFusionCost, getFusionRecipe } from '@/data/fusionRecipes';
+import { effectiveDps } from '@/data/autobattle/towerDps';
 import { decide } from '@/store/autobattle/decide';
 import { collectPathPoints } from '@/data/autobattle/mapInfo';
 
@@ -54,10 +55,8 @@ const POINTS = collectPathPoints(PATH_CONFIG);
 const COLS = GAME_CONSTANTS.GRID_COLS;
 const ROWS = GAME_CONSTANTS.GRID_ROWS;
 
-const dpsOf = (type: TowerType, level: number): number => {
-  const d = TOWER_DATA[type];
-  return (d.damagePerSecond ?? d.damage * (d.fireRate ?? 1)) * (1 + (level - 1) * 0.25);
-};
+// 與決策層共用同一套有效 DPS（含暴擊／連鎖／濺射），避免兩邊估值不一致
+const dpsOf = (type: TowerType, level: number): number => effectiveDps(type, level);
 const costOf = (type: TowerType): number => TOWER_DATA[type].cost;
 const rangeOf = (type: TowerType): number => TOWER_DATA[type].range;
 

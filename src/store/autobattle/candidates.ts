@@ -5,6 +5,7 @@ import { getTowerUpgradeCost, canAutoUpgradeTower } from '@/data/towerUpgradeCos
 import { getTowerBuildCost } from '@/data/towerCost';
 import { findSynergyRecipe } from '@/data/towerSynergyData';
 import { computeFusionCost, getFusionRecipe } from '@/data/fusionRecipes';
+import { effectiveDps } from '@/data/autobattle/towerDps';
 import { counterAffinity } from '@/data/enemyCounters';
 import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { collectPathPoints, coveragePointsOf, maxCoverageOfMap, gridSizeOf } from '@/data/autobattle/mapInfo';
@@ -12,13 +13,8 @@ import { DECISION_LIMITS } from '@/data/autobattle/scoreWeights';
 import { applyPresetBoost, clamp01, finalizeCandidate, makeFactor, resolveWeights, scaleBetween, sumFactors } from './scoring';
 import type { PathConfig } from '@/types/game';
 
-/** 塔的有效 DPS 估算（與舊引擎同公式；升級每級 +25%） */
-export const dpsOf = (type: TowerType, level: number): number => {
-  const data = TOWER_DATA[type];
-  if (!data) return 0;
-  const base = data.damagePerSecond ?? data.damage * (data.fireRate ?? 1);
-  return base * (1 + (level - 1) * 0.25);
-};
+/** 塔的有效 DPS（暴擊／連鎖／濺射都算進去；決策層與基準共用） */
+export const dpsOf = (type: TowerType, level: number): number => effectiveDps(type, level);
 
 /** 塔的建造成本（含難度倍率） */
 export const buildCostOf = (type: TowerType, costMult: number): number => {
@@ -78,7 +74,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
   const { cols, rows } = gridSizeOf(pathConfig);
   const out: AutoBattleCandidate[] = [];
   const affordable = (type: TowerType): boolean => buildCostOf(type, costMult) <= ctx.money;
-  const maxDpsAny = Math.max(1, ...(Object.keys(TOWER_DATA) as TowerType[]).map((t) => dpsOf(t, 5)));
+
 
   // ---- 放塔 ----
   const towerTypes = (Object.keys(TOWER_DATA) as TowerType[]).filter(affordable);
@@ -119,7 +115,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           const roi = (dpsOf(type, 1) / Math.max(1, buildCostOf(type, costMult))) / bestRoi;
           // 塔位吃緊時，「每格 DPS」比「每塊錢 DPS」重要：位置有限，錢可以再賺
           const perSlot = dpsOf(type, 1) / maxDps;
-          return { type, score: cover * 0.4 + typeMatch * 0.22 + roi * 0.13 + perSlot * 0.35 * slotPressure(ctx) };
+          return { type, score: cover * 0.45 + typeMatch * 0.25 + roi * 0.15 + perSlot * 0.15 * slotPressure(ctx) };
         })
         .sort((a, b) => b.score - a.score)
         .slice(0, 3);
@@ -205,10 +201,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       const cover = points.length > 0
         ? coveragePointsOf(points, tower.col, tower.row, TOWER_DATA[tower.type]?.range ?? 3) / Math.max(1, points.length)
         : 0;
-      // 塔位吃緊時，「這座塔值不值得留」比「賣掉會不會漏」更重要：
-      // 低 DPS 的塔加上塔位壓力，安全度會被拉高，讓它更容易被換成高階塔。
-      const dpsRank = dpsOf(tower.type, tower.level) / Math.max(1, maxDpsAny);
-      const safety = clamp01(1 - cover + 0.5 * (1 - dpsRank) * slotPressure(ctx));
+      const safety = 1 - cover;
       const refund = Math.floor(buildCostOf(tower.type, costMult) * 0.6);
       const factors = [
         makeFactor('safety', safety, safety, weights.safety ?? 0, `覆蓋 ${(cover * 100).toFixed(0)}%`),
