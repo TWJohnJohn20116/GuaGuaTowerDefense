@@ -41,7 +41,7 @@ interface Sim {
   towers: SimTower[];
   waveActive: boolean;
   allSpawned: boolean;
-  spawnQueue: { type: EnemyType; at: number }[];
+  spawnQueue: { type: EnemyType; at: number; hpScale: number }[];
 }
 
 // 用真實地圖（zigzag），確保覆蓋計算與實戰同一份路徑資料
@@ -72,13 +72,18 @@ const bestSpot = (sim: Sim, range: number): { col: number; row: number; cover: n
   return best;
 };
 
+/** 血量倍率爬升：模擬「越打越硬」，否則兩邊都能無限存活，存活波次沒有鑑別度 */
+export const HP_RAMP = 0.22;
+export const hpScaleAt = (wave: number): number => 1 + HP_RAMP * (wave - 1);
+
 const spawnWave = (sim: Sim, wave: number): void => {
   const cfg = WAVE_CONFIGS[Math.min(wave - 1, WAVE_CONFIGS.length - 1)];
+  const scale = hpScaleAt(wave);
   let at = sim.time;
   sim.spawnQueue = [];
   for (const group of cfg.enemies) {
     for (let i = 0; i < group.count; i++) {
-      sim.spawnQueue.push({ type: group.type as EnemyType, at });
+      sim.spawnQueue.push({ type: group.type as EnemyType, at, hpScale: scale });
       at += 0.45;
     }
   }
@@ -105,12 +110,13 @@ const step = (sim: Sim, dt: number): void => {
     const next = sim.spawnQueue.shift();
     if (!next) break;
     const data = ENEMY_DATA[next.type];
+    const hp = data.health * next.hpScale;
     sim.enemies.push({
       id: `e${sim.time.toFixed(2)}-${sim.enemies.length}`,
       type: next.type,
       idx: 0,
-      hp: data.health,
-      maxHp: data.health,
+      hp,
+      maxHp: hp,
       progress: 0,
     });
   }
@@ -292,7 +298,7 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
   let repeats = 0;
   let tick = 0;
   const dt = 0.3;
-  const maxTicks = waves * 220;
+  const maxTicks = waves * 400;
   let waveIndex = 1;
   spawnWave(sim, waveIndex);
   while (tick < maxTicks && sim.health > 0) {
@@ -330,8 +336,8 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
 
 describe('autobattle A/B benchmark', () => {
   it('同一份戰鬥模型下比較舊策略與新效用引擎', () => {
-    const legacy = simulate(runLegacyPolicy, 12);
-    const utility = simulate(runUtilityPolicy, 12);
+    const legacy = simulate(runLegacyPolicy, 30);
+    const utility = simulate(runUtilityPolicy, 30);
     const report = { legacy, utility };
     console.info('[autobattle-bench] ' + JSON.stringify(report));
     expect(legacy.towerCount).toBeGreaterThan(0);
