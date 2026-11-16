@@ -94,6 +94,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       0.0001,
       ...towerTypes.map((t) => dpsOf(t, 1) / Math.max(1, buildCostOf(t, costMult))),
     );
+    const maxDps = Math.max(1, ...towerTypes.map((t) => dpsOf(t, 1)));
 
     const spots: { col: number; row: number; coverage: number }[] = [];
     for (let col = 0; col < cols; col++) {
@@ -121,7 +122,9 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
             type,
           );
           const roi = (dpsOf(type, 1) / Math.max(1, buildCostOf(type, costMult))) / bestRoi;
-          return { type, score: cover * 0.5 + typeMatch * 0.3 + roi * 0.2 };
+          // 塔位吃緊時，「每格 DPS」比「每塊錢 DPS」重要：位置有限，錢可以再賺
+          const perSlot = dpsOf(type, 1) / maxDps;
+          return { type, score: cover * 0.45 + typeMatch * 0.25 + roi * 0.15 + perSlot * 0.15 * slotPressure(ctx) };
         })
         .sort((a, b) => b.score - a.score)
         .slice(0, 3);
@@ -152,7 +155,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           row: spot.row,
           cost,
           factors: applyPresetBoost(factors as ScoreFactor[], ctx.config.presetId),
-          softBonus: 0.07 * Math.min(2, fusionPartnersOf(ctx, type)) * (0.5 + slotPressure(ctx)),
+          softBonus: 0,
           penalties: 0,
           total: 0,
           vetoedBy: [],
@@ -252,9 +255,8 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       const near = enemiesNear(ctx, a.col, a.row, range);
       const before = dpsOf(a.type, a.level) + dpsOf(b.type, b.level);
       const after = dpsOf(result, 1);
-      // 融合會把兩座塔的等級歸零。
-      // 低等級的新塔先合、把等級留給融合塔再升；已經養高的塔則要求 DPS 換得回來才合。
       const freshPair = a.level <= 2 && b.level <= 2;
+      // 兩座都已經養高時，融合等於把投資清零：只有 DPS 真的換得回來才合
       if (!freshPair && after < before * 1.05) continue;
       const gain = before > 0 ? (after - before) / before : 0;
       const weights = resolveWeights('fusion', ctx.config);
@@ -282,7 +284,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         row: a.row,
         cost,
         factors: applyPresetBoost(factors, ctx.config.presetId),
-        softBonus: 0.3 * slotPressure(ctx),
+        softBonus: 0.45 * slotPressure(ctx),
         penalties: 0,
         total: 0,
         vetoedBy: [],
