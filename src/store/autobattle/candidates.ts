@@ -142,7 +142,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     spots.sort((a, b) => b.coverage - a.coverage);
     // 先決定「蓋哪三種塔」，再讓每種塔用『自己的射程』去找最佳點位；
     // 先前先用最長射程挑點、再塞短射程塔，會挑到對短射程根本沒覆蓋的位置。
-    const spotPool = spots.slice(0, 40);
+
     const typeRank = [...towerTypes]
       .map((type) => {
         const value = valueOf(type, 1);
@@ -156,12 +156,20 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const picks: { type: TowerType; col: number; row: number; coverage: number }[] = [];
     for (const entry of typeRank) {
       const range = TOWER_DATA[entry.type].range;
-      const best = spotPool
-        .map((s) => ({ col: s.col, row: s.row, coverage: coveragePointsOf(points, s.col, s.row, range) }))
-        .filter((s) => s.coverage > 0)
-        .sort((x, y) => y.coverage - x.coverage)
-        .slice(0, 4);
-      for (const s of best) picks.push({ type: entry.type, col: s.col, row: s.row, coverage: s.coverage });
+      // 每種塔型對整張網格用自己的射程找點：用「最長射程」的點位池會偏向離路徑較遠的位置，
+      // 短射程塔放上去幾乎打不到東西。
+      const best: { col: number; row: number; coverage: number }[] = [];
+      for (let col = 0; col < cols; col++) {
+        for (let row = 0; row < rows; row++) {
+          if (occupied(ctx, col, row)) continue;
+          if (!inAllowedZone(ctx, col, row)) continue;
+          if (isLocked(ctx, cellKey(col, row))) continue;
+          const coverage = coveragePointsOf(points, col, row, range);
+          if (coverage > 0) best.push({ col, row, coverage });
+        }
+      }
+      best.sort((x, y) => y.coverage - x.coverage);
+      for (const s of best.slice(0, 4)) picks.push({ type: entry.type, col: s.col, row: s.row, coverage: s.coverage });
     }
 
     for (const pick of picks) {
