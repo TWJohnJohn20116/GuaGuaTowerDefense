@@ -142,14 +142,24 @@ const step = (sim: Sim, dt: number): void => {
     if (d.moneyGeneration) sim.money += (d.moneyPerSecond ?? 5) * dt;
   }
 
-  // 塔輸出：射程內打血最多（同分取 id 小）的敵人
+  // 塔輸出：主目標 + 濺射／連鎖的額外目標
   for (const t of sim.towers) {
-    let target: SimEnemy | null = null;
-    for (const e of sim.enemies) {
+    const data = TOWER_DATA[t.type];
+    const inRange = sim.enemies.filter((e) => {
       const pos = POINTS[Math.round(e.idx)];
-      if (Math.hypot(pos.col - t.col, pos.row - t.row) > rangeOf(t.type)) continue;
-      if (!target || e.hp > target.hp) target = e;
+      return Math.hypot(pos.col - t.col, pos.row - t.row) <= rangeOf(t.type);
+    });
+    let target: SimEnemy | null = null;
+    for (const e of inRange) if (!target || e.hp > target.hp) target = e;
+
+    if (data.chainCount && data.chainCount > 1) {
+      const extras = inRange.filter((e) => e !== target).slice(0, data.chainCount - 1);
+      for (const e of extras) e.hp -= dpsOf(t.type, t.level) * (data.chainDamageReduction ?? 0.7) * dt;
+    } else if (data.splash) {
+      const extras = inRange.filter((e) => e !== target).slice(0, 2);
+      for (const e of extras) e.hp -= dpsOf(t.type, t.level) * 0.6 * dt;
     }
+
     if (target) {
       // 裝甲：每次命中固定減傷（毒／火無視裝甲），高單發傷害的塔受影響較小
       const armor = ENEMY_DATA[target.type].armorValue ?? 0;

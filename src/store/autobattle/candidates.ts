@@ -5,6 +5,7 @@ import { getTowerUpgradeCost, canAutoUpgradeTower } from '@/data/towerUpgradeCos
 import { getTowerBuildCost } from '@/data/towerCost';
 import { findSynergyRecipe } from '@/data/towerSynergyData';
 import { computeFusionCost, getFusionRecipe } from '@/data/fusionRecipes';
+import { effectiveDps } from '@/data/autobattle/towerDps';
 import { getPreset } from '@/data/autobattle/presets';
 import { counterAffinity } from '@/data/enemyCounters';
 import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
@@ -24,13 +25,8 @@ export const valueOf = (type: TowerType, level: number): number => {
   return dps + income;
 };
 
-/** 塔的 DPS 估算（基礎傷害 × 攻速；升級每級 +25%） */
-export const dpsOf = (type: TowerType, level: number): number => {
-  const data = TOWER_DATA[type];
-  if (!data) return 0;
-  const base = data.damagePerSecond ?? data.damage * (data.fireRate ?? 1);
-  return base * (1 + (level - 1) * 0.25);
-};
+/** 塔的 DPS 估值（含暴擊／連鎖／濺射；決策層專用，不當作實際傷害） */
+export const dpsOf = (type: TowerType, level: number): number => effectiveDps(type, level);
 
 /** 塔的建造成本（含難度倍率） */
 export const buildCostOf = (type: TowerType, costMult: number): number => {
