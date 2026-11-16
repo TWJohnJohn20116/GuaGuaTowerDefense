@@ -31,6 +31,8 @@ interface SimTower {
   level: number;
   col: number;
   row: number;
+  /** Lv2 起必須有路線，否則升級路徑會卡死（引擎端 canAutoUpgradeTower 會擋） */
+  upgradePath: 'A' | 'B' | null;
 }
 interface Sim {
   money: number;
@@ -217,7 +219,7 @@ const ctxOf = (sim: Sim): AutoBattleContext => ({
     const pos = POINTS[Math.round(e.idx)];
     return { id: e.id, type: e.type, x: pos.col, y: pos.row, health: e.hp, maxHealth: e.maxHp, progress: e.progress };
   }),
-  towers: sim.towers.map((t) => ({ ...t, skillReady: false, upgradePath: null })),
+  towers: sim.towers.map((t) => ({ ...t, skillReady: false })),
   waveActive: sim.waveActive,
   allEnemiesSpawned: sim.allSpawned,
   lookahead: {
@@ -269,7 +271,7 @@ const apply = (sim: Sim, action: Action): boolean => {
     if (cost > sim.money) return false;
     if (sim.towers.some((t) => Math.hypot(t.col - action.col, t.row - action.row) < 1.6)) return false;
     sim.money -= cost;
-    sim.towers.push({ id: `t${sim.towers.length}`, type: action.type, level: 1, col: action.col, row: action.row });
+    sim.towers.push({ id: `t${sim.towers.length}`, type: action.type, level: 1, col: action.col, row: action.row, upgradePath: null });
     return true;
   }
   if (action.kind === 'upgrade') {
@@ -279,6 +281,7 @@ const apply = (sim: Sim, action: Action): boolean => {
     if (cost > sim.money) return false;
     sim.money -= cost;
     tower.level += 1;
+    if (tower.level >= 2 && !tower.upgradePath) tower.upgradePath = 'A';
     return true;
   }
   // skip：提前放下一波，場上敵人留著（與實戰 skipWave 語意一致），並有 8 秒冷卻
