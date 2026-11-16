@@ -27,6 +27,11 @@ function recordStrokes() {
     closePath() {},
     fill() {},
     fillRect() {},
+    // 路徑帶現在會裁切在場地內，mock 需要 save/rect/clip/restore 才不會炸
+    save() {},
+    restore() {},
+    rect() {},
+    clip() {},
     stroke() {
       strokes.push(String(this.strokeStyle));
     },
