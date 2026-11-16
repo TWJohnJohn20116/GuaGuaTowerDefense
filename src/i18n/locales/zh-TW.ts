@@ -1210,6 +1210,12 @@ export const zhTW = {
         nativeDifficulty: "地圖難度",
         paramsHint: "數值高於 100% 表示對玩家不利",
     },
+    waveSet: {
+        hint: "套用現成波次組，取代目標波數",
+        searchPlaceholder: "搜尋波次組…",
+        empty: "沒有符合的波次組",
+        countLabel: "{count} 組",
+    },
   },
   
   game: {

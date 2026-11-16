@@ -1,17 +1,20 @@
 /**
  * 簡報層 · 遊戲模式
  *
- * 兩個控制塊並排靠左（無盡開關、目標波次），波次組清單收在下方。
+ * 三個控制塊，視覺重量一致：無盡開關、目標波次、自訂波次組。
+ *
  * 關鍵約束：**點任何一個控制都不准移動其他控制的位置**。
  * 舊版把波次塊用條件渲染拿掉，無盡一開左塊就撐滿整行、開關被推到最右邊——
- * 所以這裡改成：無盡開啟時波次塊灰掉停用，而不是消失。
+ * 所以這裡改成：無盡開啟時波次塊與波次組灰掉停用，而不是消失。
+ *
+ * 波次組清單 36 組以上，單欄列表找不到東西：展開後是 2 欄卡片網格 + 搜尋框。
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from '@/i18n';
 import { useModStore } from '@/store/modStore';
 import { getPlayableWaveSets, getWaveSetSourceLabel } from '@/utils/waveSets';
-import { Btn, Toggle } from '@/components/hl';
+import { Btn, Input, Toggle } from '@/components/hl';
 import { playUiHover } from '@/services/audioService';
 
 const WAVE_OPTIONS = [10, 15, 20, 30, 50, 100];
@@ -47,11 +50,27 @@ export function ModeSection({
     [mods],
   );
 
+  const [waveQuery, setWaveQuery] = useState('');
+
+  const visibleWaveSets = useMemo(() => {
+    const q = waveQuery.trim().toLowerCase();
+    if (!q) return waveSets;
+    return waveSets.filter(
+      (set) =>
+        set.name.toLowerCase().includes(q) || set.source.toLowerCase().includes(q),
+    );
+  }, [waveSets, waveQuery]);
+
   const hasWaveSets = waveSets.length > 0;
   const usingWaveSet = !!customWaveSetId && hasWaveSets;
   const activeWaveSet = waveSets.find((set) => set.id === customWaveSetId);
   // 無盡模式沒有終點，波次長度與波次組都失去意義——停用而不是隱藏
   const waveBlockOff = endlessMode || usingWaveSet;
+  const waveSetLabel = t.pathSelectionExt.customWaveLabel;
+  const countLabel = t.pathSelection.waveSet.countLabel.replace(
+    '{count}',
+    String(waveSets.length),
+  );
 
   return (
     <div className="flex flex-col gap-2">
@@ -125,76 +144,119 @@ export function ModeSection({
         </div>
       </div>
 
-      {/* 自訂波次組：無盡時同樣灰掉而非消失 */}
+      {/* 自訂波次組：與上方控制塊同級的厚卡，展開後才長出搜尋與網格 */}
       {hasWaveSets && (
         <details
+          // 展開後清單會被推到彈窗可視區之外，順手把這張卡拉進視野
+          onToggle={(event) => {
+            const element = event.currentTarget;
+            if (!element.open) return;
+            requestAnimationFrame(() =>
+              element.scrollIntoView({ block: 'nearest', behavior: 'smooth' }),
+            );
+          }}
           className={[
-            'group rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card)]',
+            'group w-full overflow-hidden rounded-[var(--cn-r-md)] border-[3px] border-[var(--cn-line-soft)] bg-[var(--cn-card)]',
             'transition-opacity duration-[160ms]',
             endlessMode ? 'pointer-events-none opacity-45' : '',
           ].join(' ')}
         >
-          <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[var(--cn-line-soft)] text-[10px] leading-none text-[var(--cn-ink-3)] transition-transform duration-200 group-open:rotate-90">
+          <summary className="flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-[var(--cn-line-soft)] text-[10px] leading-none text-[var(--cn-ink-3)] transition-transform duration-200 group-open:rotate-90">
               ▸
             </span>
-            <span className="min-w-0 flex-1 truncate text-[12px] font-extrabold text-[var(--cn-ink-2)]">
-              {t.pathSelectionExt.customWaveLabel}
+
+            <span className="min-w-0 flex-1">
+              <span className="block text-[12.5px] font-extrabold text-[var(--cn-ink)]">
+                {waveSetLabel}
+              </span>
+              <span className="mt-0.5 block text-[11px] font-semibold text-[var(--cn-ink-3)]">
+                {t.pathSelection.waveSet.hint}
+              </span>
             </span>
-            <span className="shrink-0 truncate font-mono text-[10px] font-extrabold uppercase tracking-[0.06em] text-[var(--cn-ink-4)]">
-              {usingWaveSet ? activeWaveSet?.name : String(waveSets.length)}
+
+            <span
+              className={[
+                'shrink-0 rounded-[var(--cn-r-pill)] border-2 px-2.5 py-0.5 font-mono text-[10px] font-extrabold',
+                usingWaveSet
+                  ? 'border-[var(--cn-line)] bg-[var(--cn-coral-soft)] text-[var(--cn-signal-text)]'
+                  : 'border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] text-[var(--cn-ink-3)]',
+              ].join(' ')}
+            >
+              {usingWaveSet ? (activeWaveSet?.name ?? '') : countLabel}
             </span>
           </summary>
 
-          <div className="max-h-44 overflow-y-auto border-t-[3px] border-[var(--cn-line-soft)]">
-            {waveSets.map((set) => {
-              const active = set.id === customWaveSetId;
-              return (
-                <button
-                  key={set.id}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => setCustomWaveSetId(active ? '' : set.id)}
-                  onMouseEnter={() => playUiHover()}
-                  className={[
-                    'flex w-full items-center gap-2.5 border-b border-[var(--cn-line-soft)] px-3 py-2 text-left last:border-b-0',
-                    'transition-colors duration-[160ms]',
-                    active ? 'bg-[var(--cn-coral-soft)]' : 'hover:bg-[var(--cn-card-2)]',
-                  ].join(' ')}
-                >
-                  <span
-                    className={`h-4 w-[3px] shrink-0 rounded-full ${active ? 'bg-[var(--cn-coral)]' : 'bg-transparent'}`}
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span
-                      className={[
-                        'block truncate text-[12px]',
-                        active
-                          ? 'font-extrabold text-[var(--cn-ink)]'
-                          : 'font-bold text-[var(--cn-ink-2)]',
-                      ].join(' ')}
-                    >
-                      {set.name}
-                    </span>
-                    <span className="mt-0.5 block truncate font-mono text-[9.5px] uppercase tracking-[0.06em] text-[var(--cn-ink-4)]">
-                      {set.source}
-                    </span>
-                  </span>
-                  <span className="shrink-0 font-mono text-[11px] font-extrabold tabular-nums text-[var(--cn-ink-3)]">
-                    {set.waves}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {usingWaveSet && (
-            <div className="flex justify-end border-t-[3px] border-[var(--cn-line-soft)] px-3 py-2">
-              <Btn size="sm" variant="ghost" onClick={() => setCustomWaveSetId('')}>
-                {t.common.cancel}
-              </Btn>
+          <div className="border-t-[3px] border-[var(--cn-line-soft)]">
+            <div className="flex items-center gap-2 border-b-2 border-[var(--cn-line-soft)] p-2">
+              <div className="min-w-0 flex-1 sm:max-w-[320px]">
+                <Input
+                  value={waveQuery}
+                  onChange={(event) => setWaveQuery(event.target.value)}
+                  placeholder={t.pathSelection.waveSet.searchPlaceholder}
+                  aria-label={t.pathSelection.waveSet.searchPlaceholder}
+                />
+              </div>
+              <span className="shrink-0 font-mono text-[10px] font-extrabold tabular-nums text-[var(--cn-ink-4)]">
+                {visibleWaveSets.length}
+              </span>
             </div>
-          )}
+
+            <div className="max-h-52 overflow-y-auto p-2">
+              {visibleWaveSets.length > 0 ? (
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {visibleWaveSets.map((set) => {
+                    const active = set.id === customWaveSetId;
+                    return (
+                      <button
+                        key={set.id}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => setCustomWaveSetId(active ? '' : set.id)}
+                        onMouseEnter={() => playUiHover()}
+                        className={[
+                          'flex items-center gap-2 rounded-[var(--cn-r-sm)] border-2 px-2.5 py-1.5 text-left',
+                          'transition-[background-color,border-color] duration-[160ms]',
+                          active
+                            ? 'border-[var(--cn-line)] bg-[var(--cn-coral-soft)]'
+                            : 'border-[var(--cn-line-soft)] bg-[var(--cn-card-2)] hover:border-[var(--cn-line-mid)]',
+                        ].join(' ')}
+                      >
+                        <span
+                          className={[
+                            'min-w-0 flex-1 truncate text-[12px]',
+                            active
+                              ? 'font-extrabold text-[var(--cn-ink)]'
+                              : 'font-bold text-[var(--cn-ink-2)]',
+                          ].join(' ')}
+                        >
+                          {set.name}
+                        </span>
+                        <span className="shrink-0 truncate font-mono text-[9px] font-extrabold uppercase tracking-[0.06em] text-[var(--cn-ink-4)]">
+                          {set.source}
+                        </span>
+                        <span className="shrink-0 font-mono text-[11px] font-extrabold tabular-nums text-[var(--cn-ink-3)]">
+                          {set.waves} {t.pathSelection.waves}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="px-2 py-6 text-center text-[11.5px] font-semibold text-[var(--cn-ink-3)]">
+                  {t.pathSelection.waveSet.empty}
+                </p>
+              )}
+            </div>
+
+            {usingWaveSet && (
+              <div className="flex justify-end border-t-[3px] border-[var(--cn-line-soft)] px-3 py-2">
+                <Btn size="sm" variant="ghost" onClick={() => setCustomWaveSetId('')}>
+                  {t.common.cancel}
+                </Btn>
+              </div>
+            )}
+          </div>
         </details>
       )}
     </div>
