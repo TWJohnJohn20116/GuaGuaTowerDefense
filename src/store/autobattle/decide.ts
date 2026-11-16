@@ -9,7 +9,7 @@ import type { PathConfig } from '@/types/game';
 import { DECISION_LIMITS } from '@/data/autobattle/scoreWeights';
 import { buildCandidates, sumEnemyWeight } from './candidates';
 import { applyRules } from './rules';
-import { hasClearWinner, jitterPenalty } from './scoring';
+import { jitterPenalty } from './scoring';
 import { buildNarration } from './narration';
 
 export interface DecideInput {
@@ -20,7 +20,13 @@ export interface DecideInput {
   triggers: AutoBattleTrigger[];
   /** 目標 key → 上次對它動作的時間（防抖動） */
   lastActionAt: Map<string, number>;
+  /** 連續猶豫次數：超過門檻就強制執行最佳候選，避免「一直不敢動」 */
+  holdStreak?: number;
 }
+
+/** 連續猶豫超過這個次數就強制落地（0.05 分以上才值得做） */
+const HOLD_STREAK_LIMIT = 6;
+const MIN_EXECUTE_SCORE = 0.05;
 
 let decisionSeq = 0;
 
@@ -45,7 +51,7 @@ const modeAllowsExecution = (ctx: AutoBattleContext): boolean => {
  * 決定一次動作（純函式：只讀 ctx 與 rules，不碰 store）。
  * 回傳完整決策紀錄，呼叫端負責 execute()。
  */
-export const decide = ({ ctx, pathConfig, costMult, rules, triggers, lastActionAt }: DecideInput): AutoBattleDecision => {
+export const decide = ({ ctx, pathConfig, costMult, rules, triggers, lastActionAt, holdStreak = 0 }: DecideInput): AutoBattleDecision => {
   const raw = buildCandidates({ ctx, pathConfig, costMult });
   const { candidates, conflicts } = applyRules(raw, ctx, rules);
 
@@ -60,15 +66,24 @@ export const decide = ({ ctx, pathConfig, costMult, rules, triggers, lastActionA
   const alive = sorted.filter((c) => c.vetoedBy.length === 0);
   const best = alive[0] ?? null;
   const canExecute = modeAllowsExecution(ctx);
-  const clear = best ? hasClearWinner(alive) : false;
+
+  // 猶豫只在「不同種類的動作」分數接近時才成立：
+  // 同種類的兩個塔位互相咬分是正常的，不該讓 AI 因此什麼都不做。
+  const bestOtherKind = best ? alive.find((c) => c.kind !== best.kind) ?? null : null;
+  const clear = best
+    ? best.total >= MIN_EXECUTE_SCORE &&
+      (!bestOtherKind || best.total - bestOtherKind.total >= DECISION_LIMITS.minMargin)
+    : false;
+  const forcedByStreak = Boolean(best) && best.total >= MIN_EXECUTE_SCORE && holdStreak >= HOLD_STREAK_LIMIT;
+  const winner = clear || forcedByStreak;
 
   let verdict: AutoBattleDecision['verdict'];
   if (!best) verdict = 'blocked';
   else if (!canExecute) verdict = 'suggested';
-  else if (!clear) verdict = 'hold';
+  else if (!winner) verdict = 'hold';
   else verdict = 'executed';
 
-  const chosen = clear || !canExecute ? best : null;
+  const chosen = winner || !canExecute ? best : null;
   const narration = buildNarration(chosen, ctx);
 
   decisionSeq = (decisionSeq + 1) % 100000;

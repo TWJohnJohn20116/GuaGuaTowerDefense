@@ -92,10 +92,4 @@ export const jitterPenalty = (
   return base * (1 - age / DECISION_LIMITS.targetCooldownMs);
 };
 
-/** 是否值得執行：第一名需領先第二名 minMargin 分（猶豫機制） */
-export const hasClearWinner = (sorted: AutoBattleCandidate[]): boolean => {
-  const [first, second] = sorted;
-  if (!first) return false;
-  if (!second) return true;
-  return first.total - second.total >= DECISION_LIMITS.minMargin;
-};
+

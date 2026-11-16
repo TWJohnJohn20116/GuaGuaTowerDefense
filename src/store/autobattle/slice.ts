@@ -42,6 +42,9 @@ export const AUTO_BATTLE_INITIAL = {
   autoBattleStats: { decisions: 0, executed: 0, placed: 0, upgraded: 0, sold: 0, skipped: 0 },
 };
 
+/** 連續猶豫次數（模組級計數，不進 persist；重開局或重新啟用時歸零） */
+let holdStreak = 0;
+
 const buildConfig = (state: GameStore): AutoBattleConfig => ({
   mode: state.autoBattleMode,
   presetId: state.autoBattlePresetId,
@@ -57,11 +60,14 @@ const buildConfig = (state: GameStore): AutoBattleConfig => ({
 export const createAutoBattleSlice = (get: GetState, set: SetState) => ({
   ...AUTO_BATTLE_INITIAL,
 
-  toggleAutoBattle: () => set((state) => ({
-    autoBattleEnabled: !state.autoBattleEnabled,
-    autoBattleLastDecision: 0,
-    autoBattleLockedTargets: state.autoBattleEnabled ? state.autoBattleLockedTargets : [],
-  })),
+  toggleAutoBattle: () => {
+    holdStreak = 0;
+    set((state) => ({
+      autoBattleEnabled: !state.autoBattleEnabled,
+      autoBattleLastDecision: 0,
+      autoBattleLockedTargets: state.autoBattleEnabled ? state.autoBattleLockedTargets : [],
+    }));
+  },
 
   setAutoBattleMode: (mode: GameStore['autoBattleMode']) => set(() => ({ autoBattleMode: mode })),
 
@@ -153,7 +159,11 @@ export const createAutoBattleSlice = (get: GetState, set: SetState) => ({
       rules: config.rules,
       triggers,
       lastActionAt: new Map(Object.entries(state.autoBattleLastActionAt)),
+      holdStreak,
     });
+
+    if (decision.verdict === 'hold') holdStreak++;
+    else if (decision.verdict === 'executed' || decision.verdict === 'suggested') holdStreak = 0;
 
     const towerById = new Map(state.towers.map((t) => [t.id, t]));
     const outcome = executeDecision(decision, {
@@ -223,6 +233,7 @@ export const createAutoBattleSlice = (get: GetState, set: SetState) => ({
 
   resetAutoBattleState: () => {
     resetTriggers();
+    holdStreak = 0;
     set(() => ({ ...AUTO_BATTLE_INITIAL, autoBattleRules: DEFAULT_AUTO_BATTLE_RULES }));
   },
 
