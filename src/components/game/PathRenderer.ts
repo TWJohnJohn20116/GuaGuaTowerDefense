@@ -143,6 +143,13 @@ export const drawField = (
   // 逐條「外→內」的話，後畫那條的外描邊會壓在前一條的內填上：
   // 分岔點（多段交會處）就會露出一圈描邊色的弧線，看起來像接縫。
   if (showPath && path) {
+    // 只裁切路徑帶：折線端點落在邊界時，lineCap 的圓角會伸出場地。
+    // 端點標記不裁切——那是「入口/出口」的指示，切一半反而看不懂。
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(offsetX, offsetY, widthPx, heightPx);
+    ctx.clip();
+
     const lines = pathPolylines(path);
     const bandWidth = pathWidthOf(path) * tileSize;
     for (const line of lines) {
@@ -151,6 +158,8 @@ export const drawField = (
     for (const line of lines) {
       strokePolyline(ctx, line, tileSize, offsetX, offsetY, bandWidth, board.path);
     }
+
+    ctx.restore();
   }
 
   // 4) 禁建區：半透明圓 + 虛線邊，讓玩家看得出「這裡不能蓋」
