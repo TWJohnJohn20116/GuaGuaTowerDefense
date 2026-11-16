@@ -40,7 +40,7 @@ export const DECISION_LIMITS = {
   /** 兜底輪詢間隔（ms）：事件沒抓到時的最大延遲 */
   fallbackTickMs: 200,
   /** 同一個目標的最小再決策間隔（ms），防抖動 */
-  targetCooldownMs: 1500,
+  targetCooldownMs: 700,
   /** 賣塔後同一格禁止重建的時間（ms） */
   rebuildLockMs: 12000,
   /** 玩家手動操作後，AI 對該目標的靜默期（ms） */
