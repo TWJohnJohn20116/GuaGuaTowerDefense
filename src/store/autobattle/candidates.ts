@@ -309,8 +309,8 @@ export const adjustWeightsForSurplus = (
 ): AutoBattleWeights => {
   const reserve = Math.max(1, ctx.lookahead.moneyReserve);
   const ratio = ctx.money / reserve;
-  if (ratio < 2) return weights;
-  const overflow = Math.min(1, (ratio - 2) / 2);
+  if (ratio < 1.5) return weights;
+  const overflow = Math.min(1, (ratio - 1.5) / 1.5);
   return {
     ...weights,
     reserve: (weights.reserve ?? 0) * (1 - overflow),
