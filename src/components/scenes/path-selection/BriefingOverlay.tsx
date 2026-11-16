@@ -11,7 +11,8 @@ import { useMemo } from 'react';
 import type { DifficultyModifiers, GameDifficulty } from '@/types/game';
 import { boundsOf } from '@/data/mapGeometry';
 import { useTranslation } from '@/i18n';
-import { Btn, Segments, StatCell } from '@/components/hl';
+import { Btn, IconBtn, Segments, StatCell } from '@/components/hl';
+import { XIcon } from '@/components/ui/Icons';
 import { findPlayableWaveSet } from '@/utils/waveSets';
 import { PathPreview } from './PathPreview';
 import { DifficultyPicker } from './DifficultyPicker';
@@ -118,7 +119,7 @@ export function BriefingOverlay({
 
   return (
     <div
-      className="fixed inset-0 z-40 flex items-center justify-center bg-[rgba(46,36,64,0.32)] p-3 sm:p-6"
+      className="fixed inset-0 z-40 flex items-center justify-center bg-[rgba(46,36,64,0.52)] p-3 sm:p-6"
       onClick={onClose}
       role="presentation"
     >
@@ -131,9 +132,13 @@ export function BriefingOverlay({
       >
       {/* 頂列：返回牆 + 地圖識別 + 原生難度 */}
       <header className="flex shrink-0 items-center gap-3 border-b-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] px-4 py-2.5 sm:px-5">
-        <Btn size="sm" variant="ghost" onClick={onClose}>
-          ← {t.common.back}
-        </Btn>
+        <IconBtn
+          label={t.common.close}
+          onClick={onClose}
+          className="h-9 w-9 shrink-0 border-[3px] border-[var(--cn-line)] bg-[var(--cn-card)] shadow-[0_3px_0_var(--cn-line)] hover:bg-[var(--cn-card-2)] active:translate-y-px active:shadow-none"
+        >
+          <XIcon className="h-4 w-4" />
+        </IconBtn>
 
         <h2 className="min-w-0 flex-1 truncate text-[19px] font-black leading-tight text-[var(--cn-ink)]">
           {map.name}
