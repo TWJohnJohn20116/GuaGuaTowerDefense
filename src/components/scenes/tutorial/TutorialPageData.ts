@@ -1,7 +1,8 @@
 // Tutorial.tsx 的數據定義 — i18n 友善版
 import type { Translations } from '@/i18n';
 import { TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
-import type { TowerType } from '@/types/game';
+import type { EnemyType, TowerType } from '@/types/game';
+import { ENEMY_COUNTER_META } from '@/data/enemyCounters';
 import { getEncyclopediaSynergiesForTower } from '@/data/towerSynergyData';
 
 export type TutorialCategory = 'game' | 'mod';
@@ -347,27 +348,20 @@ interface EnemyGuideMeta {
   counterTowerIds: string[];
 }
 
-const ENEMY_GUIDES_META: EnemyGuideMeta[] = [
-  { id: 'normal',    role: 'basic',   danger: 'C', counterTowerIds: ['basic'] },
-  { id: 'fast',      role: 'speed',   danger: 'B', counterTowerIds: ['frost', 'machine'] },
-  { id: 'elite',     role: 'basic',   danger: 'B', counterTowerIds: ['sniper'] },
-  { id: 'speedy',    role: 'speed',   danger: 'A', counterTowerIds: ['frost', 'laser', 'lightning'] },
-  { id: 'tank',      role: 'tank',    danger: 'B', counterTowerIds: ['sniper', 'poison'] },
-  { id: 'heavy',     role: 'tank',    danger: 'A', counterTowerIds: ['laser', 'frost', 'poison'] },
-  { id: 'boss',      role: 'boss',    danger: 'S', counterTowerIds: ['frost', 'laser', 'sniper'] },
-  { id: 'flyer',     role: 'special', danger: 'A', counterTowerIds: ['laser', 'sniper'] },
-  { id: 'healer',    role: 'special', danger: 'A', counterTowerIds: ['sniper', 'laser'] },
-  { id: 'spawner',   role: 'special', danger: 'A', counterTowerIds: ['cannon', 'lightning'] },
-  { id: 'shield',    role: 'special', danger: 'A', counterTowerIds: ['machine', 'flame'] },
-  { id: 'stealth',   role: 'special', danger: 'B', counterTowerIds: ['poison', 'flame', 'cannon'] },
-  { id: 'berserker', role: 'special', danger: 'A', counterTowerIds: ['sniper', 'frost'] },
-  { id: 'armored',   role: 'tank',    danger: 'B', counterTowerIds: ['sniper', 'poison', 'laser'] },
-  { id: 'mage',      role: 'special', danger: 'S', counterTowerIds: ['frost', 'laser'] },
-  { id: 'miniboss',  role: 'boss',    danger: 'A', counterTowerIds: ['laser', 'frost'] },
-  { id: 'swarm',     role: 'speed',   danger: 'B', counterTowerIds: ['cannon', 'lightning', 'flame'] },
-  { id: 'ghost',     role: 'special', danger: 'A', counterTowerIds: ['sniper', 'frost'] },
-  { id: 'bomber',    role: 'special', danger: 'B', counterTowerIds: ['sniper', 'laser'] },
+/** 教程頁顯示的敵人指南順序（未列入者不出現在教程） */
+const ENEMY_GUIDE_ORDER: EnemyType[] = [
+  'normal', 'fast', 'elite', 'speedy', 'tank', 'heavy', 'boss', 'flyer', 'healer',
+  'spawner', 'shield', 'stealth', 'berserker', 'armored', 'mage', 'miniboss', 'swarm',
+  'ghost', 'bomber',
 ];
+
+/** 對策塔一律取自 data/enemyCounters.ts 的單一真相，避免教程與 AI 決策漂移 */
+const ENEMY_GUIDES_META: EnemyGuideMeta[] = ENEMY_GUIDE_ORDER.map((id) => ({
+  id,
+  role: ENEMY_COUNTER_META[id].role,
+  danger: ENEMY_COUNTER_META[id].danger,
+  counterTowerIds: ENEMY_COUNTER_META[id].counters,
+}));
 
 export const buildEnemyGuides = (t: Translations): EnemyGuideEntry[] => ENEMY_GUIDES_META.map((meta) => {
   const entry = t.tutorial.enemyGuides[meta.id as keyof Translations['tutorial']['enemyGuides']];
