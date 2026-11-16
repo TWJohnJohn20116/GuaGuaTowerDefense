@@ -77,7 +77,7 @@ const bestSpot = (sim: Sim, range: number): { col: number; row: number; cover: n
 };
 
 /** 血量倍率爬升：模擬「越打越硬」，否則兩邊都能無限存活，存活波次沒有鑑別度 */
-export const HP_RAMP = 1.2;
+export const HP_RAMP = 0.8;
 export const hpScaleAt = (wave: number): number => 1 + HP_RAMP * (wave - 1);
 
 /** 追加一波敵人（不清空現有佇列：略波只是提前放下一波，場上敵人不會消失） */
@@ -184,6 +184,7 @@ const step = (sim: Sim, dt: number): void => {
     }
     if (e.progress >= 1) {
       sim.health -= 1;
+      if (firstLeakWave < 0) firstLeakWave = sim.wave;
       continue;
     }
     alive.push(e);
@@ -207,6 +208,8 @@ interface AgentResult {
   placed: number;
   upgraded: number;
   fused: number;
+  /** 第一次漏怪的波次（越高越好，比存活波次更細緻） */
+  firstLeakWave: number;
 }
 
 type Action =
@@ -382,6 +385,7 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
   let upgraded = 0;
   let fused = 0;
   let jitter = 0;
+  let firstLeakWave = -1;
   let lastKey = '';
   let repeats = 0;
   let tick = 0;
@@ -432,13 +436,14 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
     placed,
     upgraded,
     fused,
+    firstLeakWave,
   };
 };
 
 describe('autobattle A/B benchmark', () => {
   it('同一份戰鬥模型下比較舊策略與新效用引擎', { timeout: 120000 }, () => {
-    const legacy = simulate(runLegacyPolicy, 40);
-    const utility = simulate(runUtilityPolicy, 40);
+    const legacy = simulate(runLegacyPolicy, 60);
+    const utility = simulate(runUtilityPolicy, 60);
     const report = { legacy, utility };
     console.info('[autobattle-bench] ' + JSON.stringify(report));
     expect(legacy.towerCount).toBeGreaterThan(0);
