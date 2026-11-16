@@ -252,8 +252,10 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       const near = enemiesNear(ctx, a.col, a.row, range);
       const before = dpsOf(a.type, a.level) + dpsOf(b.type, b.level);
       const after = dpsOf(result, 1);
-      // 融合會把兩座塔的等級歸零：DPS 換不回來就不要合，否則等於白燒投資
-      if (after < before * 1.05) continue;
+      // 融合會把兩座塔的等級歸零。
+      // 低等級的新塔先合、把等級留給融合塔再升；已經養高的塔則要求 DPS 換得回來才合。
+      const freshPair = a.level <= 2 && b.level <= 2;
+      if (!freshPair && after < before * 1.05) continue;
       const gain = before > 0 ? (after - before) / before : 0;
       const weights = resolveWeights('fusion', ctx.config);
       const factors: ScoreFactor[] = [
