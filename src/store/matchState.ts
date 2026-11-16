@@ -46,8 +46,12 @@ type MatchOwnedKey =
   | 'activeProtocol'
   | 'protocolHistory'
   | 'protocolNextTowerDiscount'
+  | 'autoBattleEnabled'
+  | 'autoBattleDecisions'
+  | 'autoBattleCurve'
+  | 'autoBattleLastDecision'
+  | 'autoBattleLastActionAt'
   | 'autoBattleStats'
-  | 'autoBattleLogs'
   | 'scriptTowerMods'
   | 'matchKills'
   | 'matchLeaks'
@@ -100,8 +104,12 @@ export const createEmptyMatchState = (): Pick<GameStore, MatchOwnedKey> => ({
   protocolHistory: [],
   protocolNextTowerDiscount: 0,
 
-  autoBattleStats: { towersPlaced: 0, moneySpent: 0, decisionsCount: 0, towersSold: 0 },
-  autoBattleLogs: [],
+  autoBattleEnabled: false,
+  autoBattleDecisions: [],
+  autoBattleCurve: [],
+  autoBattleLastDecision: 0,
+  autoBattleLastActionAt: {},
+  autoBattleStats: { decisions: 0, executed: 0, placed: 0, upgraded: 0, sold: 0, skipped: 0 },
 
   ...getMatchSessionReset(),
 });

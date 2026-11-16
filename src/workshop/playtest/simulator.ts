@@ -48,15 +48,9 @@ async function runSingleMatch(options: SimulationOptions): Promise<SimRunResult>
   // 模擬一律用自動戰鬥，並且把會「改變玩家存檔」的選項關掉（自動出售／融合不在平衡範圍）
   const game = useGameStore.getState();
   if (!game.autoBattleEnabled) game.toggleAutoBattle();
-  game.setAutoBattleStrategy('balanced');
-  game.setAutoBattleConfig({
-    useSkills: true,
-    autoSkip: true,
-    autoUpgrade: true,
-    autoPlace: true,
-    autoSell: false,
-    autoFusion: false,
-  });
+  // 模擬一律跑全自動並固定預設檔，確保各局結果可比
+  game.setAutoBattleMode('full');
+  game.setAutoBattlePreset('balanced');
   game.setAutoSkipWaveEnabled(true);
 
   const maxHealth = useGameStore.getState().health;

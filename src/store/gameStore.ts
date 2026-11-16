@@ -19,7 +19,7 @@ import { notifyModScripts } from '@/mod-script/dispatch';
 import { createTowerActions } from './gameStoreActions';
 import { createWaveActions } from './gameStoreWave';
 import { createLoopActions } from './gameStoreLoop';
-import { createAutoBattleActions } from './gameStoreAutoBattle';
+import { AUTO_BATTLE_INITIAL, createAutoBattleSlice } from './autobattle/slice';
 import { createEffectActions } from './gameStoreEffects';
 import { createPlayerSkillActions, createInitialPlayerSkillStates } from './gameStorePlayerSkills';
 import { createStressTestActions } from './stressTestActions';
@@ -134,20 +134,8 @@ export const useGameStore = create<GameStore>()(
   deathAnimations: [],
   shakeIntensity: 0,
   
-  // 自動戰鬥系統
-  autoBattleEnabled: false,
-  autoBattleStrategy: 'balanced',
-  autoBattleConfig: {
-    useSkills: true,
-    autoSkip: true,
-    autoUpgrade: true,
-    autoPlace: true,
-    autoSell: false,
-    autoFusion: false,
-  },
-  autoBattleStats: { towersPlaced: 0, moneySpent: 0, decisionsCount: 0, towersSold: 0 },
-  autoBattleLastDecision: 0,
-  autoBattleLogs: [],
+  // 自動戰鬥（效用評分引擎）：狀態與預設值集中在 slice，避免兩份漂移
+  ...AUTO_BATTLE_INITIAL,
   
   soundEnabled: DEFAULT_GAME_PREFS.soundEnabled,
   musicEnabled: DEFAULT_GAME_PREFS.musicEnabled,
@@ -471,7 +459,7 @@ export const useGameStore = create<GameStore>()(
   },
 
   // 自動戰鬥系統（從 gameStoreAutoBattle.ts 導入）
-  ...createAutoBattleActions(get, set),
+  ...createAutoBattleSlice(get, set),
 
   // 特效系統
   ...createEffectActions(get, set),

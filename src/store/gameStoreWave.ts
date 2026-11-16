@@ -159,13 +159,9 @@ export const createWaveActions = (get: GetState, set: SetState) => ({
     set({ pendingProtocolChoices: offers });
 
     if (state.autoBattleEnabled) {
-      const picked = pickProtocolForStrategy(offers, state.autoBattleStrategy);
+      // 自動戰鬥只負責「選哪個協議」，選擇理由記在決策紀錄裡，不再另寫一份日誌
+      const picked = pickProtocolForStrategy(offers, strategyOfPreset(state.autoBattlePresetId));
       get().chooseProtocol(picked.id);
-      get().addAutoBattleLog(
-        'analysis',
-        `戰術協議：${picked.name}`,
-        picked.description,
-      );
     }
   },
 

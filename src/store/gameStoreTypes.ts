@@ -7,6 +7,15 @@ import type {
 import type { PlayerSkillId } from '@/data/playerSkillData';
 import type { TacticalProtocol } from '@/data/tacticalProtocolData';
 import type { StressSpawnResult } from './stressTestActions';
+import type {
+  AutoBattleActionKind,
+  AutoBattleCurvePoint,
+  AutoBattleDecision,
+  AutoBattleMode,
+  AutoBattlePreset,
+  AutoBattleRule,
+  AutoBattleWeights,
+} from '@/types/autobattle';
 
 /** 從暫停／遊戲內跳轉百科時帶入的分頁與項目 */
 export interface EncyclopediaDeepLink {
@@ -157,25 +166,30 @@ export interface GameStore {
   deathAnimations: DeathAnimation[];
   shakeIntensity: number;
   
-  // 自動戰鬥系統
+  // 自動戰鬥（效用評分引擎）
   autoBattleEnabled: boolean;
-  autoBattleStrategy: 'balanced' | 'economy' | 'aggressive' | 'defensive';
-  autoBattleConfig: {
-    useSkills: boolean;
-    autoSkip: boolean;
-    autoUpgrade: boolean;
-    autoPlace: boolean;
-    autoSell: boolean;
-    autoFusion: boolean;
-  };
-  autoBattleStats: {
-    towersPlaced: number;
-    moneySpent: number;
-    decisionsCount: number;
-    towersSold?: number;
-  };
+  autoBattleMode: AutoBattleMode;
+  autoBattlePresetId: string;
+  autoBattleWeights: Partial<Record<AutoBattleActionKind, AutoBattleWeights>>;
+  autoBattleRules: AutoBattleRule[];
+  autoBattleDecisions: AutoBattleDecision[];
+  autoBattleCurve: AutoBattleCurvePoint[];
+  autoBattleLockedTargets: string[];
+  autoBattleAllowedTiles: string[];
+  autoBattleAiUntilWave: number;
+  autoBattleShowOverlay: boolean;
+  autoBattleDryRun: boolean;
+  autoBattlePanelOpen: boolean;
   autoBattleLastDecision: number;
-  autoBattleLogs: { id: string; time: number; type: 'place' | 'upgrade' | 'analysis' | 'skill' | 'skip' | 'sell'; message: string; details?: string; thinking?: string[] }[];
+  autoBattleLastActionAt: Record<string, number>;
+  autoBattleStats: {
+    decisions: number;
+    executed: number;
+    placed: number;
+    upgraded: number;
+    sold: number;
+    skipped: number;
+  };
   
   // 设置
   soundEnabled: boolean;
@@ -209,6 +223,8 @@ export interface GameStore {
   toggleTowerLock: (towerId: string) => void;
   
   placeTower: (pos: MapPoint) => boolean;
+  /** 指定塔種放置（自動戰鬥／模擬器用，不依賴玩家選中的塔） */
+  placeTowerAs: (type: TowerType, pos: MapPoint) => boolean;
   upgradeTower: (tower: Tower, path?: UpgradePath) => boolean;
   sellTower: (tower: Tower) => void;
   // 融合系統：雙塔合體
@@ -294,12 +310,28 @@ export interface GameStore {
   setKeyBinding: (action: KeyAction, key: string) => void;
   resetKeyBindings: () => void;
   
-  // 自動戰鬥系統（統一）
+  // 自動戰鬥（效用評分引擎）
   toggleAutoBattle: () => void;
-  setAutoBattleStrategy: (strategy: 'balanced' | 'economy' | 'aggressive' | 'defensive') => void;
-  setAutoBattleConfig: (config: Partial<GameStore['autoBattleConfig']>) => void;
-  addAutoBattleLog: (type: 'place' | 'upgrade' | 'analysis' | 'skill' | 'skip' | 'sell', message: string, details?: string, thinking?: string[]) => void;
+  setAutoBattleMode: (mode: AutoBattleMode) => void;
+  setAutoBattlePreset: (presetId: string) => void;
+  setAutoBattleWeight: (kind: AutoBattleActionKind, factor: keyof AutoBattleWeights, value: number) => void;
+  resetAutoBattleWeights: () => void;
+  upsertAutoBattleRule: (rule: AutoBattleRule) => void;
+  removeAutoBattleRule: (id: string) => void;
+  toggleAutoBattleRule: (id: string) => void;
+  lockAutoBattleTarget: (key: string) => void;
+  unlockAutoBattleTarget: (key: string) => void;
+  clearAutoBattleLocks: () => void;
+  setAutoBattleAllowedTiles: (tiles: string[]) => void;
+  setAutoBattleAiUntilWave: (wave: number) => void;
+  setAutoBattleOverlay: (show: boolean) => void;
+  setAutoBattleDryRun: (dryRun: boolean) => void;
+  setAutoBattlePanelOpen: (open: boolean) => void;
+  clearAutoBattleDecisions: () => void;
   runAutoBattleLogic: () => void;
+  acceptAutoBattleSuggestion: () => boolean;
+  resetAutoBattleState: () => void;
+  currentAutoBattlePreset: () => AutoBattlePreset;
 
   // 壓力測試（Dev 面板）
   /** 一鍵灌入 N 隻敵人 + M 座塔，回傳實際生成數量 */

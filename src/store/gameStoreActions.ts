@@ -1,6 +1,6 @@
 // 塔防操作：放置、升級、出售、撤銷、技能、屬性等
 import type { 
-  Tower, MapPoint, TowerData, UpgradePath, TargetPriority 
+  Tower, MapPoint, TowerData, TowerType, UpgradePath, TargetPriority 
 } from '@/types/game';
 import { GAME_CONSTANTS } from '@/data/gameData';
 import {
@@ -37,8 +37,15 @@ type SetState = (partial: Partial<GameStore> | ((state: GameStore) => Partial<Ga
 
 export const createTowerActions = (get: GetState, set: SetState) => ({
   placeTower: (pos: MapPoint) => {
-    const { activeMap, money, selectedTowerType, towers, placementHistory, placementHistoryIndex, quickPlaceMode, placementStats, difficultyModifiers, currentWave, protocolNextTowerDiscount } = get();
-    if (!selectedTowerType) return false;
+    const type = get().selectedTowerType;
+    if (!type) return false;
+    return get().placeTowerAs(type, pos);
+  },
+
+  // 自動戰鬥／模擬器用：直接指定塔種放置，不依賴玩家當前選中的塔
+  placeTowerAs: (type: TowerType, pos: MapPoint) => {
+    const { activeMap, money, towers, placementHistory, placementHistoryIndex, quickPlaceMode, placementStats, difficultyModifiers, currentWave, protocolNextTowerDiscount } = get();
+    const selectedTowerType = type;
 
     // 自由放置判定（沒有格子）：邊界 → 禁建區 → 路徑淨空 → 其他塔的圓形佔位
     const radius = DEFAULT_TOWER_RADIUS;
