@@ -208,15 +208,15 @@ const AIControl = () => {
   const { t } = useTranslation();
   const u = t.dev.ui;
   const autoBattleEnabled = useGameStore((s) => s.autoBattleEnabled);
-  const autoBattleStrategy = useGameStore((s) => s.autoBattleStrategy);
+  const autoBattlePresetId = useGameStore((s) => s.autoBattlePresetId);
   const toggleAutoBattle = useGameStore((s) => s.toggleAutoBattle);
-  const setAutoBattleStrategy = useGameStore((s) => s.setAutoBattleStrategy);
+  const setAutoBattlePreset = useGameStore((s) => s.setAutoBattlePreset);
 
-  const strategies: { id: 'balanced' | 'economy' | 'aggressive' | 'defensive'; label: string; icon: React.ReactNode; accent: string }[] = [
+  const strategies: { id: string; label: string; icon: React.ReactNode; accent: string }[] = [
     { id: 'balanced', label: u.aiBalanced, icon: <ScalesIcon className="w-3.5 h-3.5" />, accent: 'cyan' },
     { id: 'economy', label: u.aiEconomy, icon: <CoinIcon className="w-3.5 h-3.5" />, accent: 'amber' },
-    { id: 'aggressive', label: u.aiAggressive, icon: <SwordsIcon className="w-3.5 h-3.5" />, accent: 'rose' },
-    { id: 'defensive', label: u.aiDefensive, icon: <ShieldIcon className="w-3.5 h-3.5" />, accent: 'emerald' },
+    { id: 'pressure', label: u.aiAggressive, icon: <SwordsIcon className="w-3.5 h-3.5" />, accent: 'rose' },
+    { id: 'steady', label: u.aiDefensive, icon: <ShieldIcon className="w-3.5 h-3.5" />, accent: 'emerald' },
   ];
 
   return (
@@ -231,12 +231,12 @@ const AIControl = () => {
       <div className="text-[10px] text-[var(--arc-ink-4)] tracking-widest uppercase font-bold pt-1">{u.strategyLabel}</div>
       <div className="grid grid-cols-4 gap-1">
         {strategies.map((s) => {
-          const isActive = autoBattleStrategy === s.id;
+          const isActive = autoBattlePresetId === s.id;
           return (
             <button
               key={s.id}
               type="button"
-              onClick={() => setAutoBattleStrategy(s.id)}
+              onClick={() => setAutoBattlePreset(s.id)}
               className={`py-2  flex flex-col items-center gap-0.5 border transition-all ${
                 isActive
                   ? 'bg-[var(--arc-deck-3)] text-[var(--arc-ink)] border-[var(--arc-line-strong)] '

@@ -4,12 +4,10 @@ import { useGameStore } from '@/store/gameStore';
 import { useTranslation } from '@/i18n';
 import { GAME_CONSTANTS } from '@/data/gameData';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
-import {
-  CoinIcon, BrainIcon, UpArrowIcon, RobotIcon,
-  ScalesIcon, SwordsIcon, ShieldIcon, ConstructionIcon,
-  LightningIcon, SkipForwardIcon, TrashIcon, SparklesIcon,
-} from '@/components/ui/Icons';
+import { BrainIcon, RobotIcon, SparklesIcon, UpArrowIcon } from '@/components/ui/Icons';
 import { Btn, SegHead } from '@/components/hl';
+import { AUTO_BATTLE_PRESETS } from '@/data/autobattle/presets';
+import { formatNarration } from '@/components/game/autobattle/formatNarration';
 
 interface AdvancedOptionsPanelProps {
   show: boolean;
@@ -22,11 +20,14 @@ export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
   const { t } = useTranslation();
   const batchUpgrade = useGameStore((s) => s.batchUpgrade);
   const autoBattleEnabled = useGameStore((s) => s.autoBattleEnabled);
-  const setAutoBattleStrategy = useGameStore((s) => s.setAutoBattleStrategy);
-  const autoBattleStrategy = useGameStore((s) => s.autoBattleStrategy);
-  const autoBattleConfig = useGameStore((s) => s.autoBattleConfig);
-  const setAutoBattleConfig = useGameStore((s) => s.setAutoBattleConfig);
-  const autoBattleLogs = useGameStore((s) => s.autoBattleLogs);
+  const autoBattlePresetId = useGameStore((s) => s.autoBattlePresetId);
+  const setAutoBattlePreset = useGameStore((s) => s.setAutoBattlePreset);
+  const autoBattleDecisions = useGameStore((s) => s.autoBattleDecisions);
+  const autoBattleDryRun = useGameStore((s) => s.autoBattleDryRun);
+  const setAutoBattleDryRun = useGameStore((s) => s.setAutoBattleDryRun);
+  const autoBattleShowOverlay = useGameStore((s) => s.autoBattleShowOverlay);
+  const setAutoBattleOverlay = useGameStore((s) => s.setAutoBattleOverlay);
+  const setAutoBattlePanelOpen = useGameStore((s) => s.setAutoBattlePanelOpen);
   const canBatchUpgrade = useGameStore((s) => s.towers.some(t => t.level >= 2 && t.level < GAME_CONSTANTS.MAX_TOWER_LEVEL));
   const autoSkipWave = useGameStore((s) => s.autoSkipWave);
   const toggleAutoSkipWave = useGameStore((s) => s.toggleAutoSkipWave);
@@ -75,78 +76,61 @@ export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
 
             <div>
               <SegHead label={t.game.aiStrategy} right={<RobotIcon className="h-3.5 w-3.5 text-[var(--arc-ink-3)]" />} />
-              <div className="mt-1.5 grid grid-cols-4 gap-px overflow-hidden rounded-sm bg-[var(--arc-line)]">
-                {([
-                  { id: 'balanced', icon: <ScalesIcon className="h-3.5 w-3.5" />, tip: t.game.balanced },
-                  { id: 'economy', icon: <CoinIcon className="h-3.5 w-3.5" />, tip: t.game.economy },
-                  { id: 'aggressive', icon: <SwordsIcon className="h-3.5 w-3.5" />, tip: t.game.aggressive },
-                  { id: 'defensive', icon: <ShieldIcon className="h-3.5 w-3.5" />, tip: t.game.defensive },
-                ] as const).map((s) => (
+              <div className="mt-1.5 grid grid-cols-3 gap-px overflow-hidden rounded-sm bg-[var(--arc-line)]">
+                {AUTO_BATTLE_PRESETS.map((preset) => (
                   <button
-                    key={s.id}
+                    key={preset.id}
                     type="button"
-                    className={`flex h-8 items-center justify-center transition-colors duration-[110ms] ${
-                      autoBattleStrategy === s.id
+                    className={`flex h-8 items-center justify-center font-mono text-[10px] uppercase tracking-[0.06em] transition-colors duration-[110ms] ${
+                      autoBattlePresetId === preset.id
                         ? 'bg-[var(--arc-gold-veil)] font-semibold text-[var(--arc-gold)]'
                         : 'bg-[var(--arc-deck-2)] text-[var(--arc-ink-3)] hover:bg-[var(--arc-deck-3)] hover:text-[var(--arc-ink)]'
                     }`}
-                    onClick={() => setAutoBattleStrategy(s.id)}
-                    title={s.tip}
+                    onClick={() => setAutoBattlePreset(preset.id)}
+                    title={t.content.autoBattle.presetLabel}
                   >
-                    {s.icon}
+                    {preset.id}
                   </button>
                 ))}
               </div>
 
               <div className="mt-1.5">
                 <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
-                  <span className="arc-label flex items-center gap-1.5"><ConstructionIcon className="h-3 w-3" />{t.game.aiAutoPlace}</span>
-                  <ToggleSwitch enabled={autoBattleConfig.autoPlace} onToggle={() => setAutoBattleConfig({ autoPlace: !autoBattleConfig.autoPlace })} size="sm" activeColor="green" />
+                  <span className="arc-label flex items-center gap-1.5"><SparklesIcon className="h-3 w-3" />{t.content.autoBattle.overlay}</span>
+                  <ToggleSwitch enabled={autoBattleShowOverlay} onToggle={() => setAutoBattleOverlay(!autoBattleShowOverlay)} size="sm" activeColor="cyan" />
                 </label>
                 <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
-                  <span className="arc-label flex items-center gap-1.5"><UpArrowIcon className="h-3 w-3" />{t.game.aiAutoUpgrade}</span>
-                  <ToggleSwitch enabled={autoBattleConfig.autoUpgrade} onToggle={() => setAutoBattleConfig({ autoUpgrade: !autoBattleConfig.autoUpgrade })} size="sm" activeColor="blue" />
-                </label>
-                <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
-                  <span className="arc-label flex items-center gap-1.5"><LightningIcon className="h-3 w-3" />{t.game.aiAutoSkill}</span>
-                  <ToggleSwitch enabled={autoBattleConfig.useSkills} onToggle={() => setAutoBattleConfig({ useSkills: !autoBattleConfig.useSkills })} size="sm" activeColor="yellow" />
-                </label>
-                <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
-                  <span className="arc-label flex items-center gap-1.5"><SkipForwardIcon className="h-3 w-3" />{t.game.aiAutoSkip}</span>
-                  <ToggleSwitch enabled={autoBattleConfig.autoSkip} onToggle={() => setAutoBattleConfig({ autoSkip: !autoBattleConfig.autoSkip })} size="sm" activeColor="purple" />
-                </label>
-                <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
-                  <span className="arc-label flex items-center gap-1.5"><TrashIcon className="h-3 w-3" />{t.game.aiAutoSell}</span>
-                  <ToggleSwitch enabled={autoBattleConfig.autoSell} onToggle={() => setAutoBattleConfig({ autoSell: !autoBattleConfig.autoSell })} size="sm" activeColor="orange" />
-                </label>
-                {/* 融合：預設關閉（會吃掉兩座塔），但必須有入口，否則 AI 的融合評分永遠不會執行 */}
-                <label className={`${ROW} cursor-pointer text-[var(--arc-ink-3)] hover:text-[var(--arc-ink)]`}>
-                  <span className="arc-label flex items-center gap-1.5"><SparklesIcon className="h-3 w-3" />{t.game.aiAutoFusion}</span>
-                  <ToggleSwitch enabled={autoBattleConfig.autoFusion} onToggle={() => setAutoBattleConfig({ autoFusion: !autoBattleConfig.autoFusion })} size="sm" activeColor="cyan" />
+                  <span className="arc-label flex items-center gap-1.5"><BrainIcon className="h-3 w-3" />{t.content.autoBattle.dryRun}</span>
+                  <ToggleSwitch enabled={autoBattleDryRun} onToggle={() => setAutoBattleDryRun(!autoBattleDryRun)} size="sm" activeColor="purple" />
                 </label>
               </div>
+
+              <Btn
+                variant="line"
+                size="sm"
+                block
+                icon={<RobotIcon className="h-3.5 w-3.5" />}
+                onClick={() => setAutoBattlePanelOpen(true)}
+              >
+                {t.content.autoBattle.open}
+              </Btn>
             </div>
 
-            {autoBattleEnabled && autoBattleLogs.length > 0 && (
+            {autoBattleEnabled && autoBattleDecisions.length > 0 && (
               <div>
                 <SegHead
-                  label={t.game.aiLog}
-                  right={<span className="flex items-center gap-1.5"><BrainIcon className="h-3.5 w-3.5 text-[var(--arc-ink-3)]" /><span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">{autoBattleLogs.length}</span></span>}
+                  label={t.content.autoBattle.tabs.timeline}
+                  right={<span className="font-mono text-[10px] tabular-nums text-[var(--arc-ink-4)]">{autoBattleDecisions.length}</span>}
                 />
                 <div className="mt-1.5 max-h-32 space-y-px overflow-y-auto rounded-sm bg-[var(--arc-line)]">
-                  {autoBattleLogs.slice(0, 8).map((log) => (
-                    <div
-                      key={log.id}
-                      className={`border-l-2 bg-[var(--arc-deck)] px-2 py-1 font-mono text-[9.5px] ${
-                        log.type === 'place' ? 'border-[var(--arc-vital)] text-[var(--arc-vital)]'
-                        : log.type === 'upgrade' ? 'border-[var(--arc-reach)] text-[var(--arc-reach)]'
-                        : log.type === 'skill' ? 'border-[var(--arc-caution)] text-[var(--arc-caution)]'
-                        : log.type === 'skip' ? 'border-[var(--arc-ink-3)] text-[var(--arc-ink-2)]'
-                        : log.type === 'sell' ? 'border-[var(--arc-alert)] text-[var(--arc-alert)]'
-                        : 'border-[var(--arc-line)] text-[var(--arc-ink-2)]'
-                      }`}
-                    >
-                      <span className="block truncate">{log.message}</span>
+                  {autoBattleDecisions.slice(0, 6).map((decision) => (
+                    <div key={decision.id} className="border-l-2 border-[var(--arc-line)] bg-[var(--arc-deck)] px-2 py-1 font-mono text-[9.5px] text-[var(--arc-ink-2)]">
+                      <span className="block truncate">
+                        {formatNarration(
+                          (t.content.autoBattle.narration as Record<string, string>)[decision.narrationKey.split('.').pop() ?? ''] ?? '',
+                          decision.narrationParams,
+                        )}
+                      </span>
                     </div>
                   ))}
                 </div>

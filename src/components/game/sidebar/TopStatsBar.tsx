@@ -79,7 +79,7 @@ export const TopStatsBar = () => {
   const enemyCount = useGameStore((s) => s.enemies.length);
   const autoBattleEnabled = useGameStore((s) => s.autoBattleEnabled);
   const autoBattleStats = useGameStore((s) => s.autoBattleStats);
-  const autoBattleStrategy = useGameStore((s) => s.autoBattleStrategy);
+  const autoBattleMode = useGameStore((s) => s.autoBattleMode);
   const tutorialActive = useTutorialStore((s) => s.isActive);
 
   const waveValue = endlessMode ? currentWave : maxWaves > 0 ? `${currentWave}/${maxWaves}` : currentWave;
@@ -183,19 +183,9 @@ export const TopStatsBar = () => {
                     <div className={BD_LABEL}>{t.game.aiStatsTitle}</div>
                     <div className="mt-2">
                       {[
-                        { k: t.game.aiPlacedLabel, v: `${autoBattleStats.towersPlaced} ${t.game.unitTower}` },
-                        { k: t.game.aiSpentLabel, v: `$${autoBattleStats.moneySpent}` },
-                        { k: t.game.aiDecisionsLabel, v: `${autoBattleStats.decisionsCount} ${t.game.unitTimes}` },
-                        {
-                          k: t.game.aiModeLabel,
-                          v: autoBattleStrategy === 'balanced'
-                            ? t.game.balanced
-                            : autoBattleStrategy === 'economy'
-                              ? t.game.economy
-                              : autoBattleStrategy === 'aggressive'
-                                ? t.game.aggressive
-                                : t.game.defensive,
-                        },
+                        { k: t.game.aiPlacedLabel, v: `${autoBattleStats.placed} ${t.game.unitTower}` },
+                        { k: t.game.aiDecisionsLabel, v: `${autoBattleStats.decisions} ${t.game.unitTimes}` },
+                        { k: t.game.aiModeLabel, v: t.content.autoBattle.mode[autoBattleMode] },
                       ].map((row) => (
                         <div
                           key={row.k}

@@ -8,6 +8,7 @@ import { IntelPanel } from './IntelPanel';
 import { AIStatusHeader } from './sidebar/AIStatusHeader';
 import { ViewModeToggle } from '@/components/scenes/game-scene/three/ViewModeToggle';
 import { PlayerSkillBar } from './PlayerSkillBar';
+import { AutoBattlePanel } from './autobattle/AutoBattlePanel';
 
 /**
  * 戰鬥 HUD — 無卡片緊湊構圖
@@ -70,6 +71,9 @@ const SidebarImpl = ({ viewMode, onToggleView }: SidebarProps) => {
           <PlayerSkillBar />
         </div>
       )}
+
+      {/* AI 自動戰鬥面板（右側抽屜，由面板開關控制） */}
+      <AutoBattlePanel />
 
       {/* 底部：指揮膠囊 */}
       {hudLayout.showBottomControls && (

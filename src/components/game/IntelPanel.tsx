@@ -25,7 +25,7 @@ export function IntelPanel() {
   const score = useGameStore((s) => s.score);
   const selectedTower = useGameStore((s) => s.selectedTower);
   const autoBattleEnabled = useGameStore((s) => s.autoBattleEnabled);
-  const autoBattleStrategy = useGameStore((s) => s.autoBattleStrategy);
+  const autoBattlePresetId = useGameStore((s) => s.autoBattlePresetId);
 
   const waveRatio = !endlessMode && maxWaves > 0 ? Math.min(1, currentWave / maxWaves) : 0;
   const selectedName = selectedTower ? getTowerData(selectedTower.type)?.name ?? selectedTower.type : null;
@@ -137,13 +137,7 @@ export function IntelPanel() {
                   <div className={`${BD_LABEL} mb-1.5`}>{t.game.aiAutoBattle}</div>
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-[var(--cn-ink-2)]">
-                      {autoBattleStrategy === 'balanced'
-                        ? t.game.balanced
-                        : autoBattleStrategy === 'economy'
-                          ? t.game.economy
-                          : autoBattleStrategy === 'aggressive'
-                            ? t.game.aggressive
-                            : t.game.defensive}
+                      {t.content.autoBattle.presetLabel} · {autoBattlePresetId}
                     </span>
                     <span className={`${BD_NUM} text-[11px] text-[var(--cn-vital-text)]`}>{waveActive ? t.game.combatActive : t.game.standby}</span>
                   </div>
