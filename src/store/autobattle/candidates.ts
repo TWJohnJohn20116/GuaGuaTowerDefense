@@ -152,7 +152,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           row: spot.row,
           cost,
           factors: applyPresetBoost(factors as ScoreFactor[], ctx.config.presetId),
-          softBonus: 0.14 * Math.min(2, fusionPartnersOf(ctx, type)) * (0.5 + slotPressure(ctx)),
+          softBonus: 0.07 * Math.min(2, fusionPartnersOf(ctx, type)) * (0.5 + slotPressure(ctx)),
           penalties: 0,
           total: 0,
           vetoedBy: [],
@@ -252,6 +252,8 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       const near = enemiesNear(ctx, a.col, a.row, range);
       const before = dpsOf(a.type, a.level) + dpsOf(b.type, b.level);
       const after = dpsOf(result, 1);
+      // 融合會把兩座塔的等級歸零：DPS 換不回來就不要合，否則等於白燒投資
+      if (after < before * 1.05) continue;
       const gain = before > 0 ? (after - before) / before : 0;
       const weights = resolveWeights('fusion', ctx.config);
       const factors: ScoreFactor[] = [
@@ -278,7 +280,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         row: a.row,
         cost,
         factors: applyPresetBoost(factors, ctx.config.presetId),
-        softBonus: 0.45 * slotPressure(ctx),
+        softBonus: 0.3 * slotPressure(ctx),
         penalties: 0,
         total: 0,
         vetoedBy: [],
