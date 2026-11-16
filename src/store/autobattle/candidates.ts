@@ -5,6 +5,7 @@ import { getTowerUpgradeCost, canAutoUpgradeTower } from '@/data/towerUpgradeCos
 import { getTowerBuildCost } from '@/data/towerCost';
 import { findSynergyRecipe } from '@/data/towerSynergyData';
 import { computeFusionCost, getFusionRecipe } from '@/data/fusionRecipes';
+import { getPreset } from '@/data/autobattle/presets';
 import { counterAffinity } from '@/data/enemyCounters';
 import { hasEnemyAbility } from '@/data/gameData/enemyAbilities';
 import { collectPathPoints, coveragePointsOf, maxCoverageOfMap, gridSizeOf } from '@/data/autobattle/mapInfo';
@@ -229,8 +230,10 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       if (uniqueRatio > 0.4) continue;
       // 賣塔不能當提款機：手上現金已經低於保留金時，先想辦法賺錢或升級，不是拆防線
       if (ctx.money < ctx.lookahead.moneyReserve) continue;
-      // 已經投資過等級的塔不賣：換塔等於把升級費用丟掉
-      if (tower.level > 2) continue;
+      // 只有剛蓋好的塔可能被換掉：已經投資過等級的塔，換掉等於把升級費丟掉
+      if (tower.level > 1) continue;
+      if (uniqueRatio > 0.2) continue;
+      if (!getPreset(ctx.config.presetId).allowSell) continue;
       if (uniqueRatio > 0.15 && ctx.money < ctx.lookahead.moneyReserve * 2) continue;
       const factors = [
         makeFactor('safety', safety, safety, weights.safety ?? 0, `重複覆蓋 ${((1 - uniqueRatio) * 100).toFixed(0)}%`),
