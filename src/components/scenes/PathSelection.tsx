@@ -1,12 +1,18 @@
 /**
- * 選擇路徑 · HARDLINE Console
+ * 選擇路徑 · 卡牌牆 → 全屏簡報層（兩步流程）
  *
- * ┌ TopBar 52px：返回 + 標題 + 分類 Chip ────────────────┐
- * ├ Rail 212px（地圖列） │ 主區：任務簡報 ─────────────────┤
- * └──────────────────────────────────────────────────────┘
- * 難度是方塊分段；獎勵是 StatCell；出擊是全畫面唯一的大面積訊號色。
+ * ┌ TopBar：返回 + 標題 + 來源分類 Chip ──────────────────┐
+ * ├ 卡牌牆：搜尋／難度篩選／地圖卡網格（唯一會滾動的區域）─┤
+ * └ 點一張卡 → 推起全屏簡報層（難度＋模式＋出擊）──────────┘
+ *
+ * 為什麼拆兩步：卡面上塞難度選擇與出擊鍵，四十張圖就會長出四十組控制項。
+ * 卡牌牆只負責「挑哪張圖」，這一局的參數全部在簡報層決定一次。
+ *
+ * 狀態：選圖狀態（activeKey／簡報層開關）留在這一層的 React state。
+ * 它不是世界狀態——進場後真正生效的東西都寫進 startGame 的參數。
  */
 
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { useModStore } from '@/store/modStore';
 import { PATHS, DIFFICULTY_MODIFIERS } from '@/data/gameData';
@@ -14,42 +20,43 @@ import { listCampaignLevels, startCampaignLevel } from '@/workshop/campaign';
 import { setActiveMapTheme } from '@/utils/themeBoard';
 import { useWorkshopStore } from '@/store/workshopStore';
 import { useWorkshopProgressStore } from '@/store/workshopProgressStore';
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import type { GameDifficulty, DifficultyModifiers } from '@/types/game';
+import type { DifficultyModifiers, GameDifficulty } from '@/types/game';
 import { SceneShell } from '@/components/ui/SceneShell';
-import { Chip, TopBar, Rail } from '@/components/hl';
+import { TopBar } from '@/components/hl';
 import { useTranslation } from '@/i18n';
 import { findPlayableWaveSet } from '@/utils/waveSets';
 import { isPathSelectionTypingTarget, resolvePathSelectionEscape } from '@/data/pathSelectionBack';
+import { MapWall } from './path-selection/MapWall';
+import { BriefingOverlay } from './path-selection/BriefingOverlay';
+import { DEFAULT_MODIFIERS } from './path-selection/CustomTuning';
 import {
-  MapSidebar,
-  MapBriefing,
+  CATEGORY_ORDER,
   type MapCategory,
   type MapItemData,
-} from './path-selection';
+} from './path-selection/mapLibrary';
 
 export default function PathSelection() {
   const { t } = useTranslation();
   const startGame = useGameStore((state) => state.startGame);
   const goBackScene = useGameStore((state) => state.goBackScene);
 
-  const [selectedPath, setSelectedPath] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<MapCategory>('advanced');
-  const [selectedDifficulty, setSelectedDifficulty] = useState<GameDifficulty>('normal');
+  const [category, setCategory] = useState<MapCategory>('advanced');
+  const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [briefingOpen, setBriefingOpen] = useState(false);
+  const [difficulty, setDifficulty] = useState<GameDifficulty>('normal');
   const [endlessMode, setEndlessMode] = useState(false);
-  const [selectedWaves, setSelectedWaves] = useState<number>(15);
-  const [customWaveSetId, setCustomWaveSetId] = useState<string>('');
-  const [customModifiers, setCustomModifiers] = useState<DifficultyModifiers>({
-    enemyHealthMult: 1.0,
-    enemySpeedMult: 1.0,
-    enemyRewardMult: 1.0,
-    startingMoney: 500,
-    startingHealth: 10,
-    towerCostMult: 1.0,
-    waveDelayMult: 1.0,
-  });
+  const [selectedWaves, setSelectedWaves] = useState(15);
+  const [customWaveSetId, setCustomWaveSetId] = useState('');
+  const [customModifiers, setCustomModifiers] = useState<DifficultyModifiers>(DEFAULT_MODIFIERS);
 
-  const advancedMapItems = useMemo<MapItemData[]>(
+  /* ── 三條地圖來源 ──────────────────────────────────────────────── */
+
+  const mods = useModStore((state) => state.mods);
+  const workshopProjects = useWorkshopStore((state) => state.projects);
+  const workshopAssets = useWorkshopStore((state) => state.assets);
+  const completedByProject = useWorkshopProgressStore((state) => state.completed);
+
+  const advancedItems = useMemo<MapItemData[]>(
     () =>
       Object.entries(PATHS)
         .filter(([key]) => key !== 'random')
@@ -64,11 +71,10 @@ export default function PathSelection() {
     [],
   );
 
-  const mods = useModStore((state) => state.mods);
-  const modMapItems = useMemo<MapItemData[]>(() => {
+  const modItems = useMemo<MapItemData[]>(() => {
     const items: MapItemData[] = [];
     mods
-      .filter((m) => m.enabled)
+      .filter((mod) => mod.enabled)
       .forEach((mod) => {
         mod.content.maps?.forEach((map) => {
           items.push({
@@ -93,11 +99,7 @@ export default function PathSelection() {
     return items;
   }, [mods]);
 
-  const workshopProjects = useWorkshopStore((state) => state.projects);
-  const workshopAssets = useWorkshopStore((state) => state.assets);
-  const completedByProject = useWorkshopProgressStore((state) => state.completed);
-
-  const campaignItems = useMemo<MapItemData[]>(
+  const workshopItems = useMemo<MapItemData[]>(
     () =>
       listCampaignLevels().map((level) => ({
         key: level.key,
@@ -113,149 +115,155 @@ export default function PathSelection() {
     [workshopProjects, workshopAssets, completedByProject],
   );
 
-  const categoryChips = useMemo(
-    () => [
-      {
-        id: 'advanced' as MapCategory,
-        label: t.pathSelection.campaign.sidebarAdvanced,
-        count: advancedMapItems.length,
-      },
-      {
-        id: 'mod' as MapCategory,
-        label: t.pathSelection.campaign.sidebarMod,
-        count: modMapItems.length,
-      },
-      {
-        id: 'workshop' as MapCategory,
-        label: t.pathSelection.campaign.sidebarWorkshop,
-        count: campaignItems.length,
-      },
-    ],
-    [t, advancedMapItems.length, modMapItems.length, campaignItems.length],
+  const itemsByCategory = useMemo<Record<MapCategory, MapItemData[]>>(
+    () => ({ advanced: advancedItems, mod: modItems, workshop: workshopItems }),
+    [advancedItems, modItems, workshopItems],
   );
 
-  useEffect(() => {
-    const list =
-      activeCategory === 'advanced'
-        ? advancedMapItems
-        : activeCategory === 'mod'
-          ? modMapItems
-          : campaignItems;
-    if (list.length > 0) {
-      const firstAvailable = list.find((m) => !m.isLocked);
-      setSelectedPath(firstAvailable ? firstAvailable.key : list[0].key);
-    } else {
-      setSelectedPath(null);
-    }
-  }, [activeCategory, advancedMapItems, modMapItems, campaignItems]);
+  const items = itemsByCategory[category];
+  const activeMap = useMemo(
+    () => (activeKey ? items.find((item) => item.key === activeKey) : undefined),
+    [items, activeKey],
+  );
 
-  const leavePathSelection = useCallback(() => {
-    goBackScene();
-  }, [goBackScene]);
+  /* ── 分類切換：順手收掉簡報層與選取，避免開著別分類的地圖 ───────── */
+
+  const changeCategory = useCallback((next: MapCategory) => {
+    setCategory(next);
+    setActiveKey(null);
+    setBriefingOpen(false);
+  }, []);
+
+  const openBriefing = useCallback((key: string) => {
+    setActiveKey(key);
+    setBriefingOpen(true);
+  }, []);
+
+  const closeBriefing = useCallback(() => setBriefingOpen(false), []);
+
+  /* ── Esc：先關簡報層，沒有層才離開場景（搜尋框自己吃掉按鍵） ─────── */
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
+    const handler = (event: KeyboardEvent) => {
       const action = resolvePathSelectionEscape({
-        key: e.key,
-        inTextField: isPathSelectionTypingTarget(e.target),
+        key: event.key,
+        inTextField: isPathSelectionTypingTarget(event.target),
       });
       if (action === 'ignore') return;
-      e.preventDefault();
-      leavePathSelection();
+      event.preventDefault();
+      if (briefingOpen) {
+        setBriefingOpen(false);
+        return;
+      }
+      goBackScene();
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [leavePathSelection]);
+  }, [briefingOpen, goBackScene]);
 
-  const handleStartGame = (overrideId?: string) => {
-    const targetId = overrideId || selectedPath;
-    if (!targetId) return;
-    // 工坊關卡：走正式局（不隔離統計與成就），地圖與波次由 campaign 模組註冊
-    if (targetId.startsWith('ws:')) {
-      void startCampaignLevel(targetId);
+  /* ── 出擊 ─────────────────────────────────────────────────────── */
+
+  const handleStart = useCallback(() => {
+    if (!activeKey) return;
+
+    // 工坊關卡：走正式局，地圖與波次由 campaign 模組註冊
+    if (activeKey.startsWith('ws:')) {
+      void startCampaignLevel(activeKey);
       return;
     }
+
     let effectiveMaxWaves = endlessMode ? 0 : selectedWaves;
     if (!endlessMode && customWaveSetId) {
-      const ws = findPlayableWaveSet(customWaveSetId);
-      if (ws) effectiveMaxWaves = ws.waves.length;
+      const waveSet = findPlayableWaveSet(customWaveSetId);
+      if (waveSet) effectiveMaxWaves = waveSet.waves.length;
     }
+
     // 地圖自訂主題：開局前套用（缺省＝跟隨全域主題）
-    setActiveMapTheme(PATHS[targetId]?.theme ?? null);
+    setActiveMapTheme(PATHS[activeKey]?.theme ?? null);
     startGame(
-      targetId,
-      selectedDifficulty,
+      activeKey,
+      difficulty,
       endlessMode,
       effectiveMaxWaves,
-      selectedDifficulty === 'custom' ? customModifiers : undefined,
+      difficulty === 'custom' ? customModifiers : undefined,
       customWaveSetId || undefined,
     );
-  };
+  }, [activeKey, endlessMode, selectedWaves, customWaveSetId, difficulty, customModifiers, startGame]);
 
-  const mod =
-    selectedDifficulty === 'custom'
+  const modifiers =
+    difficulty === 'custom'
       ? customModifiers
-      : DIFFICULTY_MODIFIERS[selectedDifficulty] || DIFFICULTY_MODIFIERS['normal'];
+      : DIFFICULTY_MODIFIERS[difficulty] || DIFFICULTY_MODIFIERS['normal'];
 
-  const currentSelectedMapData = useMemo(() => {
-    if (activeCategory === 'advanced') return advancedMapItems.find((m) => m.key === selectedPath);
-    if (activeCategory === 'mod') return modMapItems.find((m) => m.key === selectedPath);
-    if (activeCategory === 'workshop') return campaignItems.find((m) => m.key === selectedPath);
-    return undefined;
-  }, [activeCategory, advancedMapItems, modMapItems, selectedPath]);
+  /* ── 呈現 ─────────────────────────────────────────────────────── */
+
+  const c = t.pathSelection.campaign;
+  const categoryLabels: Record<MapCategory, string> = {
+    advanced: c.sidebarAdvanced,
+    mod: c.sidebarMod,
+    workshop: c.sidebarWorkshop,
+  };
+  const categoryChips = CATEGORY_ORDER.map((id) => ({
+    id,
+    label: categoryLabels[id],
+    count: itemsByCategory[id].length,
+  }));
+
+  const emptyState = useMemo(() => {
+    if (category === 'mod') {
+      return {
+        title: t.pathSelectionExt?.noModMaps || c.sidebarMod,
+        hint: t.pathSelectionExt?.enableModMaps,
+      };
+    }
+    if (category === 'workshop') {
+      return { title: c.sidebarWorkshop, hint: undefined };
+    }
+    return { title: c.noAdvancedMaps, hint: undefined };
+  }, [category, t, c]);
 
   return (
     <SceneShell scrollable={false}>
-      <div className="flex h-full w-full flex-col gap-3">
+      <div className="relative flex h-full w-full flex-col gap-3">
         <TopBar
           title={t.pathSelection.title}
           meta={t.pathSelection.subtitle}
-          back={{ onClick: leavePathSelection }}
-          right={
-            <div className="flex items-center gap-2">
-              {categoryChips.map((chip) => (
-                <Chip
-                  key={chip.id}
-                  active={activeCategory === chip.id}
-                  onClick={() => setActiveCategory(chip.id)}
-                >
-                  {chip.label}
-                  <span className="tabular-nums opacity-70">{chip.count}</span>
-                </Chip>
-              ))}
-            </div>
-          }
+          back={{ onClick: goBackScene }}
         />
 
-        <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
-          <Rail className="max-h-[46vh] md:max-h-none">
-            <MapSidebar
-              activeCategory={activeCategory}
-              selectedId={selectedPath}
-              onSelectMap={setSelectedPath}
-              advancedMaps={advancedMapItems}
-              modMaps={modMapItems}
-            />
-          </Rail>
-
-          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-            <MapBriefing
-              selectedMap={currentSelectedMapData}
-              selectedDifficulty={selectedDifficulty}
-              setSelectedDifficulty={setSelectedDifficulty}
-              endlessMode={endlessMode}
-              setEndlessMode={setEndlessMode}
-              selectedWaves={selectedWaves}
-              setSelectedWaves={setSelectedWaves}
-              customModifiers={customModifiers}
-              setCustomModifiers={setCustomModifiers}
-              mod={mod}
-              onStart={() => handleStartGame()}
-              customWaveSetId={customWaveSetId}
-              setCustomWaveSetId={setCustomWaveSetId}
-            />
-          </main>
+        {/* key={category}：切分類時連篩選狀態一起重置 */}
+        <div className="min-h-0 flex-1">
+          <MapWall
+            key={category}
+            items={items}
+            activeKey={activeKey}
+            onOpen={openBriefing}
+            emptyTitle={emptyState.title}
+            emptyHint={emptyState.hint}
+            categories={categoryChips}
+            category={category}
+            onCategoryChange={changeCategory}
+          />
         </div>
+
+        {briefingOpen && activeMap && (
+          <BriefingOverlay
+            map={activeMap}
+            onClose={closeBriefing}
+            difficulty={difficulty}
+            setDifficulty={setDifficulty}
+            customModifiers={customModifiers}
+            setCustomModifiers={setCustomModifiers}
+            modifiers={modifiers}
+            endlessMode={endlessMode}
+            setEndlessMode={setEndlessMode}
+            selectedWaves={selectedWaves}
+            setSelectedWaves={setSelectedWaves}
+            customWaveSetId={customWaveSetId}
+            setCustomWaveSetId={setCustomWaveSetId}
+            onStart={handleStart}
+          />
+        )}
       </div>
     </SceneShell>
   );
