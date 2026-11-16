@@ -201,7 +201,6 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           total: 0,
           vetoedBy: [],
         }));
-      }
     }
   }
 
