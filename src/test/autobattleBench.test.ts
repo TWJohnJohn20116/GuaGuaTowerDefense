@@ -170,6 +170,10 @@ interface AgentResult {
   towerCount: number;
   idleTicks: number;
   jitter: number;
+  /** 死亡當下的總 DPS 與等級分佈：用來判斷是不是「塔位用盡造成 DPS 上限」 */
+  totalDps: number;
+  levelSum: number;
+  maxLevelTowers: number;
 }
 
 type Action =
@@ -334,6 +338,9 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
     towerCount: sim.towers.length,
     idleTicks,
     jitter,
+    totalDps: Math.round(sim.towers.reduce((sum, t) => sum + dpsOf(t.type, t.level), 0)),
+    levelSum: sim.towers.reduce((sum, t) => sum + t.level, 0),
+    maxLevelTowers: sim.towers.filter((t) => t.level >= 5).length,
   };
 };
 

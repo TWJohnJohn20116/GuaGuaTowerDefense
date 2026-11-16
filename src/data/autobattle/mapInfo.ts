@@ -20,27 +20,18 @@ export const collectPathPoints = (cfg: PathConfig | undefined): MapPointInfo[] =
   return out;
 };
 
-/**
- * 單一塔位在射程內覆蓋的路徑價值。
- *
- * 不是單純數點數：越靠近終點的點權重越高（0.5 → 1.0）。
- * 敵人只有走到終點才會扣血，所以在出口附近多打一秒，比在入口多打三秒更值錢。
- */
+/** 單一塔位在射程內覆蓋的路徑點數（格為單位，含小數容差） */
 export const coveragePointsOf = (
   points: MapPointInfo[],
   col: number,
   row: number,
   range: number,
 ): number => {
-  if (points.length === 0) return 0;
   let covered = 0;
-  const denom = Math.max(1, points.length - 1);
-  for (let i = 0; i < points.length; i++) {
-    const p = points[i];
+  for (const p of points) {
     const dx = p.col - col;
     const dy = p.row - row;
-    if (dx * dx + dy * dy > range * range) continue;
-    covered += 0.5 + 0.5 * (i / denom);
+    if (dx * dx + dy * dy <= range * range) covered++;
   }
   return covered;
 };
