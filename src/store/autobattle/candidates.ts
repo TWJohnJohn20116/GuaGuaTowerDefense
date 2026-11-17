@@ -193,8 +193,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           row: spot.row,
           cost,
           factors: applyPresetBoost(factors as ScoreFactor[], ctx.config.presetId),
-          // 前期偏好便宜塔：同樣的錢能鋪更多座，擊殺獎勵與覆蓋都更早開始複利
-          softBonus: ctx.wave <= 12 ? 0.12 * clamp01(1 - cost / 300) : 0,
+          softBonus: 0,
           penalties: 0,
           total: 0,
           vetoedBy: [],
