@@ -459,10 +459,8 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
   let lastKey = '';
   let repeats = 0;
   let tick = 0;
-  // 決策成本是基準的主要開銷：步進放大到 0.5 秒、每 2 tick 才決策一次，
-  // 等效與線上「100~200ms 決策一次」的時間尺度接近，但模擬次數少一半以上。
-  const dt = 0.5;
-  const maxTicks = waves * 450;
+  const dt = 0.3;
+  const maxTicks = waves * 700;
   let waveIndex = 1;
   appendWave(sim, waveIndex);
   while (tick < maxTicks && sim.health > 0) {
@@ -474,10 +472,9 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
       appendWave(sim, waveIndex);
       continue;
     }
-    // 每 2 tick 才決策；一次最多兩個動作（兩側同規則）
+    // 每個 tick 單一動作（兩側同規則）
     let executed = false;
-    if (tick % 2 !== 0) continue;
-    for (let k = 0; k < 2; k++) {
+    for (let k = 0; k < 1; k++) {
       const action = policy(sim, tick + seedOffset);
       if (!apply(sim, action)) break;
       executed = true;
