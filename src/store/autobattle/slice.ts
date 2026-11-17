@@ -148,7 +148,11 @@ export const createAutoBattleSlice = (get: GetState, set: SetState) => ({
     const ctx = buildContext(state, [], config, lookahead);
     const triggers = pollTriggers(ctx);
 
-    if (triggers.length === 0 && ctx.time - state.autoBattleLastDecision < DECISION_LIMITS.fallbackTickMs) {
+    // 錢遠超保留需求時，決策頻率加倍（等效於「一次決策做兩件事」）：
+    // 後期錢多、可做的事也多，200ms 一次會讓花錢速度跟不上浪費速度。
+    const rich = state.money > lookahead.moneyReserve * 2;
+    const fallbackMs = rich ? DECISION_LIMITS.fallbackTickMs / 2 : DECISION_LIMITS.fallbackTickMs;
+    if (triggers.length === 0 && ctx.time - state.autoBattleLastDecision < fallbackMs) {
       return;
     }
 
