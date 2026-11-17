@@ -158,7 +158,9 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           const roi = (valueOf(type, 1) / Math.max(1, buildCostOf(type, costMult))) / bestRoi;
           // 塔位吃緊時，「每格 DPS」比「每塊錢 DPS」重要：位置有限，錢可以再賺
           const perSlot = valueOf(type, 1) / maxDps;
-          return { type, score: cover * 0.45 + typeMatch * 0.25 + roi * 0.15 + perSlot * 0.15 * slotPressure(ctx) };
+          // 帶技能的塔多一份「爆發資源」：只在塔型評分內加分，不動「放塔 vs 升級」的平衡
+          const skillBonus = TOWER_SKILLS[type] ? 0.05 : 0;
+          return { type, score: cover * 0.45 + typeMatch * 0.25 + roi * 0.15 + perSlot * 0.15 * slotPressure(ctx) + skillBonus };
         })
         .sort((a, b) => b.score - a.score)
         .slice(0, 3);
@@ -195,8 +197,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           cost,
           factors: applyPresetBoost(factors as ScoreFactor[], ctx.config.presetId),
           // 前期經濟塔複利：越早放，回收次數越多
-          // 帶技能的塔多一份「爆發資源」：技能期間輸出 ×2.5，等於額外戰力
-          softBonus: (TOWER_SKILLS[type] ? 0.1 : 0) + (TOWER_DATA[type]?.moneyGeneration && ctx.wave <= 10 ? 0.18 : 0),
+          softBonus: TOWER_DATA[type]?.moneyGeneration && ctx.wave <= 10 ? 0.18 : 0,
           penalties: 0,
           total: 0,
           vetoedBy: [],
