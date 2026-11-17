@@ -115,6 +115,8 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
   const { cols, rows } = gridSizeOf(pathConfig);
   const out: AutoBattleCandidate[] = [];
   const affordable = (type: TowerType): boolean => buildCostOf(type, costMult) <= ctx.money;
+  const maxRangeAny = Math.max(0, ...(Object.keys(TOWER_DATA) as TowerType[]).map((t) => TOWER_DATA[t].range));
+  const maxCoverageAny = Math.max(1, points.length > 0 ? maxCoverageOfMap(points, cols, rows, maxRangeAny) : 1);
 
 
   // ---- 放塔 ----
@@ -212,9 +214,19 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const after = dpsOf(tower.type, tower.level + 1);
     const gain = before > 0 ? (after - before) / before : 0;
     const near = enemiesNear(ctx, tower.col, tower.row, data.range);
+    const towerCoverRatio = points.length > 0
+      ? clamp01(coveragePointsOf(points, tower.col, tower.row, data.range) / maxCoverageAny)
+      : 0;
     const weights = adjustWeightsForSurplus(resolveWeights('upgrade', ctx.config), ctx);
     const factors = [
-      makeFactor('marginal', gain, scaleBetween(gain, 0, 0.6), weights.marginal ?? 0, `Lv${tower.level}→${tower.level + 1}`),
+      // 升級帶來的 DPS 只有在塔真的打得到敵人時才算數：乘上該塔的覆蓋比例
+      makeFactor(
+        'marginal',
+        gain * towerCoverRatio,
+        scaleBetween(gain, 0, 0.6) * (0.35 + 0.65 * towerCoverRatio),
+        weights.marginal ?? 0,
+        `Lv${tower.level}→${tower.level + 1}｜覆蓋 ${(towerCoverRatio * 100).toFixed(0)}%`,
+      ),
       makeFactor('economyROI', (after - before) / Math.max(1, cost), scaleBetween((after - before) / Math.max(1, cost), 0, 2), weights.economyROI ?? 0),
       makeFactor(
         'typeMatch',
