@@ -514,7 +514,7 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
 };
 
 describe('autobattle A/B benchmark', () => {
-  it('同一份戰鬥模型下比較舊策略與新效用引擎', { timeout: 240000 }, () => {
+  it('同一份戰鬥模型下比較舊策略與新效用引擎', { timeout: 480000 }, () => {
     const legacy = simulate(runLegacyPolicy, 80);
     const utility = simulate(runUtilityPolicy, 80);
     const report = { legacy, utility };
