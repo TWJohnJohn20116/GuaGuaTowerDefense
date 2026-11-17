@@ -5,6 +5,7 @@ import { getTowerUpgradeCost, canAutoUpgradeTower } from '@/data/towerUpgradeCos
 import { getTowerBuildCost } from '@/data/towerCost';
 import { findSynergyRecipe } from '@/data/towerSynergyData';
 import { computeFusionCost, getFusionRecipe } from '@/data/fusionRecipes';
+import { TOWER_SKILLS } from '@/data/skillData';
 import { effectiveDps } from '@/data/autobattle/towerDps';
 import { getPreset } from '@/data/autobattle/presets';
 import { counterAffinity } from '@/data/enemyCounters';
@@ -194,7 +195,8 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           cost,
           factors: applyPresetBoost(factors as ScoreFactor[], ctx.config.presetId),
           // 前期經濟塔複利：越早放，回收次數越多
-          softBonus: TOWER_DATA[type]?.moneyGeneration && ctx.wave <= 10 ? 0.18 : 0,
+          // 帶技能的塔多一份「爆發資源」：技能期間輸出 ×2.5，等於額外戰力
+          softBonus: (TOWER_SKILLS[type] ? 0.1 : 0) + (TOWER_DATA[type]?.moneyGeneration && ctx.wave <= 10 ? 0.18 : 0),
           penalties: 0,
           total: 0,
           vetoedBy: [],
