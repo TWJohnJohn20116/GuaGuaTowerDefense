@@ -52,6 +52,9 @@ interface Sim {
   spawnQueue: { type: EnemyType; at: number; hpScale: number }[];
   lastSkipAt: number;
   firstLeakWave: number;
+  skillCasts: number;
+  skillSoloCasts: number;
+  skillDamage: number;
   towersAtWave10: number;
   moneyAtWave10: number;
   playerSkillReadyAt: number;
@@ -122,6 +125,9 @@ const makeSim = (): Sim => ({
   spawnQueue: [],
   lastSkipAt: -999,
   firstLeakWave: -1,
+  skillCasts: 0,
+  skillSoloCasts: 0,
+  skillDamage: 0,
   towersAtWave10: -1,
   moneyAtWave10: -1,
   playerSkillReadyAt: 0,
@@ -190,6 +196,7 @@ const step = (sim: Sim, dt: number): void => {
         dps = Math.max(1, perShot - armor) * fireRate;
       }
       target.hp -= dps * burst * dt;
+      if (burst > 1) sim.skillDamage += dps * (burst - 1) * dt;
     }
   }
 
@@ -228,6 +235,10 @@ interface AgentResult {
   fused: number;
   /** 第一次漏怪的波次（越高越好，比存活波次更細緻） */
   firstLeakWave: number;
+  /** 技能使用統計：次數、單目標次數、爆發期間的額外傷害 */
+  skillCasts: number;
+  skillSoloCasts: number;
+  skillDamage: number;
   /** 第 10 波開始時的塔數與金錢：用來看前期鋪位節奏 */
   towersAtWave10: number;
   moneyAtWave10: number;
@@ -408,6 +419,12 @@ const apply = (sim: Sim, action: Action): boolean => {
     const cooldown = skillId ? (SKILL_DATA[skillId]?.cooldown ?? 20000) / 1000 : 20;
     tower.skillReadyAt = sim.time + cooldown;
     tower.skillUntil = sim.time + 2.5;
+    const nearCount = sim.enemies.filter((e) => {
+      const pos = POINTS[Math.round(e.idx)];
+      return Math.hypot(pos.col - tower.col, pos.row - tower.row) <= rangeOf(tower.type);
+    }).length;
+    sim.skillCasts++;
+    if (nearCount <= 1) sim.skillSoloCasts++;
     return true;
   }
   if (action.kind === 'sell') {
@@ -521,6 +538,9 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
     upgraded,
     fused,
     firstLeakWave: sim.firstLeakWave,
+    skillCasts: sim.skillCasts,
+    skillSoloCasts: sim.skillSoloCasts,
+    skillDamage: Math.round(sim.skillDamage),
     towersAtWave10: sim.towersAtWave10,
     moneyAtWave10: sim.moneyAtWave10,
   };
