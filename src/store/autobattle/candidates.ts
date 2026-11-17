@@ -140,7 +140,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       }
     }
     spots.sort((a, b) => b.coverage - a.coverage);
-    const spotLimit = Math.min(24, spots.length);
+    const spotLimit = Math.min(48, spots.length);
     for (let i = 0; i < spotLimit; i++) {
       const spot = spots[i];
       // 依「覆蓋 × 對位 × ROI」挑前三種塔，避免 12 格 × 22 種的組合爆炸
