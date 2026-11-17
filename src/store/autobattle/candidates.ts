@@ -383,7 +383,9 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     if (near.length === 0) continue;
     const weights = resolveWeights('skill', ctx.config);
     const boss = near.some((e) => e.type === 'boss' || e.type === 'miniboss');
-    const timing = Math.min(1, near.length / 6) * (boss ? 1.2 : 1);
+    // 首領／精英在射程內時，倍率要高於「雜兵數量多」：波次成敗通常決定在這幾隻身上
+    const heavy = near.some((e) => e.type === 'boss' || e.type === 'miniboss' || e.type === 'heavy' || e.type === 'armored');
+    const timing = Math.min(1, near.length / 6) * (boss ? 1.2 : heavy ? 1.1 : 1) + (boss ? 0.3 : heavy ? 0.15 : 0);
     const factors = [
       makeFactor('timing', timing, Math.min(1, timing), weights.timing ?? 0, `${near.length} 敵${boss ? ' +首領' : ''}`),
       makeFactor('threatFit', sumEnemyWeight(near), scaleBetween(sumEnemyWeight(near), 0, 6), weights.threatFit ?? 0),
@@ -412,7 +414,10 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     if (!skill.ready) continue;
     const weights = resolveWeights('playerSkill', ctx.config);
     const threat = sumEnemyWeight(ctx.enemies);
-    const timing = clamp01(0.25 + ctx.enemies.length / 20 + (ctx.health / Math.max(1, ctx.maxHealth) < 0.6 ? 0.25 : 0));
+    const bossOnField = ctx.enemies.some((e) => e.type === 'boss' || e.type === 'miniboss');
+    const timing = clamp01(
+      0.25 + ctx.enemies.length / 20 + (bossOnField ? 0.3 : 0) + (ctx.health / Math.max(1, ctx.maxHealth) < 0.6 ? 0.25 : 0),
+    );
     const factors: ScoreFactor[] = [
       makeFactor('timing', timing, timing, weights.timing ?? 0, `${ctx.enemies.length} 敵`),
       makeFactor('threatFit', threat, scaleBetween(threat, 0, 8), weights.threatFit ?? 0),
