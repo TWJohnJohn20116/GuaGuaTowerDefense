@@ -382,6 +382,9 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const range = TOWER_DATA[tower.type]?.range ?? 3;
     const near = enemiesNear(ctx, tower.col, tower.row, range);
     if (near.length === 0) continue;
+    // 冷卻很貴：單隻雜兵還沒接近終點時，把技能留給後面的波
+    const dangerous = near.some((e) => e.progress > 0.55 || e.type === 'boss' || e.type === 'miniboss');
+    if (near.length === 1 && !dangerous) continue;
     const weights = resolveWeights('skill', ctx.config);
     const boss = near.some((e) => e.type === 'boss' || e.type === 'miniboss');
     // 首領／精英在射程內時，倍率要高於「雜兵數量多」：波次成敗通常決定在這幾隻身上
