@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { AutoBattleContext, AutoBattleRule } from '@/types/autobattle';
 import { clamp01, resolveWeights } from '@/store/autobattle/scoring';
+import { decide } from '@/store/autobattle/decide';
+import { PATHS } from '@/data/gameData';
 import { BASE_WEIGHTS } from '@/data/autobattle/scoreWeights';
 
 const ctx = (over: Partial<AutoBattleContext> = {}): AutoBattleContext => ({
@@ -116,5 +118,85 @@ describe('autobattle quality', () => {
     ]);
     expect(q.jitter).toBe(1);
     expect(q.executed).toBe(2);
+  });
+});
+
+describe('autobattle decision modes', () => {
+  const pathConfig = PATHS.zigzag ?? Object.values(PATHS)[0];
+
+  const makeCtx = (over: Partial<AutoBattleContext> = {}): AutoBattleContext => ({
+    time: 10000,
+    wave: 5,
+    money: 2000,
+    health: 10,
+    maxHealth: 10,
+    enemies: [],
+    towers: [
+      { id: 'tw1', type: 'sniper', level: 1, col: 3, row: 3, skillReady: false, upgradePath: null },
+      { id: 'tw2', type: 'cannon', level: 1, col: 5, row: 5, skillReady: false, upgradePath: null },
+    ],
+    waveActive: false,
+    allEnemiesSpawned: false,
+    playerSkills: [],
+    lookahead: { moneyReserve: 100, expectedAbilities: [], expectedEnemyCount: 5, pressure: 0.2, nextWaveTypes: [] },
+    config: {
+      mode: 'coach',
+      presetId: 'balanced',
+      weights: {},
+      rules: [],
+      allowedTiles: [],
+      aiUntilWave: 10,
+      lockedTargets: [],
+      showOverlay: false,
+      dryRun: false,
+    },
+    trigger: ['cooldown'],
+    ...over,
+  });
+
+  const run = (ctx: AutoBattleContext) =>
+    decide({ ctx, pathConfig, costMult: 1, rules: ctx.config.rules, triggers: ['cooldown'], lastActionAt: new Map() });
+
+  it('assist 模式只出建議，不執行', () => {
+    const ctx = makeCtx({ config: { ...makeCtx().config, mode: 'assist' } });
+    const d = run(ctx);
+    expect(d.verdict).toBe('suggested');
+    expect(d.chosen).not.toBeNull();
+  });
+
+  it('乾跑同樣只出建議', () => {
+    const ctx = makeCtx({ config: { ...makeCtx().config, dryRun: true } });
+    expect(run(ctx).verdict).toBe('suggested');
+  });
+
+  it('階段模式超過指定波次後不再執行', () => {
+    const ctx = makeCtx({ wave: 12, config: { ...makeCtx().config, mode: 'phases', aiUntilWave: 10 } });
+    expect(run(ctx).verdict).toBe('suggested');
+  });
+
+  it('鎖定的塔不會被升級', () => {
+    const ctx = makeCtx({ config: { ...makeCtx().config, lockedTargets: ['tw1'] } });
+    const d = run(ctx);
+    const upgrades = d.candidates.filter((c) => c.kind === 'upgrade');
+    expect(upgrades.every((c) => c.towerId !== 'tw1')).toBe(true);
+  });
+
+  it('硬規則全數否決時不執行任何動作', () => {
+    const ctx = makeCtx({
+      config: {
+        ...makeCtx().config,
+        rules: [{
+          id: 'test.veto-all',
+          enabled: true,
+          hardness: 'hard',
+          when: {},
+          then: { type: 'veto', kinds: ['place', 'upgrade', 'sell', 'fusion', 'skill', 'playerSkill', 'skip'] },
+          source: 'user',
+        }],
+      },
+    });
+    const d = run(ctx);
+    expect(d.chosen).toBeNull();
+    expect(d.verdict === 'blocked' || d.verdict === 'hold').toBe(true);
   });
 });
