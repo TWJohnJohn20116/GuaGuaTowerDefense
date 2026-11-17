@@ -1,6 +1,6 @@
 import type { AutoBattleCandidate, AutoBattleContext, AutoBattleWeights, ScoreFactor } from '@/types/autobattle';
 import type { TowerType } from '@/types/game';
-import { TOWER_DATA, ENEMY_DATA, GAME_CONSTANTS } from '@/data/gameData';
+import { TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
 import { getTowerUpgradeCost, canAutoUpgradeTower } from '@/data/towerUpgradeCost';
 import { getTowerBuildCost } from '@/data/towerCost';
 import { findSynergyRecipe } from '@/data/towerSynergyData';
@@ -111,9 +111,6 @@ export interface CandidateBuildInput {
 
 /** 產生全部候選（已依動作種類分組，未排序） */
 export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInput): AutoBattleCandidate[] => {
-  const avgTowerLevel = ctx.towers.length > 0
-    ? ctx.towers.reduce((sum, t) => sum + t.level, 0) / ctx.towers.length
-    : 0;
   const points = collectPathPoints(pathConfig);
   const { cols, rows } = gridSizeOf(pathConfig);
   const out: AutoBattleCandidate[] = [];
@@ -239,8 +236,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       row: tower.row,
       cost,
       factors,
-      // 「又寬又淺」的防線（塔多但等級低）應該優先把錢變成等級，而不是繼續鋪塔
-      softBonus: 0.24 * slotPressure(ctx) + 0.3 * slotPressure(ctx) * Math.max(0, 1 - (avgTowerLevel / GAME_CONSTANTS.MAX_TOWER_LEVEL)),
+      softBonus: 0.24 * slotPressure(ctx),
       penalties: 0,
       total: 0,
       vetoedBy: [],
