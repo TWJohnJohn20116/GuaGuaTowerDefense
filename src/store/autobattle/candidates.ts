@@ -193,7 +193,8 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           row: spot.row,
           cost,
           factors: applyPresetBoost(factors as ScoreFactor[], ctx.config.presetId),
-          softBonus: 0,
+          // 前期經濟塔複利：越早放，回收次數越多
+          softBonus: TOWER_DATA[type]?.moneyGeneration && ctx.wave <= 10 ? 0.18 : 0,
           penalties: 0,
           total: 0,
           vetoedBy: [],
