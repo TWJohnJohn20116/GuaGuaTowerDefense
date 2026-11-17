@@ -193,7 +193,8 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           row: spot.row,
           cost,
           factors: applyPresetBoost(factors as ScoreFactor[], ctx.config.presetId),
-          softBonus: 0,
+          // 前期鋪位加速：第 10 波前塔數還少時，先把錢變成塔（複利：每座塔都在賺擊殺獎勵）
+          softBonus: ctx.wave <= 12 ? 0.25 * clamp01((12 - ctx.towers.length) / 12) : 0,
           penalties: 0,
           total: 0,
           vetoedBy: [],
