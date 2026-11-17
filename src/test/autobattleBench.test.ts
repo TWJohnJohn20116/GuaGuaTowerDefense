@@ -239,6 +239,9 @@ interface AgentResult {
   skillCasts: number;
   skillSoloCasts: number;
   skillDamage: number;
+  /** 決策耗時：平均每次決策的毫秒數（效能預算 < 1.5ms） */
+  decideMs: number;
+  decideCalls: number;
   /** 第 10 波開始時的塔數與金錢：用來看前期鋪位節奏 */
   towersAtWave10: number;
   moneyAtWave10: number;
@@ -484,6 +487,8 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
   let upgraded = 0;
   let fused = 0;
   let jitter = 0;
+  let decideMs = 0;
+  let decideCalls = 0;
   let lastKey = '';
   let repeats = 0;
   let tick = 0;
@@ -503,7 +508,10 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
     // 每個 tick 單一動作（兩側同規則）
     let executed = false;
     for (let k = 0; k < 1; k++) {
+      const startedAt = performance.now();
       const action = policy(sim, tick + seedOffset);
+      decideMs += performance.now() - startedAt;
+      decideCalls++;
       if (!apply(sim, action)) break;
       executed = true;
       if (action?.kind === 'place') placed++;
@@ -541,6 +549,8 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
     skillCasts: sim.skillCasts,
     skillSoloCasts: sim.skillSoloCasts,
     skillDamage: Math.round(sim.skillDamage),
+    decideMs: decideCalls > 0 ? Number((decideMs / decideCalls).toFixed(3)) : 0,
+    decideCalls,
     towersAtWave10: sim.towersAtWave10,
     moneyAtWave10: sim.moneyAtWave10,
   };
