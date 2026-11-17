@@ -102,6 +102,10 @@ const appendWave = (sim: Sim, wave: number): void => {
   sim.allSpawned = false;
   sim.waveActive = true;
   sim.wave = Math.max(sim.wave, wave);
+  if (wave === 10 && sim.towersAtWave10 < 0) {
+    sim.towersAtWave10 = sim.towers.length;
+    sim.moneyAtWave10 = Math.round(sim.money);
+  }
 };
 
 const makeSim = (): Sim => ({
@@ -116,6 +120,8 @@ const makeSim = (): Sim => ({
   spawnQueue: [],
   lastSkipAt: -999,
   firstLeakWave: -1,
+  towersAtWave10: -1,
+  moneyAtWave10: -1,
   playerSkillReadyAt: 0,
 });
 
@@ -220,6 +226,9 @@ interface AgentResult {
   fused: number;
   /** 第一次漏怪的波次（越高越好，比存活波次更細緻） */
   firstLeakWave: number;
+  /** 第 10 波開始時的塔數與金錢：用來看前期鋪位節奏 */
+  towersAtWave10: number;
+  moneyAtWave10: number;
 }
 
 type Action =
@@ -510,6 +519,8 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
     upgraded,
     fused,
     firstLeakWave: sim.firstLeakWave,
+    towersAtWave10: sim.towersAtWave10,
+    moneyAtWave10: sim.moneyAtWave10,
   };
 };
 
