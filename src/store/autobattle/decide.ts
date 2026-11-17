@@ -26,7 +26,7 @@ export interface DecideInput {
 
 /** 連續猶豫超過這個次數就強制落地（0.05 分以上才值得做） */
 const HOLD_STREAK_LIMIT = 6;
-const MIN_EXECUTE_SCORE = 0.02;
+const MIN_EXECUTE_SCORE = 0.05;
 
 let decisionSeq = 0;
 
