@@ -392,18 +392,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const timing = Math.min(1, near.length / 6) * (boss ? 1.2 : heavy ? 1.1 : 1) + (boss ? 0.3 : heavy ? 0.15 : 0);
     const factors = [
       makeFactor('timing', timing, Math.min(1, timing), weights.timing ?? 0, `${near.length} 敵${boss ? ' +首領' : ''}`),
-      // 技能價值＝這座塔的輸出 × 打到的人數：高 DPS 塔的技能才值得優先放
-      makeFactor(
-        'threatFit',
-        sumEnemyWeight(near),
-        Math.min(
-          1,
-          0.5 * scaleBetween(sumEnemyWeight(near), 0, 6) +
-            0.5 * scaleBetween(dpsOf(tower.type, tower.level) * near.length, 0, 400),
-        ),
-        weights.threatFit ?? 0,
-        `${near.length} 敵 × ${Math.round(dpsOf(tower.type, tower.level))} DPS`,
-      ),
+      makeFactor('threatFit', sumEnemyWeight(near), scaleBetween(sumEnemyWeight(near), 0, 6), weights.threatFit ?? 0),
       makeFactor('typeMatch', counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), tower.type), counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), tower.type), weights.typeMatch ?? 0),
     ];
     out.push(finalizeCandidate({
