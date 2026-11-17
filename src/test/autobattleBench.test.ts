@@ -52,6 +52,8 @@ interface Sim {
   spawnQueue: { type: EnemyType; at: number; hpScale: number }[];
   lastSkipAt: number;
   firstLeakWave: number;
+  towersAtWave10: number;
+  moneyAtWave10: number;
   playerSkillReadyAt: number;
 }
 
