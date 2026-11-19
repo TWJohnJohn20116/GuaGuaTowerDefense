@@ -371,10 +371,13 @@ const config = (): AutoBattleConfig => ({
 });
 
 /**
- * 注意：不要把 enemies／towers 改成模組級可重用 buffer。
- * 2026-11-19 實測（CI bench 連跑兩次，同一 commit）：改成就地覆寫後 wall 151s → 197–206s、
- * decideMs 1.05 → 1.45–1.53，數值輸出相同但更慢。原因是物件字面量配 V8 young-gen 幾乎零成本，
- * 覆寫老年代物件要付 write barrier，陣列長度每 tick 伸縮也會重新配置。維持 map 就好。
+ * enemies／towers 用 map 重建即可，不要為了「省物件」改成模組級可重用 buffer。
+ *
+ * 2026-11-19 實測（CI bench，共 5 次 run）：buffer 版 197–206s、map 版 151／197／197s，
+ * 兩者無可分辨差異；而**同一份 map 版**不同 run 之間就有 151s ↔ 197s 的落差。
+ * 結論：單次 wall clock 的鑑別力不足（runner 變異約 30%），buffer 版沒量到好處，
+ * 就維持 map 的簡單寫法。要比效能請看 decideMs×decideCalls 這種每次呼叫的正規化指標，
+ * 或同一 run 內的新舊對照。
  */
 const ctxOf = (sim: Sim): AutoBattleContext => ({
   time: sim.time * 1000,
