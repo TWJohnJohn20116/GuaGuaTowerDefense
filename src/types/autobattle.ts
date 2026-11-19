@@ -141,7 +141,7 @@ export interface AutoBattleConfig {
    * 由設計提案 docs/research/2026-11-19-money-sink-proposal.md 定義；
    * 遊戲端尚未實作，先讓基準用同一組規則量測 AI 的購買時機。
    */
-  firepower: { cost: number; step: number; maxLevel: number } | null;
+  firepower: { cost: number; step: number; maxLevel: number; growth: number } | null;
 }
 
 /** 前瞻推演的結果 */

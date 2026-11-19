@@ -507,7 +507,9 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
 
   // ---- 火力強化（金錢出口）----
   const fp = ctx.config.firepower;
-  if (fp && ctx.firepowerLevel < fp.maxLevel && ctx.money >= fp.cost) {
+  // 遞增價格：後期金錢是天文數字，固定價格會讓強化很快失去意義
+  const fpCost = fp ? Math.round(fp.cost * Math.pow(fp.growth, ctx.firepowerLevel)) : 0;
+  if (fp && ctx.firepowerLevel < fp.maxLevel && ctx.money >= fpCost) {
     const allMaxed = ctx.towers.length > 0 && ctx.towers.every((t) => t.level >= GAME_CONSTANTS.MAX_TOWER_LEVEL);
     const surplus = ctx.money >= ctx.lookahead.moneyReserve * 3;
     // 只有在「沒有更好的投資」時才買：塔全滿級，或錢多到升級吃不完
@@ -515,7 +517,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       const weights = resolveWeights('upgrade', ctx.config);
       const factors: ScoreFactor[] = [
         makeFactor('economyROI', fp.step * 100, 1, weights.economyROI ?? 0, `+${(fp.step * 100).toFixed(0)}% 全體`),
-        makeFactor('reserve', ctx.money - fp.cost, scaleBetween(ctx.money - fp.cost, 0, Math.max(1, ctx.lookahead.moneyReserve * 3)), weights.reserve ?? 0),
+        makeFactor('reserve', ctx.money - fpCost, scaleBetween(ctx.money - fpCost, 0, Math.max(1, ctx.lookahead.moneyReserve * 3)), weights.reserve ?? 0),
         makeFactor('tempo', tempo, tempo, weights.tempo ?? 0),
       ];
       out.push(finalizeCandidate({
@@ -524,7 +526,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         labelKey: 'content.autoBattle.action.empower',
         labelParams: { level: ctx.firepowerLevel + 1 },
         firepowerLevel: ctx.firepowerLevel + 1,
-        cost: fp.cost,
+        cost: fpCost,
         factors: applyPresetBoost(factors, ctx.config.presetId),
         softBonus: allMaxed ? 0.15 : 0,
         penalties: 0,

@@ -268,7 +268,9 @@ type Action =
 const runLegacyPolicy = (sim: Sim, tick: number): Action => {
   void tick;
   // 舊策略同樣會買火力強化（錢多就買），確保機制對兩側一視同仁
-  if (sim.money >= 5000 && sim.towers.length >= 20 && sim.firepowerLevel < 25) return { kind: 'empower' };
+  if (sim.money >= Math.round(5000 * Math.pow(1.15, sim.firepowerLevel)) && sim.towers.length >= 20 && sim.firepowerLevel < 40) {
+    return { kind: 'empower' };
+  }
 
   // 舊引擎同時會放玩家主動技能（tryActivatePlayerSkill），基準也照做
   if (sim.time >= sim.playerSkillReadyAt && sim.enemies.length >= 8) return { kind: 'playerSkill' };
@@ -311,7 +313,7 @@ const config = (): AutoBattleConfig => ({
   showOverlay: false,
   dryRun: false,
   // 金錢出口：與設計提案同一組參數（5000 金 → +2%，上限 25 層）
-  firepower: { cost: 5000, step: 0.02, maxLevel: 25 },
+  firepower: { cost: 5000, step: 0.02, maxLevel: 40, growth: 1.15 },
 });
 
 const ctxOf = (sim: Sim): AutoBattleContext => ({
@@ -426,8 +428,9 @@ const apply = (sim: Sim, action: Action): boolean => {
     return true;
   }
   if (action.kind === 'empower') {
-    if (sim.firepowerLevel >= 25 || sim.money < 5000) return false;
-    sim.money -= 5000;
+    const cost = Math.round(5000 * Math.pow(1.15, sim.firepowerLevel));
+    if (sim.firepowerLevel >= 40 || sim.money < cost) return false;
+    sim.money -= cost;
     sim.firepowerLevel += 1;
     sim.globalPower += 0.02;
     return true;
