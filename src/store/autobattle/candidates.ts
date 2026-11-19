@@ -38,6 +38,29 @@ export const buildCostOf = (type: TowerType, costMult: number): number => {
 const cellKey = (col: number, row: number): string => `${col},${row}`;
 
 /**
+ * 地圖 × 射程 → 單塔最大覆蓋點數。
+ * 這個值每次決策都要用、但只跟地圖與射程有關，所以快取起來；
+ * 74 波下來省掉數十萬次網格掃描（每次決策原本是 165 格 × 路徑點）。
+ */
+const coverageMemo = new Map<string, number>();
+const maxCoverageFor = (
+  points: { col: number; row: number }[],
+  cols: number,
+  rows: number,
+  range: number,
+): number => {
+  const first = points[0];
+  const last = points[points.length - 1];
+  const key = `${cols}x${rows}|${points.length}|${first?.col},${first?.row}|${last?.col},${last?.row}|${range}`;
+  const hit = coverageMemo.get(key);
+  if (hit !== undefined) return hit;
+  const value = Math.max(1, maxCoverageOfMap(points, cols, rows, range));
+  if (coverageMemo.size > 64) coverageMemo.clear();
+  coverageMemo.set(key, value);
+  return value;
+};
+
+/**
  * 塔位壓力 0..1：場上塔越多，新增塔位的邊際價值越低。
  * 用於給「不佔新塔位」的動作（升級、融合）加分，避免防線卡在塔位上限。
  */
@@ -123,7 +146,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
   const towerTypes = (Object.keys(TOWER_DATA) as TowerType[]).filter(affordable);
   if (towerTypes.length > 0 && points.length > 0) {
     const maxRange = Math.max(...towerTypes.map((t) => TOWER_DATA[t]?.range ?? 0));
-    const maxCoverage = Math.max(1, maxCoverageOfMap(points, cols, rows, maxRange));
+    const maxCoverage = maxCoverageFor(points, cols, rows, maxRange);
     const bestRoi = Math.max(
       0.0001,
       ...towerTypes.map((t) => valueOf(t, 1) / Math.max(1, buildCostOf(t, costMult))),
@@ -151,10 +174,8 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           const range = TOWER_DATA[type].range;
           const cover = coveragePointsOf(points, spot.col, spot.row, range) / maxCoverage;
           const near = enemiesNear(ctx, spot.col, spot.row, range);
-          const typeMatch = counterAffinity(
-            near.map((e) => ({ type: e.type, weight: enemyWeight(e) })),
-            type,
-          );
+          const weightsForType = near.map((e) => ({ type: e.type, weight: enemyWeight(e) }));
+          const typeMatch = counterAffinity(weightsForType, type);
           const roi = (valueOf(type, 1) / Math.max(1, buildCostOf(type, costMult))) / bestRoi;
           // 塔位吃緊時，「每格 DPS」比「每塊錢 DPS」重要：位置有限，錢可以再賺
           const perSlot = valueOf(type, 1) / maxDps;
@@ -175,12 +196,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         const factors = [
           makeFactor('coverage', spot.coverage, coveragePointsOf(points, spot.col, spot.row, range) / maxCoverage, weights.coverage ?? 0, `${spot.coverage}/${maxCoverage}`),
           makeFactor('threatFit', sumEnemyWeight(near), scaleBetween(sumEnemyWeight(near), 0, 6), weights.threatFit ?? 0),
-          makeFactor(
-            'typeMatch',
-            mixTypeMatch(counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), type), armorFitOf(type, near)),
-            mixTypeMatch(counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), type), armorFitOf(type, near)),
-            weights.typeMatch ?? 0,
-          ),
+          makeFactor('typeMatch', mixTypeMatch(typeMatch, armorFitOf(type, near)), mixTypeMatch(typeMatch, armorFitOf(type, near)), weights.typeMatch ?? 0),
           makeFactor('economyROI', dpsOf(type, 1) / Math.max(1, cost), (dpsOf(type, 1) / Math.max(1, cost)) / bestRoi, weights.economyROI ?? 0),
           makeFactor('tempo', tempoRaw(ctx), tempoRaw(ctx), weights.tempo ?? 0),
           makeFactor('reserve', ctx.money - cost, scaleBetween(ctx.money - cost, 0, Math.max(1, ctx.lookahead.moneyReserve)), weights.reserve ?? 0),
