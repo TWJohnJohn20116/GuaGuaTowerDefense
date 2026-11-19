@@ -192,11 +192,13 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         const cost = buildCostOf(type, costMult);
         const range = data.range;
         const near = enemiesNear(ctx, spot.col, spot.row, range);
+        const nearWeights = near.map((e) => ({ type: e.type, weight: enemyWeight(e) }));
+        const typeMatch = mixTypeMatch(counterAffinity(nearWeights, type), armorFitOf(type, near));
         const weights = adjustWeightsForSurplus(resolveWeights('place', ctx.config), ctx);
         const factors = [
           makeFactor('coverage', spot.coverage, coveragePointsOf(points, spot.col, spot.row, range) / maxCoverage, weights.coverage ?? 0, `${spot.coverage}/${maxCoverage}`),
           makeFactor('threatFit', sumEnemyWeight(near), scaleBetween(sumEnemyWeight(near), 0, 6), weights.threatFit ?? 0),
-          makeFactor('typeMatch', mixTypeMatch(typeMatch, armorFitOf(type, near)), mixTypeMatch(typeMatch, armorFitOf(type, near)), weights.typeMatch ?? 0),
+          makeFactor('typeMatch', typeMatch, typeMatch, weights.typeMatch ?? 0),
           makeFactor('economyROI', dpsOf(type, 1) / Math.max(1, cost), (dpsOf(type, 1) / Math.max(1, cost)) / bestRoi, weights.economyROI ?? 0),
           makeFactor('tempo', tempoRaw(ctx), tempoRaw(ctx), weights.tempo ?? 0),
           makeFactor('reserve', ctx.money - cost, scaleBetween(ctx.money - cost, 0, Math.max(1, ctx.lookahead.moneyReserve)), weights.reserve ?? 0),
