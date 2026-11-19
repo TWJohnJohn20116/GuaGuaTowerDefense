@@ -91,6 +91,61 @@ const bestSpot = (sim: Sim, range: number): { col: number; row: number; cover: n
   return best;
 };
 
+/**
+ * 敵人空間索引：把「每座塔掃全部敵人」換成「只掃射程覆蓋到的格子」。
+ * 敵人位置本來就只落在 POINTS 的整數格上（POINTS[Math.round(idx)]），
+ * 所以「格 → 敵人」分桶是精確等價，不是近似。
+ *
+ * 原本 step() 每 tick 對每座塔 filter 一次全敵人表：66 塔 × 上百敵人 × 63,000 tick，
+ * 這是整個基準最大的成本（決策只佔一半）。
+ * 分桶後仍以原陣列順序輸出——目標選擇用「hp 嚴格大於才換」，順序會影響平手結果。
+ */
+interface IndexedEnemy {
+  enemy: SimEnemy;
+  col: number;
+  row: number;
+  order: number;
+}
+
+/** 單射的格子 key（col、row 都遠小於 1000，不會碰撞） */
+const CELL_KEY_STRIDE = 1000;
+
+const buildEnemyIndex = (enemies: SimEnemy[]): Map<number, IndexedEnemy[]> => {
+  const index = new Map<number, IndexedEnemy[]>();
+  for (let i = 0; i < enemies.length; i++) {
+    const e = enemies[i];
+    const pos = POINTS[Math.round(e.idx)];
+    const key = pos.col * CELL_KEY_STRIDE + pos.row;
+    const item: IndexedEnemy = { enemy: e, col: pos.col, row: pos.row, order: i };
+    const hit = index.get(key);
+    if (hit) hit.push(item);
+    else index.set(key, [item]);
+  }
+  return index;
+};
+
+/** 射程內敵人：判定式與原本的 `Math.hypot(...) <= range` 完全相同，輸出維持原陣列順序 */
+const enemiesInRange = (
+  index: Map<number, IndexedEnemy[]>,
+  col: number,
+  row: number,
+  range: number,
+): SimEnemy[] => {
+  const hits: IndexedEnemy[] = [];
+  const span = Math.ceil(range);
+  for (let dc = -span; dc <= span; dc++) {
+    for (let dr = -span; dr <= span; dr++) {
+      const bucket = index.get((col + dc) * CELL_KEY_STRIDE + (row + dr));
+      if (!bucket) continue;
+      for (const item of bucket) {
+        if (Math.hypot(item.col - col, item.row - row) <= range) hits.push(item);
+      }
+    }
+  }
+  hits.sort((a, b) => a.order - b.order);
+  return hits.map((item) => item.enemy);
+};
+
 /** 血量倍率爬升：模擬「越打越硬」，否則兩邊都能無限存活，存活波次沒有鑑別度 */
 export const HP_RAMP = 1.0;
 export const hpScaleAt = (wave: number): number => 1 + HP_RAMP * (wave - 1);
@@ -171,12 +226,11 @@ const step = (sim: Sim, dt: number): void => {
   }
 
   // 塔輸出：主目標 + 濺射／連鎖的額外目標
+  // 索引每 tick 建一次（O(敵人)），塔迴圈只掃射程覆蓋到的格子
+  const enemyIndex = buildEnemyIndex(sim.enemies);
   for (const t of sim.towers) {
     const data = TOWER_DATA[t.type];
-    const inRange = sim.enemies.filter((e) => {
-      const pos = POINTS[Math.round(e.idx)];
-      return Math.hypot(pos.col - t.col, pos.row - t.row) <= rangeOf(t.type);
-    });
+    const inRange = enemiesInRange(enemyIndex, t.col, t.row, rangeOf(t.type));
     let target: SimEnemy | null = null;
     for (const e of inRange) if (!target || e.hp > target.hp) target = e;
 
@@ -276,12 +330,12 @@ const runLegacyPolicy = (sim: Sim, tick: number): Action => {
   if (sim.time >= sim.playerSkillReadyAt && sim.enemies.length >= 8) return { kind: 'playerSkill' };
 
   // 舊引擎有「技能就放」的邏輯（每 500ms 檢查、範圍內敵人數達門檻就放），基準也照做
+  // 索引延遲建立：全部塔都在冷卻時（前期常態）不付這筆 O(敵人) 成本
+  let skillIndex: Map<number, IndexedEnemy[]> | null = null;
   for (const tower of sim.towers) {
     if (sim.time < tower.skillReadyAt) continue;
-    const near = sim.enemies.filter((e) => {
-      const pos = POINTS[Math.round(e.idx)];
-      return Math.hypot(pos.col - tower.col, pos.row - tower.row) <= rangeOf(tower.type) + 0.5;
-    });
+    skillIndex ??= buildEnemyIndex(sim.enemies);
+    const near = enemiesInRange(skillIndex, tower.col, tower.row, rangeOf(tower.type) + 0.5);
     const hasBoss = near.some((e) => e.type === 'boss' || e.type === 'miniboss');
     if (near.length >= 3 || hasBoss) return { kind: 'skill', id: tower.id };
   }
