@@ -168,6 +168,10 @@ export interface GameStore {
   
   // 自動戰鬥（效用評分引擎）
   autoBattleEnabled: boolean;
+  /** 火力強化層數（金錢出口）：每層 +2% 全體輸出 */
+  firepowerLevel: number;
+  /** 購買一層火力強化；cost 由呼叫端依遞增價格算好 */
+  buyFirepower: (cost: number) => boolean;
   autoBattleMode: AutoBattleMode;
   autoBattlePresetId: string;
   autoBattleWeights: Partial<Record<AutoBattleActionKind, AutoBattleWeights>>;

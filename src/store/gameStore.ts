@@ -20,6 +20,7 @@ import { createTowerActions } from './gameStoreActions';
 import { createWaveActions } from './gameStoreWave';
 import { createLoopActions } from './gameStoreLoop';
 import { AUTO_BATTLE_INITIAL, createAutoBattleSlice } from './autobattle/slice';
+import { setFirepowerMultiplier } from './gameStoreUtils';
 import { createEffectActions } from './gameStoreEffects';
 import { createPlayerSkillActions, createInitialPlayerSkillStates } from './gameStorePlayerSkills';
 import { createStressTestActions } from './stressTestActions';
@@ -136,6 +137,7 @@ export const useGameStore = create<GameStore>()(
   
   // 自動戰鬥（效用評分引擎）：狀態與預設值集中在 slice，避免兩份漂移
   ...AUTO_BATTLE_INITIAL,
+  firepowerLevel: 0,
   
   soundEnabled: DEFAULT_GAME_PREFS.soundEnabled,
   musicEnabled: DEFAULT_GAME_PREFS.musicEnabled,
@@ -487,7 +489,9 @@ export const useGameStore = create<GameStore>()(
   }),
 
   // 重置遊戲
-  resetGame: () => set({
+  resetGame: () => {
+    setFirepowerMultiplier(1);
+    set({
     // 與 startGame 共用同一份局內狀態工廠，避免兩份清單各自漂移
     ...createEmptyMatchState(),
     scene: 'mainMenu',
@@ -502,7 +506,8 @@ export const useGameStore = create<GameStore>()(
     quickPlaceMode: false,
     showTacticalView: false,
     autoBattleEnabled: false,
-  }),
+    });
+  },
 }),
     {
       name: 'guagua-game-prefs',

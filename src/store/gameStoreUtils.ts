@@ -308,6 +308,18 @@ interface EnemyDamageOutcome {
  * 對敵人套用一次傷害，依序處理：相位免疫 → 裝甲減傷 → 護盾吸收 → 扣血。
  * 純函式：不修改傳入的 enemy，由呼叫端把 health/shield 寫回。
  */
+/**
+ * 全域輸出倍率（火力強化）。
+ * 放在傷害唯一入口，避免每座塔各自乘一次而漏掉某些傷害來源。
+ */
+let firepowerMultiplier = 1;
+
+export const setFirepowerMultiplier = (value: number): void => {
+  firepowerMultiplier = Number.isFinite(value) && value > 0 ? value : 1;
+};
+
+export const getFirepowerMultiplier = (): number => firepowerMultiplier;
+
 export const applyDamageToEnemy = (
   enemy: {
     type: string;
@@ -335,7 +347,7 @@ export const applyDamageToEnemy = (
   }
 
   // 虛弱先放大傷害，再算裝甲
-  let damage = rawDamage * getDamageTakenMult(enemy.effects, now);
+  let damage = rawDamage * getDamageTakenMult(enemy.effects, now) * firepowerMultiplier;
 
   // 裝甲減傷：每次受擊固定減免，至少保留 1 點傷害
   if (!opts?.ignoreArmor) {

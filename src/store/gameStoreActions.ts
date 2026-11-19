@@ -16,7 +16,7 @@ import { getTowerBuildCost } from '@/data/towerCost';
 import { getTowerSellRefund } from '@/store/sellConfirm';
 import { TOWER_SKILLS, SKILL_DATA, getSkillRangeCells, applySkillCooldownReduction } from '@/data/skillData';
 import { tickTowerSkills } from '@/data/skillAura';
-import { getTowerData, generateId, applyDamageToEnemy, getTowerStatBonusFor } from './gameStoreUtils';
+import { getTowerData, generateId, applyDamageToEnemy, getTowerStatBonusFor, setFirepowerMultiplier } from './gameStoreUtils';
 import type { GameStore } from './gameStoreTypes';
 import { useTutorialStore, INTERACTIVE_TUTORIAL_STEPS } from './tutorialStore';
 import { notifyModScripts } from '@/mod-script/dispatch';
@@ -42,7 +42,18 @@ export const createTowerActions = (get: GetState, set: SetState) => ({
     return get().placeTowerAs(type, pos);
   },
 
-  // 自動戰鬥／模擬器用：直接指定塔種放置，不依賴玩家當前選中的塔
+  // 火力強化（金錢出口）：每層 +2% 全體輸出，價格由呼叫端依遞增公式算好
+  buyFirepower: (cost: number) => {
+    const { money, firepowerLevel } = get();
+    const maxLevel = 40;
+    if (firepowerLevel >= maxLevel) return false;
+    if (money < cost) return false;
+    const level = firepowerLevel + 1;
+    set({ money: money - cost, firepowerLevel: level });
+    setFirepowerMultiplier(1 + 0.02 * level);
+    return true;
+  },
+
   placeTowerAs: (type: TowerType, pos: MapPoint) => {
     const { activeMap, money, towers, placementHistory, placementHistoryIndex, quickPlaceMode, placementStats, difficultyModifiers, currentWave, protocolNextTowerDiscount } = get();
     const selectedTowerType = type;

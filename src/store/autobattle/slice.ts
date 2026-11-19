@@ -56,8 +56,8 @@ const buildConfig = (state: GameStore): AutoBattleConfig => ({
   lockedTargets: state.autoBattleLockedTargets,
   showOverlay: state.autoBattleShowOverlay,
   dryRun: state.autoBattleDryRun,
-  // 火力強化（金錢出口）尚未在遊戲端實作；基準可獨立啟用做政策實驗
-  firepower: null,
+  // 火力強化（金錢出口）：每層 +2%、價格每層 ×1.15、上限 40 層
+  firepower: { cost: 5000, step: 0.02, maxLevel: 40, growth: 1.15 },
 });
 
 export const createAutoBattleSlice = (get: GetState, set: SetState) => ({
@@ -185,7 +185,7 @@ export const createAutoBattleSlice = (get: GetState, set: SetState) => ({
       activateSkill: (towerId) => get().activateSkill(towerId),
       fuse: (sourceId, targetId) => get().fuseTowers(sourceId, targetId),
       playerSkill: (skillId) => get().activatePlayerSkill(skillId as PlayerSkillId),
-      buyFirepower: () => false,
+      buyFirepower: (cost) => get().buyFirepower(cost),
       skip: () => get().skipWave(),
     });
 
@@ -234,7 +234,7 @@ export const createAutoBattleSlice = (get: GetState, set: SetState) => ({
       activateSkill: (towerId) => get().activateSkill(towerId),
       fuse: (sourceId, targetId) => get().fuseTowers(sourceId, targetId),
       playerSkill: (skillId) => get().activatePlayerSkill(skillId as PlayerSkillId),
-      buyFirepower: () => false,
+      buyFirepower: (cost) => get().buyFirepower(cost),
       skip: () => get().skipWave(),
     });
     return outcome.executed;

@@ -24,10 +24,15 @@ export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
   const setAutoBattlePreset = useGameStore((s) => s.setAutoBattlePreset);
   const autoBattleDecisions = useGameStore((s) => s.autoBattleDecisions);
   const autoBattleDryRun = useGameStore((s) => s.autoBattleDryRun);
+  const money = useGameStore((s) => s.money);
   const setAutoBattleDryRun = useGameStore((s) => s.setAutoBattleDryRun);
   const autoBattleShowOverlay = useGameStore((s) => s.autoBattleShowOverlay);
   const setAutoBattleOverlay = useGameStore((s) => s.setAutoBattleOverlay);
   const setAutoBattlePanelOpen = useGameStore((s) => s.setAutoBattlePanelOpen);
+  const firepowerLevel = useGameStore((s) => s.firepowerLevel);
+  const buyFirepower = useGameStore((s) => s.buyFirepower);
+  const firepowerCost = Math.round(5000 * Math.pow(1.15, firepowerLevel));
+  const firepowerReady = firepowerLevel < 40 && money >= firepowerCost;
   const canBatchUpgrade = useGameStore((s) => s.towers.some(t => t.level >= 2 && t.level < GAME_CONSTANTS.MAX_TOWER_LEVEL));
   const autoSkipWave = useGameStore((s) => s.autoSkipWave);
   const toggleAutoSkipWave = useGameStore((s) => s.toggleAutoSkipWave);
@@ -113,6 +118,18 @@ export const AdvancedOptionsPanel = ({ show }: AdvancedOptionsPanelProps) => {
                 onClick={() => setAutoBattlePanelOpen(true)}
               >
                 {t.content.autoBattle.open}
+              </Btn>
+
+              {/* 金錢出口：後期金錢唯一能換成輸出的地方 */}
+              <Btn
+                variant="line"
+                size="sm"
+                block
+                icon={<SparklesIcon className="h-3.5 w-3.5" />}
+                onClick={() => buyFirepower(firepowerCost)}
+                disabled={!firepowerReady}
+              >
+                {t.content.autoBattle.action.empower} Lv {firepowerLevel} · ${firepowerCost}
               </Btn>
             </div>
 

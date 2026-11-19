@@ -47,6 +47,7 @@ type MatchOwnedKey =
   | 'protocolHistory'
   | 'protocolNextTowerDiscount'
   | 'autoBattleEnabled'
+  | 'firepowerLevel'
   | 'autoBattleDecisions'
   | 'autoBattleCurve'
   | 'autoBattleLastDecision'
@@ -105,6 +106,7 @@ export const createEmptyMatchState = (): Pick<GameStore, MatchOwnedKey> => ({
   protocolNextTowerDiscount: 0,
 
   autoBattleEnabled: false,
+  firepowerLevel: 0,
   autoBattleDecisions: [],
   autoBattleCurve: [],
   autoBattleLastDecision: 0,
