@@ -235,6 +235,8 @@ interface AgentResult {
   fused: number;
   /** 第一次漏怪的波次（越高越好，比存活波次更細緻） */
   firstLeakWave: number;
+  /** 塔種組成（例如 laser:20|sniper:15），用來看融合配方是否存在 */
+  typeMix: string;
   /** 技能使用統計：次數、單目標次數、爆發期間的額外傷害 */
   skillCasts: number;
   skillSoloCasts: number;
@@ -546,6 +548,15 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
     upgraded,
     fused,
     firstLeakWave: sim.firstLeakWave,
+    typeMix: Object.entries(
+      sim.towers.reduce<Record<string, number>>((acc, t) => {
+        acc[t.type] = (acc[t.type] ?? 0) + 1;
+        return acc;
+      }, {}),
+    )
+      .sort((x, y) => y[1] - x[1])
+      .map(([type, count]) => `${type}:${count}`)
+      .join('|'),
     skillCasts: sim.skillCasts,
     skillSoloCasts: sim.skillSoloCasts,
     skillDamage: Math.round(sim.skillDamage),
