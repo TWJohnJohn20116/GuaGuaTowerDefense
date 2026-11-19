@@ -49,6 +49,7 @@ const config = (): AutoBattleConfig => ({
   lockedTargets: [],
   showOverlay: false,
   dryRun: false,
+  firepower: null,
 });
 
 /** 掃一小塊區域找出第一個合法塔位 */
@@ -105,6 +106,7 @@ describe('autobattle ↔ store integration', () => {
       activateSkill: () => false,
       fuse: () => false,
       playerSkill: () => false,
+      buyFirepower: () => false,
       skip: () => useGameStore.getState().skipWave(),
     });
     if (decision.chosen.kind === 'place') {
