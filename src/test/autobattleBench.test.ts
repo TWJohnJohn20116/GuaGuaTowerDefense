@@ -198,7 +198,7 @@ const step = (sim: Sim, dt: number): void => {
         const perShot = (data.damage > 0 ? data.damage : dps / levelScale / Math.max(0.0001, fireRate)) * levelScale;
         dps = Math.max(1, perShot - armor) * fireRate;
       }
-      target.hp -= dps * burst * sim.globalPower * dt;
+      target.hp -= dps * burst * dt;
       if (burst > 1) sim.skillDamage += dps * (burst - 1) * dt;
     }
   }
@@ -504,11 +504,7 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
   while (tick < maxTicks && sim.health > 0) {
     step(sim, dt);
     tick++;
-    // 假想金錢出口：每 5000 金買 +2% 全體輸出（兩側同規則）
-    while (sim.money >= 5000) {
-      sim.money -= 5000;
-      sim.globalPower += 0.02;
-    }
+
     if (sim.enemies.length === 0 && sim.spawnQueue.length === 0) {
       if (waveIndex >= waves) break;
       waveIndex++;
