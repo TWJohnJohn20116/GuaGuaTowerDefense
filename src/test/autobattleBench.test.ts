@@ -58,7 +58,8 @@ interface Sim {
   towersAtWave10: number;
   moneyAtWave10: number;
   playerSkillReadyAt: number;
-  /** 假想金錢出口：每 5000 金換 +2% 全體輸出（用來評估設計的價值上限） */
+  /** 火力強化（金錢出口）：層數與目前的全體輸出倍率 */
+  firepowerLevel: number;
   globalPower: number;
 }
 
@@ -133,6 +134,7 @@ const makeSim = (): Sim => ({
   towersAtWave10: -1,
   moneyAtWave10: -1,
   playerSkillReadyAt: 0,
+  firepowerLevel: 0,
   globalPower: 1,
 });
 
@@ -198,7 +200,7 @@ const step = (sim: Sim, dt: number): void => {
         const perShot = (data.damage > 0 ? data.damage : dps / levelScale / Math.max(0.0001, fireRate)) * levelScale;
         dps = Math.max(1, perShot - armor) * fireRate;
       }
-      target.hp -= dps * burst * dt;
+      target.hp -= dps * burst * sim.globalPower * dt;
       if (burst > 1) sim.skillDamage += dps * (burst - 1) * dt;
     }
   }
@@ -259,11 +261,15 @@ type Action =
   | { kind: 'sell'; id: string }
   | { kind: 'skill'; id: string }
   | { kind: 'playerSkill' }
+  | { kind: 'empower' }
   | { kind: 'skip' }
   | null;
 
 const runLegacyPolicy = (sim: Sim, tick: number): Action => {
   void tick;
+  // 舊策略同樣會買火力強化（錢多就買），確保機制對兩側一視同仁
+  if (sim.money >= 5000 && sim.towers.length >= 20 && sim.firepowerLevel < 25) return { kind: 'empower' };
+
   // 舊引擎同時會放玩家主動技能（tryActivatePlayerSkill），基準也照做
   if (sim.time >= sim.playerSkillReadyAt && sim.enemies.length >= 8) return { kind: 'playerSkill' };
 
@@ -304,6 +310,8 @@ const config = (): AutoBattleConfig => ({
   lockedTargets: [],
   showOverlay: false,
   dryRun: false,
+  // 金錢出口：與設計提案同一組參數（5000 金 → +2%，上限 25 層）
+  firepower: { cost: 5000, step: 0.02, maxLevel: 25 },
 });
 
 const ctxOf = (sim: Sim): AutoBattleContext => ({
@@ -329,6 +337,7 @@ const ctxOf = (sim: Sim): AutoBattleContext => ({
   allEnemiesSpawned: sim.allSpawned,
   // 基準只模擬一個全域爆發技能，冷卻 60 秒
   playerSkills: [{ id: 'benchBurst', ready: sim.time >= sim.playerSkillReadyAt }],
+  firepowerLevel: sim.firepowerLevel,
   lookahead: {
     moneyReserve: 120 + sim.wave * 20,
     expectedAbilities: [],
@@ -362,6 +371,10 @@ const runUtilityPolicy = (sim: Sim): Action => {
   if (c.kind === 'place' && c.towerType && c.col != null && c.row != null) {
     lastActionAt.set(c.id, ctx.time);
     return { kind: 'place', type: c.towerType, col: c.col, row: c.row };
+  }
+  if (c.kind === 'empower') {
+    lastActionAt.set(c.id, ctx.time);
+    return { kind: 'empower' };
   }
   if (c.kind === 'playerSkill') {
     lastActionAt.set(c.id, ctx.time);
@@ -410,6 +423,13 @@ const apply = (sim: Sim, action: Action): boolean => {
       skillReadyAt: 0,
       skillUntil: 0,
     });
+    return true;
+  }
+  if (action.kind === 'empower') {
+    if (sim.firepowerLevel >= 25 || sim.money < 5000) return false;
+    sim.money -= 5000;
+    sim.firepowerLevel += 1;
+    sim.globalPower += 0.02;
     return true;
   }
   if (action.kind === 'playerSkill') {

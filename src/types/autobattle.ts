@@ -5,7 +5,7 @@ export type AutoBattleMode = 'coach' | 'assist' | 'zones' | 'phases' | 'full';
 
 /** 動作種類（與記錄、UI 篩選共用） */
 export type AutoBattleActionKind =
-  | 'place' | 'upgrade' | 'sell' | 'fusion' | 'skill' | 'playerSkill' | 'skip' | 'hold';
+  | 'place' | 'upgrade' | 'sell' | 'fusion' | 'skill' | 'playerSkill' | 'empower' | 'skip' | 'hold';
 
 /** 觸發決策的事件 */
 export type AutoBattleTrigger =
@@ -50,6 +50,8 @@ export interface AutoBattleCandidate {
   resultType?: TowerType;
   /** 玩家主動技能 id（kind='playerSkill' 時有值） */
   playerSkillId?: string;
+  /** 火力強化的目標層數（kind='empower' 時有值） */
+  firepowerLevel?: number;
   col?: number;
   row?: number;
   cost: number;
@@ -134,6 +136,12 @@ export interface AutoBattleConfig {
   lockedTargets: string[];
   showOverlay: boolean;
   dryRun: boolean;
+  /**
+   * 金錢出口（火力強化）：null＝此對局沒有這個機制。
+   * 由設計提案 docs/research/2026-11-19-money-sink-proposal.md 定義；
+   * 遊戲端尚未實作，先讓基準用同一組規則量測 AI 的購買時機。
+   */
+  firepower: { cost: number; step: number; maxLevel: number } | null;
 }
 
 /** 前瞻推演的結果 */
@@ -166,6 +174,8 @@ export interface AutoBattleContext {
   allEnemiesSpawned: boolean;
   /** 玩家主動技能的就緒狀態（AI 目前只放全域型技能） */
   playerSkills: { id: string; ready: boolean }[];
+  /** 已購買的火力強化層數 */
+  firepowerLevel: number;
   lookahead: AutoBattleLookahead;
   config: AutoBattleConfig;
   trigger: AutoBattleTrigger[];

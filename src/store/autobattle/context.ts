@@ -39,6 +39,7 @@ export const buildContext = (
     })),
     waveActive: state.waveActive,
     allEnemiesSpawned: state.allEnemiesSpawned,
+    firepowerLevel: 0,
     playerSkills: PLAYER_SKILLS.map((s) => ({
       id: s.id,
       ready: now - (state.playerSkillStates[s.id]?.lastUsedTime ?? 0) >= s.cooldown,

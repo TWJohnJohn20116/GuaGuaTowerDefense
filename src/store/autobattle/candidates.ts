@@ -505,6 +505,35 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     }));
   }
 
+  // ---- 火力強化（金錢出口）----
+  const fp = ctx.config.firepower;
+  if (fp && ctx.firepowerLevel < fp.maxLevel && ctx.money >= fp.cost) {
+    const allMaxed = ctx.towers.length > 0 && ctx.towers.every((t) => t.level >= GAME_CONSTANTS.MAX_TOWER_LEVEL);
+    const surplus = ctx.money >= ctx.lookahead.moneyReserve * 3;
+    // 只有在「沒有更好的投資」時才買：塔全滿級，或錢多到升級吃不完
+    if (allMaxed || surplus) {
+      const weights = resolveWeights('upgrade', ctx.config);
+      const factors: ScoreFactor[] = [
+        makeFactor('economyROI', fp.step * 100, 1, weights.economyROI ?? 0, `+${(fp.step * 100).toFixed(0)}% 全體`),
+        makeFactor('reserve', ctx.money - fp.cost, scaleBetween(ctx.money - fp.cost, 0, Math.max(1, ctx.lookahead.moneyReserve * 3)), weights.reserve ?? 0),
+        makeFactor('tempo', tempo, tempo, weights.tempo ?? 0),
+      ];
+      out.push(finalizeCandidate({
+        id: `empower:${ctx.firepowerLevel + 1}`,
+        kind: 'empower',
+        labelKey: 'content.autoBattle.action.empower',
+        labelParams: { level: ctx.firepowerLevel + 1 },
+        firepowerLevel: ctx.firepowerLevel + 1,
+        cost: fp.cost,
+        factors: applyPresetBoost(factors, ctx.config.presetId),
+        softBonus: allMaxed ? 0.15 : 0,
+        penalties: 0,
+        total: 0,
+        vetoedBy: [],
+      }));
+    }
+  }
+
   // ---- 略波 ----
   if (ctx.waveActive && ctx.allEnemiesSpawned && ctx.enemies.length > 0 && ctx.towers.length >= 3) {
     let totalDps = 0;

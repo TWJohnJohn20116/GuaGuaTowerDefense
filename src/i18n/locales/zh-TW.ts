@@ -5675,6 +5675,7 @@ export const zhTW = {
         fusion: '融合',
         skill: '技能',
         playerSkill: '主動技能',
+        empower: '火力強化',
         skip: '略波',
         hold: '不做',
       },
