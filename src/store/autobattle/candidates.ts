@@ -317,7 +317,6 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       if (uniqueRatio > 0.4) continue;
       // 賣塔不能當提款機：手上現金已經低於保留金時，先想辦法賺錢或升級，不是拆防線
       if (ctx.money < ctx.lookahead.moneyReserve) continue;
-      if (!getPreset(ctx.config.presetId).allowSell) continue;
       // 換塔的兩種情形：
       // 1) 剛蓋好的重複塔（覆蓋幾乎被別塔吃光）
       // 2) 已升級的塔，但存在「同級更高 DPS、射程不吃虧」的替代塔，而且手上錢多得沒處花
@@ -331,6 +330,8 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       const cheapDuplicate = tower.level <= 1 && uniqueRatio <= 0.2;
       const levelSwap = Boolean(swapTarget) && ctx.money >= ctx.lookahead.moneyReserve * 2 && slotPressure(ctx) >= 0.9;
       if (!cheapDuplicate && !levelSwap) continue;
+      // 「均衡不換塔」只擋『賣掉重複塔省錢』；同級換塔是升級塔種，不受此限
+      if (cheapDuplicate && !levelSwap && !getPreset(ctx.config.presetId).allowSell) continue;
       // 同級換塔不會損失覆蓋（射程已篩過），安全度給滿；單純賣重複塔才看獨佔覆蓋
       const safety = levelSwap ? 1 : safetyBase;
       if (uniqueRatio > 0.15 && ctx.money < ctx.lookahead.moneyReserve * 2) continue;
