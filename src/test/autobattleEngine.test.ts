@@ -16,6 +16,7 @@ const ctx = (over: Partial<AutoBattleContext> = {}): AutoBattleContext => ({
   waveActive: false,
   allEnemiesSpawned: false,
   playerSkills: [],
+  firepowerLevel: 0,
   lookahead: { moneyReserve: 120, expectedAbilities: [], expectedEnemyCount: 0, pressure: 0, nextWaveTypes: [] },
   config: {
     mode: 'coach',
@@ -27,6 +28,7 @@ const ctx = (over: Partial<AutoBattleContext> = {}): AutoBattleContext => ({
     lockedTargets: [],
     showOverlay: false,
     dryRun: false,
+    firepower: null,
   },
   trigger: [],
   ...over,

@@ -32,6 +32,7 @@ export const BASE_WEIGHTS: Record<Exclude<AutoBattleActionKind, 'hold'>, AutoBat
   fusion: { synergy: 0.34, economyROI: 0.3, typeMatch: 0.2, reserve: 0.16 },
   skill: { timing: 0.55, threatFit: 0.3, typeMatch: 0.15 },
   playerSkill: { timing: 0.6, threatFit: 0.4 },
+  empower: { economyROI: 0.5, reserve: 0.3, tempo: 0.2 },
   skip: { skipSafety: 0.7, tempo: 0.3 },
 };
 
