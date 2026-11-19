@@ -155,10 +155,27 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     );
     const maxDps = Math.max(1, ...towerTypes.map((t) => valueOf(t, 1)));
 
+    // 先把「被既有塔佔住」的格子標記起來：每座塔只影響鄰近數格，
+    // 比對每個格子都掃一遍全部塔（165 × 66 次距離計算）快一個數量級。
+    const blockedCells = new Set<string>();
+    for (const tower of ctx.towers) {
+      const c0 = Math.floor(tower.col) - 2;
+      const r0 = Math.floor(tower.row) - 2;
+      for (let dc = 0; dc <= 4; dc++) {
+        for (let dr = 0; dr <= 4; dr++) {
+          const col = c0 + dc;
+          const row = r0 + dr;
+          if (Math.hypot(tower.col - col, tower.row - row) < MIN_TOWER_GAP) {
+            blockedCells.add(cellKey(col, row));
+          }
+        }
+      }
+    }
+
     const spots: { col: number; row: number; coverage: number }[] = [];
     for (let col = 0; col < cols; col++) {
       for (let row = 0; row < rows; row++) {
-        if (occupied(ctx, col, row)) continue;
+        if (blockedCells.has(cellKey(col, row))) continue;
         if (!inAllowedZone(ctx, col, row)) continue;
         if (isLocked(ctx, cellKey(col, row))) continue;
         const coverage = coveragePointsOf(points, col, row, maxRange);
