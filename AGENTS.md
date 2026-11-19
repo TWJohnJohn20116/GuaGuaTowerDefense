@@ -16,7 +16,7 @@
 3. 動手前先確認起點狀態：`gh run list --workflow ci.yml --limit 3` 看 `main` 最近一次是不是 success。**不要**在本機跑 `npm run check`（§13.9 禁止）。
 4. 改完 push，讓 CI 驗（§7 的完成定義以 CI 結果為準）；**本機不編譯、不建置、不跑測試**（§13.9）。
 5. 只讀不確定的地方：`架構圖.html`（現況）> 程式碼 > `docs/`（多為歷史設計稿）。
-6. **每次改檔就 commit**：一個語意單位一個 commit，寧可多不要少（規則見 §12）。不要自行 `git init`、不要 `git push --force`，也**不要**新增 npm 依賴（先問）。
+6. **每次改檔就 commit，而且預設一檔一 commit**：粒度切到「單獨 `git revert` 不會壞」為止，拆得越細越好（規則見 §12）。不要自行 `git init`、不要 `git push --force`，也**不要**新增 npm 依賴（先問）。
 
 ---
 
@@ -210,7 +210,7 @@ services → types（只能 import type 或由入口注入）
 | **utilities 會蓋掉 components 層** | Tailwind 的 utilities 圖層在 components 之後，`shadow-[...]`／`bg-*`／`border-*` 會**蓋掉** `arc-*` 元件層的設定。所以元件的**視覺屬性（陰影／邊框／底色）只在變體層決定，`size` 只決定尺寸**。實例：`Btn` 的 `size="sm"` 帶 `shadow-[0_3px_0]`，`arc-btn--ghost` 的 `box-shadow:none` 被蓋回去，ghost 按鈕底下就浮著一條沒有按鈕本體的深色橫條。新增變體時要逐一驗 `hover`／`active`／`disabled`，不能只看預設態。 |
 | **瀏覽器基線提高** | v4 產物用到 `@property` 與 `color-mix()`，需要 Safari 16.4+／Chrome 111+。`vite.config.ts` 的 `build.target` 仍是 `safari13`（瀏覽器版），舊瀏覽器會掉樣式——要相容就得先降級這些特性。 |
 
-**還沒做**：`tailwind.config.js` 的 token 仍走 `@config` 相容路徑，尚未搬進 CSS 的 `@theme`。搬遷時要一起處理：`hl-*`／`nordic-*` 色票、把 `borderRadius` 與 `boxShadow` 全部歸零的宣告、`mask-edges-x` 等自訂 utility。
+**還沒做**：token 仍走 `@config` 相容路徑，未搬進 CSS `@theme`（搬遷時要一起處理 `hl-*`／`nordic-*` 色票、`borderRadius`／`boxShadow` 歸零宣告、`mask-edges-x` 等自訂 utility）。
 
 ---
 
@@ -340,8 +340,7 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 
 ### 10.1 為什麼要講話
 
-使用者只看得到你「說出來」的內容：工具呼叫、diff、console 輸出他都看不到全貌。
-沒說的進度＝沒發生；做完才一次補述＝使用者整段時間都在等一個黑盒子。
+使用者只看得到你「說出來」的內容——工具呼叫、diff、console 他看不到全貌。沒說的進度＝沒發生。
 
 **判定標準：任何連續 3 個工具呼叫之間沒有任何一句說明，就算違規。**
 
@@ -353,17 +352,7 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 | **進行中** | 每完成一步，或每 2–3 個工具呼叫 | ✅ 剛做完什麼／結果如何；⚠️ 遇到什麼／改成怎樣；📄 正在讀哪個檔、要找什麼 |
 | **收尾** | 做完時 | 改了什麼、驗證結果、**沒做什麼**、下一步建議 |
 
-範例（開場）：
-
-> 要把 `TowerData` 補上 Mod 欄位。先看 `types/game.ts` 的介面與 `towerData.ts` 的實際欄位，確認哪些屬於 Mod 專屬；預計改 2 個檔 + `FloatingTowerPanel` 的 3 處 `as any`。
-
-範例（進行中）：
-
-> ✅ 找到根因：`flameEffect`／`windEffect` 只在 Mod 塔出現，`TowerData` 沒宣告，所以 UI 只能 `as any` 探測。接著把欄位補成可選屬性。
-
-範例（卡住）：
-
-> ⚠️ `npm run check` 在 `i18n:check` 紅了：`towers.newTower.name` 只在 zh-TW 有。原因是 `--strict` 不允許語言檔多出鍵；我把新鍵同步到 `en.json` 後重跑。
+範例——開場：「要把 `TowerData` 補上 Mod 欄位。先看 `types/game.ts` 與 `towerData.ts` 的實際欄位，確認哪些屬於 Mod 專屬；預計改 2 個檔 + `FloatingTowerPanel` 的 3 處 `as any`。」進行中：「✅ 找到根因：`flameEffect` 只在 Mod 塔出現、`TowerData` 沒宣告。接著補成可選屬性。」卡住：「⚠️ `i18n:check` 紅了：新鍵只在 zh-TW 有；同步到 `en.json` 後重跑。」
 
 ### 10.3 進度編號（`k/N`，多步任務必用）
 
@@ -381,18 +370,7 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 6. **失敗不重編號**：某步失敗就標「⚠️ 3/5 失敗：原因…，改用 Y 重試」，重試仍算同一步，除非真的多出獨立工作才加步。
 7. **與任務清單同步**：任務清單有 5 項，口頭進度就用 `k/5`；增刪步驟時兩邊同一個訊息改掉，**不要**出現「清單說 6 步、嘴巴說 5 步」。
 
-**範例（完整一輪）**
-
-```
-共 4 步：1) 找根因 2) 改型別 3) push 等 CI 4) 回報
-▶ 進度 1/4：比對 19 處 as any 的根因
-✅ 進度 1/4 完成：7 處是多餘斷言，可直接刪；2 處缺 union 成員
-▶ 進度 2/4：開始改型別（types/game.ts + updateTowers.ts）
-✅ 進度 2/4 完成：as any 19 → 0
-▶ 進度 3/4：push 後等 CI（run 43552101919）
-✅ 進度 3/4 完成：CI 綠，710 個測試全過、型別 0 error
-✅ 進度 4/4 完成：回報如下
-```
+**範例**：`共 4 步：1) 找根因 2) 改型別 3) push 等 CI 4) 回報` → `▶ 進度 1/4：比對 19 處 as any 的根因` → `✅ 進度 1/4 完成：7 處是多餘斷言` → … → `✅ 進度 4/4 完成：回報如下`。每步的開始寫「▶ 正在…」、完成寫「✅ 完成：結果」。
 
 **禁止**
 
@@ -498,26 +476,58 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 
 ---
 
-## 12. 提交節奏（每次改檔就 commit）
+## 12. 提交節奏（預設：一個檔案一個 commit）
 
-使用者要求：**每次改檔都要立即提交，最好拆成多個 commit**——因為回退比什麼都重要。
+使用者要求：**每次改檔都要立即提交，而且切得越細越好**——因為回退比什麼都重要。
+一則 commit 是「可單獨 `git revert` 的最小單位」，不是「這次做了什麼」的摘要。
 
 ### 12.1 鐵則
 
-- **改完一個語意單位 → 立刻 `git commit`**，不要累積到最後。
-- 一次任務產生 **3–6 個 commit** 是正常的；寧可多，不可少。
-- 每個 commit 都必須能單獨 `git revert` 而不連帶破壞別的改動。
+- **預設一檔一 commit**：`git add` 只加一個檔案，加完立刻 commit。多檔要進同一則，必須在訊息第一行標 `(不可分)` 並寫理由（見 12.2.2），否則就是違規。
+- **一檔內也要切**：同一個檔案裡「排版／補型別／改行為／改註解」是四件事，用 `git add -p` 分批 stage、分批 commit（見 12.2.1）。
+- **一次任務產生 5–15 則 commit 是正常的**，20 則也不嫌多。唯一的品質上限是「每則自己讀得懂」。
+- 判斷粒度夠不夠細只有一個標準：**這則 commit 單獨 `git revert` 之後，程式還編得過、測試還綠嗎？** 不行就再切。
+- **拆的順序**：結構（搬檔／改名／型別）→ 行為（邏輯）→ 測試 → 文件。讓 `git log` 能一步一步重放。
 
-### 12.2 怎麼判斷「一個語意單位」
+### 12.2 怎麼判斷「一則 commit」
 
 | 情況 | 動作 |
 |---|---|
-| 同時動到「文件」與「程式」 | ✂️ 拆兩個 commit |
+| 同一檔案裡「排版／格式化」＋「邏輯」 | ✂️ 兩則（先 `git add -p` 只 stage 排版 hunk） |
+| 同一檔案裡「補型別」＋「用到型別的邏輯」 | ✂️ 先型別、後邏輯（型別那則可獨立回滾） |
+| 實作 ＋ 它的測試 | ✂️ 預設拆兩則：實作先、測試後 |
+| 同一功能的 2–3 個檔案 | ✂️ 一檔一則，共用同一個 scope |
+| 一次動到 4 個以上檔案 | ✂️ 一律拆，每則訊息都要能單獨讀懂 |
+| 文件（`AGENTS.md`／`docs/**`／`CHANGELOG`） | ✂️ 永遠獨立，哪怕只有一行 |
+| 純搬檔／改名／改 import 路徑 | ✂️ 獨立一則，且不得夾任何內容修改 |
+| 生成物（`srcFileManifest.json`）／lock／snapshot | ✂️ 獨立一則，訊息寫「重新產生」 |
 | 兩個不相關的功能 | ✂️ 拆 |
-| 實作 + 它的測試 | ✅ 同一個 commit（測試是行為的一部分） |
-| 修 bug + 順手排版 | ✂️ 拆（排版另開一個 `style:` commit） |
-| 同一功能的 2–3 個檔案 | ✅ 同一個 commit |
-| 一次動到 6 個以上檔案 | 🤔 先想能不能拆成多個 commit |
+| 真的拆不動（拆開就編不過／舊檔會壞） | ✅ 合併，照 12.2.2 標 `(不可分)` |
+
+#### 12.2.1 怎麼把一個檔案切成兩則
+
+```bash
+git add -p src/store/autobattle/candidates.ts    # y/n/s 逐 hunk 選，先只挑排版
+git commit -q -m "style(autobattle): 只做排版，不動行為"
+git add src/store/autobattle/candidates.ts
+git commit -q -m "perf(autobattle): 快取地圖幾何"
+```
+
+- 兩段邏輯黏在同一個 hunk、`git add -p` 切不開 → 先手動拆 hunk，或先落一段、跑一次 CI、再落另一段。
+- 一個檔案在一次請求裡改了三輪 → **三則 commit**，不要 `--amend` 壓成一則（已 push 的更不准）。
+- 不確定兩段會不會互依 → 先分開 commit；CI 綠代表真的沒互依，紅了再補一則黏回來並寫明緣由。
+
+#### 12.2.2 唯一允許合併多檔的三種情況
+
+訊息第一行必須有 `(不可分)`，並寫出「拆開會怎樣」：
+
+| 例外 | 例子 | 訊息寫法 |
+|---|---|---|
+| 拆開就編不過（型別契約 ＋ 所有實作端） | 改 `GameStore` 介面 ＋ 同步 3 個 slice | `refactor(store): 收斂 X 介面 (不可分：slice 不同步會 TS2345)` |
+| 拆開就執行期壞（存檔格式 ＋ 讀取端） | 新增 persist 欄位 ＋ 讀取邏輯 | `feat(save): 新增 X 欄位 (不可分：舊檔會壞)` |
+| 機械性同步（一個常數／鍵名牽動多檔） | 走 §4.7 的 codemod 流程 | `chore(i18n): 批次改名 (不可分：codemod 一次產出)` |
+
+**「同一個功能」不是例外。** 功能再大也照拆：型別 → 資料 → 邏輯 → UI → 測試 → 文件。
 
 ### 12.3 訊息格式（Conventional Commits，描述用繁中）
 
@@ -532,26 +542,30 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 - **type**：`feat` / `fix` / `refactor` / `perf` / `docs` / `test` / `chore` / `ci` / `style`
 - **scope**：`agents` / `doc-ui` / `store` / `data` / `ui` / `i18n` / `ci` / `research` / `debt`…
 - 技術債一律引用編號（`fix(types): 移除 TD-13 的 7 處多餘 as any`）
+- 同一功能的連續幾則共用 scope，最後一則標題加 `（完成）`，`git log --oneline` 就能看出串連。
 
 ### 12.4 push 時機
 
 - 每個使用者請求**結束時**至少 push 一次（遠端是備份）。
 - 一個請求內的多個 commit：全部完成後再一起 `git push`。
 - 預設直接推 `main`；只有大型實驗才開 `feat/xxx` 分支。
+- **push 前先看 `git log --stat --oneline -20`**：每則的檔案數應該是 1（標 `(不可分)` 的除外）。不是就回去拆。
 
 ### 12.5 禁止
 
-- ❌ 把不相關的改動塞進同一個 commit（「順便修一下」）。
-- ❌ `git add -A` 之後不看 `git status` 就 commit。
+- ❌ 把不相關的改動塞進同一則 commit（「順便修一下」）。
+- ❌ 一則 commit 塞 3 個以上檔案卻沒標 `(不可分)` 與理由。
+- ❌ 用 `--amend` 把多次改動壓成一則（尤其已 push 的）。
+- ❌ `git add -A`／`git add .` 之後不看 `git status` 就 commit。
 - ❌ `git push --force`（遠端是備份不是沙包；真的需要先問）。
-- ❌ 對**已 push** 的 commit `--amend`（改用新 commit 修正）。
 - ❌ 訊息只寫 `update` / `fix bug` / `wip` 這類沒有資訊的字。
 
 ### 12.6 收尾檢查
 
 1. `git status` 乾淨——沒有忘了加入的檔案。
-2. `git log --oneline -6` 讀起來像一串可理解的歷史，而不是一個大雜燴。
-3. 該 push 的已經 push。
+2. `git log --stat --oneline -20`：每則檔案數是 1（`(不可分)` 除外），歷史讀起來能一步步重放。
+3. `git log -p -1` 抽查最長那則，確認裡面真的只講一件事。
+4. 該 push 的已經 push。
 
 ---
 
@@ -567,7 +581,7 @@ commit message、PR、回報、issue 一律引用 TD 編號（例：`fix(types):
 | `pull_request` | **不可**加 `paths` / `paths-ignore` | 某個 PR 因路徑被過濾而沒觸發時，未來的必要檢查會永遠停在 waiting，那個 PR 無法合併 |
 | `runs-on` | 固定版本（`ubuntu-24.04`），不用 `ubuntu-latest` | `latest` 會在某天默默換 Ubuntu（2026-10-19 起遷 26），同一個 commit 的行為就變了 |
 | Node 版本 | 固定主版本（目前 24），且必須與 `package-lock.json` 的產生環境一致 | npm 10 與 npm 11 對 vitest 的嵌套 `vite` 解析不同，會讓 `npm ci` 誤判「lock 不完整」（實際發生過：`Missing: esbuild@0.28.2`） |
-| Job 切分 | 7 個平行 job：`static`（型別／i18n／棘輪／建置／體積）、`test`（matrix `--shard=k/6`）、`summary`（`if: failure()`，成功時不跑） | 時間幾乎都花在**每個 job 的固定成本**（啟動 1–3s＋checkout 1–5s＋setup-node 1–7s＋npm ci 3–5s＝6–18s），不是工作本身。實測：單一 job 1m31s → 3 片 53s → 8 片（11 個 job）41s（VM 擠爆反而更慢）→ 收斂成 7 個 job 並把型別與建置合併 **27s** |
+| Job 切分 | 7 個平行 job：`static`（型別／i18n／棘輪／建置／體積）、`test`（matrix `--shard=k/6`）、`summary`（`if: failure()`，成功時不跑） | 時間幾乎都花在**每個 job 的固定成本**（1–3s 啟動＋1–5s checkout＋1–7s setup-node＋3–5s npm ci＝6–18s）。實測：單 job 1m31s → 3 片 53s → 8 片 41s（VM 擠爆更慢）→ 收斂成 7 個 job 且型別與建置合併 **27s** |
 | 顯示名稱 | workflow 名、`run-name`、job 名、step 名**一律繁體中文**；但 **job id 必須 ASCII**（`static`／`test`／`summary`），中文只能放在 `name:` | CI 是給人看的介面；job id 有 `^[A-Za-z_][A-Za-z0-9_-]*$` 限制，放中文會讓整份 workflow 解析失敗 |
 
 ### 13.2 改 workflow 後的驗證（不准用「看起來沒問題」結案）
@@ -651,14 +665,13 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 **規則**
 
 - ❌ **不 auto-merge、不加 `dependabot-auto-merge` 之類的 workflow**。依賴升級會動 `package.json` / lock，屬 §13.7 的高風險改動。
-- ✅ npm 的 PR 怎麼審：讀 diff 與 changelog → **讓 CI 跑**（Push 已由 Dependabot 完成，PR 會自動觸發 `pull_request`）→ 四道閘門（型別／i18n＋棘輪／測試／建置＋體積）全綠才合。**不要在合併前自己在本機跑 `npm ci`、`npm run check`（§13.9）。**
-- ⚠️ 若 PR 動到 `package-lock.json` 且 CI 紅在 `npm ci`（`Missing: esbuild@0.28.2` 這類），代表 lock 是在 **npm 10** 環境生的；處理方式是叫 Dependabot 重跑（在 PR 留言 `@dependabot recreate`）或請使用者用 Node 24 重生 lock 後推上去，**不要**在本機重生。
+- ✅ npm 的 PR：讀 diff 與 changelog → **讓 CI 跑**（Dependabot 的 push 會自動觸發 `pull_request`）→ 四道閘門全綠才合。**不要在合併前自己在本機跑 `npm ci`、`npm run check`（§13.9）。**
+- ⚠️ 若 PR 動到 lock 且 `npm ci` 紅在 `Missing: esbuild@0.28.2`，代表 lock 是在 **npm 10** 生的：叫 Dependabot 重跑（PR 留言 `@dependabot recreate`）或請使用者用 Node 24 重生後推上去，**不要**在本機重生。
 - ❌ major 版本 PR 若 CI 紅，**在 PR 裡修**，不要合進 `main` 再修（會讓 `main` 有一段時間是紅的）。
 - ⏫ 安全警報（Dependabot alerts／`npm audit`）優先於一般更新；目前 `npm audit` 有 14 個（1 low / 6 moderate / 7 high）尚未處理。
 - ❌ 不要為了讓依賴 PR 變綠而放寬 guards、刪測試或跳過步驟（§13.3）。
 - 🏷️ `labels` 指定的標籤**必須先在 repo 存在**，否則 Dependabot 會在 PR 留「The following labels could not be found」警告（PR 照樣會開，但清單難篩）。目前已有 `dependencies`／`npm`／`github-actions`／`rust` 四個。
 
-**為什麼 PR 一定會被檢查**：`ci.yml` 的 `pull_request` 觸發刻意不加 `paths` 過濾（§13.1），所以 Dependabot 開的 PR 不會靜默跳過 CI。
 
 ### 13.9 絕對規則：本機不得編譯、建置或執行測試
 
@@ -725,14 +738,7 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 
 #### 為什麼要寫成規則
 
-程式檢查會騙人。實例（2026-11-14）：
-
-> 工具首次跑完全部場景，log 印出 `19/19 通過`。
-> 用看圖能力打開總表一看：**19 個場景有 15 個只顯示「載入中…」**。
-> 原因：這些場景是 `React.lazy()` 載入，截圖時 chunk 還沒到；而載入骨架的 DOM 也有幾千字元，
-> 所以 `rootFilled > 200` 這種檢查全部誤判通過。
-
-同一輪看圖還抓到 `--cn-ink-3` / `--cn-ink-4` 在奶油底上只有 **2.93:1 / 1.94:1**，小字幾乎讀不到。
+程式檢查會騙人。2026-11-14 實例：工具印 `19/19 通過`，看圖卻是 **19 個場景有 15 個只顯示「載入中…」**（`React.lazy()` chunk 未到，骨架 DOM 幾千字元讓 `rootFilled > 200` 誤判）；同輪還抓到 `--cn-ink-3/4` 對比只有 2.93:1／1.94:1。
 
 **結論：log 的 PASS 只代表「畫面有東西」，不代表「畫面正確」。**
 
@@ -753,7 +759,7 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 
 19 個場景約 20–22 秒（單一瀏覽器實例 + CDP，見工具檔頭說明）；`--full-page`／`--dpr=2` 會多花時間。
 
-工具由六支模組組成：`scripts/visual-audit.mjs`（頁內稽核表達式）、`scripts/visual-pixel.mjs`（像素統計）、`scripts/visual-sheet.mjs`（總表分組排版）、`scripts/visual-shots.mjs`（截圖與稽核動作）、`scripts/visual-diff.mjs`（像素比對）、`scripts/visual-baseline.mjs`（基準線與報告演化）。前四支缺檔會降級，後兩支只在 `--diff`／`--baseline`／`--compare-last` 時才需要。
+工具分六支模組：`visual-audit`（頁內稽核）、`visual-pixel`（像素統計）、`visual-sheet`（總表排版）、`visual-shots`（截圖）前四支缺檔會降級；`visual-diff`（像素比對）、`visual-baseline`（基準線）只在 `--diff`／`--baseline`／`--compare-last` 時需要。
 
 #### 視覺回歸（改完 UI 想確認「沒有波及其他地方」）
 
@@ -770,11 +776,11 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 
 產出兩樣東西：`<scene>-<size>.diff.png`（灰階底＋差異染紅，紅在哪就是哪裡變了）與 `compare.json`（新增失敗／修好／新警告／位元組漂移／耗時變化）。**diff 只在「有基準線」時才比**，第一次跑 `--diff` 不會誤判成回歸。
 
-**不要用虛擬時間凍結 canvas**：實測 `Emulation.setVirtualTimePolicy` 在 headless 下不回響，會讓 `captureScreenshot` 永遠等不到畫框、整輪卡住。戰鬥場景請用 `--mask=canvas` 把戰區塗掉，只比 HUD 與面板（實測 1600x900 會遮掉 208,640 / 230,400 px）。
+**不要用虛擬時間凍結 canvas**：`Emulation.setVirtualTimePolicy` 在 headless 下不回響，`captureScreenshot` 會永遠等不到畫框。戰鬥場景改用 `--mask=canvas` 塗掉戰區，只比 HUD 與面板。
 
 #### 整頁縮圖不算驗證（2026-11-15 補）
 
-**1600x900 的整頁截圖判不出元件層的錯。** 3px 陰影、8px 間距、按鈕變體的邊框在縮圖裡全糊在一起。實例：我用整頁圖判定「OK」，漏掉 ghost 按鈕底下浮空的陰影與側欄貼著頂列，被使用者截圖打回來。
+**1600x900 的整頁截圖判不出元件層的錯**：3px 陰影、8px 間距、按鈕變體邊框在縮圖裡全糊在一起（實例：整頁圖判「OK」，漏掉 ghost 按鈕底下的浮空陰影與側欄貼頂列）。
 
 1. **元件層改動 → 一定要拍局部原尺寸**：`--clip='<選擇器>'`，必要時加 `--dpr=2`。總表只用來「找可疑」，不能當判定依據。
 2. **每次都要看 `390x844`**：`xl:` 斷點以下多欄版面會堆疊，破版都在那裡。指令固定 `--sizes=1600x900,390x844`。
@@ -782,92 +788,16 @@ git -c 'credential.helper=' -c 'credential.helper=!gh auth git-credential' push 
 
 #### 必做六步（少一步就算沒驗證）
 
-**1. 全場景基準掃描**（約 20 秒）
-
-```bash
-node scripts/visual-check.mjs
-```
-
-**2. 逐格看總表，一個都不能跳**
-
-用看圖能力打開 `contact-sheet.png`。**每一個格子都要給判定**，不能只看「有沒有東西」。
-判定只允許兩種：`OK` 或 `問題：<具體描述>`。寫「看起來正常」不算。
-
-每格下方的「N 警告」是**警告類別數**，黃框代表有警告。警告不是自動失敗（`--strict` 才升級），但它們是「有人已經幫你看過一遍」的線索——**必須逐條判定**：真問題就記進待修，誤報就在回報裡寫明為什麼是誤報（例：卡片上的大號裝飾數字、`talentTree` 未解鎖節點）。
-
-**3. 可疑場景單獨放大**（全尺寸 PNG）
-
-```bash
-node scripts/visual-check.mjs --scenes=<場景> --concurrency=1
-```
-
-再 `read_image` 打開該張 PNG。總表是縮圖，字級／對齊／截斷只有原尺寸看得出來。
-
-要看某個 Modal／卡片本身（圓角、邊界、內距）就加 `--clip`，它會多拍一張局部原尺寸幀：
-
-```bash
-node scripts/visual-check.mjs --scenes=gameOver --clip='[role=dialog]' --concurrency=1
-```
-
-懷疑「主行動鍵被推到摺疊線以下」時加 `--full-page`，它會多拍一張整頁長圖（限高 6000px）：
-
-```bash
-node scripts/visual-check.mjs --scenes=settings --full-page --concurrency=1
-```
-
-**4. 開狀態再拍一次**（這是「詳細」的關鍵）
-
-預設截圖只拍到初始狀態。需要看展開／彈窗／選中時，用 `--js` 先在頁面內操作：
-
-```bash
-# 簡單運算式可以用 --js
-node scripts/visual-check.mjs --scenes=report --js="window.scrollTo(0,600)"
-
-# 含 => 或引號的腳本請寫成檔案，用 --js-file（不然會被 shell 吃掉，實測 exit 0 卻零輸出）
-cat > /tmp/pre-expand.js <<'JS'
-document.querySelectorAll('details').forEach((d) => { d.open = true; });
-JS
-node scripts/visual-check.mjs --scenes=pathSelection --js-file=/tmp/pre-expand.js
-
-# 開 Modal（用 aria-label 找按鈕）
-cat > /tmp/pre-modal.js <<'JS'
-document.querySelector('[aria-label="查看詳細"]')?.click();
-JS
-node scripts/visual-check.mjs --scenes=gameOver --js-file=/tmp/pre-modal.js
-
-# 多段操作用 ;; 分隔
-node scripts/visual-check.mjs --scenes=settings --js-file=/tmp/pre-tab.js   # 檔案內用 ;; 串接多段
-```
-
-**5. 多尺寸**（至少桌機 + 窄版）
-
-```bash
-node scripts/visual-check.mjs --sizes=1600x900,1280x800,390x844
-```
-
-有響應式斷點的版面（Split / Battle）一定要看窄版，否則重疊與溢出抓不到。
-
-總表會**按尺寸分組**（每組一個標題與自己的列數／行高），所以混尺寸跑不會把窄版縮成一小塊。
-
-要驗 Retina 下的模糊與 1px 邊框，加 `--dpr=2`（圖會變成 CSS 尺寸的兩倍，`sizeMatches` 已按比例換算）：
-
-```bash
-node scripts/visual-check.mjs --sizes=1600x900,390x844 --dpr=2 --concurrency=3
-```
-
-**6. 修完重跑，直到每一格都 OK**
-
-修一處 → 重跑一次（20 秒），不要累積多處才驗。
+1. **全場景基準掃描**（約 20 秒）：`node scripts/visual-check.mjs`。
+2. **逐格看總表，一個都不能跳**：用看圖能力打開 `contact-sheet.png`，**每格都要判定**，只允許 `OK` 或 `問題：<具體描述>`（「看起來正常」不算）。黃框與「N 警告」是警告類別數，**必須逐條判定**：真問題記進待修，誤報則在回報寫明理由（例：卡片大號裝飾數字、`talentTree` 未解鎖節點）。
+3. **可疑場景單獨放大**：`--scenes=<場景> --concurrency=1`，再用 `read_image` 看原尺寸——總表是縮圖，字級／對齊／截斷只有原尺寸看得出來。Modal／卡片本身加 `--clip='[role=dialog]'`；懷疑主行動鍵被推到摺疊線下加 `--full-page`（限高 6000px）。
+4. **開狀態再拍一次**（「詳細」的關鍵）：簡單運算式用 `--js`；含 `=>`／引號的寫成檔案用 `--js-file`（**不然會被 shell 吃掉，實測 exit 0 卻零輸出**），例：`node scripts/visual-check.mjs --scenes=pathSelection --js-file=/tmp/pre-expand.js`，檔案內容 `document.querySelectorAll('details').forEach((d) => { d.open = true; });`。多段操作用 `;;` 串接，等待段寫 `new Promise((r) => setTimeout(r, 400))`。
+5. **多尺寸**：`--sizes=1600x900,1280x800,390x844`。有響應式斷點的版面（Split / Battle）一定要看窄版，否則重疊與溢出抓不到；總表按尺寸分組，混尺寸跑不會把窄版縮成一小塊。Retina／1px 邊框加 `--dpr=2`（`sizeMatches` 已按比例換算）。
+6. **修完重跑，直到每一格都 OK**：修一處 → 重跑一次（20 秒），不要累積多處才驗。
 
 #### 產出位置
 
-`.shots/verify/<timestamp>/`：
-- `*.png` — 每個場景的原尺寸截圖
-- `contact-sheet.png` — **驗證要看的就是這張**
-- `index.html` — 逐張放大 + 檢查項明細
-- `report.json` — 給程式讀，含 `timing`（server / 截圖分段）與 `diff`（差異統計）
-- `*.diff.png` — 有 `--diff` 時的差異圖（灰階＋紅）
-- `compare.json` — 有 `--compare-last` 時與上一輪的差異
+`.shots/verify/<timestamp>/`：`*.png`（場景原尺寸）、`contact-sheet.png`（**驗證要看的就是這張**）、`index.html`（逐張放大＋檢查明細）、`report.json`（`timing` 與 `diff` 統計）、`*.diff.png`（`--diff` 的差異圖，灰階＋紅）、`compare.json`（`--compare-last` 的差異）。
 
 `.shots/baseline/` 是基準線圖檔（`--baseline` 寫入、`--diff` 讀取），跟 `.shots/` 一起不進版控。
 
@@ -875,13 +805,13 @@ node scripts/visual-check.mjs --sizes=1600x900,390x844 --dpr=2 --concurrency=3
 
 #### 視覺腳本的三個坑（2026-11-15 補）
 
-- **`--js-file` 會被 `;;` 切成多段**，每段以 `awaitPromise: true` 執行、段間固定 sleep 350ms。要「點一下 → 等它渲染 → 再點一下」就寫 `;;` 分隔，並用 `new Promise((r) => setTimeout(r, 400))` 當等待段。**整段寫成一個 async 函式不會被 await**（我卡了兩次）。
-- **Node 不認 MSYS 的 `/tmp`**：`readFileSync('/tmp/x.js')` 會解析成 `D:\tmp\x.js`（ENOENT）。暫存腳本一律 `cygpath -w "$TEMP"` 轉絕對路徑再傳給 `--js-file`。
-- **收合後的側欄項目只剩序號**，用「文字包含某頁名」去找會點錯頁（甚至誤判成版面壞掉）。一律用 `nav [aria-label="內容"]` 這類 aria 選擇器。
+- **`--js-file` 會被 `;;` 切成多段**（每段 `awaitPromise: true`、段間 sleep 350ms）；等待段要寫 `new Promise((r) => setTimeout(r, 400))`，**整段包成一個 async 函式不會被 await**。
+- **Node 不認 MSYS 的 `/tmp`**（會解析成 `D:\tmp\x.js`）：暫存腳本一律 `cygpath -w "$TEMP"`。
+- **收合後的側欄只剩序號**：一律用 `nav [aria-label="內容"]` 這類 aria 選擇器，不要用頁名文字找。
 
 #### 工具會檢查什麼
 
-**硬失敗（`pass=false`）**：截圖存在、尺寸與要求相符（含 dpr 換算）、像素判空（唯一色數／邊緣密度，取代舊的 >20KB 門檻）、可讀文字 > 120 字、無 Vite 錯誤覆蓋層、無 JS 崩潰字樣、無本站 console error／資源載入失敗。
+**硬失敗（`pass=false`）**：截圖存在且尺寸相符（含 dpr）、像素判空（唯一色數／邊緣密度）、可讀文字 > 120 字、無 Vite 錯誤覆蓋層、無 JS 崩潰字樣、無本站 console error／資源載入失敗。
 
 **警告（預設不判失敗，`--strict` 才升級）**：
 
@@ -946,8 +876,8 @@ node scripts/visual-check.mjs --sizes=1600x900,390x844 --dpr=2 --concurrency=3
 
 #### 已知未修（看圖看到但尚未處理）
 
-- 成就通知固定右下，在戰鬥畫面會蓋住塔塢面板、在選圖會蓋住「自訂」難度卡。**`occlusion` 警告現在會自動列出覆蓋率與被蓋的元素**，修 UI 時直接查 `report.json` 的 `warnings` 中 `kind=occlusion` 那筆。
-- `game` 場景頂部 HUD 條在截圖中偏薄，需單獨放大確認是圖層還是高度問題。
+- 成就通知固定右下，會蓋住塔塢面板與「自訂」難度卡；修 UI 時查 `report.json` 的 `warnings` 中 `kind=occlusion`。
+- `game` 頂部 HUD 條偏薄，需單獨放大確認是圖層還是高度問題。
 - `talentTree` 未解鎖節點的低對比是設計（0 點時全暗），不是 bug。
 
 #### 回報格式（貼進回覆，不可只寫「看過了」）
