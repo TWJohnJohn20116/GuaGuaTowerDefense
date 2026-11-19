@@ -171,6 +171,38 @@ jobs:
         run: npm run test -- --shard=${{ matrix.shard }}/${{ env.TEST_SHARDS }}
 
   # ─────────────────────────────────────────────
+  # 自動戰鬥 A/B 基準：策略研究，不是回歸測試
+  #
+  # 它跑 63,000 tick × 2 套策略（舊策略 vs 效用引擎），單檔 305s。
+  # 塞在分片測試裡的代價是整條 CI 的關鍵路徑被一個檔綁死
+  # （run 44530538806：wall 5m27s，這檔佔 5m06s＝93%）。
+  # 因此移出 `npm run test`（見 vitest.config.ts 的 exclude），只在手動觸發時跑：
+  #   gh workflow run ci.yml
+  # 斷言保留（legacy/utility 都必須蓋到塔），不刪測試、不放寬斷言（§13.3）。
+  # ─────────────────────────────────────────────
+  bench:
+    name: 自動戰鬥基準（僅手動觸發）
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: 取得原始碼
+        uses: actions/checkout@v7
+
+      - name: 設定 Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: 安裝依賴
+        run: npm ci --no-audit --no-fund --prefer-offline
+
+      - name: 自動戰鬥基準（舊策略 vs 效用引擎）
+        run: npm run test:bench
+
+  # ─────────────────────────────────────────────
   # 結果總結：只在有 job 失敗時才跑
   #
   # 它必須排在所有 job 之後，成功時要多等 6–9s（needs 結算 + runner 排隊 + 腳本），
@@ -210,7 +242,7 @@ jobs:
             echo "| 關卡 | 內容 | 結果 |"
             echo "|---|---|---|"
             echo "| 靜態檢查與建置 | 型別、語言鍵、技術債棘輪、產線建置、體積預算 | $(chinese_result "$STATIC_RESULT") |"
-            echo "| 單元測試 | 159 個測試檔分 ${TEST_SHARDS} 片平行跑 | $(chinese_result "$TEST_RESULT") |"
+            echo "| 單元測試 | 158 個測試檔分 ${TEST_SHARDS} 片平行跑（基準檔另由手動 job 跑） | $(chinese_result "$TEST_RESULT") |"
             echo ""
             echo '- 分支：`'"${GITHUB_REF_NAME}"'`'
             echo '- commit：`'"${GITHUB_SHA:0:7}"'`'
