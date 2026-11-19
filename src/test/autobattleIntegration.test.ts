@@ -5,6 +5,7 @@ import { buildContext } from '@/store/autobattle/context';
 import { decide } from '@/store/autobattle/decide';
 import { executeDecision } from '@/store/autobattle/execute';
 import type { AutoBattleConfig } from '@/types/autobattle';
+import type { TowerType } from '@/types/game';
 
 const setupMatch = () => {
   const path = PATHS[DEFAULT_PATH];
@@ -33,7 +34,6 @@ const setupMatch = () => {
     upgradeStats: { totalUpgrades: 0, totalSpent: 0, maxLevelReached: 1 },
     placementStats: { totalPlaced: 0, totalSold: 0, totalSpent: 0 },
     protocolNextTowerDiscount: 0,
-    playerSkillStates: {},
     autoBattleDecisions: [],
     autoBattleLastActionAt: {},
   });
@@ -52,7 +52,7 @@ const config = (): AutoBattleConfig => ({
 });
 
 /** 掃一小塊區域找出第一個合法塔位 */
-const firstBuildable = (type: Parameters<typeof useGameStore.getState>[never] extends never ? never : 'basic' | 'sniper' | 'cannon' | 'laser') => {
+const firstBuildable = (type: TowerType) => {
   for (let col = 1; col < 14; col++) {
     for (let row = 1; row < 10; row++) {
       if (useGameStore.getState().placeTowerAs(type, { x: col, y: row })) return { col, row };
