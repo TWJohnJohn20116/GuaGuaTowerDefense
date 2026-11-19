@@ -113,35 +113,6 @@ const armorFitOf = (type: TowerType, enemies: AutoBattleContext['enemies']): num
 const mixTypeMatch = (counter: number, armorFit: number): number => 0.6 * counter + 0.4 * armorFit;
 
 /**
- * 最小計畫層：挑一組「滿級融合期望 DPS 最高、且兩座塔都還沒在場上」的配方。
- * 無狀態——每次決策重算，條件消失就自動失效，不會留下需要清理的殘留計畫。
- */
-const fusionPlanFor = (ctx: AutoBattleContext): [TowerType, TowerType] | null => {
-  if (ctx.wave < 6) return null;
-  if (ctx.money < ctx.lookahead.moneyReserve * 2) return null;
-  if (ctx.towers.length < 8) return null;
-  const onField = new Set(ctx.towers.map((t) => t.type));
-  let best: { pair: [TowerType, TowerType]; gain: number } | null = null;
-  const types = Object.keys(TOWER_DATA) as TowerType[];
-  for (let i = 0; i < types.length; i++) {
-    for (let j = i + 1; j < types.length; j++) {
-      const a = types[i];
-      const b = types[j];
-      if (onField.has(a) || onField.has(b)) continue;
-      const recipe = getFusionRecipe(a, b);
-      if (!recipe) continue;
-      const after = dpsOf(recipe.result, GAME_CONSTANTS.MAX_TOWER_LEVEL);
-      const before =
-        dpsOf(a, GAME_CONSTANTS.MAX_TOWER_LEVEL) + dpsOf(b, GAME_CONSTANTS.MAX_TOWER_LEVEL);
-      const gain = after - before;
-      if (gain <= 0) continue;
-      if (!best || gain > best.gain) best = { pair: [a, b], gain };
-    }
-  }
-  return best?.pair ?? null;
-};
-
-/**
  * 融合潛力 0..1：場上已有夥伴、且「滿級融合塔」的期望 DPS 明顯高於兩座來源塔時回 1。
  * 只用於塔型排序，不參與「放塔 vs 升級」的競爭。
  */
@@ -182,7 +153,6 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
   const out: AutoBattleCandidate[] = [];
   // 這些值在單次決策內不變，先算一次避免每個候選重算
   const tempo = tempoRaw(ctx);
-  const plan = fusionPlanFor(ctx);
   const affordable = (type: TowerType): boolean => buildCostOf(type, costMult) <= ctx.money;
 
 
@@ -245,19 +215,9 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           const skillBonus = TOWER_SKILLS[type] ? 0.05 : 0;
           // 融合潛力：場上已有可合體的夥伴，且滿級融合的期望 DPS 更高時，才值得為它鋪路
           const fusionPotential = fusionPotentialOf(ctx, type);
-          // 計畫層：為了湊出高價值的融合配方，暫時給配對中的塔型一點序位優勢。
-          // 只在「資金充裕、場上還沒有這兩種塔」時生效，避免變成常態性加分。
-          const planBonus = plan && plan.includes(type) ? 0.1 : 0;
           return {
             type,
-            score:
-              cover * 0.45 +
-              typeMatch * 0.25 +
-              roi * 0.15 +
-              perSlot * 0.15 * slotPressure(ctx) +
-              skillBonus +
-              0.06 * fusionPotential +
-              planBonus,
+            score: cover * 0.45 + typeMatch * 0.25 + roi * 0.15 + perSlot * 0.15 * slotPressure(ctx) + skillBonus + 0.06 * fusionPotential,
           };
         })
         .sort((a, b) => b.score - a.score)
