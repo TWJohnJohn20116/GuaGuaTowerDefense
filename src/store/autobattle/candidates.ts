@@ -112,6 +112,22 @@ const armorFitOf = (type: TowerType, enemies: AutoBattleContext['enemies']): num
 
 const mixTypeMatch = (counter: number, armorFit: number): number => 0.6 * counter + 0.4 * armorFit;
 
+/**
+ * 融合潛力 0..1：場上已有夥伴、且「滿級融合塔」的期望 DPS 明顯高於兩座來源塔時回 1。
+ * 只用於塔型排序，不參與「放塔 vs 升級」的競爭。
+ */
+const fusionPotentialOf = (ctx: AutoBattleContext, type: TowerType): number => {
+  for (const tower of ctx.towers) {
+    const recipe = getFusionRecipe(type, tower.type);
+    if (!recipe) continue;
+    const after = dpsOf(recipe.result, GAME_CONSTANTS.MAX_TOWER_LEVEL);
+    const before =
+      dpsOf(type, GAME_CONSTANTS.MAX_TOWER_LEVEL) + dpsOf(tower.type, GAME_CONSTANTS.MAX_TOWER_LEVEL);
+    if (after > before * 1.15) return 1;
+  }
+  return 0;
+};
+
 const enemiesNear = (ctx: AutoBattleContext, col: number, row: number, range: number): AutoBattleContext['enemies'] =>
   ctx.enemies.filter((e) => Math.hypot(e.x - col, e.y - row) <= range + 0.5);
 
@@ -197,7 +213,12 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
           const perSlot = valueOf(type, 1) / maxDps;
           // 帶技能的塔多一份「爆發資源」：只在塔型評分內加分，不動「放塔 vs 升級」的平衡
           const skillBonus = TOWER_SKILLS[type] ? 0.05 : 0;
-          return { type, score: cover * 0.45 + typeMatch * 0.25 + roi * 0.15 + perSlot * 0.15 * slotPressure(ctx) + skillBonus };
+          // 融合潛力：場上已有可合體的夥伴，且滿級融合的期望 DPS 更高時，才值得為它鋪路
+          const fusionPotential = fusionPotentialOf(ctx, type);
+          return {
+            type,
+            score: cover * 0.45 + typeMatch * 0.25 + roi * 0.15 + perSlot * 0.15 * slotPressure(ctx) + skillBonus + 0.06 * fusionPotential,
+          };
         })
         .sort((a, b) => b.score - a.score)
         .slice(0, 3);
