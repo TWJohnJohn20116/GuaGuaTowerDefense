@@ -306,6 +306,12 @@ interface AgentResult {
   /** 第 10 波開始時的塔數與金錢：用來看前期鋪位節奏 */
   towersAtWave10: number;
   moneyAtWave10: number;
+  /** 整場模擬的 wall clock（ms）。會受 runner 速度影響，請搭配 calibMs 判讀 */
+  wallMs: number;
+  /** 實際跑了幾個 tick（＝模擬量） */
+  ticks: number;
+  /** wallMs / ticks：把模擬量除掉之後的每 tick 成本 */
+  msPerTick: number;
 }
 
 type Action =
@@ -569,6 +575,7 @@ const apply = (sim: Sim, action: Action): boolean => {
 };
 
 const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, seedOffset = 0): AgentResult => {
+  const wallStart = performance.now();
   const sim = makeSim();
   lastActionAt.clear();
   soldAt.clear();
@@ -623,6 +630,7 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
     if (!executed && sim.money > 400) idleTicks++;
   }
   const coverSum = sim.towers.reduce((sum, t) => sum + coverage(t.col, t.row, rangeOf(t.type)), 0);
+  const wallMs = performance.now() - wallStart;
   return {
     wavesSurvived: sim.health > 0 ? waveIndex : waveIndex - 1,
     leaks: 10 - Math.max(0, sim.health),
@@ -654,14 +662,61 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
     decideCalls,
     towersAtWave10: sim.towersAtWave10,
     moneyAtWave10: sim.moneyAtWave10,
+    wallMs: Number(wallMs.toFixed(1)),
+    ticks: tick,
+    msPerTick: Number((wallMs / Math.max(1, tick)).toFixed(4)),
   };
+};
+
+/**
+ * 固定工作量的校準負載。
+ *
+ * 為什麼要它：同一份程式碼在 CI 上連跑，bench 的 wall clock 就有 151s ↔ 197s（約 30%）的落差，
+ * 全部來自 runner 速度。量一段固定運算當分母後，wallOverCalib = wallMs / calibMs 就能跨 run 比較。
+ */
+const calibrate = (): number => {
+  const workload = (): number => {
+    let acc = 0;
+    for (let i = 0; i < 2_000_000; i++) {
+      acc += Math.sqrt((i & 1023) + 1);
+      if (acc > 1e9) acc = 0;
+    }
+    return acc;
+  };
+  const samples: number[] = [];
+  for (let k = 0; k < 3; k++) {
+    const t0 = performance.now();
+    const sink = workload();
+    // 讀一下結果，避免整個迴圈被最佳化掉
+    if (sink < 0) throw new Error('calibrate: unreachable');
+    samples.push(performance.now() - t0);
+  }
+  samples.sort((a, b) => a - b);
+  return Number(samples[1].toFixed(2));
 };
 
 describe('autobattle A/B benchmark', () => {
   it('同一份戰鬥模型下比較舊策略與新效用引擎', { timeout: 480000 }, () => {
+    // 前後各量一次校準取平均：runner 若中途降頻，兩端都有取樣
+    const calibBefore = calibrate();
     const legacy = simulate(runLegacyPolicy, 90);
     const utility = simulate(runUtilityPolicy, 90);
-    const report = { legacy, utility };
+    const calibAfter = calibrate();
+    const calibMs = Math.max(0.001, (calibBefore + calibAfter) / 2);
+    const normalized = (r: AgentResult) => ({
+      ...r,
+      /** 跨 run 可比的整場成本（wall ÷ 校準負載）。換 runner 也不影響判讀 */
+      wallOverCalib: Number((r.wallMs / calibMs).toFixed(3)),
+    });
+    const report = {
+      calibBefore,
+      calibAfter,
+      calibMs: Number(calibMs.toFixed(2)),
+      legacy: normalized(legacy),
+      utility: normalized(utility),
+      /** 同一 run 內的相對成本：runner 速度同時作用於分子分母，這個比值最穩 */
+      utilityOverLegacyWall: Number((utility.wallMs / Math.max(0.001, legacy.wallMs)).toFixed(3)),
+    };
     console.info('[autobattle-bench] ' + JSON.stringify(report));
     expect(legacy.towerCount).toBeGreaterThan(0);
     expect(utility.towerCount).toBeGreaterThan(0);
