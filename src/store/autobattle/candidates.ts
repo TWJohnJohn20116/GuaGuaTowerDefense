@@ -1,6 +1,6 @@
 import type { AutoBattleCandidate, AutoBattleContext, AutoBattleWeights, ScoreFactor } from '@/types/autobattle';
 import type { TowerType } from '@/types/game';
-import { TOWER_DATA, ENEMY_DATA } from '@/data/gameData';
+import { TOWER_DATA, ENEMY_DATA, GAME_CONSTANTS } from '@/data/gameData';
 import { getTowerUpgradeCost, canAutoUpgradeTower } from '@/data/towerUpgradeCost';
 import { getTowerBuildCost } from '@/data/towerCost';
 import { findSynergyRecipe } from '@/data/towerSynergyData';
@@ -378,8 +378,12 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       const before = dpsOf(a.type, a.level) + dpsOf(b.type, b.level);
       const after = dpsOf(result, 1);
       const freshPair = a.level <= 2 && b.level <= 2;
-      // 兩座都已經養高時，融合等於把投資清零：只有 DPS 真的換得回來才合
-      if (!freshPair && after < before * 1.05) continue;
+      // 滿級後的比較基準：融合塔可以重新養到滿級，所以要看「滿級期望 DPS」，
+      // 而不是融合當下的 Lv1 數值——否則永遠算不出融合其實是升級。
+      const afterMax = dpsOf(result, GAME_CONSTANTS.MAX_TOWER_LEVEL);
+      const beforeMax = dpsOf(a.type, GAME_CONSTANTS.MAX_TOWER_LEVEL) + dpsOf(b.type, GAME_CONSTANTS.MAX_TOWER_LEVEL);
+      const worthFusing = afterMax > beforeMax * 1.05;
+      if (!freshPair && !worthFusing) continue;
       const gain = before > 0 ? (after - before) / before : 0;
       const weights = resolveWeights('fusion', ctx.config);
       const factors: ScoreFactor[] = [
