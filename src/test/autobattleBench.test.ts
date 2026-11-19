@@ -356,7 +356,10 @@ const runLegacyPolicy = (sim: Sim, tick: number): Action => {
   return { kind: 'place', type, col: spot.col, row: spot.row };
 };
 
-const config = (): AutoBattleConfig => ({
+/**
+ * 決策設定在整場基準裡不變（decide 只讀不寫），提出常數後每次決策少配 5 個物件。
+ */
+const BENCH_CONFIG: AutoBattleConfig = {
   mode: 'coach',
   presetId: 'balanced',
   weights: {},
@@ -368,7 +371,76 @@ const config = (): AutoBattleConfig => ({
   dryRun: false,
   // 金錢出口：與設計提案同一組參數（5000 金 → +2%，上限 25 層）
   firepower: { cost: 5000, step: 0.02, maxLevel: 40, growth: 1.15 },
-});
+};
+
+/**
+ * ctx 的敵人／塔陣列原本每 tick 重建：62,000 次決策 × （敵人數 + 66 座塔）＝ 千萬級物件配置，
+ * 剩下的成本大半是 GC 而不是計算。改成可重用 buffer 就地覆寫。
+ *
+ * 安全性：AutoBattleContext 只在 runUtilityPolicy 內被同步消費——decide() 產出的決策紀錄
+ * 只保留數字與候選（不含 ctx 或敵人物件參照），函式回傳後沒有任何東西還握著這些 buffer。
+ */
+const enemyBuffer: AutoBattleContext['enemies'] = [];
+const towerBuffer: AutoBattleContext['towers'] = [];
+
+const syncEnemies = (sim: Sim): AutoBattleContext['enemies'] => {
+  const out = enemyBuffer;
+  for (let i = 0; i < sim.enemies.length; i++) {
+    const e = sim.enemies[i];
+    const pos = POINTS[Math.round(e.idx)];
+    const slot = out[i];
+    if (slot) {
+      slot.id = e.id;
+      slot.type = e.type;
+      slot.x = pos.col;
+      slot.y = pos.row;
+      slot.health = e.hp;
+      slot.maxHealth = e.maxHp;
+      slot.progress = e.progress;
+    } else {
+      out[i] = {
+        id: e.id,
+        type: e.type,
+        x: pos.col,
+        y: pos.row,
+        health: e.hp,
+        maxHealth: e.maxHp,
+        progress: e.progress,
+      };
+    }
+  }
+  out.length = sim.enemies.length;
+  return out;
+};
+
+const syncTowers = (sim: Sim): AutoBattleContext['towers'] => {
+  const out = towerBuffer;
+  for (let i = 0; i < sim.towers.length; i++) {
+    const t = sim.towers[i];
+    const slot = out[i];
+    if (slot) {
+      slot.id = t.id;
+      slot.type = t.type;
+      slot.level = t.level;
+      slot.col = t.col;
+      slot.row = t.row;
+      slot.skillReady = sim.time >= t.skillReadyAt;
+      slot.upgradePath = t.upgradePath;
+    } else {
+      out[i] = {
+        id: t.id,
+        type: t.type,
+        level: t.level,
+        col: t.col,
+        row: t.row,
+        skillReady: sim.time >= t.skillReadyAt,
+        upgradePath: t.upgradePath,
+      };
+    }
+  }
+  out.length = sim.towers.length;
+  return out;
+};
 
 const ctxOf = (sim: Sim): AutoBattleContext => ({
   time: sim.time * 1000,
@@ -376,19 +448,8 @@ const ctxOf = (sim: Sim): AutoBattleContext => ({
   money: sim.money,
   health: sim.health,
   maxHealth: 10,
-  enemies: sim.enemies.map((e) => {
-    const pos = POINTS[Math.round(e.idx)];
-    return { id: e.id, type: e.type, x: pos.col, y: pos.row, health: e.hp, maxHealth: e.maxHp, progress: e.progress };
-  }),
-  towers: sim.towers.map((t) => ({
-    id: t.id,
-    type: t.type,
-    level: t.level,
-    col: t.col,
-    row: t.row,
-    skillReady: sim.time >= t.skillReadyAt,
-    upgradePath: t.upgradePath,
-  })),
+  enemies: syncEnemies(sim),
+  towers: syncTowers(sim),
   waveActive: sim.waveActive,
   allEnemiesSpawned: sim.allSpawned,
   // 基準只模擬一個全域爆發技能，冷卻 60 秒
@@ -401,7 +462,7 @@ const ctxOf = (sim: Sim): AutoBattleContext => ({
     pressure: 0.4,
     nextWaveTypes: [],
   },
-  config: config(),
+  config: BENCH_CONFIG,
   trigger: ['cooldown'],
 });
 
