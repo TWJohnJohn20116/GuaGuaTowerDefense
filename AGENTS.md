@@ -45,6 +45,7 @@
 | 開發（桌面） | `npm run tauri dev` | ❌ 使用者自己跑 | 會先跑 `predev` 產生百科檔案清單 |
 | 型別 | `npm run typecheck` | ❌ CI | `tsc --noEmit`，0 error 是底線 |
 | 測試 | `npm run test` | ❌ CI | Vitest + jsdom，測試檔在 `src/test/**/*.test.ts` |
+| 自動戰鬥基準 | `npm run test:bench` | ❌ CI（手動觸發 job） | 單檔約 305s，已排除在預設 test 之外；只跑策略 A/B，不守回歸 |
 | 建置 | `npm run build` / `build:check` | ❌ CI | 後者先型別再建置 |
 | 打包 | `npm run tauri build` | ❌ CI（release.yml） | NSIS，輸出 `src-tauri/target/release/bundle` |
 | 總檢查 | `npm run check` / `check:full` | ❌ CI | 組合指令，本機禁止 |
