@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { useTranslation } from '@/i18n';
 import { AUTO_BATTLE_PRESETS } from '@/data/autobattle/presets';
-import { PATHS } from '@/data/gameData';
+import { PATHS, TOWER_DATA } from '@/data/gameData';
 import { collectPathPoints, gridSizeOf } from '@/data/autobattle/mapInfo';
 import type { AutoBattleDecision, AutoBattleMode } from '@/types/autobattle';
 import { AutoBattleInspect } from './AutoBattleInspect';
@@ -38,7 +38,8 @@ const BattlefieldMiniMap = ({ decision }: { decision: AutoBattleDecision | undef
   const points = collectPathPoints(pathConfig);
   const { cols, rows } = gridSizeOf(pathConfig);
   const chosen = decision?.chosen;
-  const range = chosen?.towerType ? 3 : 0;
+  // 射程圈要顯示「這個塔種的實際射程」，不是固定值
+  const range = chosen?.towerType ? (TOWER_DATA[chosen.towerType]?.range ?? 0) : 0;
   return (
     <svg viewBox={`0 0 ${cols} ${rows}`} className="h-24 w-full rounded border border-[var(--hl-line)] bg-[var(--hl-surface-2)]">
       {points.map((p, i) => (

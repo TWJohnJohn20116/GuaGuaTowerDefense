@@ -5,7 +5,7 @@ export const AUTO_BATTLE_PRESETS: AutoBattlePreset[] = [
     id: 'balanced',
     nameKey: 'content.autoBattle.preset.balanced.name',
     descKey: 'content.autoBattle.preset.balanced.desc',
-    reserveRatio: 0.7,
+    reserveRatio: 1.1,
     // 均衡與穩健不換塔：這兩種預設的目標是「守住」，不是「重組防線」
     allowSell: false,
     allowFusion: true,
