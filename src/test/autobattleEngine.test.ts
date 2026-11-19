@@ -140,6 +140,7 @@ describe('autobattle decision modes', () => {
     waveActive: false,
     allEnemiesSpawned: false,
     playerSkills: [],
+    firepowerLevel: 0,
     lookahead: { moneyReserve: 100, expectedAbilities: [], expectedEnemyCount: 5, pressure: 0.2, nextWaveTypes: [] },
     config: {
       mode: 'coach',
