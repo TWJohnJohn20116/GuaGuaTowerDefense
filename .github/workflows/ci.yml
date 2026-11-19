@@ -112,7 +112,7 @@ jobs:
       # restore-keys 用前綴，允許跨分支取最近一份（tsc 以檔案內容 hash 驗證，
       # 內容不符就重新檢查，不會把別人的結論當自己的）。
       - name: 還原型別檢查快取
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .cache/tsc
           key: tsc-${{ hashFiles('tsconfig.json', 'tsconfig.node.json', 'package-lock.json') }}-${{ github.sha }}
