@@ -370,6 +370,12 @@ const config = (): AutoBattleConfig => ({
   firepower: { cost: 5000, step: 0.02, maxLevel: 40, growth: 1.15 },
 });
 
+/**
+ * 注意：不要把 enemies／towers 改成模組級可重用 buffer。
+ * 2026-11-19 實測（CI bench 連跑兩次，同一 commit）：改成就地覆寫後 wall 151s → 197–206s、
+ * decideMs 1.05 → 1.45–1.53，數值輸出相同但更慢。原因是物件字面量配 V8 young-gen 幾乎零成本，
+ * 覆寫老年代物件要付 write barrier，陣列長度每 tick 伸縮也會重新配置。維持 map 就好。
+ */
 const ctxOf = (sim: Sim): AutoBattleContext => ({
   time: sim.time * 1000,
   wave: Math.max(1, sim.wave),
