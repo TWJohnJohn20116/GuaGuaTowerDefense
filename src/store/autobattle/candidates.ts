@@ -61,6 +61,61 @@ const maxCoverageFor = (
 };
 
 /**
+ * 地圖幾何快取：路徑點與「每格 × 每射程」的覆蓋點數在整場對局中都不會變，
+ * 但每次決策都重算是幾千次距離比較（決策一秒跑 3～5 次）。
+ * 用 pathConfig 物件本身當 WeakMap key：換地圖自動失效，不會殘留上一張圖的資料。
+ */
+interface MapGeometry {
+  points: ReturnType<typeof collectPathPoints>;
+  cols: number;
+  rows: number;
+  /** range → 每格覆蓋點數，索引 = row * cols + col */
+  coverageByRange: Map<number, Int16Array>;
+}
+
+const geometryCache = new WeakMap<object, MapGeometry>();
+let noPathGeometry: MapGeometry | null = null;
+
+const geometryOf = (pathConfig: PathConfig | undefined): MapGeometry => {
+  if (!pathConfig) {
+    if (!noPathGeometry) {
+      const size = gridSizeOf(undefined);
+      noPathGeometry = { points: [], cols: size.cols, rows: size.rows, coverageByRange: new Map() };
+    }
+    return noPathGeometry;
+  }
+  const cached = geometryCache.get(pathConfig);
+  if (cached) return cached;
+  const size = gridSizeOf(pathConfig);
+  const geo: MapGeometry = {
+    points: collectPathPoints(pathConfig),
+    cols: size.cols,
+    rows: size.rows,
+    coverageByRange: new Map(),
+  };
+  geometryCache.set(pathConfig, geo);
+  return geo;
+};
+
+/** 單格在指定射程下的覆蓋點數（整張圖只算一次，之後 O(1) 查表） */
+const cellCoverageOf = (geo: MapGeometry, col: number, row: number, range: number): number => {
+  if (col < 0 || row < 0 || col >= geo.cols || row >= geo.rows) {
+    return coveragePointsOf(geo.points, col, row, range);
+  }
+  let table = geo.coverageByRange.get(range);
+  if (!table) {
+    table = new Int16Array(geo.cols * geo.rows);
+    for (let c = 0; c < geo.cols; c++) {
+      for (let r = 0; r < geo.rows; r++) {
+        table[r * geo.cols + c] = coveragePointsOf(geo.points, c, r, range);
+      }
+    }
+    geo.coverageByRange.set(range, table);
+  }
+  return table[row * geo.cols + col];
+};
+
+/**
  * 塔位壓力 0..1：場上塔越多，新增塔位的邊際價值越低。
  * 用於給「不佔新塔位」的動作（升級、融合）加分，避免防線卡在塔位上限。
  */
@@ -128,13 +183,32 @@ const fusionPotentialOf = (ctx: AutoBattleContext, type: TowerType): number => {
   return 0;
 };
 
+const filterNear = (
+  list: AutoBattleContext['enemies'],
+  col: number,
+  row: number,
+  range: number,
+): AutoBattleContext['enemies'] => {
+  // 平方距離比較：Math.hypot 內建開根號，這條路徑一次決策會呼叫數千次。
+  const limit = (range + 0.5) * (range + 0.5);
+  const out: AutoBattleContext['enemies'] = [];
+  for (const e of list) {
+    const dx = e.x - col;
+    const dy = e.y - row;
+    if (dx * dx + dy * dy <= limit) out.push(e);
+  }
+  return out;
+};
+
 const enemiesNear = (ctx: AutoBattleContext, col: number, row: number, range: number): AutoBattleContext['enemies'] =>
-  ctx.enemies.filter((e) => Math.hypot(e.x - col, e.y - row) <= range + 0.5);
+  filterNear(ctx.enemies, col, row, range);
 
 const synergyScore = (ctx: AutoBattleContext, type: TowerType, col: number, row: number): number => {
   let score = 0;
   for (const t of ctx.towers) {
-    if (Math.hypot(t.col - col, t.row - row) > 2.6) continue;
+    const dx = t.col - col;
+    const dy = t.row - row;
+    if (dx * dx + dy * dy > 2.6 * 2.6) continue;
     if (findSynergyRecipe(type, t.type)) score += 0.4;
   }
   return Math.min(score, 1);
@@ -148,8 +222,9 @@ export interface CandidateBuildInput {
 
 /** 產生全部候選（已依動作種類分組，未排序） */
 export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInput): AutoBattleCandidate[] => {
-  const points = collectPathPoints(pathConfig);
-  const { cols, rows } = gridSizeOf(pathConfig);
+  const geo = geometryOf(pathConfig);
+  const points = geo.points;
+  const { cols, rows } = geo;
   const out: AutoBattleCandidate[] = [];
   // 這些值在單次決策內不變，先算一次避免每個候選重算
   const tempo = tempoRaw(ctx);
@@ -167,6 +242,8 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
       ...towerTypes.map((t) => valueOf(t, 1) / Math.max(1, buildCostOf(t, costMult))),
     );
     const maxDps = Math.max(1, ...towerTypes.map((t) => valueOf(t, 1)));
+    // 權重只跟 ctx／preset 有關，同一決策內不變：原本每個候選重算一次（≈70 次物件展開）
+    const placeWeights = adjustWeightsForSurplus(resolveWeights('place', ctx.config), ctx);
 
     // 先把「被既有塔佔住」的格子標記起來：每座塔只影響鄰近數格，
     // 比對每個格子都掃一遍全部塔（165 × 66 次距離計算）快一個數量級。
@@ -191,7 +268,7 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         if (blockedCells.has(cellKey(col, row))) continue;
         if (!inAllowedZone(ctx, col, row)) continue;
         if (isLocked(ctx, cellKey(col, row))) continue;
-        const coverage = coveragePointsOf(points, col, row, maxRange);
+        const coverage = cellCoverageOf(geo, col, row, maxRange);
         if (coverage <= 0) continue;
         spots.push({ col, row, coverage });
       }
@@ -200,12 +277,23 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const spotLimit = Math.min(24, spots.length);
     for (let i = 0; i < spotLimit; i++) {
       const spot = spots[i];
+      // 敵人集合只掃一次：原本 24 個塔位 × 18 種塔共 432 次全敵人表掃描。
+      // 先取最大射程的超集，再依塔型射程切子集，集合結果與原本完全相同。
+      const nearMax = enemiesNear(ctx, spot.col, spot.row, maxRange);
+      const nearByType = new Map<TowerType, AutoBattleContext['enemies']>();
+      const nearOf = (type: TowerType): AutoBattleContext['enemies'] => {
+        const hit = nearByType.get(type);
+        if (hit) return hit;
+        const list = filterNear(nearMax, spot.col, spot.row, TOWER_DATA[type].range);
+        nearByType.set(type, list);
+        return list;
+      };
       // 依「覆蓋 × 對位 × ROI」挑前三種塔，避免 12 格 × 22 種的組合爆炸
       const ranked = [...towerTypes]
         .map((type) => {
           const range = TOWER_DATA[type].range;
-          const cover = coveragePointsOf(points, spot.col, spot.row, range) / maxCoverage;
-          const near = enemiesNear(ctx, spot.col, spot.row, range);
+          const cover = cellCoverageOf(geo, spot.col, spot.row, range) / maxCoverage;
+          const near = nearOf(type);
           const weightsForType = near.map((e) => ({ type: e.type, weight: enemyWeight(e) }));
           const typeMatch = counterAffinity(weightsForType, type);
           const roi = (valueOf(type, 1) / Math.max(1, buildCostOf(type, costMult))) / bestRoi;
@@ -228,14 +316,14 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         const data = TOWER_DATA[type];
         const cost = buildCostOf(type, costMult);
         const range = data.range;
-        const near = enemiesNear(ctx, spot.col, spot.row, range);
+        const near = nearOf(type);
         const nearWeights = near.map((e) => ({ type: e.type, weight: enemyWeight(e) }));
         const typeMatch = mixTypeMatch(counterAffinity(nearWeights, type), armorFitOf(type, near));
         const nearWeight = sumEnemyWeight(near);
         const synergy = synergyScore(ctx, type, spot.col, spot.row);
-        const weights = adjustWeightsForSurplus(resolveWeights('place', ctx.config), ctx);
+        const weights = placeWeights;
         const factors = [
-          makeFactor('coverage', spot.coverage, coveragePointsOf(points, spot.col, spot.row, range) / maxCoverage, weights.coverage ?? 0, `${spot.coverage}/${maxCoverage}`),
+          makeFactor('coverage', spot.coverage, cellCoverageOf(geo, spot.col, spot.row, range) / maxCoverage, weights.coverage ?? 0, `${spot.coverage}/${maxCoverage}`),
           makeFactor('threatFit', nearWeight, scaleBetween(nearWeight, 0, 6), weights.threatFit ?? 0),
           makeFactor('typeMatch', typeMatch, typeMatch, weights.typeMatch ?? 0),
           makeFactor('economyROI', dpsOf(type, 1) / Math.max(1, cost), (dpsOf(type, 1) / Math.max(1, cost)) / bestRoi, weights.economyROI ?? 0),
@@ -264,6 +352,8 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
   }
 
   // ---- 升級 ----
+  // 權重同一次決策內不變，原本每座塔重算一次（66 次物件展開 + getPreset）
+  const upgradeWeights = adjustWeightsForSurplus(resolveWeights('upgrade', ctx.config), ctx);
   for (const tower of ctx.towers) {
     const data = TOWER_DATA[tower.type];
     if (!data || !canAutoUpgradeTower(tower)) continue;
@@ -274,17 +364,17 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
     const after = dpsOf(tower.type, tower.level + 1);
     const gain = before > 0 ? (after - before) / before : 0;
     const near = enemiesNear(ctx, tower.col, tower.row, data.range);
-    const weights = adjustWeightsForSurplus(resolveWeights('upgrade', ctx.config), ctx);
+    // 原本 counterAffinity／armorFitOf／sumEnemyWeight 各算兩次（raw 與 normalized 各一次），
+    // 每座塔都重掃兩遍敵人表。算一次存起來，數值完全相同。
+    const nearWeights = near.map((e) => ({ type: e.type, weight: enemyWeight(e) }));
+    const typeMatch = mixTypeMatch(counterAffinity(nearWeights, tower.type), armorFitOf(tower.type, near));
+    const threat = sumEnemyWeight(near);
+    const weights = upgradeWeights;
     const factors = [
       makeFactor('marginal', gain, scaleBetween(gain, 0, 0.6), weights.marginal ?? 0, `Lv${tower.level}→${tower.level + 1}`),
       makeFactor('economyROI', (after - before) / Math.max(1, cost), scaleBetween((after - before) / Math.max(1, cost), 0, 2), weights.economyROI ?? 0),
-      makeFactor(
-        'typeMatch',
-        mixTypeMatch(counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), tower.type), armorFitOf(tower.type, near)),
-        mixTypeMatch(counterAffinity(near.map((e) => ({ type: e.type, weight: enemyWeight(e) })), tower.type), armorFitOf(tower.type, near)),
-        weights.typeMatch ?? 0,
-      ),
-      makeFactor('threatFit', sumEnemyWeight(near), scaleBetween(sumEnemyWeight(near), 0, 6), weights.threatFit ?? 0),
+      makeFactor('typeMatch', typeMatch, typeMatch, weights.typeMatch ?? 0),
+      makeFactor('threatFit', threat, scaleBetween(threat, 0, 6), weights.threatFit ?? 0),
       makeFactor('reserve', ctx.money - cost, scaleBetween(ctx.money - cost, 0, Math.max(1, ctx.lookahead.moneyReserve)), weights.reserve ?? 0),
     ];
     out.push(finalizeCandidate({
@@ -306,11 +396,19 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
   }
 
   // ---- 賣塔 ----
-  if (ctx.towers.length >= 4) {
+  // 三個純條件（可賣／塔位壓力／保留金）先篩：不成立就整段跳過。
+  // 原本每座塔都先算近敵與獨佔覆蓋才 continue，66 座塔 × 每次決策都是白工。
+  const sellAllowed = getPreset(ctx.config.presetId).allowSell;
+  if (
+    ctx.towers.length >= 4 &&
+    sellAllowed &&
+    slotPressure(ctx) >= 0.85 &&
+    ctx.money >= ctx.lookahead.moneyReserve
+  ) {
+    const sellWeights = resolveWeights('sell', ctx.config);
     for (const tower of ctx.towers) {
       if (isLocked(ctx, tower.id)) continue;
-      const weights = resolveWeights('sell', ctx.config);
-      const near = enemiesNear(ctx, tower.col, tower.row, TOWER_DATA[tower.type]?.range ?? 3);
+      const weights = sellWeights;
       const range = TOWER_DATA[tower.type]?.range ?? 3;
       const coveredPoints = points.filter((p) => Math.hypot(p.col - tower.col, p.row - tower.row) <= range);
       // 這座塔「獨佔」的路徑點：拿掉它之後沒有任何其他塔還打得到
@@ -332,13 +430,10 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         return dpsOf(type, 1) > currentDps * 1.2;
       });
       if (!betterReplacement) continue;
-      // 只有「塔位真的吃緊」且「這座塔的覆蓋大多被其他塔重複」時才值得換；
+      // 只有「這座塔的覆蓋大多被其他塔重複」時才值得換；
       // 否則會出現賣了又建、建了又賣的來回震盪。
-      if (slotPressure(ctx) < 0.85) continue;
+      // （塔位壓力、保留金、可賣資格已在區塊入口篩過）
       if (uniqueRatio > 0.4) continue;
-      // 賣塔不能當提款機：手上現金已經低於保留金時，先想辦法賺錢或升級，不是拆防線
-      if (ctx.money < ctx.lookahead.moneyReserve) continue;
-      if (!getPreset(ctx.config.presetId).allowSell) continue;
       // 換塔的兩種情形：
       // 1) 剛蓋好的重複塔（覆蓋幾乎被別塔吃光）
       // 2) 已升級的塔，但存在「同級更高 DPS、射程不吃虧」的替代塔，而且手上錢多得沒處花
@@ -361,6 +456,8 @@ export const buildCandidates = ({ ctx, pathConfig, costMult }: CandidateBuildInp
         makeFactor('tempo', 1 - tempoRaw(ctx), 1 - tempoRaw(ctx), weights.tempo ?? 0),
         makeFactor('reserve', ctx.money + refund, scaleBetween(ctx.money + refund, 0, Math.max(1, ctx.lookahead.moneyReserve)), weights.reserve ?? 0),
       ];
+      // 近敵只用於這一行懲罰，放到所有 guard 之後才掃敵人表
+      const near = enemiesNear(ctx, tower.col, tower.row, range);
       const penalty = sumEnemyWeight(near) > 2 ? 0.2 : 0;
       out.push(finalizeCandidate({
         id: `sell:${tower.id}`,
