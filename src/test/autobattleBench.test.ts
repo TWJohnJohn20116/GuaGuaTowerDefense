@@ -58,6 +58,8 @@ interface Sim {
   towersAtWave10: number;
   moneyAtWave10: number;
   playerSkillReadyAt: number;
+  /** 假想金錢出口：每 5000 金換 +2% 全體輸出（用來評估設計的價值上限） */
+  globalPower: number;
 }
 
 // 用真實地圖（zigzag），確保覆蓋計算與實戰同一份路徑資料
@@ -131,6 +133,7 @@ const makeSim = (): Sim => ({
   towersAtWave10: -1,
   moneyAtWave10: -1,
   playerSkillReadyAt: 0,
+  globalPower: 1,
 });
 
 const step = (sim: Sim, dt: number): void => {
@@ -195,7 +198,7 @@ const step = (sim: Sim, dt: number): void => {
         const perShot = (data.damage > 0 ? data.damage : dps / levelScale / Math.max(0.0001, fireRate)) * levelScale;
         dps = Math.max(1, perShot - armor) * fireRate;
       }
-      target.hp -= dps * burst * dt;
+      target.hp -= dps * burst * sim.globalPower * dt;
       if (burst > 1) sim.skillDamage += dps * (burst - 1) * dt;
     }
   }
@@ -501,6 +504,11 @@ const simulate = (policy: (sim: Sim, tick: number) => Action, waves: number, see
   while (tick < maxTicks && sim.health > 0) {
     step(sim, dt);
     tick++;
+    // 假想金錢出口：每 5000 金買 +2% 全體輸出（兩側同規則）
+    while (sim.money >= 5000) {
+      sim.money -= 5000;
+      sim.globalPower += 0.02;
+    }
     if (sim.enemies.length === 0 && sim.spawnQueue.length === 0) {
       if (waveIndex >= waves) break;
       waveIndex++;
