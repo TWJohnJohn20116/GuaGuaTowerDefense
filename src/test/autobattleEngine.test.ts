@@ -149,6 +149,7 @@ describe('autobattle decision modes', () => {
       lockedTargets: [],
       showOverlay: false,
       dryRun: false,
+      firepower: null,
     },
     trigger: ['cooldown'],
     ...over,
