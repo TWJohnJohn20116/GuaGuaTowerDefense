@@ -1,389 +1,310 @@
-// 物理彈丸型塔 - 北歐極簡幾何風重設計
-//
-// 包含: sniper / cannon / machine / shotgun / ballista 共 5 種, 各 5 等級。
-// 全部使用 nordicShared 提供的幾何元素 (圓盤、圓角矩形、六角、三角箭頭、發光環、小點),
-// 不再使用機械寫實的散熱片/制退器/履帶。等級遞進靠「形狀層次」與「核心點亮」表達。
+// 物理彈丸型塔 - 俯視 2D 糖果貼紙模型
+// 五種塔共用固定底座，武器結構依等級逐步增加。
 
 import type { TowerDrawParams } from '../TowerModels';
-import {
-  NORDIC_DARK,
-  NORDIC_WHITE,
-  rr,
-  drawNordicBase,
-  drawHex,
-  drawSoftGlow,
-  drawArrow,
-  ringForLevel,
-} from './nordicShared';
+import { sticker } from './nordicShared';
 
-// ============================================================
-// sniper 狙擊塔 - 長細炮管 + 圓形瞄準鏡 + 紅色光點為標誌
-// ============================================================
+// 狙擊塔：細長槍軌、隨皮膚著色的瞄具與逐級鎖定機構。
 export const drawSniperTowerNordic = (p: TowerDrawParams): void => {
-  const { ctx, cx, cy, radius, rotation, color, highlight, level, recoil } = p;
+  if (!sticker.begin(p)) return;
+  const { ctx, color, highlight } = p;
+  const level = sticker.level(p);
+  const detail = sticker.detail(p);
+  const pale = sticker.tint(color);
 
-  drawNordicBase(ctx, cx, cy, radius, color, ringForLevel(level));
-  if (level >= 4) drawSoftGlow(ctx, cx, cy, radius * 1.1, highlight, 0.22);
-
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(rotation);
-  const bo = -recoil;
-
-  if (level === 1) {
-    const len = radius + 14;
-    rr(ctx, bo, -2, len, 4, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 1.5, -1, len - 3, 2, 1); ctx.fillStyle = highlight; ctx.fill();
-  } else if (level === 2) {
-    const len = radius + 17;
-    rr(ctx, bo, -2.5, len, 5, 2.5); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 1.5, -1.25, len - 3, 2.5, 1.25); ctx.fillStyle = highlight; ctx.fill();
-    ctx.beginPath();
-    ctx.arc(bo + radius * 0.45, -5, 2.6, 0, Math.PI * 2);
-    ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    ctx.strokeStyle = highlight; ctx.lineWidth = 1; ctx.stroke();
-  } else if (level === 3) {
-    const len = radius + 20;
-    rr(ctx, bo, -3, len, 6, 3); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 1.5, -1.5, len - 3, 3, 1.5); ctx.fillStyle = highlight; ctx.fill();
-    rr(ctx, bo + radius * 0.3, -7, 8, 3, 1.5); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    ctx.beginPath();
-    ctx.arc(bo + radius * 0.3 + 7, -5.5, 2.5, 0, Math.PI * 2);
-    ctx.fillStyle = highlight; ctx.fill();
-    rr(ctx, bo + radius * 0.7, 4, 3, 4, 1); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-  } else if (level === 4) {
-    const len = radius + 22;
-    const gap = 2.5;
-    for (const off of [-gap, gap]) {
-      rr(ctx, bo, off - 1.75, len, 3.5, 1.5); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-      rr(ctx, bo + 1.5, off - 1, len - 3, 2, 1); ctx.fillStyle = highlight; ctx.fill();
-    }
-    ctx.beginPath();
-    ctx.arc(bo + radius * 0.45, 0, 3.2, 0, Math.PI * 2);
-    ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    ctx.beginPath();
-    ctx.arc(bo + radius * 0.45, 0, 1.8, 0, Math.PI * 2);
-    ctx.fillStyle = highlight; ctx.fill();
-  } else {
-    const len = radius + 26;
-    rr(ctx, bo - 4, -7, 8, 14, 3); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo - 2.5, -5.5, 5, 11, 2); ctx.fillStyle = color; ctx.fill();
-
-    rr(ctx, bo, -3.5, len, 7, 3); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 1.5, -2.25, len - 3, 4.5, 2); ctx.fillStyle = highlight; ctx.fill();
-
-    drawArrow(ctx, bo + len + 2, 0, 5, NORDIC_DARK);
-    drawArrow(ctx, bo + len, 0, 3.2, highlight);
-
-    ctx.beginPath();
-    ctx.moveTo(bo + len + 5, 0);
-    ctx.lineTo(bo + len + 22, 0);
-    ctx.strokeStyle = highlight + '60';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-
-  ctx.restore();
+  sticker.rect(ctx, -32, -9, 14, 18, color, 4);
+  sticker.rect(ctx, -28, -14, 41, 28, pale, 7);
+  sticker.rect(ctx, -28, -9, 12, 18, color, 3);
+  sticker.rect(ctx, -15, -4, 28, 8, highlight, 3);
+  sticker.rect(ctx, 8, -3, 66, 6, '#fff8ef', 3, 2.8);
+  sticker.line(ctx, 12, 0, 72, 0, highlight, 2);
+  sticker.rect(ctx, 72, -5, 10, 10, color, 3);
+  sticker.line(ctx, 78, -3, 78, 3, '#fff8ef', 1.8);
 
   if (level >= 2) {
-    drawHex(ctx, cx, cy, level >= 5 ? 4 : level >= 4 ? 3.2 : 2.6, NORDIC_WHITE, highlight);
+    sticker.rect(ctx, -7, -21, 18, 8, highlight, 3);
+    sticker.rect(ctx, -4, -17, 10, 5, color, 2);
+    sticker.circle(ctx, 9, -17, 4.7, highlight);
+    sticker.circle(ctx, 9, -17, 2, '#fff8ef', 1.8);
   }
-};
-
-// ============================================================
-// cannon 加農炮塔 - 粗短炮管 + 圓口 + 護盾
-// ============================================================
-export const drawCannonTowerNordic = (p: TowerDrawParams): void => {
-  const { ctx, cx, cy, radius, rotation, color, highlight, level, recoil } = p;
-
-  drawNordicBase(ctx, cx, cy, radius, color, ringForLevel(level));
-  if (level >= 5) drawSoftGlow(ctx, cx, cy, radius * 1.15, highlight, 0.32);
-  else if (level >= 4) drawSoftGlow(ctx, cx, cy, radius * 1.05, highlight, 0.2);
-
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(rotation);
-  const bo = -recoil;
-
-  if (level === 1) {
-    rr(ctx, bo, -4.5, radius + 6, 9, 3); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 1.5, -3, radius + 3, 6, 2); ctx.fillStyle = highlight; ctx.fill();
-    ctx.beginPath();
-    ctx.arc(bo + radius + 6, 0, 4, 0, Math.PI * 2);
-    ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    ctx.beginPath();
-    ctx.arc(bo + radius + 6, 0, 2.4, 0, Math.PI * 2);
-    ctx.fillStyle = color; ctx.fill();
-  } else if (level === 2) {
-    rr(ctx, bo, -5, radius + 8, 10, 3); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 1.5, -3.5, radius + 5, 7, 2.5); ctx.fillStyle = highlight; ctx.fill();
-    ctx.beginPath();
-    ctx.arc(bo + radius + 8, 0, 5, 0, Math.PI * 2);
-    ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    ctx.beginPath();
-    ctx.arc(bo + radius + 8, 0, 3, 0, Math.PI * 2);
-    ctx.fillStyle = color; ctx.fill();
-    ctx.strokeStyle = highlight; ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(bo + radius + 8, 0, 4.5, 0, Math.PI * 2);
-    ctx.stroke();
-  } else if (level === 3) {
-    const gap = 4;
-    for (const off of [-gap, gap]) {
-      rr(ctx, bo, off - 3, radius + 8, 6, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-      rr(ctx, bo + 1.5, off - 2, radius + 5, 4, 1.5); ctx.fillStyle = highlight; ctx.fill();
-      ctx.beginPath();
-      ctx.arc(bo + radius + 8, off, 3, 0, Math.PI * 2);
-      ctx.fillStyle = NORDIC_DARK; ctx.fill();
-      ctx.beginPath();
-      ctx.arc(bo + radius + 8, off, 1.8, 0, Math.PI * 2);
-      ctx.fillStyle = color; ctx.fill();
-    }
-    rr(ctx, bo - 1, -5, 4, 10, 1.5); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-  } else if (level === 4) {
-    const offs = [-6, 0, 6];
-    for (const off of offs) {
-      rr(ctx, bo, off - 2.5, radius + 9, 5, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-      rr(ctx, bo + 1.5, off - 1.5, radius + 6, 3, 1); ctx.fillStyle = highlight; ctx.fill();
-      ctx.beginPath();
-      ctx.arc(bo + radius + 9, off, 2.5, 0, Math.PI * 2);
-      ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    }
-    rr(ctx, bo - 2, -8, 5, 16, 2); ctx.fillStyle = color; ctx.fill();
-    ctx.strokeStyle = NORDIC_DARK; ctx.lineWidth = 1.5; ctx.stroke();
-  } else {
-    rr(ctx, bo - 5, -9, 9, 18, 3); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo - 3.5, -7.5, 6, 15, 2.5); ctx.fillStyle = color; ctx.fill();
-
-    rr(ctx, bo, -6, radius + 12, 12, 4); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 2, -4.5, radius + 8, 9, 3); ctx.fillStyle = highlight; ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(bo + radius + 13, 0, 7, 0, Math.PI * 2);
-    ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    ctx.beginPath();
-    ctx.arc(bo + radius + 13, 0, 4.5, 0, Math.PI * 2);
-    ctx.fillStyle = color; ctx.fill();
-    ctx.shadowColor = highlight;
-    ctx.shadowBlur = 6;
-    ctx.beginPath();
-    ctx.arc(bo + radius + 13, 0, 2, 0, Math.PI * 2);
-    ctx.fillStyle = highlight; ctx.fill();
-    ctx.shadowBlur = 0;
-  }
-
-  ctx.restore();
-
-  if (level >= 2) drawHex(ctx, cx, cy, level >= 5 ? 4.5 : level >= 4 ? 3.6 : 2.8, NORDIC_WHITE, highlight);
-};
-
-// ============================================================
-// machine 機槍塔 - 多管平行 + 中央發光環
-// ============================================================
-export const drawMachineTowerNordic = (p: TowerDrawParams): void => {
-  const { ctx, cx, cy, radius, rotation, color, highlight, level, recoil } = p;
-
-  drawNordicBase(ctx, cx, cy, radius, color, ringForLevel(level));
-  if (level >= 5) drawSoftGlow(ctx, cx, cy, radius * 1.15, highlight, 0.3);
-
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(rotation);
-  const bo = -recoil;
-
-  const drawBarrels = (offsets: number[], len: number, w: number) => {
-    for (const off of offsets) {
-      rr(ctx, bo, off - w / 2, len, w, w / 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-      rr(ctx, bo + 1.5, off - w / 3, len - 3, (w * 2) / 3, w / 3); ctx.fillStyle = highlight; ctx.fill();
-    }
-  };
-
-  if (level === 1) {
-    drawBarrels([-3, 3], radius + 10, 3.5);
-  } else if (level === 2) {
-    drawBarrels([-3.5, 3.5], radius + 12, 4);
-    rr(ctx, bo, -5, radius * 0.6, 10, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-  } else if (level === 3) {
-    drawBarrels([-5, 0, 5], radius + 14, 3);
-    rr(ctx, bo - 5, -6, 6, 12, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-  } else if (level === 4) {
-    drawBarrels([-7, -2.5, 2.5, 7], radius + 16, 2.5);
-    rr(ctx, bo - 3, -9, 5, 18, 2); ctx.fillStyle = color; ctx.fill();
-    ctx.strokeStyle = NORDIC_DARK; ctx.lineWidth = 1.25; ctx.stroke();
-    rr(ctx, bo + radius * 0.45, -8, 4, 16, 1); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-  } else {
-    drawBarrels([-8, -4, 0, 4, 8], radius + 18, 2.2);
-    rr(ctx, bo - 4, -11, 6, 22, 3); ctx.fillStyle = color; ctx.fill();
-    ctx.strokeStyle = NORDIC_DARK; ctx.lineWidth = 1.5; ctx.stroke();
-    rr(ctx, bo + radius * 0.4, -10, 5, 20, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + radius * 0.4 + 1, -8, 3, 16, 1); ctx.fillStyle = highlight; ctx.fill();
-    rr(ctx, bo - 9, -6, 5, 12, 1.5); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-  }
-
-  ctx.restore();
-
-  if (level >= 3) drawHex(ctx, cx, cy, level >= 5 ? 4 : 3, NORDIC_WHITE, highlight);
-};
-
-// ============================================================
-// ballista 弩炮塔 - 弓臂 + 弦線 + 上膛弩矢
-// ============================================================
-export const drawBallistaTowerNordic = (p: TowerDrawParams): void => {
-  const { ctx, cx, cy, radius, rotation, color, highlight, level, recoil } = p;
-
-  drawNordicBase(ctx, cx, cy, radius, color, ringForLevel(level));
-  if (level >= 5) drawSoftGlow(ctx, cx, cy, radius * 1.15, highlight, 0.3);
-  else if (level >= 4) drawSoftGlow(ctx, cx, cy, radius * 1.05, highlight, 0.2);
-
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(rotation);
-  const bo = -recoil;
-
-  // 弓臂錨點與尺寸隨等級成長
-  const armX = bo + radius * 0.3;
-  const armLen = radius * (0.7 + level * 0.12);
-  const armW = 2 + level * 0.5;
-  const railLen = radius + 10 + level * 3;
-
-  // 後彎弓臂（上下對稱的弧線）
-  const drawArm = (sign: number, w: number, c: string) => {
-    ctx.beginPath();
-    ctx.moveTo(armX, sign * 2);
-    ctx.quadraticCurveTo(armX + armLen * 0.3, sign * armLen * 0.6, armX - armLen * 0.2, sign * armLen);
-    ctx.strokeStyle = c;
-    ctx.lineWidth = w;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-  };
-  drawArm(1, armW + 1.5, NORDIC_DARK);
-  drawArm(-1, armW + 1.5, NORDIC_DARK);
-  drawArm(1, armW, highlight);
-  drawArm(-1, armW, highlight);
-
-  // 弦線：兩臂末端連到尾端搭弦點
-  const tipX = armX - armLen * 0.2;
-  const nockX = bo - radius * 0.35;
-  ctx.beginPath();
-  ctx.moveTo(tipX, armLen);
-  ctx.lineTo(nockX, 0);
-  ctx.lineTo(tipX, -armLen);
-  ctx.strokeStyle = NORDIC_WHITE + 'aa';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-
-  // 弩矢滑軌（中央長條）
-  rr(ctx, bo - radius * 0.3, -2.5, railLen + radius * 0.3, 5, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-  rr(ctx, bo - radius * 0.3 + 1.5, -1.25, railLen + radius * 0.3 - 3, 2.5, 1); ctx.fillStyle = color; ctx.fill();
-
-  // 上膛弩矢（箭桿 + 箭頭）
-  rr(ctx, nockX, -1, railLen - (nockX - bo) - 2, 2, 1); ctx.fillStyle = highlight; ctx.fill();
-  if (level >= 4) {
-    ctx.shadowColor = highlight;
-    ctx.shadowBlur = 5;
-  }
-  drawArrow(ctx, bo + railLen + 2, 0, 4 + level * 0.6, NORDIC_DARK);
-  drawArrow(ctx, bo + railLen, 0, 2.6 + level * 0.5, highlight);
-  ctx.shadowBlur = 0;
-
-  // Lv3+ 尾端絞盤；Lv5 瞄準延伸線
   if (level >= 3) {
-    ctx.beginPath();
-    ctx.arc(nockX - 2, 0, 3 + level * 0.4, 0, Math.PI * 2);
-    ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    ctx.beginPath();
-    ctx.arc(nockX - 2, 0, 1.5 + level * 0.3, 0, Math.PI * 2);
-    ctx.fillStyle = color; ctx.fill();
+    sticker.rect(ctx, 17, -7, 5, 14, highlight, 2);
+    sticker.rect(ctx, 45, -7, 5, 14, highlight, 2);
+    if (detail) {
+      sticker.bolt(ctx, 19.5, -4);
+      sticker.bolt(ctx, 47.5, 4);
+    }
+  }
+  if (level >= 4) {
+    sticker.rect(ctx, 9, -13, 49, 4, color, 2);
+    sticker.rect(ctx, 9, 9, 49, 4, color, 2);
+    sticker.line(ctx, 14, -11, 53, -11, highlight, 1.7);
+    sticker.line(ctx, 14, 11, 53, 11, highlight, 1.7);
   }
   if (level >= 5) {
-    ctx.beginPath();
-    ctx.moveTo(bo + railLen + 8, 0);
-    ctx.lineTo(bo + railLen + 24, 0);
-    ctx.strokeStyle = highlight + '60';
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    sticker.rect(ctx, -21, 8, 17, 10, color, 3);
+    sticker.hex(ctx, -12, 13, 4.5, '#fff8ef', 2.2);
+    sticker.circle(ctx, -12, 13, 1.7, highlight, 1.5);
+    sticker.rect(ctx, 31, -9, 5, 18, '#fff8ef', 2);
+    if (detail) sticker.bolt(ctx, -19, 13);
   }
 
   ctx.restore();
-
-  if (level >= 2) drawHex(ctx, cx, cy, level >= 5 ? 4 : level >= 4 ? 3.2 : 2.6, NORDIC_WHITE, highlight);
 };
 
-// ============================================================
-// shotgun 散彈塔 - 短粗多孔炮口
-// ============================================================
-export const drawShotgunTowerNordic = (p: TowerDrawParams): void => {
-  const { ctx, cx, cy, radius, rotation, color, highlight, level, recoil } = p;
+// 加農炮塔：短粗寬口炮管、後座夾架與重型炮座。
+export const drawCannonTowerNordic = (p: TowerDrawParams): void => {
+  if (!sticker.begin(p)) return;
+  const { ctx, color, highlight } = p;
+  const level = sticker.level(p);
+  const detail = sticker.detail(p);
+  const pale = sticker.tint(color);
 
-  drawNordicBase(ctx, cx, cy, radius, color, ringForLevel(level));
-  if (level >= 4) drawSoftGlow(ctx, cx, cy, radius * 1.1, highlight, 0.2);
+  sticker.rect(ctx, -28, -20, 40, 40, pale, 8);
+  sticker.rect(ctx, -31, -15, 13, 30, color, 5);
+  sticker.rect(ctx, -24, -11, 17, 22, '#fff8ef', 5);
+  if (level >= 4) {
+    sticker.rect(ctx, -19, -22, 31, 7, highlight, 3);
+    sticker.rect(ctx, -19, 15, 31, 7, highlight, 3);
+    sticker.line(ctx, -15, -18.5, 7, -18.5, '#fff8ef', 1.8);
+    sticker.line(ctx, -15, 18.5, 7, 18.5, '#fff8ef', 1.8);
+  }
+  if (level >= 5) {
+    sticker.rect(ctx, -25, -24, 18, 48, color, 6);
+    sticker.rect(ctx, -21, -18, 10, 36, pale, 4);
+  }
+  sticker.rect(ctx, -8, -14, 52, 28, color, 8);
+  sticker.rect(ctx, -3, -7, 39, 14, highlight, 5);
+  sticker.line(ctx, 0, 0, 35, 0, '#fff8ef', 2.1);
+  sticker.rect(ctx, 37, -15, 11, 30, '#fff8ef', 4);
+  sticker.rect(ctx, 42, -9, 7, 18, '#2e2440', 2);
 
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(rotation);
-  const bo = -recoil;
-
-  if (level === 1) {
-    rr(ctx, bo, -5.5, radius + 5, 11, 3); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 1.5, -4, radius + 2, 8, 2); ctx.fillStyle = highlight; ctx.fill();
-    rr(ctx, bo + radius + 4, -7, 5, 14, 1.5); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    for (const yy of [-3.5, 0, 3.5]) {
-      ctx.beginPath();
-      ctx.arc(bo + radius + 6.5, yy, 1.4, 0, Math.PI * 2);
-      ctx.fillStyle = highlight; ctx.fill();
+  if (level >= 2) {
+    sticker.rect(ctx, 34, -18, 14, 36, '#fff8ef', 5);
+    sticker.rect(ctx, 42, -10, 7, 20, '#2e2440', 2);
+    sticker.line(ctx, 36, -14, 36, 14, highlight, 2);
+  }
+  if (level >= 3) {
+    sticker.rect(ctx, -24, -23, 27, 6, color, 2);
+    sticker.rect(ctx, -24, 17, 27, 6, color, 2);
+    sticker.rect(ctx, -22, -18, 7, 36, highlight, 2.5);
+    if (detail) {
+      sticker.bolt(ctx, -19, -19);
+      sticker.bolt(ctx, -19, 19);
     }
-  } else if (level === 2) {
-    rr(ctx, bo, -6.5, radius + 7, 13, 3); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 1.5, -5, radius + 4, 10, 2.5); ctx.fillStyle = highlight; ctx.fill();
-    rr(ctx, bo + radius + 6, -8, 5.5, 16, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    for (const yy of [-4.5, 0, 4.5]) {
-      ctx.beginPath();
-      ctx.arc(bo + radius + 8.5, yy, 1.6, 0, Math.PI * 2);
-      ctx.fillStyle = highlight; ctx.fill();
-    }
-  } else if (level === 3) {
-    const gap = 4;
-    for (const off of [-gap, gap]) {
-      rr(ctx, bo, off - 3.5, radius + 6, 7, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-      rr(ctx, bo + 1.5, off - 2.5, radius + 3, 5, 1.5); ctx.fillStyle = highlight; ctx.fill();
-    }
-    rr(ctx, bo + radius + 5, -9, 6, 18, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    for (const yy of [-6, -2, 2, 6]) {
-      ctx.beginPath();
-      ctx.arc(bo + radius + 8, yy, 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = highlight; ctx.fill();
-    }
-  } else if (level === 4) {
-    rr(ctx, bo, -7.5, radius + 8, 15, 4); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 1.5, -6, radius + 5, 12, 3); ctx.fillStyle = highlight; ctx.fill();
-    rr(ctx, bo + radius + 7, -10, 6, 20, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    for (let i = 0; i < 4; i++) {
-      const ang = ((Math.PI / 2) * i) / 3 - Math.PI / 6;
-      const yy = Math.sin(ang) * 7;
-      ctx.beginPath();
-      ctx.arc(bo + radius + 9.5, yy, 1.8, 0, Math.PI * 2);
-      ctx.fillStyle = highlight; ctx.fill();
-    }
-    rr(ctx, bo - 2, -10, 5, 20, 2); ctx.fillStyle = color; ctx.fill();
-    ctx.strokeStyle = NORDIC_DARK; ctx.lineWidth = 1.25; ctx.stroke();
-  } else {
-    rr(ctx, bo - 3, -10, 7, 20, 3); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo - 1.5, -8.5, 4, 17, 2); ctx.fillStyle = color; ctx.fill();
-
-    rr(ctx, bo, -9, radius + 10, 18, 4); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 1.5, -7.5, radius + 7, 15, 3); ctx.fillStyle = highlight; ctx.fill();
-
-    rr(ctx, bo + radius + 9, -11, 8, 22, 2.5); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    for (const yy of [-8, -4, 0, 4, 8]) {
-      ctx.beginPath();
-      ctx.arc(bo + radius + 13, yy, 2, 0, Math.PI * 2);
-      ctx.shadowColor = highlight; ctx.shadowBlur = 4;
-      ctx.fillStyle = highlight; ctx.fill();
-      ctx.shadowBlur = 0;
-    }
+  }
+  if (level >= 5) {
+    sticker.rect(ctx, 13, -18, 7, 36, '#fff8ef', 2.5);
+    sticker.rect(ctx, 15, -12, 4, 24, highlight, 1.5);
+    sticker.rect(ctx, -4, -18, 9, 36, pale, 3);
+  }
+  if (detail && level >= 4) {
+    sticker.bolt(ctx, -12, -18);
+    sticker.bolt(ctx, -12, 18);
   }
 
   ctx.restore();
+};
 
-  if (level >= 3) drawHex(ctx, cx, cy, level >= 5 ? 4 : 3.2, NORDIC_WHITE, highlight);
+// 機槍塔：保持槍管間的白色空隙，等級決定二至五聯管數量。
+export const drawMachineTowerNordic = (p: TowerDrawParams): void => {
+  if (!sticker.begin(p)) return;
+  const { ctx, color, highlight } = p;
+  const level = sticker.level(p);
+  const detail = sticker.detail(p);
+  const pale = sticker.tint(color);
+  const count = level < 3 ? 2 : level;
+  const spacing = level >= 5 ? 4.4 : level >= 4 ? 4.9 : level >= 3 ? 5.7 : 7.4;
+  const tubeWidth = level >= 5 ? 3 : level >= 4 ? 3.3 : 4;
+  const span = (count - 1) * spacing * 0.5;
+
+  sticker.rect(ctx, -29, -18, 30, 36, pale, 7);
+  sticker.rect(ctx, -31, -11, 10, 22, color, 4);
+  sticker.rect(ctx, -22, -13, 16, 26, highlight, 5);
+  for (let i = 0; i < count; i += 1) {
+    const y = (i - (count - 1) * 0.5) * spacing;
+    sticker.rect(ctx, -3, y - tubeWidth * 0.5, 64, tubeWidth, '#fff8ef', tubeWidth * 0.5, 2.7);
+    sticker.line(ctx, 1, y, 58, y, highlight, 1.6);
+    sticker.line(ctx, 60, y - tubeWidth * 0.5, 60, y + tubeWidth * 0.5, '#2e2440', 2);
+  }
+
+  if (level >= 2) {
+    sticker.rect(ctx, 15, -span - 4, 24, span * 2 + 8, color, 4);
+    sticker.rect(ctx, 18, -span - 1, 6, span * 2 + 2, highlight, 2);
+    for (let i = 1; i < level; i += 1) {
+      const x = 15 + 24 * i / level;
+      sticker.line(ctx, x, -span - 3, x, span + 3, '#2e2440', 2.2);
+    }
+  }
+  if (level >= 3) {
+    sticker.rect(ctx, -5, -span - 7, 7, span * 2 + 14, color, 3);
+    sticker.rect(ctx, 43, -span - 5, 6, span * 2 + 10, pale, 2.5);
+  }
+  if (level >= 4) {
+    sticker.rect(ctx, 47, -span - 7, 6, span * 2 + 14, color, 2.5);
+    sticker.line(ctx, 49, -span - 4, 49, span + 4, highlight, 1.7);
+  }
+  if (level >= 5) {
+    sticker.rect(ctx, -14, -span - 10, 8, span * 2 + 20, color, 3);
+    sticker.rect(ctx, -12, -span - 7, 4, span * 2 + 14, '#fff8ef', 2);
+    if (detail) {
+      sticker.bolt(ctx, -10, -span - 6);
+      sticker.bolt(ctx, -10, span + 6);
+    }
+  }
+  if (detail && level >= 3) {
+    sticker.bolt(ctx, 45, -span - 3);
+    sticker.bolt(ctx, 45, span + 3);
+  }
+
+  ctx.restore();
+};
+
+// 散彈塔：灰色短機匣與扇形寬口，逐級增加扇面隔片及支架。
+export const drawShotgunTowerNordic = (p: TowerDrawParams): void => {
+  if (!sticker.begin(p)) return;
+  const { ctx, color, highlight } = p;
+  const level = sticker.level(p);
+  const detail = sticker.detail(p);
+  const pale = sticker.tint(color);
+  const mouthHalf = 15 + level * 1.5;
+  const mouthX = 38 + level * 1.5;
+
+  sticker.rect(ctx, -28, -15, 30, 30, pale, 7);
+  sticker.rect(ctx, -31, -11, 11, 22, color, 4);
+  sticker.rect(ctx, -15, -8, 18, 16, '#fff8ef', 4);
+  sticker.line(ctx, -11, 0, 0, 0, highlight, 2.2);
+
+  ctx.beginPath();
+  ctx.moveTo(-2, -7);
+  ctx.lineTo(mouthX, -mouthHalf);
+  ctx.lineTo(mouthX, mouthHalf);
+  ctx.lineTo(-2, 7);
+  ctx.closePath();
+  sticker.paint(ctx, pale);
+
+  ctx.beginPath();
+  ctx.moveTo(3, -4);
+  ctx.lineTo(mouthX - 4, -mouthHalf + 5);
+  ctx.lineTo(mouthX - 4, mouthHalf - 5);
+  ctx.lineTo(3, 4);
+  ctx.closePath();
+  sticker.paint(ctx, '#fff8ef', '#2e2440', 1.8);
+  sticker.rect(ctx, mouthX - 4, -mouthHalf - 1, 7, mouthHalf * 2 + 2, '#fff8ef', 2.5, 2.7);
+  sticker.rect(ctx, mouthX - 2, -mouthHalf + 3, 4, mouthHalf * 2 - 6, '#2e2440', 1.6, 1.7);
+
+  for (let i = 1; i <= level; i += 1) {
+    const ratio = i / (level + 1);
+    const y = -mouthHalf + mouthHalf * 2 * ratio;
+    sticker.line(ctx, 5, 0, mouthX - 3, y, '#2e2440', 2.1);
+  }
+  if (level >= 3) {
+    sticker.rect(ctx, -27, -19, 12, 5, color, 2);
+    sticker.rect(ctx, -27, 14, 12, 5, color, 2);
+    sticker.rect(ctx, -23, -14, 6, 28, highlight, 2);
+  }
+  if (level >= 4) {
+    sticker.rect(ctx, 2, -mouthHalf - 4, mouthX - 8, 4, color, 2);
+    sticker.rect(ctx, 2, mouthHalf, mouthX - 8, 4, color, 2);
+    sticker.line(ctx, 6, -mouthHalf - 2, mouthX - 7, -mouthHalf - 2, highlight, 1.6);
+    sticker.line(ctx, 6, mouthHalf + 2, mouthX - 7, mouthHalf + 2, highlight, 1.6);
+  }
+  if (level >= 5) {
+    sticker.rect(ctx, -16, -21, 9, 42, color, 3);
+    sticker.hex(ctx, -7, 0, 6, '#fff8ef', 2.2);
+    sticker.line(ctx, -3, -4, 1, 0, highlight, 2);
+    sticker.line(ctx, 1, 0, -3, 4, highlight, 2);
+  }
+  if (detail && level >= 3) {
+    sticker.bolt(ctx, -21, -17);
+    sticker.bolt(ctx, -21, 17);
+  }
+
+  ctx.restore();
+};
+
+// 弩炮塔：依皮膚著色的弓臂、可見弓弦與中央箭軌，保持弓弩輪廓。
+export const drawBallistaTowerNordic = (p: TowerDrawParams): void => {
+  if (!sticker.begin(p)) return;
+  const { ctx, color, highlight } = p;
+  const level = sticker.level(p);
+  const detail = sticker.detail(p);
+
+  ctx.beginPath();
+  ctx.moveTo(-5, -31);
+  ctx.quadraticCurveTo(-29, -23, -28, 0);
+  ctx.quadraticCurveTo(-29, 23, -5, 31);
+  ctx.strokeStyle = '#2e2440';
+  ctx.lineWidth = 9;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-5, -31);
+  ctx.quadraticCurveTo(-29, -23, -28, 0);
+  ctx.quadraticCurveTo(-29, 23, -5, 31);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 5.5;
+  ctx.stroke();
+  sticker.line(ctx, -5, -30, -5, 30, '#2e2440', 4);
+  sticker.line(ctx, -5, -30, -5, 30, '#fff8ef', 2);
+
+  if (level >= 2) {
+    sticker.rect(ctx, -10, -34, 9, 6, '#fff8ef', 2.5);
+    sticker.rect(ctx, -10, 28, 9, 6, '#fff8ef', 2.5);
+    sticker.line(ctx, -8, -32, -4, -32, highlight, 1.8);
+    sticker.line(ctx, -8, 32, -4, 32, highlight, 1.8);
+  }
+  if (level >= 4) {
+    sticker.line(ctx, -8, -13, -20, -23, highlight, 3.5);
+    sticker.line(ctx, -8, 13, -20, 23, highlight, 3.5);
+    sticker.rect(ctx, -21, -25, 7, 5, highlight, 2);
+    sticker.rect(ctx, -21, 20, 7, 5, highlight, 2);
+  }
+
+  sticker.rect(ctx, -26, -6, 76, 12, '#fff8ef', 3);
+  sticker.line(ctx, -23, 0, 50, 0, color, 3.2);
+  sticker.line(ctx, -20, -3, 45, -3, highlight, 1.8);
+  sticker.line(ctx, -5, -30, -5, 30, '#2e2440', 4);
+  sticker.line(ctx, -5, -30, -5, 30, '#fff8ef', 2);
+
+  if (level >= 3) {
+    sticker.hex(ctx, -15, 0, 9, color, 2.8);
+    sticker.circle(ctx, -15, 0, 3, '#fff8ef', 2);
+    sticker.line(ctx, -15, -5, -15, 5, highlight, 1.8);
+  }
+  if (level >= 5) {
+    sticker.rect(ctx, -21, -9, 14, 18, color, 4);
+    sticker.hub(ctx, '#fff8ef', 6, -14, 0);
+    sticker.line(ctx, -6, -4, -6, 4, highlight, 2);
+    ctx.beginPath();
+    ctx.moveTo(-9, -3);
+    ctx.lineTo(-15, -7);
+    ctx.lineTo(-13, -2);
+    ctx.closePath();
+    sticker.paint(ctx, color, '#2e2440', 1.8);
+    ctx.beginPath();
+    ctx.moveTo(-9, 3);
+    ctx.lineTo(-15, 7);
+    ctx.lineTo(-13, 2);
+    ctx.closePath();
+    sticker.paint(ctx, color, '#2e2440', 1.8);
+  }
+
+  sticker.line(ctx, -5, 0, 65, 0, color, 3);
+  ctx.beginPath();
+  ctx.moveTo(76, 0);
+  ctx.lineTo(64, -7);
+  ctx.lineTo(67, 0);
+  ctx.lineTo(64, 7);
+  ctx.closePath();
+  sticker.paint(ctx, color, '#2e2440', 2.8);
+  if (level >= 5) {
+    sticker.line(ctx, -2, -5, 4, -2, '#fff8ef', 2.1);
+    sticker.line(ctx, -2, 5, 4, 2, '#fff8ef', 2.1);
+  }
+  if (detail && level >= 3) {
+    sticker.bolt(ctx, -21, -11);
+    sticker.bolt(ctx, -21, 11);
+  }
+
+  ctx.restore();
 };

@@ -1,176 +1,128 @@
-// 北歐極簡幾何風 - 塔模型共用工具
-//
-// 本檔案統一提供底座、能量核心、柔光、圓角矩形等繪製函式, 供各塔的 nordic
-// 重設計檔案共用。各塔只需聚焦在「炮管 / 噴嘴 / 發射器」這些特色部位的設計,
-// 共用部份從此處取用以保證視覺語言一致 (相同邊距、相同陰影、相同光感)。
+import type { TowerDrawParams } from '../TowerModels';
 
-/** 暗部／輪廓：與 UI 的墨線同一個顏色，塔才不會像另一個世界來的 */
+/** 與目前介面的墨色一致；動態圖層測試亦以此色辨識塔身。 */
 export const NORDIC_DARK = '#2e2440';
-export const NORDIC_WHITE = '#f4f7fb';
-const NORDIC_LINE_SOFT = 'rgba(255,255,255,0.18)';
-const NORDIC_LINE_FAINT = 'rgba(255,255,255,0.12)';
+const WHITE = '#ffffff';
+const tintCache = new Map<string, string>();
 
-export const rr = (
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number,
-): void => {
-  ctx.beginPath();
-  ctx.roundRect(x, y, w, h, r);
-};
+type BaseShape = 'round' | 'hex' | 'square';
 
-// 通用底座 (圓盤 + 細白邊 + 柔和高光)
-// ringCount: 0=Lv1 1=Lv2~3 2=Lv4~5 用以表達等級成長
-export const drawNordicBase = (
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  radius: number,
-  color: string,
-  ringCount: 0 | 1 | 2,
-): void => {
-  if (radius <= 0) return;
-
-  // 紙板底座：墨色外輪廓 → 白卡盤 → 糖果色內盤 → 3px 墨線
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius + 5.5, 0, Math.PI * 2);
-  ctx.fillStyle = NORDIC_DARK;
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius + 2.5, 0, Math.PI * 2);
-  ctx.fillStyle = '#ffffff';
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
-
-  ctx.strokeStyle = NORDIC_DARK;
-  ctx.lineWidth = 3;
-  ctx.stroke();
-
-  if (ringCount >= 1) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius * 0.75, 0, Math.PI * 2);
-    ctx.strokeStyle = NORDIC_LINE_SOFT;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-  if (ringCount >= 2) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius * 0.5, 0, Math.PI * 2);
-    ctx.strokeStyle = NORDIC_LINE_FAINT;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-
-  const g = ctx.createRadialGradient(
-    cx - radius * 0.35,
-    cy - radius * 0.35,
-    0,
-    cx,
-    cy,
-    radius,
-  );
-  g.addColorStop(0, 'rgba(255,255,255,0.22)');
-  g.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius - 1, 0, Math.PI * 2);
-  ctx.fillStyle = g;
-  ctx.fill();
-};
-
-// 六邊形 (可用作能量核心、雪花、燈座等)
-export const drawHex = (
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  r: number,
-  fill: string,
-  stroke?: string,
-  rotation = 0,
-): void => {
-  ctx.beginPath();
-  for (let i = 0; i < 6; i++) {
-    const a = (Math.PI / 3) * i - Math.PI / 2 + rotation;
-    const x = cx + Math.cos(a) * r;
-    const y = cy + Math.sin(a) * r;
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  }
-  ctx.closePath();
-  ctx.fillStyle = fill;
-  ctx.fill();
-  if (stroke) {
-    ctx.strokeStyle = stroke;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-};
-
-// 三角箭頭 (尖端朝右, 用作炮口指標)
-export const drawArrow = (
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  size: number,
-  fill: string,
-): void => {
-  ctx.beginPath();
-  ctx.moveTo(x, y - size);
-  ctx.lineTo(x + size * 1.1, y);
-  ctx.lineTo(x, y + size);
-  ctx.closePath();
-  ctx.fillStyle = fill;
-  ctx.fill();
-};
-
-// 柔和發光環 (徑向漸層)
-export const drawSoftGlow = (
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  radius: number,
-  color: string,
-  intensity: number,
-): void => {
-  const alpha = Math.round(intensity * 0xff).toString(16).padStart(2, '0');
-  const g = ctx.createRadialGradient(cx, cy, radius * 0.4, cx, cy, radius);
-  g.addColorStop(0, color + alpha);
-  g.addColorStop(1, 'transparent');
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.fillStyle = g;
-  ctx.fill();
-};
-
-// 等距分布的小點 (用作裝飾燈、能量點)
-export const drawDots = (
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  count: number,
-  distance: number,
-  dotR: number,
-  color: string,
-  rotation = 0,
-): void => {
-  for (let i = 0; i < count; i++) {
-    const a = (Math.PI * 2 * i) / count - Math.PI / 2 + rotation;
-    const dx = cx + Math.cos(a) * distance;
-    const dy = cy + Math.sin(a) * distance;
-    ctx.beginPath();
-    ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
-    ctx.fillStyle = color;
+function paint(ctx: CanvasRenderingContext2D, fill: string | null, stroke = NORDIC_DARK, lineWidth = 3.1): void {
+  if (fill !== null) {
+    ctx.fillStyle = fill;
     ctx.fill();
   }
-};
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = lineWidth;
+  ctx.stroke();
+}
 
-// 等級 -> 底座環數對映 (供統一規範使用)
-export const ringForLevel = (level: number): 0 | 1 | 2 =>
-  level >= 4 ? 2 : level >= 2 ? 1 : 0;
+function rect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, fill: string, radius = 5, lineWidth = 3.1): void {
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, radius);
+  paint(ctx, fill, NORDIC_DARK, lineWidth);
+}
+
+function circle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, fill: string, lineWidth = 3.1): void {
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  paint(ctx, fill, NORDIC_DARK, lineWidth);
+}
+
+function line(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, color = NORDIC_DARK, width = 3.1): void {
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.stroke();
+}
+
+function hex(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, fill: string, lineWidth = 3.1): void {
+  ctx.beginPath();
+  for (let i = 0; i < 6; i += 1) {
+    const angle = i * Math.PI / 3 - Math.PI / 2;
+    const px = x + Math.cos(angle) * radius;
+    const py = y + Math.sin(angle) * radius;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  paint(ctx, fill, NORDIC_DARK, lineWidth);
+}
+
+function bolt(ctx: CanvasRenderingContext2D, x: number, y: number): void {
+  circle(ctx, x, y, 2.1, WHITE, 1.8);
+}
+
+function hub(ctx: CanvasRenderingContext2D, fill = WHITE, radius = 9, x = -7, y = 0): void {
+  circle(ctx, x, y, radius, fill);
+  ctx.beginPath();
+  ctx.arc(x, y, 3, 0, Math.PI * 2);
+  ctx.fillStyle = NORDIC_DARK;
+  ctx.fill();
+}
+
+/** 淺色只在新皮膚顏色首次出現時計算，不在每座塔每幀配置色票。 */
+function tint(color: string): string {
+  const cached = tintCache.get(color);
+  if (cached !== undefined) return cached;
+  let result = '#fff8ef';
+  if (/^#[0-9a-f]{6}$/i.test(color)) {
+    const value = Number.parseInt(color.slice(1), 16);
+    const r = Math.round(((value >> 16) & 255) * 0.3 + 255 * 0.7);
+    const g = Math.round(((value >> 8) & 255) * 0.3 + 255 * 0.7);
+    const b = Math.round((value & 255) * 0.3 + 255 * 0.7);
+    result = 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
+  if (tintCache.size >= 128) tintCache.clear();
+  tintCache.set(color, result);
+  return result;
+}
+
+function level(p: TowerDrawParams): number {
+  return Number.isFinite(p.level) ? Math.max(1, Math.min(5, Math.floor(p.level))) : 1;
+}
+
+function detail(p: TowerDrawParams): boolean {
+  return p.radius >= 16;
+}
+
+/**
+ * 以設計稿的 35 單位內盤半徑繪製，底座先畫，武器才旋轉與後座。
+ * 成功會保留一層 save；每個塔的繪製器結束時必須 restore。
+ * 僅改繪製座標，不改世界位置、碰撞範圍或遊戲資料。
+ */
+function begin(p: TowerDrawParams, shape: BaseShape = 'round', aimed = true): boolean {
+  if (!Number.isFinite(p.radius) || p.radius <= 0 || !Number.isFinite(p.cx) || !Number.isFinite(p.cy)) return false;
+  const { ctx } = p;
+  const scale = p.radius / 35;
+  ctx.save();
+  ctx.translate(p.cx, p.cy);
+  ctx.scale(scale, scale);
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  if (shape === 'hex') {
+    hex(ctx, 0, 0, 46, WHITE);
+    hex(ctx, 0, 0, 37, p.color);
+  } else if (shape === 'square') {
+    rect(ctx, -42, -42, 84, 84, WHITE, 21);
+    rect(ctx, -34, -34, 68, 68, tint(p.color), 15);
+  } else {
+    circle(ctx, 0, 0, 43, WHITE);
+    circle(ctx, 0, 0, 35, p.color);
+  }
+  if (detail(p)) {
+    bolt(ctx, -26, -20);
+    bolt(ctx, -26, 20);
+  }
+  if (aimed) {
+    ctx.rotate(Number.isFinite(p.rotation) ? p.rotation : 0);
+    const recoil = Number.isFinite(p.recoil) ? Math.max(0, p.recoil) : 0;
+    ctx.translate(-recoil / scale, 0);
+  }
+  return true;
+}
+
+/** 單一共用繪製介面；所有工具均直接畫 Canvas，不建立逐幀圖形物件。 */
+export const sticker = { begin, level, detail, rect, circle, line, paint, hex, hub, bolt, tint };

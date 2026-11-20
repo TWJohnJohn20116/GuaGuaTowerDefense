@@ -1,293 +1,306 @@
-// 元素型塔 - 北歐極簡幾何風重設計
-//
-// 包含: frost / poison / flame / wind 共 4 種, 各 5 等級。
-// 設計關鍵: 用「圖形語彙」直接傳達元素屬性 ──
-//   frost: 六角雪花
-//   poison: 罐體 + 多孔噴口
-//   flame: 漏斗噴嘴 + 火種
-//   wind: 風扇葉
+// 元素塔的俯視糖果貼紙造型；座標以半徑 35、炮口朝 +X 為基準。
+// 升級只增加機械結構；小圖保留元素輪廓，略去鉚釘與次要刻線。
 
 import type { TowerDrawParams } from '../TowerModels';
-import {
-  NORDIC_DARK,
-  NORDIC_WHITE,
-  rr,
-  drawNordicBase,
-  drawHex,
-  drawSoftGlow,
-  drawDots,
-  ringForLevel,
-} from './nordicShared';
+import { sticker } from './nordicShared';
 
-// ============================================================
-// frost 冰凍塔 - 六角雪花為主軸, 炮管為冰刺
-// ============================================================
+// frost：六角雪花、冰刺導向、冷卻鰭與結晶核心。
 export const drawFrostTowerNordic = (p: TowerDrawParams): void => {
-  const { ctx, cx, cy, radius, rotation, color, highlight, level, recoil } = p;
+  if (!sticker.begin(p, 'hex')) return;
+  const { ctx, color, highlight } = p;
+  const level = sticker.level(p);
+  const detail = sticker.detail(p);
+  const pale = sticker.tint(color);
 
-  drawNordicBase(ctx, cx, cy, radius, color, ringForLevel(level));
-  if (level >= 3) drawSoftGlow(ctx, cx, cy, radius * 1.15, highlight, 0.22 + (level - 3) * 0.05);
+  // 雪花六支主臂在小尺寸也保留；二級起加上分叉。
+  for (let i = 0; i < 6; i++) {
+    const a = i * Math.PI / 3;
+    const c = Math.cos(a);
+    const s = Math.sin(a);
+    sticker.line(ctx, -7 + c * 8, s * 8, -7 + c * 27, s * 27, '#2e2440', 6.6);
+    sticker.line(ctx, -7 + c * 8, s * 8, -7 + c * 27, s * 27, '#fff', 3.5);
+    if (level >= 2) {
+      for (let side = -1; side <= 1; side += 2) {
+        const x = -7 + c * 18;
+        const y = s * 18;
+        const tx = -7 + c * 23 - s * side * 5;
+        const ty = s * 23 + c * side * 5;
+        sticker.line(ctx, x, y, tx, ty, '#2e2440', 4.8);
+        sticker.line(ctx, x, y, tx, ty, '#fff', 2.4);
+      }
+    }
+  }
 
-  if (level >= 2) {
-    const armCount = Math.min(6, 2 + level);
-    const armR = radius * 0.85;
-    ctx.strokeStyle = highlight + 'aa';
-    ctx.lineWidth = level >= 4 ? 1.5 : 1;
-    for (let i = 0; i < armCount; i++) {
-      const a = (Math.PI * 2 * i) / armCount - Math.PI / 2;
+  // 三級的雙側冰刺與主刺共同導向，不改底座尺寸。
+  if (level >= 3) {
+    for (let side = -1; side <= 1; side += 2) {
       ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + Math.cos(a) * armR, cy + Math.sin(a) * armR);
-      ctx.stroke();
+      ctx.moveTo(7, side * 11);
+      ctx.lineTo(14, side * 21);
+      ctx.lineTo(level >= 5 ? 56 : 47, side * 12);
+      ctx.lineTo(19, side * 8);
+      ctx.closePath();
+      sticker.paint(ctx, pale);
+    }
+  }
+  if (level >= 4) {
+    sticker.rect(ctx, -27, -23, 9, 14, '#fff8ef', 3);
+    sticker.rect(ctx, -27, 9, 9, 14, '#fff8ef', 3);
+    if (detail) {
+      sticker.line(ctx, -24, -18, -20, -18, color, 2);
+      sticker.line(ctx, -24, 18, -20, 18, color, 2);
     }
   }
 
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(rotation);
-  const bo = -recoil;
-
-  const drawSpike = (len: number, w: number) => {
-    ctx.beginPath();
-    ctx.moveTo(bo, -w);
-    ctx.lineTo(bo + len, 0);
-    ctx.lineTo(bo, w);
-    ctx.closePath();
-    ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(bo + 2, -w * 0.55);
-    ctx.lineTo(bo + len - 2, 0);
-    ctx.lineTo(bo + 2, w * 0.55);
-    ctx.closePath();
-    ctx.fillStyle = highlight; ctx.fill();
-  };
-
-  if (level === 1) {
-    drawSpike(radius + 8, 3.5);
-  } else if (level === 2) {
-    drawSpike(radius + 10, 4);
-    rr(ctx, bo - 2, -5, 5, 10, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-  } else if (level === 3) {
-    for (const off of [-3.5, 3.5]) {
-      ctx.save(); ctx.translate(0, off);
-      drawSpike(radius + 10, 2.8);
-      ctx.restore();
-    }
-    rr(ctx, bo - 2, -7, 5, 14, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-  } else if (level === 4) {
-    for (const off of [-5, 0, 5]) {
-      ctx.save(); ctx.translate(0, off);
-      drawSpike(radius + 12, 2.5);
-      ctx.restore();
-    }
-    rr(ctx, bo - 3, -9, 6, 18, 2.5); ctx.fillStyle = color; ctx.fill();
-    ctx.strokeStyle = NORDIC_DARK; ctx.lineWidth = 1.5; ctx.stroke();
-  } else {
-    drawSpike(radius + 16, 6);
-    for (const off of [-6.5, 6.5]) {
-      ctx.save(); ctx.translate(0, off);
-      drawSpike(radius + 10, 3);
-      ctx.restore();
-    }
-    rr(ctx, bo - 4, -11, 8, 22, 3); ctx.fillStyle = color; ctx.fill();
-    ctx.strokeStyle = NORDIC_DARK; ctx.lineWidth = 2; ctx.stroke();
+  // 主冰刺始終清楚可辨；最長端點 73，小於共同上限 85。
+  ctx.beginPath();
+  ctx.moveTo(3, -11);
+  ctx.lineTo(18, -8);
+  ctx.lineTo(level >= 5 ? 73 : 61, 0);
+  ctx.lineTo(18, 8);
+  ctx.lineTo(3, 11);
+  ctx.closePath();
+  sticker.paint(ctx, color);
+  if (detail) sticker.line(ctx, 19, 0, level >= 5 ? 59 : 48, 0, highlight, 2.5);
+  if (level >= 2) sticker.rect(ctx, 8, -14, 9, 28, '#fff8ef', 3);
+  if (level >= 5) {
+    sticker.rect(ctx, 32, -11, 8, 22, '#fff', 3);
+    sticker.hex(ctx, -7, 0, 15, '#fff8ef');
   }
-
+  sticker.hub(ctx, highlight, level >= 5 ? 10 : 9, -7, 0);
+  if (level >= 4) sticker.hex(ctx, -7, 0, 5, '#fff', 2);
+  if (detail && level >= 2) {
+    sticker.bolt(ctx, 12.5, -9);
+    sticker.bolt(ctx, 12.5, 9);
+  }
   ctx.restore();
-
-  drawHex(ctx, cx, cy, level >= 5 ? 4.5 : level >= 3 ? 3.5 : 2.5, NORDIC_WHITE, highlight, Math.PI / 6);
-  if (level >= 4) drawDots(ctx, cx, cy, 6, radius * 0.55, 1, highlight);
 };
 
-// ============================================================
-// poison 毒塔 - 罐體 + 噴霧器, 多孔噴口
-// ============================================================
+// poison：深淺雙儲罐、多孔噴頭、雙供液管與壓力調節器。
 export const drawPoisonTowerNordic = (p: TowerDrawParams): void => {
-  const { ctx, cx, cy, radius, rotation, color, highlight, level, recoil } = p;
+  if (!sticker.begin(p)) return;
+  const { ctx, color, highlight } = p;
+  const level = sticker.level(p);
+  const detail = sticker.detail(p);
+  const pale = sticker.tint(color);
 
-  drawNordicBase(ctx, cx, cy, radius, color, ringForLevel(level));
-  if (level >= 4) drawSoftGlow(ctx, cx, cy, radius * 1.1, highlight, 0.22);
-
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(rotation);
-  const bo = -recoil;
-
-  const drawNozzle = (offX: number, offY: number, holes: number) => {
-    rr(ctx, offX, offY - 4, 6, 8, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    for (let i = 0; i < holes; i++) {
-      const t = holes === 1 ? 0 : (i / (holes - 1)) * 6 - 3;
+  if (level >= 5) {
+    sticker.rect(ctx, -33, -29, 45, 9, '#fff8ef', 3);
+    sticker.rect(ctx, -33, 20, 45, 9, '#fff8ef', 3);
+  }
+  if (level >= 3) {
+    for (let side = -1; side <= 1; side += 2) {
       ctx.beginPath();
-      ctx.arc(offX + 3, offY + t, 1.1, 0, Math.PI * 2);
-      ctx.fillStyle = highlight; ctx.fill();
-    }
-  };
-
-  if (level === 1) {
-    rr(ctx, bo, -4, radius + 4, 8, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 1.5, -2.5, radius + 1, 5, 1.5); ctx.fillStyle = highlight; ctx.fill();
-    drawNozzle(bo + radius + 4, 0, 1);
-  } else if (level === 2) {
-    rr(ctx, bo, -5, radius + 5, 10, 2.5); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo + 1.5, -3.5, radius + 2, 7, 2); ctx.fillStyle = highlight; ctx.fill();
-    drawNozzle(bo + radius + 5, 0, 3);
-  } else if (level === 3) {
-    for (const off of [-3.5, 3.5]) {
-      rr(ctx, bo, off - 2.5, radius + 5, 5, 1.5); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-      rr(ctx, bo + 1.5, off - 1.5, radius + 2, 3, 1); ctx.fillStyle = highlight; ctx.fill();
-    }
-    drawNozzle(bo + radius + 5, 0, 3);
-    rr(ctx, bo - 1, -6, 3, 12, 1); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-  } else if (level === 4) {
-    for (const off of [-5, 0, 5]) {
-      rr(ctx, bo, off - 2, radius + 6, 4, 1.5); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-      rr(ctx, bo + 1.5, off - 1, radius + 3, 2, 1); ctx.fillStyle = highlight; ctx.fill();
-    }
-    drawNozzle(bo + radius + 6, 0, 5);
-    rr(ctx, bo - 3, -8, 5, 16, 2); ctx.fillStyle = color; ctx.fill();
-    ctx.strokeStyle = NORDIC_DARK; ctx.lineWidth = 1.25; ctx.stroke();
-  } else {
-    rr(ctx, bo - 4, -10, 8, 20, 3); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo - 2.5, -8.5, 5, 17, 2); ctx.fillStyle = color; ctx.fill();
-
-    for (const off of [-7, 0, 7]) {
-      rr(ctx, bo, off - 3, radius + 7, 6, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-      rr(ctx, bo + 1.5, off - 2, radius + 4, 4, 1.5); ctx.fillStyle = highlight; ctx.fill();
-    }
-    rr(ctx, bo + radius + 7, -9, 9, 18, 3); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    for (const yy of [-6, -2, 2, 6]) {
-      ctx.beginPath();
-      ctx.arc(bo + radius + 11.5, yy, 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = highlight; ctx.shadowColor = highlight; ctx.shadowBlur = 4;
-      ctx.fill();
-      ctx.shadowBlur = 0;
+      ctx.moveTo(-16, side * 17);
+      ctx.lineTo(27, side * 17);
+      ctx.quadraticCurveTo(38, side * 17, 38, side * 8);
+      sticker.paint(ctx, null, '#2e2440', 7);
+      sticker.paint(ctx, null, highlight, 3.7);
     }
   }
 
-  ctx.restore();
+  // 儲罐始終一深一淺，皮膚顏色完全由 p 提供。
+  sticker.rect(ctx, -29, -24, 18, 48, color, 7);
+  sticker.rect(ctx, -4, -24, 18, 48, pale, 7);
+  sticker.rect(ctx, -29, -27, 18, 9, '#fff8ef', 3);
+  sticker.rect(ctx, -4, -27, 18, 9, '#fff8ef', 3);
+  if (level >= 2) {
+    sticker.rect(ctx, -30, 12, 20, 7, '#fff8ef', 2.5);
+    sticker.rect(ctx, -5, 12, 20, 7, '#fff8ef', 2.5);
+  }
 
-  if (level >= 2) drawHex(ctx, cx, cy, level >= 5 ? 4.2 : level >= 4 ? 3.5 : 2.8, NORDIC_WHITE, highlight);
+  // 水滴是罐體上的平面標誌，所有尺寸都畫。
+  ctx.beginPath();
+  ctx.moveTo(-20, -12);
+  ctx.bezierCurveTo(-23, -7, -28, -2, -26, 3);
+  ctx.bezierCurveTo(-24, 10, -16, 10, -14, 3);
+  ctx.bezierCurveTo(-12, -2, -17, -7, -20, -12);
+  ctx.closePath();
+  sticker.paint(ctx, '#fff');
+
+  sticker.rect(ctx, 6, -10, 37, 20, color, 6);
+  if (level >= 3) sticker.rect(ctx, 20, -13, 8, 26, '#fff8ef', 3);
+  if (level >= 5) {
+    sticker.hex(ctx, 10, 0, 10, '#fff');
+    sticker.circle(ctx, 10, 0, 4, highlight, 2);
+  }
+  const nozzleX = level >= 4 ? 45 : 42;
+  const nozzleHalf = level >= 4 ? 19 : 15;
+  sticker.rect(ctx, nozzleX, -nozzleHalf, 14, nozzleHalf * 2, '#fff8ef', 5);
+  const holes = level >= 4 ? 5 : 3;
+  for (let i = 0; i < holes; i++) {
+    const y = (i - (holes - 1) / 2) * 6;
+    sticker.circle(ctx, nozzleX + 7, y, 1.9, '#2e2440', 1);
+  }
+  if (detail) {
+    sticker.line(ctx, 2, -12, 8, -12, '#fff', 2.3);
+    if (level >= 2) {
+      sticker.bolt(ctx, -20, 15.5);
+      sticker.bolt(ctx, 5, 15.5);
+    }
+    if (level >= 4) {
+      sticker.line(ctx, 31, -5, 37, -5, highlight, 2);
+      sticker.line(ctx, 31, 5, 37, 5, highlight, 2);
+    }
+  }
+  ctx.restore();
 };
 
-// ============================================================
-// flame 火焰塔 - 漏斗噴嘴 + 火種
-// ============================================================
+// flame：後置燃料罐、短隔熱噴口、火種與逐級散熱結構。
 export const drawFlameTowerNordic = (p: TowerDrawParams): void => {
-  const { ctx, cx, cy, radius, rotation, color, highlight, level, recoil } = p;
+  if (!sticker.begin(p)) return;
+  const { ctx, color, highlight } = p;
+  const level = sticker.level(p);
+  const detail = sticker.detail(p);
+  const pale = sticker.tint(color);
 
-  drawNordicBase(ctx, cx, cy, radius, color, ringForLevel(level));
-  if (level >= 3) drawSoftGlow(ctx, cx, cy, radius * 1.15, highlight, 0.25 + (level - 3) * 0.06);
-
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(rotation);
-  const bo = -recoil;
-
-  const drawFunnel = (len: number, base: number, tip: number) => {
-    ctx.beginPath();
-    ctx.moveTo(bo, -base);
-    ctx.lineTo(bo + len, -tip);
-    ctx.lineTo(bo + len + 2, -tip);
-    ctx.lineTo(bo + len + 2, tip);
-    ctx.lineTo(bo + len, tip);
-    ctx.lineTo(bo, base);
-    ctx.closePath();
-    ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(bo + 1.5, -base + 1);
-    ctx.lineTo(bo + len - 0.5, -tip + 0.8);
-    ctx.lineTo(bo + len - 0.5, tip - 0.8);
-    ctx.lineTo(bo + 1.5, base - 1);
-    ctx.closePath();
-    ctx.fillStyle = highlight; ctx.fill();
-  };
-
-  if (level === 1) {
-    drawFunnel(radius + 6, 4, 3);
-  } else if (level === 2) {
-    drawFunnel(radius + 8, 5, 4);
-    ctx.beginPath();
-    ctx.arc(bo + radius + 11, 0, 2.2, 0, Math.PI * 2);
-    ctx.fillStyle = highlight;
-    ctx.shadowColor = highlight; ctx.shadowBlur = 5; ctx.fill(); ctx.shadowBlur = 0;
-  } else if (level === 3) {
-    for (const off of [-3.5, 3.5]) {
-      ctx.save(); ctx.translate(0, off);
-      drawFunnel(radius + 8, 3, 2.5);
-      ctx.restore();
+  // 四級新增回流管；它在罐體與隔熱件後方，沒有透視側面。
+  if (level >= 4) {
+    for (let side = -1; side <= 1; side += 2) {
+      ctx.beginPath();
+      ctx.moveTo(-20, side * 17);
+      ctx.lineTo(-20, side * 28);
+      ctx.lineTo(18, side * 28);
+      ctx.lineTo(25, side * 17);
+      sticker.paint(ctx, null, '#2e2440', 7);
+      sticker.paint(ctx, null, pale, 3.7);
     }
-    rr(ctx, bo - 2, -7, 5, 14, 2); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-  } else if (level === 4) {
-    for (const off of [-4.5, 4.5]) {
-      ctx.save(); ctx.translate(0, off);
-      drawFunnel(radius + 10, 3.5, 3);
-      ctx.restore();
-    }
-    rr(ctx, bo - 4, -9, 8, 18, 3); ctx.fillStyle = color; ctx.fill();
-    ctx.strokeStyle = NORDIC_DARK; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(bo - 0.5, 0, 2.5, 0, Math.PI * 2);
-    ctx.fillStyle = highlight;
-    ctx.shadowColor = highlight; ctx.shadowBlur = 6; ctx.fill(); ctx.shadowBlur = 0;
-  } else {
-    drawFunnel(radius + 14, 8, 5);
-    rr(ctx, bo - 5, -11, 9, 22, 4); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    rr(ctx, bo - 3.5, -9.5, 6, 19, 3); ctx.fillStyle = color; ctx.fill();
-
-    for (const off of [-7, 7]) {
-      rr(ctx, bo - 6, off - 2, 4, 4, 1); ctx.fillStyle = NORDIC_DARK; ctx.fill();
-    }
-    ctx.beginPath();
-    ctx.arc(bo + 1, 0, 3, 0, Math.PI * 2);
-    ctx.fillStyle = NORDIC_WHITE;
-    ctx.shadowColor = highlight; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0;
+  }
+  sticker.rect(ctx, -29, -24, 18, 48, color, 7);
+  sticker.rect(ctx, -25, -28, 10, 7, '#fff8ef', 2.5);
+  sticker.rect(ctx, -5, -24, 19, 48, '#fff8ef', 6);
+  sticker.rect(ctx, -1, -15, 12, 30, pale, 3);
+  if (level >= 2) sticker.rect(ctx, -31, 8, 22, 8, '#fff8ef', 3);
+  if (level >= 3) {
+    sticker.rect(ctx, 8, -24, 22, 8, '#fff8ef', 3);
+    sticker.rect(ctx, 8, 16, 22, 8, '#fff8ef', 3);
   }
 
-  ctx.restore();
+  // 短而外張的噴口，與長管炮塔的輪廓區分。
+  ctx.beginPath();
+  ctx.moveTo(9, -10);
+  ctx.lineTo(41, -19);
+  ctx.lineTo(41, 19);
+  ctx.lineTo(9, 10);
+  ctx.closePath();
+  sticker.paint(ctx, color);
+  sticker.rect(ctx, 39, -21, 12, 42, '#fff8ef', 5);
+  if (level >= 5) {
+    sticker.rect(ctx, 32, -26, 22, 8, '#fff', 3);
+    sticker.rect(ctx, 32, 18, 22, 8, '#fff', 3);
+    sticker.circle(ctx, -20, -9, 7, '#fff');
+    sticker.line(ctx, -20, -9, -17, -12, color, 2.5);
+  }
 
-  if (level >= 3) drawHex(ctx, cx, cy, level >= 5 ? 4.5 : 3.4, NORDIC_WHITE, highlight);
+  sticker.hub(ctx, '#fff8ef', 5, 4, 0);
+  // 火種用封閉火焰剪影呈現，避免退化為發光圓點。
+  ctx.beginPath();
+  ctx.moveTo(18, 10);
+  ctx.bezierCurveTo(10, 6, 12, -1, 17, -6);
+  ctx.quadraticCurveTo(20, -1, 22, -3);
+  ctx.quadraticCurveTo(25, -8, 21, -13);
+  ctx.bezierCurveTo(35, -8, 38, 0, 32, 7);
+  ctx.quadraticCurveTo(26, 14, 18, 10);
+  ctx.closePath();
+  sticker.paint(ctx, highlight);
+  if (level >= 2) {
+    ctx.beginPath();
+    ctx.moveTo(22, 8);
+    ctx.quadraticCurveTo(18, 3, 24, -2);
+    ctx.quadraticCurveTo(25, 2, 29, 3);
+    ctx.quadraticCurveTo(29, 9, 22, 8);
+    ctx.closePath();
+    sticker.paint(ctx, '#fff8ef', '#2e2440', 1.8);
+  }
+  if (detail) {
+    if (level < 5) {
+      sticker.line(ctx, -25, -14, -16, -14, pale, 2);
+      sticker.line(ctx, -25, -7, -16, -7, pale, 2);
+    }
+    if (level >= 2) sticker.bolt(ctx, -20, 12);
+    if (level >= 3) {
+      for (let i = 0; i < 3; i++) {
+        sticker.line(ctx, 14 + i * 5, -21, 14 + i * 5, -18, color, 1.7);
+        sticker.line(ctx, 14 + i * 5, 18, 14 + i * 5, 21, color, 1.7);
+      }
+    }
+  }
+  ctx.restore();
 };
 
-// ============================================================
-// wind 風塔 - 風扇葉 (無方向性, 不旋轉跟敵)
-// ============================================================
+// wind：所有等級維持三葉風扇；機罩、護架與輪轂固定不追敵。
 export const drawWindTowerNordic = (p: TowerDrawParams): void => {
-  const { ctx, cx, cy, radius, color, highlight, level } = p;
+  if (!sticker.begin(p, 'round', false)) return;
+  const { ctx, color, highlight } = p;
+  const level = sticker.level(p);
+  const detail = sticker.detail(p);
+  const pale = sticker.tint(color);
 
-  drawNordicBase(ctx, cx, cy, radius, color, ringForLevel(level));
-  if (level >= 3) drawSoftGlow(ctx, cx, cy, radius * 1.1, highlight, 0.22);
+  sticker.circle(ctx, 0, 0, 32, color);
+  sticker.circle(ctx, 0, 0, 27, '#fff8ef', 2.6);
+  if (level >= 2) {
+    for (let i = 0; i < 4; i++) {
+      ctx.save();
+      ctx.rotate(i * Math.PI / 2);
+      sticker.rect(ctx, 27, -5, 9, 10, '#fff', 3);
+      ctx.restore();
+    }
+  }
 
-  const blades = level === 1 ? 2 : level === 2 ? 3 : level === 3 ? 4 : level === 4 ? 5 : 6;
-  const armLen = radius * 0.78;
-  const baseRot = (Date.now() / (level >= 5 ? 250 : 400)) % (Math.PI * 2);
-
+  // 只在局部旋轉葉片；迴圈沒有建立陣列、閉包或狀態。
   ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(baseRot);
-  for (let i = 0; i < blades; i++) {
+  ctx.rotate((Date.now() / (620 - level * 55)) % (Math.PI * 2));
+  for (let i = 0; i < 3; i++) {
     ctx.save();
-    ctx.rotate((Math.PI * 2 * i) / blades);
+    ctx.rotate(i * Math.PI * 2 / 3);
     ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.quadraticCurveTo(armLen * 0.4, -3.5, armLen, -1);
-    ctx.lineTo(armLen, 1);
-    ctx.quadraticCurveTo(armLen * 0.4, 3.5, 0, 0);
+    ctx.moveTo(3, -5);
+    ctx.bezierCurveTo(6, -16, 15, -25, 23, -15);
+    ctx.quadraticCurveTo(28, -8, 22, -2);
+    ctx.lineTo(9, 7);
     ctx.closePath();
-    ctx.fillStyle = highlight;
-    ctx.globalAlpha = 0.85;
-    ctx.fill();
-    ctx.strokeStyle = NORDIC_DARK;
-    ctx.globalAlpha = 1;
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    sticker.paint(ctx, i === 1 ? pale : highlight);
+    if (detail && level >= 2) sticker.line(ctx, 12, -9, 20, -12, '#fff', 2);
     ctx.restore();
   }
   ctx.restore();
 
-  ctx.beginPath();
-  ctx.arc(cx, cy, level >= 5 ? 5 : 4, 0, Math.PI * 2);
-  ctx.fillStyle = NORDIC_DARK; ctx.fill();
-  drawHex(ctx, cx, cy, level >= 5 ? 3 : 2.4, NORDIC_WHITE, highlight);
-
-  if (level >= 4) drawDots(ctx, cx, cy, blades, radius * 0.95, 1.2, highlight, baseRot);
+  // 三級護架與五級格柵都在旋轉恢復後繪製。
+  if (level >= 3) {
+    for (let i = 0; i < 3; i++) {
+      const a = Math.PI / 2 + i * Math.PI * 2 / 3;
+      const x = Math.cos(a);
+      const y = Math.sin(a);
+      sticker.line(ctx, x * 8, y * 8, x * 28, y * 28, '#2e2440', 6);
+      sticker.line(ctx, x * 8, y * 8, x * 28, y * 28, '#fff8ef', 2.8);
+    }
+  }
+  if (level >= 4) {
+    for (let i = 0; i < 4; i++) {
+      ctx.save();
+      ctx.rotate(Math.PI / 4 + i * Math.PI / 2);
+      sticker.rect(ctx, 26, -5, 9, 10, pale, 3);
+      if (detail) {
+        sticker.line(ctx, 30, -2, 32, -2, color, 1.5);
+        sticker.line(ctx, 30, 2, 32, 2, color, 1.5);
+      }
+      ctx.restore();
+    }
+  }
+  if (level >= 5) {
+    for (let side = -1; side <= 1; side += 2) {
+      sticker.line(ctx, -20, side * 15, 20, side * 15, '#2e2440', 4.7);
+      sticker.line(ctx, -20, side * 15, 20, side * 15, '#fff8ef', 2.3);
+    }
+    sticker.hex(ctx, 0, 0, 11, '#fff8ef');
+  }
+  sticker.hub(ctx, '#fff8ef', level >= 5 ? 8 : 9, 0, 0);
+  sticker.circle(ctx, 0, 0, level >= 5 ? 4.5 : 3.5, color, 1.8);
+  if (detail) {
+    for (let i = 0; i < 3; i++) {
+      const a = -Math.PI / 2 + i * Math.PI * 2 / 3;
+      sticker.bolt(ctx, Math.cos(a) * 30, Math.sin(a) * 30);
+    }
+  }
+  ctx.restore();
 };
