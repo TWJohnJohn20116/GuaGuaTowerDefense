@@ -57,9 +57,9 @@ const TowerPreview = ({
     // - GAME_TILE：對應遊戲中典型 tile 大小，用於計算 radius 與 tileSize，
     //   讓砲管厚度、裝飾邊框、皮膚光暈等與遊戲視覺完全一致。
     // - DRAW_AREA：內部繪製畫布尺寸，比 GAME_TILE 多一圈邊距，
-    //   留給超出 tile 的砲管末端、皮膚光暈、漂浮衛星等延伸元素。
+    //   132 的畫幅讓新狙擊長軌在轉滿一圈時仍有留白，外層元件尺寸維持不變。
     const GAME_TILE = 72;
-    const DRAW_AREA = 100;
+    const DRAW_AREA = 132;
     const renderScale = (w / DRAW_AREA) * dpr;
     ctx.setTransform(renderScale, 0, 0, renderScale, 0, 0);
     ctx.clearRect(0, 0, DRAW_AREA, DRAW_AREA);
