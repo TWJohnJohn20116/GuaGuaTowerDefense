@@ -1,4 +1,4 @@
-// 塔模型繪製系統 (北歐極簡幾何風重設計版)
+// 塔模型繪製系統（俯視 2D 糖果貼紙風；與戰鬥、回放及預覽共用）
 //
 // 本檔案僅作為「dispatch + 公開介面」薄層, 真正的繪製邏輯依塔型分別實作於:
 //   - towerModels/basicTowerNordic.ts
@@ -32,6 +32,13 @@ import {
   drawMoneyTowerNordic,
 } from './towerModels/energyTowersNordic';
 
+import {
+  drawStormTowerNordic,
+  drawPlagueTowerNordic,
+  drawDemolisherTowerNordic,
+  drawTempestTowerNordic,
+} from './towerModels/fusionTowersNordic';
+
 export interface TowerDrawParams {
   ctx: CanvasRenderingContext2D;
   cx: number;       // 中心 X
@@ -60,7 +67,7 @@ export const drawTowerModel = (
   params: TowerDrawParams,
   skinModelSetId?: string,
 ): void => {
-  if (params.radius <= 0) return;
+  if (!Number.isFinite(params.radius) || params.radius <= 0 || !Number.isFinite(params.cx) || !Number.isFinite(params.cy)) return;
 
   // 貼紙底影：塔也要「站在」紙面上，而不是浮著
   const { ctx, cx, cy, radius } = params;
@@ -95,11 +102,11 @@ export const drawTowerModel = (
     case 'money': return drawMoneyTowerNordic(params);
     case 'wind': return drawWindTowerNordic(params);
     case 'pulse': return drawPulseTowerNordic(params);
-    // 融合塔：重用來源模型的幾何繪製，再由 GameCanvas 疊加融合光環
-    case 'storm': return drawLightningTowerNordic(params);
-    case 'plague': return drawFlameTowerNordic(params);
-    case 'demolisher': return drawCannonTowerNordic(params);
-    case 'tempest': return drawPulseTowerNordic(params);
+    // 融合塔各有來源結構融合而成的輪廓，既有合體光環仍由動態層疊加。
+    case 'storm': return drawStormTowerNordic(params);
+    case 'plague': return drawPlagueTowerNordic(params);
+    case 'demolisher': return drawDemolisherTowerNordic(params);
+    case 'tempest': return drawTempestTowerNordic(params);
     default: return drawBasicTowerNordic(params);
   }
 };
