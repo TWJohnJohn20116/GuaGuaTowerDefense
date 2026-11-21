@@ -4,10 +4,10 @@
  * 原本這是 884 行的單檔，2026-11-14 因 TD-07 拆成四塊：
  * - `enemyRendererPrimitives.ts`：型別與共用畫法（眼睛、描邊）
  * - `enemyRendererBasic.ts`：基礎十種造型
- * - `enemyRendererAdvanced.ts`：進階／Mod 十二種造型（含 `drawDefault` 後備）
+ * - `enemyRendererAdvanced.ts`：特殊十二種造型與 Mod 後備
  * - 本檔：類型 → 造型的映射表，以及對外的 `drawEnemyModel`
  *
- * 拆檔只搬移，不動任何繪製參數；`drawEnemyModel` 的行為與簽名完全不變。
+ * 本體採與塔一致的糖果貼紙幾何；維持原簽名、體型及靜態精靈快取。
  */
 
 import {
@@ -32,18 +32,20 @@ import {
   drawSwarm,
   drawGhost,
   drawBomber,
+  drawSaboteur,
   drawJammer,
   drawEscort,
   drawDefault,
 } from './enemyRendererAdvanced';
 import type { DrawFn } from './enemyRendererPrimitives';
+import type { EnemyType } from '@/types/game';
 
 // ========== 渲染器映射表 ==========
 //
 // 鍵是 `enemyType` 字串。Mod 自訂敵人可能帶來表上沒有的鍵，
-// 由 `drawEnemyModel` 的 `|| drawDefault` 接手，所以這裡不需要 `default` 這一項。
+// 由 drawEnemyModel 的自有鍵查表與 drawDefault 後備接手，未知 Mod 名稱也能安全繪製。
 
-const ENEMY_RENDERERS: Record<string, DrawFn> = {
+const ENEMY_RENDERERS: Record<EnemyType, DrawFn> = {
   normal: drawNormal,
   fast: drawFast,
   elite: drawElite,
@@ -63,6 +65,7 @@ const ENEMY_RENDERERS: Record<string, DrawFn> = {
   swarm: drawSwarm,
   ghost: drawGhost,
   bomber: drawBomber,
+  saboteur: drawSaboteur,
   jammer: drawJammer,
   escort: drawEscort,
 };
@@ -89,16 +92,20 @@ export const drawEnemyModel = (
   color: string,
   time: number
 ) => {
+  if (!Number.isFinite(radius) || radius <= 0 || !Number.isFinite(x) || !Number.isFinite(y)) return;
   ctx.save();
-  // 貼紙底影：讓敵人從紙面立起來（與 UI 的硬投影同一個語言）
-  ctx.globalAlpha = 0.16;
+  // 不覆寫出生、隱身與相位的外層透明度；直接繪製與快取精靈維持一致。
+  const alpha = ctx.globalAlpha;
+  ctx.globalAlpha = alpha * 0.16;
   ctx.fillStyle = '#2e2440';
   ctx.beginPath();
-  ctx.ellipse(x, y + radius * 0.74, radius * 0.92, radius * 0.3, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y + radius * 0.72, radius * 0.9, radius * 0.24, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha = alpha;
 
-  const renderer = (enemyType && ENEMY_RENDERERS[enemyType]) || drawDefault;
+  const renderer = enemyType && Object.prototype.hasOwnProperty.call(ENEMY_RENDERERS, enemyType)
+    ? ENEMY_RENDERERS[enemyType as EnemyType]
+    : drawDefault;
   renderer(ctx, x, y, radius, color, time);
   ctx.restore();
 };

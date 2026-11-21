@@ -1,341 +1,365 @@
 /**
- * 敵人模型渲染：基礎十種造型
- *
- * 從 `enemyRenderer.ts` 拆出（TD-07）。這一組是主線波次會出現的敵人：
- * 普通、快速、精英、極速、坦克、重型、Boss、飛行、治療、生產。
- * 共同點是造型只用到圓／多邊形／描邊這幾種基本元素。
+ * 基礎十種敵人的靜態糖果貼紙造型。
+ * 本體不讀時間；所有輪廓、控制點及部件維持在局部 ±26 內。
  */
 
-import { drawEyes, drawStroke } from './enemyRendererPrimitives';
+import { enemy } from './enemyRendererPrimitives';
 import type { DrawFn } from './enemyRendererPrimitives';
 
-/** 普通敵人 - 經典圓形史萊姆 */
+/** 普通：圓潤史萊姆，扁圓底緣與不服氣的眉眼。 */
 export const drawNormal: DrawFn = (ctx, x, y, r, color) => {
+  if (!enemy.begin(ctx, x, y, r)) return;
   ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
-  drawStroke(ctx);
-  // 光澤（簡化版，避免每幀建立漸層）
-  ctx.beginPath();
-  ctx.arc(x - r * 0.2, y - r * 0.2, r * 0.4, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.18)';
-  ctx.fill();
-  drawEyes(ctx, x, y, r);
+  ctx.moveTo(-22, 8);
+  ctx.bezierCurveTo(-22, -8, -12, -21, 0, -21);
+  ctx.bezierCurveTo(12, -21, 22, -8, 22, 8);
+  ctx.bezierCurveTo(22, 18, 16, 22, 10, 19);
+  ctx.quadraticCurveTo(0, 24, -10, 19);
+  ctx.bezierCurveTo(-16, 22, -22, 18, -22, 8);
+  ctx.closePath();
+  enemy.paint(ctx, color, true);
+  if (enemy.detail(r)) {
+    enemy.ellipse(ctx, -7, -10, 6, 3.5, enemy.tint(color), false, 1.6);
+  }
+  enemy.eyes(ctx, 0, 3, 1.05);
+  enemy.line(ctx, -12, -6, -5, -4);
+  enemy.line(ctx, 5, -4, 12, -6);
+  if (enemy.detail(r)) {
+    ctx.beginPath();
+    ctx.moveTo(-3, 13);
+    ctx.quadraticCurveTo(0, 15, 3, 13);
+    enemy.paint(ctx, null, false, '#2e2440', 2);
+  }
+  ctx.restore();
 };
 
-/** 快速敵人 - 流線型水滴形 */
+/** 快速：橫向水滴，短翼片與主體連成同一剪影。 */
 export const drawFast: DrawFn = (ctx, x, y, r, color) => {
-  ctx.save();
-  ctx.translate(x, y);
+  if (!enemy.begin(ctx, x, y, r)) return;
   ctx.beginPath();
-  ctx.moveTo(r * 0.9, 0);
-  ctx.quadraticCurveTo(r * 0.2, -r * 0.9, -r * 0.7, -r * 0.5);
-  ctx.quadraticCurveTo(-r, 0, -r * 0.7, r * 0.5);
-  ctx.quadraticCurveTo(r * 0.2, r * 0.9, r * 0.9, 0);
-  ctx.fillStyle = color;
-  ctx.fill();
-  drawStroke(ctx);
+  ctx.moveTo(23, 0);
+  ctx.bezierCurveTo(12, -14, 1, -18, -9, -14);
+  ctx.lineTo(-18, -21);
+  ctx.lineTo(-18, -11);
+  ctx.bezierCurveTo(-25, -8, -25, 8, -18, 11);
+  ctx.lineTo(-18, 21);
+  ctx.lineTo(-9, 14);
+  ctx.bezierCurveTo(1, 18, 12, 14, 23, 0);
+  ctx.closePath();
+  enemy.paint(ctx, color, true);
+  ctx.beginPath();
+  ctx.moveTo(-17, -10);
+  ctx.quadraticCurveTo(-5, -15, 6, -8);
+  ctx.quadraticCurveTo(-4, -10, -15, -5);
+  ctx.closePath();
+  enemy.paint(ctx, enemy.tint(color), false, '#2e2440', 1.6);
+  enemy.eyes(ctx, 2, 2, 0.88, true);
+  if (enemy.detail(r)) {
+    enemy.line(ctx, -17, 10, -11, 7, '#2e2440', 2);
+    enemy.line(ctx, 3, 11, 7, 10, '#2e2440', 2);
+  }
   ctx.restore();
-  // 速度線
-  ctx.strokeStyle = color + '60';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(x - r * 0.6, y - r * 0.25);
-  ctx.lineTo(x - r * 1.2, y - r * 0.25);
-  ctx.moveTo(x - r * 0.7, y);
-  ctx.lineTo(x - r * 1.4, y);
-  ctx.moveTo(x - r * 0.6, y + r * 0.25);
-  ctx.lineTo(x - r * 1.2, y + r * 0.25);
-  ctx.stroke();
-  drawEyes(ctx, x - r * 0.05, y, r * 0.75, { tiny: true });
 };
 
-/** 精英敵人 - 帶星形裝飾邊框 */
+/** 精英：直立六角徽章，額上的菱形階徽始終保留。 */
 export const drawElite: DrawFn = (ctx, x, y, r, color) => {
-  const spikes = 6;
+  if (!enemy.begin(ctx, x, y, r)) return;
+  enemy.hex(ctx, 0, 0, 23, color, true);
+  enemy.rect(ctx, -15, -5, 30, 23, enemy.tint(color), 7, false, 2.2);
   ctx.beginPath();
-  for (let i = 0; i < spikes * 2; i++) {
-    const angle = (i * Math.PI) / spikes - Math.PI / 2;
-    const dist = i % 2 === 0 ? r * 1.12 : r * 0.82;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist;
-    if (i === 0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
-  }
+  ctx.moveTo(0, -20);
+  ctx.lineTo(5, -13);
+  ctx.lineTo(0, -7);
+  ctx.lineTo(-5, -13);
   ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.fill();
-  drawStroke(ctx, 0.5);
-  // 內核
-  ctx.beginPath();
-  ctx.arc(x, y, r * 0.6, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(0,0,0,0.15)';
-  ctx.fill();
-  drawEyes(ctx, x, y, r);
+  enemy.paint(ctx, '#fff8ef', false, '#2e2440', 2.2);
+  enemy.eyes(ctx, 0, 5, 1, true);
+  if (enemy.detail(r)) {
+    enemy.line(ctx, -17, -2, -17, 5, '#fff8ef', 2);
+    enemy.line(ctx, 17, -2, 17, 5, '#fff8ef', 2);
+    enemy.line(ctx, -3, 14, 3, 14, '#2e2440', 2);
+  }
+  ctx.restore();
 };
 
-/** 極速敵人 - 菱形箭頭 */
+/** 極速：狹長折角閃電箭頭，與水滴快速兵使用不同剪影。 */
 export const drawSpeedy: DrawFn = (ctx, x, y, r, color) => {
+  if (!enemy.begin(ctx, x, y, r)) return;
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x, y - r * 0.65);
-  ctx.lineTo(x - r * 0.7, y);
-  ctx.lineTo(x, y + r * 0.65);
+  ctx.moveTo(24, -2);
+  ctx.lineTo(3, -17);
+  ctx.lineTo(5, -7);
+  ctx.lineTo(-22, -10);
+  ctx.lineTo(-13, 0);
+  ctx.lineTo(-23, 11);
+  ctx.lineTo(-2, 8);
+  ctx.lineTo(-5, 18);
   ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.fill();
-  drawStroke(ctx, 0.5);
-  // 尾部速度線
-  ctx.strokeStyle = color + '50';
-  ctx.lineWidth = 1;
+  enemy.paint(ctx, color, true);
   ctx.beginPath();
-  ctx.moveTo(x - r * 0.5, y - r * 0.2);
-  ctx.lineTo(x - r * 1.4, y - r * 0.2);
-  ctx.moveTo(x - r * 0.6, y);
-  ctx.lineTo(x - r * 1.6, y);
-  ctx.moveTo(x - r * 0.5, y + r * 0.2);
-  ctx.lineTo(x - r * 1.4, y + r * 0.2);
-  ctx.stroke();
-  drawEyes(ctx, x, y, r * 0.6, { tiny: true });
+  ctx.moveTo(8, -6);
+  ctx.lineTo(17, -2);
+  ctx.lineTo(7, 5);
+  ctx.lineTo(10, 0);
+  ctx.lineTo(4, -2);
+  ctx.closePath();
+  enemy.paint(ctx, enemy.tint(color), false, '#2e2440', 1.6);
+  enemy.eyes(ctx, -6, 1, 0.75, true);
+  if (enemy.detail(r)) {
+    enemy.line(ctx, -6, 9, -2, 8, '#2e2440', 1.8);
+  }
+  ctx.restore();
 };
 
-/** 坦克敵人 - 方形身體帶履帶 */
+/** 坦克：圓角方殼、兩側履帶與明亮的橫向眼窗。 */
 export const drawTank: DrawFn = (ctx, x, y, r, color) => {
-  const w = r * 1.6;
-  const h = r * 1.3;
-  // 履帶
-  ctx.fillStyle = '#22222580';
-  ctx.fillRect(x - w / 2 - 3, y - h / 2 + 2, w + 6, h - 4);
-  ctx.strokeStyle = '#ffffff20';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x - w / 2 - 3, y - h / 2 + 2, w + 6, h - 4);
-  // 主體
+  if (!enemy.begin(ctx, x, y, r)) return;
   ctx.beginPath();
-  if (ctx.roundRect) {
-    ctx.roundRect(x - w / 2, y - h / 2, w, h, r * 0.2);
-  } else {
-    ctx.rect(x - w / 2, y - h / 2, w, h);
+  ctx.moveTo(-13, -22);
+  ctx.lineTo(13, -22);
+  ctx.quadraticCurveTo(18, -22, 18, -16);
+  ctx.lineTo(21, -16);
+  ctx.quadraticCurveTo(24, -16, 24, -11);
+  ctx.lineTo(24, 14);
+  ctx.quadraticCurveTo(24, 18, 19, 18);
+  ctx.lineTo(17, 18);
+  ctx.quadraticCurveTo(15, 22, 11, 22);
+  ctx.lineTo(-11, 22);
+  ctx.quadraticCurveTo(-15, 22, -17, 18);
+  ctx.lineTo(-19, 18);
+  ctx.quadraticCurveTo(-24, 18, -24, 14);
+  ctx.lineTo(-24, -11);
+  ctx.quadraticCurveTo(-24, -16, -21, -16);
+  ctx.lineTo(-18, -16);
+  ctx.quadraticCurveTo(-18, -22, -13, -22);
+  ctx.closePath();
+  enemy.paint(ctx, color, true);
+  enemy.rect(ctx, -23, -13, 8, 29, enemy.tint(color), 3, false, 2.2);
+  enemy.rect(ctx, 15, -13, 8, 29, enemy.tint(color), 3, false, 2.2);
+  enemy.rect(ctx, -16, -20, 32, 40, color, 6);
+  enemy.rect(ctx, -7, -16, 14, 6, enemy.tint(color), 2, false, 1.8);
+  enemy.rect(ctx, -13, -4, 26, 15, enemy.tint(color), 5, false, 2.2);
+  enemy.eyes(ctx, 0, 3, 1);
+  if (enemy.detail(r)) {
+    for (let i = 0; i < 4; i += 1) {
+      const ty = -8 + i * 6;
+      enemy.line(ctx, -22, ty, -18, ty, '#2e2440', 1.8);
+      enemy.line(ctx, 18, ty, 22, ty, '#2e2440', 1.8);
+    }
+    enemy.line(ctx, -5, 15, 5, 15, '#2e2440', 2);
   }
-  ctx.fillStyle = color;
-  ctx.fill();
-  drawStroke(ctx, 0.5, 2);
-  // 裝甲中線
-  ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(x - w / 2 + 3, y);
-  ctx.lineTo(x + w / 2 - 3, y);
-  ctx.stroke();
-  drawEyes(ctx, x, y - r * 0.1, r * 0.85, { tiny: true });
+  ctx.restore();
 };
 
-/** 重型敵人 - 六邊形厚甲 */
+/** 重型：寬六角重甲，以額部中線和下顎面罩區別坦克。 */
 export const drawHeavy: DrawFn = (ctx, x, y, r, color) => {
-  // 外六邊形
+  if (!enemy.begin(ctx, x, y, r)) return;
   ctx.beginPath();
-  for (let i = 0; i < 6; i++) {
-    const angle = (i * Math.PI) / 3 - Math.PI / 6;
-    const px = x + Math.cos(angle) * r;
-    const py = y + Math.sin(angle) * r;
-    if (i === 0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
+  ctx.moveTo(-24, 0);
+  ctx.lineTo(-13, -20);
+  ctx.lineTo(13, -20);
+  ctx.lineTo(24, 0);
+  ctx.lineTo(13, 21);
+  ctx.lineTo(-13, 21);
+  ctx.closePath();
+  enemy.paint(ctx, color, true);
+  ctx.beginPath();
+  ctx.moveTo(-20, 0);
+  ctx.lineTo(-13, -13);
+  ctx.lineTo(-10, -3);
+  ctx.lineTo(-13, 13);
+  ctx.closePath();
+  enemy.paint(ctx, enemy.tint(color), false, '#2e2440', 2);
+  ctx.beginPath();
+  ctx.moveTo(20, 0);
+  ctx.lineTo(13, -13);
+  ctx.lineTo(10, -3);
+  ctx.lineTo(13, 13);
+  ctx.closePath();
+  enemy.paint(ctx, enemy.tint(color), false, '#2e2440', 2);
+  enemy.line(ctx, 0, -18, 0, -8, '#2e2440', 3.5);
+  enemy.rect(ctx, -15, -3, 30, 15, '#2e2440', 5, false, 2);
+  enemy.eyes(ctx, 0, 4, 0.97, true);
+  ctx.beginPath();
+  ctx.moveTo(-10, 12);
+  ctx.lineTo(-7, 18);
+  ctx.lineTo(7, 18);
+  ctx.lineTo(10, 12);
+  ctx.lineTo(0, 15);
+  ctx.closePath();
+  enemy.paint(ctx, enemy.tint(color), false, '#2e2440', 2);
+  if (enemy.detail(r)) {
+    enemy.line(ctx, 0, 14, 0, 18, '#2e2440', 1.8);
+    enemy.circle(ctx, -10, -15, 1.5, '#fff8ef', false, 1.2);
+    enemy.circle(ctx, 10, -15, 1.5, '#fff8ef', false, 1.2);
   }
-  ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.fill();
-  drawStroke(ctx, 0.5, 2.5);
-  // 內六邊形裝甲層
+  ctx.restore();
+};
+
+/** 首領：角冠與厚肩甲合為外輪廓，中心是清楚的深紫面罩。 */
+export const drawBoss: DrawFn = (ctx, x, y, r, color) => {
+  if (!enemy.begin(ctx, x, y, r)) return;
   ctx.beginPath();
-  for (let i = 0; i < 6; i++) {
-    const angle = (i * Math.PI) / 3 - Math.PI / 6;
-    const px = x + Math.cos(angle) * r * 0.6;
-    const py = y + Math.sin(angle) * r * 0.6;
-    if (i === 0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
+  ctx.moveTo(-23, -4);
+  ctx.lineTo(-16, -10);
+  ctx.lineTo(-17, -23);
+  ctx.lineTo(-8, -17);
+  ctx.lineTo(0, -25);
+  ctx.lineTo(8, -17);
+  ctx.lineTo(17, -23);
+  ctx.lineTo(16, -10);
+  ctx.lineTo(23, -4);
+  ctx.lineTo(24, 12);
+  ctx.lineTo(15, 18);
+  ctx.lineTo(9, 23);
+  ctx.lineTo(-9, 23);
+  ctx.lineTo(-15, 18);
+  ctx.lineTo(-24, 12);
+  ctx.closePath();
+  enemy.paint(ctx, color, true);
+  enemy.rect(ctx, -11, -16, 22, 6, enemy.tint(color), 2, false, 2);
+  ctx.beginPath();
+  ctx.moveTo(0, -22);
+  ctx.lineTo(3, -18);
+  ctx.lineTo(0, -14);
+  ctx.lineTo(-3, -18);
+  ctx.closePath();
+  enemy.paint(ctx, '#ffd36e', false, '#2e2440', 1.8);
+  ctx.beginPath();
+  ctx.moveTo(-21, -2);
+  ctx.lineTo(-14, -7);
+  ctx.lineTo(-12, 13);
+  ctx.lineTo(-21, 10);
+  ctx.closePath();
+  enemy.paint(ctx, enemy.tint(color), false, '#2e2440', 2.2);
+  ctx.beginPath();
+  ctx.moveTo(21, -2);
+  ctx.lineTo(14, -7);
+  ctx.lineTo(12, 13);
+  ctx.lineTo(21, 10);
+  ctx.closePath();
+  enemy.paint(ctx, enemy.tint(color), false, '#2e2440', 2.2);
+  ctx.beginPath();
+  ctx.moveTo(-12, -5);
+  ctx.lineTo(12, -5);
+  ctx.lineTo(14, 9);
+  ctx.lineTo(7, 18);
+  ctx.lineTo(-7, 18);
+  ctx.lineTo(-14, 9);
+  ctx.closePath();
+  enemy.paint(ctx, '#2e2440', false, '#2e2440', 2);
+  enemy.eyes(ctx, 0, 3, 1.05, true, true);
+  enemy.rect(ctx, -7, 11, 14, 6, color, 2, false, 1.8);
+  if (enemy.detail(r)) {
+    enemy.line(ctx, 0, 12, 0, 16, '#fff8ef', 1.8);
+    enemy.circle(ctx, -18, 5, 1.6, '#fff8ef', false, 1.2);
+    enemy.circle(ctx, 18, 5, 1.6, '#fff8ef', false, 1.2);
   }
-  ctx.closePath();
-  ctx.strokeStyle = 'rgba(0,0,0,0.25)';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  drawEyes(ctx, x, y, r * 0.7, { angry: true });
+  ctx.restore();
 };
 
-/** Boss - 帶皇冠的威嚴外觀 */
-export const drawBoss: DrawFn = (ctx, x, y, r, color, t) => {
-  // 脈動光環
-  const pulse = Math.sin(t * 0.005) * 0.08;
+/** 飛行：固定雙翼與中央吊艙，不使用拍翅或懸浮動畫。 */
+export const drawFlyer: DrawFn = (ctx, x, y, r, color) => {
+  if (!enemy.begin(ctx, x, y, r)) return;
   ctx.beginPath();
-  ctx.arc(x, y, r * (1.15 + pulse), 0, Math.PI * 2);
-  ctx.fillStyle = color + '18';
-  ctx.fill();
-  // 帶刺身體
+  ctx.moveTo(0, -17);
+  ctx.quadraticCurveTo(9, -19, 13, -10);
+  ctx.lineTo(24, -16);
+  ctx.lineTo(22, -1);
+  ctx.lineTo(14, 6);
+  ctx.lineTo(10, 3);
+  ctx.quadraticCurveTo(10, 20, 0, 23);
+  ctx.quadraticCurveTo(-10, 20, -10, 3);
+  ctx.lineTo(-14, 6);
+  ctx.lineTo(-22, -1);
+  ctx.lineTo(-24, -16);
+  ctx.lineTo(-13, -10);
+  ctx.quadraticCurveTo(-9, -19, 0, -17);
+  ctx.closePath();
+  enemy.paint(ctx, color, true);
   ctx.beginPath();
-  const points = 8;
-  for (let i = 0; i < points; i++) {
-    const angle = (i * Math.PI * 2) / points - Math.PI / 2;
-    const dist = i % 2 === 0 ? r * 1.08 : r * 0.82;
-    const px = x + Math.cos(angle) * dist;
-    const py = y + Math.sin(angle) * dist;
-    if (i === 0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
+  ctx.moveTo(-20, -11);
+  ctx.lineTo(-13, -7);
+  ctx.lineTo(-12, 0);
+  ctx.lineTo(-19, -4);
+  ctx.closePath();
+  enemy.paint(ctx, enemy.tint(color), false, '#2e2440', 1.8);
+  ctx.beginPath();
+  ctx.moveTo(20, -11);
+  ctx.lineTo(13, -7);
+  ctx.lineTo(12, 0);
+  ctx.lineTo(19, -4);
+  ctx.closePath();
+  enemy.paint(ctx, enemy.tint(color), false, '#2e2440', 1.8);
+  enemy.ellipse(ctx, 0, 3, 10, 17, enemy.tint(color), false, 2.2);
+  enemy.eyes(ctx, 0, 0, 0.78);
+  enemy.line(ctx, 0, -11, 0, -7, '#2e2440', 2);
+  if (enemy.detail(r)) {
+    enemy.line(ctx, -3, 14, 3, 14, '#2e2440', 2);
   }
+  ctx.restore();
+};
+
+/** 治療：白色醫療軟殼，額部薄荷十字與下方眼睛分開。 */
+export const drawHealer: DrawFn = (ctx, x, y, r, color) => {
+  if (!enemy.begin(ctx, x, y, r)) return;
+  enemy.rect(ctx, -21, -21, 42, 42, color, 12, true);
+  enemy.rect(ctx, -17, -17, 34, 34, '#ffffff', 9, false, 1.8);
+  ctx.beginPath();
+  ctx.moveTo(-3, -16);
+  ctx.lineTo(3, -16);
+  ctx.lineTo(3, -12);
+  ctx.lineTo(7, -12);
+  ctx.lineTo(7, -6);
+  ctx.lineTo(3, -6);
+  ctx.lineTo(3, -2);
+  ctx.lineTo(-3, -2);
+  ctx.lineTo(-3, -6);
+  ctx.lineTo(-7, -6);
+  ctx.lineTo(-7, -12);
+  ctx.lineTo(-3, -12);
   ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.fill();
-  drawStroke(ctx, 0.6, 2);
-  // 皇冠
-  const cy = y - r * 0.7;
-  ctx.fillStyle = '#ffd700';
+  enemy.paint(ctx, '#73dfb4', false, '#2e2440', 1.8);
+  enemy.eyes(ctx, 0, 7, 1.03);
+  if (enemy.detail(r)) {
+    enemy.line(ctx, -20, 1, -18, 1, '#fff8ef', 1.8);
+    enemy.line(ctx, 18, 1, 20, 1, '#fff8ef', 1.8);
+    ctx.beginPath();
+    ctx.moveTo(-3, 14);
+    ctx.quadraticCurveTo(0, 16, 3, 14);
+    enemy.paint(ctx, null, false, '#2e2440', 1.8);
+  }
+  ctx.restore();
+};
+
+/** 生產：單一母體育兒艙，三個幼體標記固定留在腹部視窗內。 */
+export const drawSpawner: DrawFn = (ctx, x, y, r, color) => {
+  if (!enemy.begin(ctx, x, y, r)) return;
   ctx.beginPath();
-  ctx.moveTo(x - r * 0.45, cy + r * 0.12);
-  ctx.lineTo(x - r * 0.4, cy - r * 0.2);
-  ctx.lineTo(x - r * 0.15, cy);
-  ctx.lineTo(x, cy - r * 0.3);
-  ctx.lineTo(x + r * 0.15, cy);
-  ctx.lineTo(x + r * 0.4, cy - r * 0.2);
-  ctx.lineTo(x + r * 0.45, cy + r * 0.12);
+  ctx.moveTo(-16, -18);
+  ctx.quadraticCurveTo(0, -25, 16, -18);
+  ctx.quadraticCurveTo(23, -10, 22, 4);
+  ctx.lineTo(19, 16);
+  ctx.quadraticCurveTo(17, 22, 10, 22);
+  ctx.lineTo(-10, 22);
+  ctx.quadraticCurveTo(-17, 22, -19, 16);
+  ctx.lineTo(-22, 4);
+  ctx.quadraticCurveTo(-23, -10, -16, -18);
   ctx.closePath();
-  ctx.fill();
-  ctx.strokeStyle = '#b8860b';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  drawEyes(ctx, x, y + r * 0.05, r, { glow: true });
-};
-
-/** 飛行敵人 - 帶拍動翅膀 */
-export const drawFlyer: DrawFn = (ctx, x, y, r, color, t) => {
-  const wingFlap = Math.sin(t * 0.015) * 0.4;
-  // 左翼
-  ctx.save();
-  ctx.translate(x - r * 0.5, y - r * 0.1);
-  ctx.rotate(-0.4 + wingFlap);
-  ctx.beginPath();
-  ctx.ellipse(-r * 0.4, 0, r * 0.7, r * 0.22, 0, 0, Math.PI * 2);
-  ctx.fillStyle = color + 'bb';
-  ctx.fill();
+  enemy.paint(ctx, color, true);
+  enemy.ellipse(ctx, 0, -8, 15, 9, enemy.tint(color), false, 2.2);
+  enemy.eyes(ctx, 0, -7, 0.95);
+  enemy.rect(ctx, -17, 4, 34, 14, enemy.tint(color), 6, false, 2.2);
+  for (let i = 0; i < 3; i += 1) {
+    const bx = -10 + i * 10;
+    enemy.circle(ctx, bx, 11, 4.3, color, false, 1.6);
+    if (enemy.detail(r)) {
+      enemy.line(ctx, bx - 1.4, 10, bx - 1.4, 11.5, '#2e2440', 1);
+      enemy.line(ctx, bx + 1.4, 10, bx + 1.4, 11.5, '#2e2440', 1);
+    }
+  }
+  if (enemy.detail(r)) {
+    enemy.line(ctx, -3, 0, 3, 0, '#2e2440', 1.8);
+  }
   ctx.restore();
-  // 右翼
-  ctx.save();
-  ctx.translate(x + r * 0.5, y - r * 0.1);
-  ctx.rotate(0.4 - wingFlap);
-  ctx.beginPath();
-  ctx.ellipse(r * 0.4, 0, r * 0.7, r * 0.22, 0, 0, Math.PI * 2);
-  ctx.fillStyle = color + 'bb';
-  ctx.fill();
-  ctx.restore();
-  // 身體
-  ctx.beginPath();
-  ctx.arc(x, y, r * 0.65, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
-  drawStroke(ctx);
-  drawEyes(ctx, x, y, r * 0.6);
-};
-
-/** 治療敵人 - 帶十字治療標記 */
-export const drawHealer: DrawFn = (ctx, x, y, r, color, t) => {
-  const glow = 0.3 + Math.sin(t * 0.008) * 0.15;
-  // 治療光環
-  ctx.beginPath();
-  ctx.arc(x, y, r * 1.1, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(74, 222, 128, ${glow * 0.2})`;
-  ctx.fill();
-  // 身體
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
-  drawStroke(ctx);
-  // 十字標記
-  const cs = r * 0.35;
-  ctx.fillStyle = '#4ade80';
-  ctx.fillRect(x - cs * 0.3, y - r * 0.5, cs * 0.6, r);
-  ctx.fillRect(x - r * 0.5, y - cs * 0.3, r, cs * 0.6);
-  drawEyes(ctx, x, y + r * 0.2, r * 0.65);
-};
-
-/** 生產敵人 - 史萊姆母體，內含小史萊姆 */
-export const drawSpawner: DrawFn = (ctx, x, y, r, color, t) => {
-  const pulse = Math.sin(t * 0.004) * 0.08;
-
-  // 主體史萊姆（較大，半透明）
-  ctx.beginPath();
-  ctx.arc(x, y, r * (1 + pulse), 0, Math.PI * 2);
-  ctx.fillStyle = color + 'cc';
-  ctx.fill();
-  drawStroke(ctx, 0.4);
-
-  // 主體光澤
-  ctx.beginPath();
-  ctx.arc(x - r * 0.25, y - r * 0.3, r * 0.45, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.25)';
-  ctx.fill();
-
-  // 內部小史萊姆（3個，隨時間輕微移動）
-  const babyOffset1 = Math.sin(t * 0.003) * 0.05;
-  const babyOffset2 = Math.sin(t * 0.003 + 2) * 0.05;
-  const babyOffset3 = Math.sin(t * 0.003 + 4) * 0.05;
-
-  // 小史萊姆 1（左下）
-  ctx.save();
-  ctx.globalAlpha = 0.7;
-  ctx.beginPath();
-  ctx.arc(x - r * 0.35, y + r * (0.2 + babyOffset1), r * 0.28, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  // 小史萊姆光澤
-  ctx.beginPath();
-  ctx.arc(x - r * 0.42, y + r * (0.12 + babyOffset1), r * 0.12, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.4)';
-  ctx.fill();
-  ctx.restore();
-
-  // 小史萊姆 2（右下）
-  ctx.save();
-  ctx.globalAlpha = 0.7;
-  ctx.beginPath();
-  ctx.arc(x + r * 0.32, y + r * (0.25 + babyOffset2), r * 0.25, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  // 小史萊姆光澤
-  ctx.beginPath();
-  ctx.arc(x + r * 0.26, y + r * (0.18 + babyOffset2), r * 0.1, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.4)';
-  ctx.fill();
-  ctx.restore();
-
-  // 小史萊姆 3（中上）
-  ctx.save();
-  ctx.globalAlpha = 0.65;
-  ctx.beginPath();
-  ctx.arc(x + r * 0.05, y - r * (0.15 + babyOffset3), r * 0.22, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  // 小史萊姆光澤
-  ctx.beginPath();
-  ctx.arc(x, y - r * (0.22 + babyOffset3), r * 0.09, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.4)';
-  ctx.fill();
-  ctx.restore();
-
-  // 母體眼睛（溫和的表情）
-  drawEyes(ctx, x, y - r * 0.15, r * 0.85);
-
-  // 生產光環效果（脈動）
-  const glowAlpha = 0.15 + Math.sin(t * 0.005) * 0.1;
-  ctx.beginPath();
-  ctx.arc(x, y, r * 1.25, 0, Math.PI * 2);
-  ctx.strokeStyle = color + Math.floor(glowAlpha * 255).toString(16).padStart(2, '0');
-  ctx.lineWidth = 2;
-  ctx.stroke();
 };
